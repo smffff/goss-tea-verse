@@ -15,72 +15,121 @@ const TeaCup: React.FC<TeaCupProps> = ({ className = '', animated = false }) => 
         xmlns="http://www.w3.org/2000/svg"
         className="w-full h-full"
       >
+        {/* Background Circle */}
+        <circle
+          cx="50"
+          cy="50"
+          r="45"
+          fill="url(#backgroundGradient)"
+          className="opacity-90"
+        />
+        
         {/* Steam */}
         <g className={animated ? 'animate-pulse' : ''}>
           <path
-            d="M35 20 C35 15, 40 15, 40 20 C40 15, 45 15, 45 20"
-            stroke="currentColor"
-            strokeWidth="2"
+            d="M38 22 C38 17, 42 17, 42 22 C42 17, 46 17, 46 22"
+            stroke="#FF6B9D"
+            strokeWidth="2.5"
             fill="none"
-            className="text-ctea-teal opacity-60"
+            className="opacity-80"
           />
           <path
-            d="M45 18 C45 13, 50 13, 50 18 C50 13, 55 13, 55 18"
-            stroke="currentColor"
-            strokeWidth="2"
+            d="M46 20 C46 15, 50 15, 50 20 C50 15, 54 15, 54 20"
+            stroke="#00D4AA"
+            strokeWidth="2.5"
             fill="none"
-            className="text-ctea-pink opacity-40"
+            className="opacity-60"
+          />
+          <path
+            d="M54 22 C54 17, 58 17, 58 22 C58 17, 62 17, 62 22"
+            stroke="#FF9500"
+            strokeWidth="2.5"
+            fill="none"
+            className="opacity-70"
           />
         </g>
         
-        {/* Cup Body */}
+        {/* Cup Body - Modern Style */}
         <path
-          d="M25 30 L25 70 C25 75, 30 80, 35 80 L55 80 C60 80, 65 75, 65 70 L65 30 Z"
+          d="M28 32 L28 68 C28 74, 32 78, 38 78 L62 78 C68 78, 72 74, 72 68 L72 32 Z"
           fill="url(#cupGradient)"
-          stroke="currentColor"
-          strokeWidth="2"
-          className="text-ctea-teal"
-        />
-        
-        {/* Tea liquid */}
-        <path
-          d="M27 32 L27 68 C27 72, 31 76, 35 76 L55 76 C59 76, 63 72, 63 68 L63 32 Z"
-          fill="url(#teaGradient)"
-          className="opacity-80"
-        />
-        
-        {/* Handle */}
-        <path
-          d="M65 45 C75 45, 75 55, 65 55"
-          stroke="currentColor"
+          stroke="#1A0D26"
           strokeWidth="3"
+        />
+        
+        {/* Tea Liquid with Gradient */}
+        <path
+          d="M30 34 L30 66 C30 71, 33 75, 38 75 L62 75 C67 75, 70 71, 70 66 L70 34 Z"
+          fill="url(#teaGradient)"
+          className="opacity-85"
+        />
+        
+        {/* Tea Surface Highlight */}
+        <ellipse
+          cx="50"
+          cy="36"
+          rx="20"
+          ry="3"
+          fill="url(#surfaceGradient)"
+          className="opacity-60"
+        />
+        
+        {/* Handle - Modernized */}
+        <path
+          d="M72 45 C82 45, 82 55, 72 55"
+          stroke="#00D4AA"
+          strokeWidth="4"
           fill="none"
-          className="text-ctea-teal"
+          strokeLinecap="round"
         />
         
         {/* Saucer */}
         <ellipse
-          cx="45"
-          cy="82"
-          rx="25"
-          ry="4"
+          cx="50"
+          cy="80"
+          rx="28"
+          ry="5"
           fill="url(#saucerGradient)"
-          className="opacity-60"
+          className="opacity-70"
         />
         
+        {/* Decorative Drips */}
+        <circle cx="33" cy="75" r="2" fill="#FF6B9D" className="opacity-60" />
+        <circle cx="67" cy="73" r="1.5" fill="#00D4AA" className="opacity-50" />
+        
         <defs>
+          {/* Background Gradient */}
+          <radialGradient id="backgroundGradient" cx="50%" cy="30%" r="70%">
+            <stop offset="0%" stopColor="#FF9500" />
+            <stop offset="50%" stopColor="#FF6B9D" />
+            <stop offset="100%" stopColor="#9B59B6" />
+          </radialGradient>
+          
+          {/* Cup Gradient */}
           <linearGradient id="cupGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#0F766E" />
-            <stop offset="100%" stopColor="#134E4A" />
+            <stop offset="0%" stopColor="#00D4AA" />
+            <stop offset="50%" stopColor="#4DD9D4" />
+            <stop offset="100%" stopColor="#0F766E" />
           </linearGradient>
+          
+          {/* Tea Gradient */}
           <linearGradient id="teaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#F59E0B" />
-            <stop offset="50%" stopColor="#D97706" />
-            <stop offset="100%" stopColor="#92400E" />
+            <stop offset="0%" stopColor="#FF6B9D" />
+            <stop offset="30%" stopColor="#FF9500" />
+            <stop offset="70%" stopColor="#F1C40F" />
+            <stop offset="100%" stopColor="#E67E22" />
           </linearGradient>
+          
+          {/* Surface Gradient */}
+          <linearGradient id="surfaceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#FF6B9D" stopOpacity="0.3" />
+          </linearGradient>
+          
+          {/* Saucer Gradient */}
           <linearGradient id="saucerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#0F766E" />
-            <stop offset="100%" stopColor="#064E3B" />
+            <stop offset="0%" stopColor="#4DD9D4" />
+            <stop offset="100%" stopColor="#00D4AA" />
           </linearGradient>
         </defs>
       </svg>
