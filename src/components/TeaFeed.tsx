@@ -49,7 +49,16 @@ const TeaFeed = () => {
         .limit(20);
 
       if (error) throw error;
-      setSubmissions(data || []);
+      
+      // Transform the data to ensure reactions have the correct type
+      const transformedData = (data || []).map(submission => ({
+        ...submission,
+        reactions: typeof submission.reactions === 'object' && submission.reactions !== null 
+          ? submission.reactions as { hot: number; cold: number; spicy: number }
+          : { hot: 0, cold: 0, spicy: 0 }
+      }));
+      
+      setSubmissions(transformedData);
     } catch (error) {
       console.error('Error fetching submissions:', error);
     } finally {
