@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,14 +62,42 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// CTea Brand Colors
+				ctea: {
+					'dark': '#1a0d26',
+					'darker': '#0f0619',
+					'teal': '#00d4aa',
+					'cyan': '#4dd9d4',
+					'pink': '#ff1b8d',
+					'purple': '#9b59b6',
+					'yellow': '#f1c40f',
+					'orange': '#ff6b35',
 				}
 			},
-			borderRadius: {
-				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+			backgroundImage: {
+				'gradient-ctea': 'linear-gradient(135deg, #ff1b8d 0%, #00d4aa 50%, #9b59b6 100%)',
+				'gradient-dark': 'linear-gradient(135deg, #1a0d26 0%, #0f0619 100%)',
+				'gradient-neon': 'linear-gradient(45deg, #ff1b8d, #00d4aa, #4dd9d4, #9b59b6)',
+			},
+			animation: {
+				'glow': 'glow 2s ease-in-out infinite alternate',
+				'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+				'float': 'float 6s ease-in-out infinite',
 			},
 			keyframes: {
+				glow: {
+					'0%': { 
+						textShadow: '0 0 5px #00d4aa, 0 0 10px #00d4aa, 0 0 15px #00d4aa',
+					},
+					'100%': { 
+						textShadow: '0 0 10px #ff1b8d, 0 0 20px #ff1b8d, 0 0 30px #ff1b8d',
+					},
+				},
+				float: {
+					'0%, 100%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-10px)' },
+				},
 				'accordion-down': {
 					from: {
 						height: '0'
@@ -86,9 +115,10 @@ export default {
 					}
 				}
 			},
-			animation: {
-				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+			borderRadius: {
+				lg: 'var(--radius)',
+				md: 'calc(var(--radius) - 2px)',
+				sm: 'calc(var(--radius) - 4px)'
 			}
 		}
 	},
