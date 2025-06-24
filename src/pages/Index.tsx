@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -32,10 +31,10 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <TeaCup className="w-12 h-12" animated />
+              <img src="/ctea-logo-icon.png" alt="CTEA Logo" className="w-12 h-12" />
               <div>
-                <h1 className="text-2xl font-bold text-white animate-glow">CTea Newsroom</h1>
-                <p className="text-sm text-ctea-teal">Where Crypto Drama Gets Served Hot ☕</p>
+                <h1 className="text-2xl font-bold text-white animate-glow font-montserrat">CTea Newsroom</h1>
+                <p className="text-sm text-ctea-teal font-montserrat">Where Crypto Drama Gets Served Hot ☕</p>
               </div>
             </div>
             
@@ -62,11 +61,11 @@ const Index = () => {
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
-            <TeaCup className="w-32 h-32 mx-auto mb-8" animated />
-            <h1 className="text-6xl font-bold text-white mb-4 animate-glow">
+            <img src="/ctea-logo-full.png" alt="CTEA News Logo" className="w-40 h-40 mx-auto mb-8" />
+            <h1 className="text-6xl font-bold text-white mb-4 animate-glow font-montserrat">
               CTea Newsroom
             </h1>
-            <p className="text-2xl text-ctea-teal mb-4">
+            <p className="text-2xl text-ctea-teal mb-4 font-montserrat">
               Beta Launch • Join the Chaos ☕
             </p>
             <div className="inline-block bg-gradient-to-r from-ctea-pink/20 to-ctea-purple/20 border border-ctea-teal/30 rounded-lg px-4 py-2 mb-8">

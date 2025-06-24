@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -12,10 +11,10 @@ const NotFound = () => {
   return (
     <div className="min-h-screen bg-gradient-dark flex items-center justify-center px-4">
       <Card className="p-8 bg-gradient-to-br from-ctea-dark/80 to-ctea-darker/90 border-ctea-teal/30 neon-border max-w-md w-full text-center">
-        <TeaCup className="w-20 h-20 mx-auto mb-6" animated />
+        <img src="/ctea-logo-icon.png" alt="CTEA Logo" className="w-20 h-20 mx-auto mb-6" />
         
-        <h1 className="text-6xl font-bold text-ctea-teal mb-4">404</h1>
-        <h2 className="text-2xl font-bold text-white mb-4">Tea Not Found ☕</h2>
+        <h1 className="text-6xl font-bold text-ctea-teal mb-4 font-montserrat">404</h1>
+        <h2 className="text-2xl font-bold text-white mb-4 font-montserrat">Tea Not Found ☕</h2>
         
         <p className="text-gray-300 mb-6">
           This page seems to have vanished like a rug pull. The tea you're looking for 

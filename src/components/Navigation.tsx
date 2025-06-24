@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import TeaCup from './TeaCup';
@@ -24,10 +23,10 @@ const Navigation = () => {
         <div className="flex items-center justify-between">
           {/* Logo and Brand */}
           <div className="flex items-center gap-4 cursor-pointer" onClick={() => navigate('/')}>
-            <TeaCup className="w-10 h-10" animated />
+            <img src="/ctea-logo-icon.png" alt="CTEA Logo" className="w-10 h-10" />
             <div>
-              <h1 className="text-xl font-bold text-white animate-glow">CTea Newsroom</h1>
-              <p className="text-xs text-ctea-teal">Beta • Managed Chaos, Served Hot</p>
+              <h1 className="text-xl font-bold text-white animate-glow font-montserrat">CTea Newsroom</h1>
+              <p className="text-xs text-ctea-teal font-montserrat">Beta • Managed Chaos, Served Hot</p>
             </div>
           </div>
 
