@@ -1,12 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Heart, MessageCircle, Share2, Flag, ExternalLink, Flame, Snowflake } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserProgression } from '@/hooks/useUserProgression';
-import AICommentary from './AICommentary';
-import CommentSection from './CommentSection';
+import TeaSubmissionCard from './TeaSubmissionCard';
 
 interface TeaSubmission {
   id: string;
@@ -174,27 +171,6 @@ const TeaFeed = () => {
     });
   };
 
-  const getCategoryEmoji = (category: string) => {
-    const emojis: { [key: string]: string } = {
-      gossip: '☕',
-      drama: '🎭',
-      rumors: '👂',
-      exposed: '👀',
-      memes: '🐸'
-    };
-    return emojis[category] || '☕';
-  };
-
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    return `${Math.floor(diffInHours / 24)}d ago`;
-  };
-
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -216,128 +192,15 @@ const TeaFeed = () => {
   return (
     <div className="space-y-6">
       {submissions.map((submission) => (
-        <Card key={submission.id} className="p-6 bg-gradient-to-br from-ctea-dark/80 to-ctea-darker/90 border-ctea-teal/30 neon-border">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Badge className="bg-gradient-to-r from-ctea-purple to-ctea-pink text-white">
-                {getCategoryEmoji(submission.category)} {submission.category}
-              </Badge>
-              {submission.has_evidence && (
-                <Badge variant="outline" className="border-ctea-yellow text-ctea-yellow">
-                  📸 Evidence
-                </Badge>
-              )}
-            </div>
-            <span className="text-sm text-gray-400">{formatTimeAgo(submission.created_at)}</span>
-          </div>
-
-          {/* Content */}
-          <div className="mb-4">
-            <p className="text-white leading-relaxed">{submission.content}</p>
-          </div>
-
-          {/* Evidence Links */}
-          {submission.evidence_urls && submission.evidence_urls.length > 0 && (
-            <div className="mb-4 space-y-2">
-              <p className="text-sm text-ctea-teal font-medium">Evidence:</p>
-              {submission.evidence_urls.map((url, index) => (
-                <a
-                  key={index}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-ctea-teal hover:text-ctea-cyan transition-colors"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  <span className="text-sm underline">Evidence {index + 1}</span>
-                </a>
-              ))}
-            </div>
-          )}
-
-          {/* Reactions */}
-          <div className="flex items-center gap-4 mb-4">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handleReaction(submission.id, 'hot')}
-              className="border-ctea-orange/30 text-ctea-orange hover:bg-ctea-orange/10"
-            >
-              <Flame className="w-4 h-4 mr-1" />
-              Hot {submission.reactions.hot || 0}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handleReaction(submission.id, 'cold')}
-              className="border-ctea-cyan/30 text-ctea-cyan hover:bg-ctea-cyan/10"
-            >
-              <Snowflake className="w-4 h-4 mr-1" />
-              Cold {submission.reactions.cold || 0}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handleReaction(submission.id, 'spicy')}
-              className="border-ctea-pink/30 text-ctea-pink hover:bg-ctea-pink/10"
-            >
-              🌶️ Spicy {submission.reactions.spicy || 0}
-            </Button>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center justify-between">
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => toggleComments(submission.id)}
-                className="border-ctea-teal/30 text-ctea-teal hover:bg-ctea-teal/10"
-              >
-                <MessageCircle className="w-4 h-4 mr-1" />
-                Comments
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => generateAICommentary(submission)}
-                className="border-ctea-purple/30 text-ctea-purple hover:bg-ctea-purple/10"
-              >
-                🤖 AI Take
-              </Button>
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" variant="ghost" className="text-gray-400 hover:text-ctea-teal">
-                <Share2 className="w-4 h-4" />
-              </Button>
-              <Button size="sm" variant="ghost" className="text-gray-400 hover:text-ctea-pink">
-                <Flag className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-
-          {/* AI Comments */}
-          {aiComments[submission.id] && aiComments[submission.id].length > 0 && (
-            <div className="mt-4 space-y-3">
-              {aiComments[submission.id].map((comment) => (
-                <AICommentary
-                  key={comment.id}
-                  content={comment.content}
-                  type={comment.type}
-                  onRegenerate={() => generateAICommentary(submission)}
-                />
-              ))}
-            </div>
-          )}
-
-          {/* Comments Section */}
-          {expandedSubmissions.has(submission.id) && (
-            <div className="mt-4">
-              <CommentSection submissionId={submission.id} />
-            </div>
-          )}
-        </Card>
+        <TeaSubmissionCard
+          key={submission.id}
+          submission={submission}
+          aiComments={aiComments[submission.id] || []}
+          isExpanded={expandedSubmissions.has(submission.id)}
+          onReaction={handleReaction}
+          onToggleComments={toggleComments}
+          onGenerateAI={generateAICommentary}
+        />
       ))}
     </div>
   );
