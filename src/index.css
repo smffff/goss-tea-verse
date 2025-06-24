@@ -139,6 +139,33 @@
     }
   }
 
+  @keyframes neon-glow {
+    0%, 100% {
+      box-shadow: 0 0 5px rgba(255, 27, 141, 0.5), 0 0 10px rgba(255, 27, 141, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(255, 27, 141, 0.8), 0 0 30px rgba(255, 27, 141, 0.6), 0 0 40px rgba(255, 27, 141, 0.4);
+    }
+  }
+
+  @keyframes scale-pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
   .animate-marquee {
     animation: marquee 30s linear infinite;
   }
@@ -149,6 +176,51 @@
 
   .animate-glow {
     animation: glow 2s ease-in-out infinite;
+  }
+
+  .animate-neon-glow {
+    animation: neon-glow 2s ease-in-out infinite;
+  }
+
+  .animate-scale-pulse {
+    animation: scale-pulse 2s ease-in-out infinite;
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  /* Enhanced button styles */
+  .btn-primary {
+    @apply bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold uppercase tracking-wide px-6 py-3 rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300;
+  }
+
+  .btn-secondary {
+    @apply border-2 border-cyan-500 text-cyan-600 hover:bg-cyan-50 font-bold uppercase tracking-wide px-6 py-3 rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300;
+  }
+
+  .btn-glow {
+    @apply btn-primary animate-neon-glow;
+  }
+
+  /* Enhanced card styles */
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:scale-105 transform;
+  }
+
+  .card-gradient {
+    @apply bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200;
+  }
+
+  /* Enhanced text styles */
+  .text-gradient {
+    @apply bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 bg-clip-text text-transparent;
+  }
+
+  .text-glow {
+    @apply text-gradient animate-glow;
   }
 
   /* Mobile-first responsive container */
