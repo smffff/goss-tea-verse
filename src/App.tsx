@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navigation from "./components/Navigation";
+import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Feed from "./pages/Feed";
 import SubmitTea from "./pages/SubmitTea";
@@ -14,7 +15,8 @@ const App = () => (
     <div className="app">
       <Navigation />
       <Routes>
-        <Route path="/" element={<Index />} />
+        <Route path="/" element={<Landing />} />
+        <Route path="/app" element={<Index />} />
         <Route path="/feed" element={<Feed />} />
         <Route path="/submit" element={<SubmitTea />} />
         <Route path="/campaigns" element={<Campaigns />} />

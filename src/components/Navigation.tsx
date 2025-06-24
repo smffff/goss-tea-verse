@@ -14,8 +14,13 @@ const Navigation = () => {
   const navigate = useNavigate();
   const { userProgression } = useUserProgression();
 
+  // Hide navigation on landing page
+  if (location.pathname === '/') {
+    return null;
+  }
+
   const navigationItems = [
-    { path: '/', label: 'Home', icon: <Home className="w-4 h-4" /> },
+    { path: '/app', label: 'Home', icon: <Home className="w-4 h-4" /> },
     { path: '/feed', label: 'Feed', icon: <TrendingUp className="w-4 h-4" /> },
     { path: '/trends', label: 'Trends', icon: <Activity className="w-4 h-4" /> },
     { path: '/submit', label: 'Submit', icon: <Plus className="w-4 h-4" /> },
@@ -71,7 +76,7 @@ const Navigation = () => {
   }, [darkMode]);
 
   const handleLogoClick = () => {
-    navigate('/');
+    navigate('/app');
     setIsMenuOpen(false);
   };
 
