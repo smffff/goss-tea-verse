@@ -111,6 +111,46 @@
 }
 
 @layer components {
+  /* Custom animations for landing page */
+  @keyframes marquee {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes glow {
+    0%, 100% {
+      box-shadow: 0 0 5px rgba(147, 51, 234, 0.5);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(147, 51, 234, 0.8), 0 0 30px rgba(147, 51, 234, 0.6);
+    }
+  }
+
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite;
+  }
+
   /* Mobile-first responsive container */
   .container-responsive {
     @apply w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16;
@@ -201,33 +241,30 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, 
-      rgba(255, 27, 141, 0.05) 0%, 
-      rgba(0, 212, 170, 0.05) 50%, 
-      rgba(155, 89, 182, 0.05) 100%);
+    background: radial-gradient(circle at 50% 50%, rgba(0, 212, 170, 0.1) 0%, transparent 70%);
     pointer-events: none;
   }
 
   /* Neon Border Effect */
   .neon-border {
-    border: 1px solid rgba(0, 212, 170, 0.3);
-    box-shadow: 
-      0 0 5px rgba(0, 212, 170, 0.2),
-      inset 0 0 5px rgba(0, 212, 170, 0.1);
+    border: 2px solid transparent;
+    background: linear-gradient(45deg, #00d4aa, #ff1b8d, #00d4aa) border-box;
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) padding-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
   }
 
   .neon-border:hover {
-    border-color: rgba(255, 27, 141, 0.5);
-    box-shadow: 
-      0 0 10px rgba(255, 27, 141, 0.3),
-      inset 0 0 10px rgba(255, 27, 141, 0.1);
+    background: linear-gradient(45deg, #00d4aa, #ff1b8d, #00d4aa, #00d4aa) border-box;
+    animation: glow 2s ease-in-out infinite;
   }
 
-  /* Glitch Text Effect */
+  /* Glitch Effect */
   .glitch {
     position: relative;
-    color: #00d4aa;
-    font-weight: bold;
+    animation: glitch-1 2s infinite linear alternate-reverse;
   }
 
   .glitch::before,
@@ -241,14 +278,14 @@
   }
 
   .glitch::before {
-    animation: glitch-1 0.5s infinite;
-    color: #ff1b8d;
+    animation: glitch-2 2s infinite linear alternate-reverse;
+    color: #00d4aa;
     z-index: -1;
   }
 
   .glitch::after {
-    animation: glitch-2 0.5s infinite;
-    color: #9b59b6;
+    animation: glitch-1 2s infinite linear alternate-reverse;
+    color: #ff1b8d;
     z-index: -2;
   }
 
@@ -257,7 +294,7 @@
       transform: translate(0);
     }
     15%, 49% {
-      transform: translate(-2px, -1px);
+      transform: translate(-2px, 2px);
     }
   }
 
@@ -266,453 +303,364 @@
       transform: translate(0);
     }
     21%, 62% {
-      transform: translate(2px, 1px);
+      transform: translate(2px, -2px);
     }
   }
 
-  /* Retro Button Styles */
+  /* Retro Button Style */
   .retro-button {
-    background: linear-gradient(135deg, #ff1b8d 0%, #00d4aa 100%);
+    background: linear-gradient(45deg, #00d4aa, #ff1b8d);
     border: 2px solid #00d4aa;
-    color: white;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    box-shadow: 0 0 10px rgba(0, 212, 170, 0.5);
     transition: all 0.3s ease;
   }
 
   .retro-button:hover {
-    background: linear-gradient(135deg, #00d4aa 0%, #ff1b8d 100%);
-    box-shadow: 0 0 20px rgba(0, 212, 170, 0.5);
+    box-shadow: 0 0 20px rgba(0, 212, 170, 0.8);
     transform: translateY(-2px);
   }
 
-  /* Vaporwave Card */
+  /* Vaporwave Card Style */
   .vaporwave-card {
-    background: linear-gradient(135deg, 
-      rgba(26, 13, 38, 0.8) 0%, 
-      rgba(15, 6, 25, 0.9) 100%);
-    border: 1px solid rgba(0, 212, 170, 0.3);
+    background: linear-gradient(135deg, rgba(147, 51, 234, 0.1), rgba(236, 72, 153, 0.1));
+    border: 1px solid rgba(147, 51, 234, 0.3);
     backdrop-filter: blur(10px);
-    transition: all 0.3s ease;
   }
 
   .vaporwave-card:hover {
-    border-color: rgba(255, 27, 141, 0.5);
-    box-shadow: 0 0 30px rgba(255, 27, 141, 0.2);
+    border-color: rgba(147, 51, 234, 0.6);
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
   }
 
-  /* Neon Text Effects */
+  /* Neon Text Effect */
   .neon-text {
-    text-shadow: 
-      0 0 5px #00d4aa,
-      0 0 10px #00d4aa,
-      0 0 15px #00d4aa,
-      0 0 20px #00d4aa;
+    color: #00d4aa;
+    text-shadow: 0 0 5px #00d4aa, 0 0 10px #00d4aa, 0 0 15px #00d4aa;
   }
 
   .neon-text-pink {
-    text-shadow: 
-      0 0 5px #ff1b8d,
-      0 0 10px #ff1b8d,
-      0 0 15px #ff1b8d,
-      0 0 20px #ff1b8d;
+    color: #ff1b8d;
+    text-shadow: 0 0 5px #ff1b8d, 0 0 10px #ff1b8d, 0 0 15px #ff1b8d;
   }
 
-  /* Mobile-first responsive form elements */
+  /* Responsive form elements */
   .input-responsive {
     @apply w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base;
   }
 
   .textarea-responsive {
-    @apply w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base min-h-[100px] sm:min-h-[120px] md:min-h-[150px];
+    @apply w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base min-h-[100px] sm:min-h-[120px];
   }
 
-  /* Mobile-first responsive images */
   .img-responsive {
-    @apply w-full h-auto object-cover;
+    @apply w-full h-auto max-w-full;
   }
 
-  /* Mobile-first responsive icons */
   .icon-responsive {
-    @apply w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6;
+    @apply w-4 h-4 sm:w-5 sm:h-5;
   }
 
   .icon-responsive-lg {
-    @apply w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10;
+    @apply w-6 h-6 sm:w-8 sm:h-8;
   }
 
-  /* Mobile-first responsive badges */
   .badge-responsive {
     @apply px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm;
   }
 
-  /* Mobile-first responsive tables */
   .table-responsive {
     @apply w-full overflow-x-auto;
   }
 
   .table-responsive table {
-    @apply min-w-full text-sm sm:text-base;
+    @apply min-w-full;
   }
 
-  /* Mobile-first responsive lists */
   .list-responsive {
-    @apply space-y-2 sm:space-y-3 md:space-y-4;
+    @apply space-y-2 sm:space-y-3;
   }
 
-  /* Mobile-first responsive dividers */
   .divider-responsive {
     @apply my-4 sm:my-6 md:my-8;
   }
 
-  /* Mobile-first responsive animations */
   .animate-responsive {
     @apply transition-all duration-300 ease-in-out;
   }
 
-  /* Mobile-first responsive shadows */
   .shadow-responsive {
-    @apply shadow-lg sm:shadow-xl md:shadow-2xl;
+    @apply shadow-sm sm:shadow-md lg:shadow-lg;
   }
 
-  /* Mobile-first responsive borders */
   .border-responsive {
     @apply border border-gray-200 dark:border-gray-700;
   }
 
-  /* Mobile-first responsive rounded corners */
   .rounded-responsive {
-    @apply rounded-lg sm:rounded-xl md:rounded-2xl;
+    @apply rounded-lg sm:rounded-xl;
   }
 
-  /* Mobile-first responsive opacity */
   .opacity-responsive {
-    @apply opacity-90 hover:opacity-100 transition-opacity duration-200;
+    @apply opacity-90 sm:opacity-95;
   }
 
-  /* Mobile-first responsive z-index */
   .z-responsive {
-    @apply z-10 sm:z-20 md:z-30 lg:z-40;
+    @apply z-10 sm:z-20 lg:z-30;
   }
 
-  /* Mobile-first responsive overflow */
   .overflow-responsive {
-    @apply overflow-hidden sm:overflow-visible;
+    @apply overflow-hidden;
   }
 
-  /* Mobile-first responsive position */
   .position-responsive {
-    @apply relative sm:static;
+    @apply relative sm:relative;
   }
 
-  /* Mobile-first responsive display */
   .display-responsive {
-    @apply block sm:inline-block;
+    @apply block sm:block;
   }
 
-  /* Mobile-first responsive flex */
   .flex-responsive {
     @apply flex flex-col sm:flex-row;
   }
 
-  /* Mobile-first responsive justify */
   .justify-responsive {
-    @apply justify-start sm:justify-center md:justify-between;
+    @apply justify-start sm:justify-center;
   }
 
-  /* Mobile-first responsive align */
   .align-responsive {
     @apply items-start sm:items-center;
   }
 
-  /* Mobile-first responsive gap */
   .gap-responsive {
-    @apply gap-2 sm:gap-4 md:gap-6 lg:gap-8;
+    @apply gap-2 sm:gap-4 md:gap-6;
   }
 
-  /* Mobile-first responsive margin */
   .margin-responsive {
-    @apply m-2 sm:m-4 md:m-6 lg:m-8;
+    @apply m-2 sm:m-4 md:m-6;
   }
 
-  /* Mobile-first responsive padding */
   .padding-responsive {
-    @apply p-2 sm:p-4 md:p-6 lg:p-8;
+    @apply p-2 sm:p-4 md:p-6;
   }
 
-  /* Mobile-first responsive width */
   .width-responsive {
-    @apply w-full sm:w-auto md:w-full lg:w-auto;
+    @apply w-full sm:w-auto;
   }
 
-  /* Mobile-first responsive height */
   .height-responsive {
-    @apply h-auto sm:h-full;
+    @apply h-auto sm:h-auto;
   }
 
-  /* Mobile-first responsive max-width */
   .max-width-responsive {
-    @apply max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl;
+    @apply max-w-full sm:max-w-none;
   }
 
-  /* Mobile-first responsive min-width */
   .min-width-responsive {
-    @apply min-w-0 sm:min-w-[200px] md:min-w-[300px];
+    @apply min-w-0 sm:min-w-0;
   }
 
-  /* Mobile-first responsive aspect ratio */
   .aspect-responsive {
-    @apply aspect-square sm:aspect-video md:aspect-[16/9];
+    @apply aspect-square sm:aspect-video;
   }
 
-  /* Mobile-first responsive object fit */
   .object-responsive {
-    @apply object-cover sm:object-contain md:object-cover;
+    @apply object-cover;
   }
 
-  /* Mobile-first responsive background */
   .bg-responsive {
-    @apply bg-cover bg-center bg-no-repeat;
+    @apply bg-white dark:bg-gray-900;
   }
 
-  /* Mobile-first responsive backdrop */
   .backdrop-responsive {
-    @apply backdrop-blur-sm sm:backdrop-blur-md md:backdrop-blur-lg;
+    @apply backdrop-blur-sm;
   }
 
-  /* Mobile-first responsive filter */
   .filter-responsive {
-    @apply filter-none sm:filter md:filter-lg;
+    @apply filter-none;
   }
 
-  /* Mobile-first responsive transform */
   .transform-responsive {
-    @apply transform-none sm:transform md:transform-lg;
+    @apply transform-none;
   }
 
-  /* Mobile-first responsive transition */
   .transition-responsive {
-    @apply transition-all duration-200 ease-in-out sm:duration-300 md:duration-500;
+    @apply transition-all duration-300 ease-in-out;
   }
 
-  /* Mobile-first responsive animation */
   .animation-responsive {
-    @apply animate-none sm:animate-pulse md:animate-bounce;
+    @apply animate-none;
   }
 
-  /* Mobile-first responsive cursor */
   .cursor-responsive {
-    @apply cursor-pointer sm:cursor-default md:cursor-pointer;
+    @apply cursor-pointer;
   }
 
-  /* Mobile-first responsive pointer events */
   .pointer-responsive {
-    @apply pointer-events-auto sm:pointer-events-none md:pointer-events-auto;
+    @apply pointer-events-auto;
   }
 
-  /* Mobile-first responsive user select */
   .select-responsive {
-    @apply select-none sm:select-text md:select-none;
+    @apply select-none;
   }
 
-  /* Mobile-first responsive resize */
   .resize-responsive {
-    @apply resize-none sm:resize md:resize-y;
+    @apply resize-none;
   }
 
-  /* Mobile-first responsive scroll */
   .scroll-responsive {
-    @apply scroll-smooth sm:scroll-auto md:scroll-smooth;
+    @apply scroll-smooth;
   }
 
-  /* Mobile-first responsive snap */
   .snap-responsive {
-    @apply snap-none sm:snap-x md:snap-y;
+    @apply snap-start;
   }
 
-  /* Mobile-first responsive touch */
   .touch-responsive {
-    @apply touch-auto sm:touch-none md:touch-auto;
+    @apply touch-manipulation;
   }
 
-  /* Mobile-first responsive will change */
   .will-change-responsive {
-    @apply will-change-auto sm:will-change-transform md:will-change-auto;
+    @apply will-change-auto;
   }
 
-  /* Mobile-first responsive fill */
   .fill-responsive {
-    @apply fill-current sm:fill-none md:fill-current;
+    @apply fill-current;
   }
 
-  /* Mobile-first responsive stroke */
   .stroke-responsive {
-    @apply stroke-current sm:stroke-none md:stroke-current;
+    @apply stroke-current;
   }
 
-  /* Mobile-first responsive stroke width */
   .stroke-width-responsive {
-    @apply stroke-1 sm:stroke-2 md:stroke-1;
+    @apply stroke-2;
   }
 
-  /* Mobile-first responsive fill rule */
   .fill-rule-responsive {
-    @apply fill-rule-nonzero sm:fill-rule-evenodd md:fill-rule-nonzero;
+    @apply fill-rule-evenodd;
   }
 
-  /* Mobile-first responsive clip rule */
   .clip-rule-responsive {
-    @apply clip-rule-nonzero sm:clip-rule-evenodd md:clip-rule-nonzero;
+    @apply clip-rule-evenodd;
   }
 
-  /* Mobile-first responsive vector effect */
   .vector-effect-responsive {
-    @apply vector-effect-none sm:vector-effect-non-scaling-stroke md:vector-effect-none;
+    @apply vector-effect-none;
   }
 
-  /* Mobile-first responsive mask */
   .mask-responsive {
-    @apply mask-none sm:mask-clip md:mask-none;
+    @apply mask-none;
   }
 
-  /* Mobile-first responsive mask type */
   .mask-type-responsive {
-    @apply mask-type-alpha sm:mask-type-luminance md:mask-type-alpha;
+    @apply mask-type-alpha;
   }
 
-  /* Mobile-first responsive mask size */
   .mask-size-responsive {
-    @apply mask-size-auto sm:mask-size-contain md:mask-size-auto;
+    @apply mask-size-auto;
   }
 
-  /* Mobile-first responsive mask repeat */
   .mask-repeat-responsive {
-    @apply mask-repeat-no-repeat sm:mask-repeat-repeat md:mask-repeat-no-repeat;
+    @apply mask-repeat-no-repeat;
   }
 
-  /* Mobile-first responsive mask position */
   .mask-position-responsive {
-    @apply mask-position-center sm:mask-position-top md:mask-position-center;
+    @apply mask-position-center;
   }
 
-  /* Mobile-first responsive mask origin */
   .mask-origin-responsive {
-    @apply mask-origin-border sm:mask-origin-padding md:mask-origin-border;
+    @apply mask-origin-border-box;
   }
 
-  /* Mobile-first responsive mask clip */
   .mask-clip-responsive {
-    @apply mask-clip-border sm:mask-clip-padding md:mask-clip-border;
+    @apply mask-clip-border-box;
   }
 
-  /* Mobile-first responsive mask composite */
   .mask-composite-responsive {
-    @apply mask-composite-add sm:mask-composite-subtract md:mask-composite-add;
+    @apply mask-composite-add;
   }
 
-  /* Mobile-first responsive mask mode */
   .mask-mode-responsive {
-    @apply mask-mode-match-source sm:mask-mode-alpha md:mask-mode-match-source;
+    @apply mask-mode-alpha;
   }
 
-  /* Mobile-first responsive isolation */
   .isolation-responsive {
-    @apply isolation-auto sm:isolation-isolate md:isolation-auto;
+    @apply isolation-auto;
   }
 
-  /* Mobile-first responsive mix blend mode */
   .mix-blend-responsive {
-    @apply mix-blend-normal sm:mix-blend-multiply md:mix-blend-normal;
+    @apply mix-blend-normal;
   }
 
-  /* Mobile-first responsive background blend mode */
   .bg-blend-responsive {
-    @apply bg-blend-normal sm:bg-blend-multiply md:bg-blend-normal;
+    @apply bg-blend-normal;
   }
 
-  /* Mobile-first responsive color scheme */
   .color-scheme-responsive {
-    @apply color-scheme-light sm:color-scheme-dark md:color-scheme-light;
+    @apply color-scheme-light dark:color-scheme-dark;
   }
 
-  /* Mobile-first responsive forced color adjust */
   .forced-color-adjust-responsive {
-    @apply forced-color-adjust-auto sm:forced-color-adjust-none md:forced-color-adjust-auto;
+    @apply forced-color-adjust-auto;
   }
 
-  /* Mobile-first responsive print color adjust */
   .print-color-adjust-responsive {
-    @apply print-color-adjust-economy sm:print-color-adjust-exact md:print-color-adjust-economy;
+    @apply print-color-adjust-economy;
   }
 
-  /* Mobile-first responsive accent color */
   .accent-color-responsive {
-    @apply accent-color-auto sm:accent-color-current md:accent-color-auto;
+    @apply accent-color-auto;
   }
 
-  /* Mobile-first responsive caret color */
   .caret-color-responsive {
-    @apply caret-color-auto sm:caret-color-current md:caret-color-auto;
+    @apply caret-color-auto;
   }
 
-  /* Mobile-first responsive scrollbar color */
   .scrollbar-color-responsive {
-    @apply scrollbar-color-auto sm:scrollbar-color-current md:scrollbar-color-auto;
+    @apply scrollbar-color-auto;
   }
 
-  /* Mobile-first responsive scrollbar width */
   .scrollbar-width-responsive {
-    @apply scrollbar-width-auto sm:scrollbar-width-thin md:scrollbar-width-auto;
+    @apply scrollbar-width-auto;
   }
 
-  /* Mobile-first responsive scrollbar gutter */
   .scrollbar-gutter-responsive {
-    @apply scrollbar-gutter-auto sm:scrollbar-gutter-stable md:scrollbar-gutter-auto;
+    @apply scrollbar-gutter-auto;
   }
 
-  /* Mobile-first responsive scroll margin */
   .scroll-margin-responsive {
-    @apply scroll-m-0 sm:scroll-m-4 md:scroll-m-0;
+    @apply scroll-m-0;
   }
 
-  /* Mobile-first responsive scroll padding */
   .scroll-padding-responsive {
-    @apply scroll-p-0 sm:scroll-p-4 md:scroll-p-0;
+    @apply scroll-p-0;
   }
 
-  /* Mobile-first responsive scroll snap align */
   .scroll-snap-align-responsive {
-    @apply scroll-snap-align-none sm:scroll-snap-align-start md:scroll-snap-align-none;
+    @apply scroll-snap-align-start;
   }
 
-  /* Mobile-first responsive scroll snap stop */
   .scroll-snap-stop-responsive {
-    @apply scroll-snap-stop-normal sm:scroll-snap-stop-always md:scroll-snap-stop-normal;
+    @apply scroll-snap-stop-normal;
   }
 
-  /* Mobile-first responsive scroll snap type */
   .scroll-snap-type-responsive {
-    @apply scroll-snap-type-none sm:scroll-snap-type-x md:scroll-snap-type-none;
+    @apply scroll-snap-type-none;
   }
 
-  /* Mobile-first responsive scroll behavior */
   .scroll-behavior-responsive {
-    @apply scroll-smooth sm:scroll-auto md:scroll-smooth;
+    @apply scroll-behavior-auto;
   }
 
-  /* Mobile-first responsive overscroll behavior */
   .overscroll-responsive {
-    @apply overscroll-auto sm:overscroll-contain md:overscroll-auto;
+    @apply overscroll-auto;
   }
 
-  /* Mobile-first responsive overscroll behavior x */
   .overscroll-x-responsive {
-    @apply overscroll-x-auto sm:overscroll-x-contain md:overscroll-x-auto;
+    @apply overscroll-x-auto;
   }
 
-  /* Mobile-first responsive overscroll behavior y */
   .overscroll-y-responsive {
-    @apply overscroll-y-auto sm:overscroll-y-contain md:overscroll-y-auto;
+    @apply overscroll-y-auto;
   }
 }

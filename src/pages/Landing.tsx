@@ -20,7 +20,9 @@ import {
   ExternalLink,
   Copy,
   CheckCircle,
-  ArrowRight
+  ArrowRight,
+  Flame,
+  Clock
 } from 'lucide-react';
 
 const Landing = () => {
@@ -44,10 +46,18 @@ const Landing = () => {
   ];
 
   const testimonials = [
-    "I got the alpha first on CTea! 🚀", 
-    "This is where the real crypto gossip happens 💯",
-    "CTea is the only place I trust for hot takes 🔥",
-    "Finally, a platform that gets crypto culture 👏"
+    { text: "Got the alpha first on CTea.", author: "@anonape" },
+    { text: "The meme-to-signal ratio is perfect.", author: "@defidegen" },
+    { text: "Spilled, got tipped. Iconic.", author: "@cteaqueen" },
+    { text: "This queue is boiling 🫖", author: "@teaspiller" }
+  ];
+
+  const trendingTopics = [
+    "🚀 New DeFi protocol launching next week",
+    "🔥 Major exchange listing rumors",
+    "💎 NFT collection floor price manipulation",
+    "⚡ Layer 2 scaling solution alpha",
+    "🎯 Memecoin pump incoming"
   ];
 
   const walletAddresses = {
@@ -77,17 +87,40 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-cyan-50">
+      {/* Trending Ticker */}
+      <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 text-white py-2 overflow-hidden">
+        <div className="flex items-center justify-center space-x-8 animate-marquee">
+          <div className="flex items-center gap-2">
+            <Flame className="w-4 h-4 text-yellow-300" />
+            <span className="text-sm font-medium">TRENDING NOW:</span>
+          </div>
+          {trendingTopics.map((topic, index) => (
+            <span key={index} className="text-sm whitespace-nowrap">{topic}</span>
+          ))}
+        </div>
+      </div>
+
       {/* Hero Section */}
       <section className="relative py-20 sm:py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-ctea-pastel opacity-90"></div>
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-100/20 via-pink-100/20 to-cyan-100/20"></div>
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
             {/* Logo */}
             <div className="flex justify-center mb-8">
               <div className="relative">
-                <Coffee className="w-16 h-16 sm:w-20 sm:h-20 text-purple-600 animate-float" />
+                <img 
+                  src="/ctea-logo-icon.svg" 
+                  alt="CTea Logo" 
+                  className="w-20 h-20 sm:w-24 sm:h-24 animate-float"
+                  onError={(e) => {
+                    // Fallback to Coffee icon if image fails to load
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling!.style.display = 'block';
+                  }}
+                />
+                <Coffee className="w-20 h-20 sm:w-24 sm:h-24 text-purple-600 animate-float hidden" />
                 <div className="absolute -top-2 -right-2">
                   <Zap className="w-6 h-6 text-yellow-500 animate-pulse" />
                 </div>
@@ -120,8 +153,8 @@ const Landing = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
               <Dialog open={showSpillForm} onOpenChange={setShowSpillForm}>
                 <DialogTrigger asChild>
-                  <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold px-8 py-4 text-lg w-full sm:w-auto shadow-lg hover:shadow-xl transition-all duration-300">
-                    <Coffee className="w-5 h-5 mr-2" />
+                  <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold px-8 py-4 text-lg w-full sm:w-auto shadow-lg hover:shadow-xl transition-all duration-300 group">
+                    <Coffee className="w-5 h-5 mr-2 group-hover:animate-bounce" />
                     Spill Tea for Beta Access
                   </Button>
                 </DialogTrigger>
@@ -172,9 +205,9 @@ const Landing = () => {
                 <DialogTrigger asChild>
                   <Button 
                     variant="outline"
-                    className="border-2 border-cyan-500 text-cyan-600 hover:bg-cyan-50 px-8 py-4 text-lg w-full sm:w-auto font-bold shadow-lg hover:shadow-xl transition-all duration-300"
+                    className="border-2 border-cyan-500 text-cyan-600 hover:bg-cyan-50 px-8 py-4 text-lg w-full sm:w-auto font-bold shadow-lg hover:shadow-xl transition-all duration-300 group"
                   >
-                    <Crown className="w-5 h-5 mr-2" />
+                    <Crown className="w-5 h-5 mr-2 group-hover:animate-pulse" />
                     Tip the Gatekeepers for VIP
                   </Button>
                 </DialogTrigger>
@@ -186,6 +219,17 @@ const Landing = () => {
                     <p className="text-sm text-gray-600 text-center">
                       Support the newsroom and get instant VIP access with early features & recognition.
                     </p>
+                    
+                    {/* QR Code Placeholder */}
+                    <div className="flex justify-center mb-4">
+                      <div className="w-32 h-32 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
+                        <div className="text-center">
+                          <div className="w-16 h-16 bg-gray-200 rounded-lg mx-auto mb-2"></div>
+                          <p className="text-xs text-gray-500">QR Code</p>
+                        </div>
+                      </div>
+                    </div>
+                    
                     <div className="space-y-3">
                       {Object.entries(walletAddresses).map(([chain, address]) => (
                         <div key={chain} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -220,9 +264,9 @@ const Landing = () => {
             </div>
 
             {/* Urgency Badge */}
-            <div className="inline-flex items-center gap-2 bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-medium">
-              <Zap className="w-4 h-4" />
-              Beta slots are limited! Get in early.
+            <div className="inline-flex items-center gap-2 bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-medium animate-pulse">
+              <Clock className="w-4 h-4" />
+              This queue is boiling 🫖 - Limited beta slots!
             </div>
           </div>
         </div>
@@ -244,7 +288,7 @@ const Landing = () => {
             <Card className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200">
               <div className="space-y-3">
                 {leaderboardData.map((entry, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+                  <div key={index} className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
                         index === 0 ? 'bg-yellow-100 text-yellow-800' :
@@ -282,14 +326,14 @@ const Landing = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="p-6 bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <Card key={index} className="p-6 bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 hover:scale-105 transform">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center flex-shrink-0">
                     <MessageCircle className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-gray-800 font-medium">"{testimonial}"</p>
-                    <p className="text-sm text-gray-500 mt-2">— @anonuser</p>
+                    <p className="text-gray-800 font-medium">"{testimonial.text}"</p>
+                    <p className="text-sm text-gray-500 mt-2">— {testimonial.author}</p>
                   </div>
                 </div>
               </Card>
