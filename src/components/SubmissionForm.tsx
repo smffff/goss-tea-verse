@@ -97,7 +97,7 @@ const SubmissionForm = () => {
       setEvidenceUrls(['']);
       setImageUrl('');
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Submission error:', error);
       toast({
         title: "Spill Failed",

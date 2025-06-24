@@ -88,6 +88,7 @@ const Navigation = () => {
             size="sm"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden text-white hover:bg-ctea-dark/50"
+            aria-label="Toggle mobile menu"
           >
             {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>

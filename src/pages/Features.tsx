@@ -29,6 +29,7 @@ import MemeRemixer from '@/components/MemeRemixer';
 const Features = () => {
   const navigate = useNavigate();
 
+  // TODO: Replace demo feature content with live data if available
   const features = [
     {
       id: 'ai-commentary',

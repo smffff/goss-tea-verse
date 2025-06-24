@@ -36,7 +36,7 @@ serve(async (req) => {
     }
 
     let commentary = '';
-    let aiToken = 'ai-commentary-bot';
+    const aiToken = 'ai-commentary-bot';
 
     if (isComment && chatRoomId) {
       // Generate AI response to a user comment

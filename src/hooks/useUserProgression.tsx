@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -19,7 +18,7 @@ interface UserLevel {
   min_xp: number;
   max_xp?: number;
   badge_color: string;
-  perks: any;
+  perks: Record<string, unknown>;
 }
 
 export const useUserProgression = () => {
@@ -43,7 +42,7 @@ export const useUserProgression = () => {
       const anonymousToken = getAnonymousToken();
       
       // Get or create user progression
-      let { data: progression, error } = await supabase
+      const { data: progression, error } = await supabase
         .from('user_progression')
         .select('*')
         .eq('anonymous_token', anonymousToken)
@@ -66,7 +65,7 @@ export const useUserProgression = () => {
           .single();
 
         if (createError) throw createError;
-        progression = newProgression;
+        setUserProgression(newProgression);
       } else if (error) {
         throw error;
       }

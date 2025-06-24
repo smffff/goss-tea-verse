@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 const Index = () => {
   const navigate = useNavigate();
 
-  // Mock data for demonstration
+  // TODO: Replace mockLeaderboard with live leaderboard data from backend
   const mockLeaderboard = [
     { rank: 1, username: "SpillMaster3000", score: 15420, badge: 'og' as const, streak: 7, isRising: true },
     { rank: 2, username: "MemeLordSupreme", score: 12350, badge: 'meme-lord' as const, streak: 5 },
@@ -22,6 +22,7 @@ const Index = () => {
     { rank: 5, username: "TeaSpiller", score: 8500, badge: 'drama-king' as const, streak: 2 }
   ];
 
+  // TODO: Replace mockAICommentary with live AI commentary from backend
   const mockAICommentary = "Okay this is absolutely UNHINGED behavior and honestly? We're here for it. The audacity, the drama, the sheer chaos energy... *chef's kiss* 💀 This is why we can't have nice things in crypto, and that's exactly what makes it spicy 🌶️";
 
   return (

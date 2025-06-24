@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -59,7 +58,7 @@ const ImageUpload = ({ onImageUploaded, onImageRemoved, currentImage }: ImageUpl
         title: "Image Uploaded! 📸",
         description: "Your meme is ready to spill with the tea!",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Upload error:', error);
       toast({
         title: "Upload Failed",
@@ -148,6 +147,7 @@ const ImageUpload = ({ onImageUploaded, onImageRemoved, currentImage }: ImageUpl
               className="hidden"
               id="image-upload"
               disabled={isUploading}
+              aria-label="Upload image file"
             />
             <label htmlFor="image-upload" className="cursor-pointer">
               <div className="flex flex-col items-center gap-2">
