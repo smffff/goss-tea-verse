@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { Menu, X, Coffee, TrendingUp, Plus, Trophy, Sparkles } from 'lucide-react';
 import { useUserProgression } from '@/hooks/useUserProgression';
 import UserStats from './UserStats';
@@ -9,6 +10,7 @@ import UserStats from './UserStats';
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { userProgression } = useUserProgression();
 
   const navigationItems = [
