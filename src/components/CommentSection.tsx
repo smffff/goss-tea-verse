@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,7 +36,7 @@ const CommentSection = ({ submissionId }: CommentSectionProps) => {
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setComments(data || []);
+      setComments((data || []) as Comment[]);
     } catch (error) {
       console.error('Error fetching comments:', error);
     } finally {
