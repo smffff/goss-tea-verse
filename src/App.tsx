@@ -26,16 +26,18 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <div className="min-h-screen bg-gradient-dark">
+        <div className="min-h-screen bg-gradient-dark retro-grid">
           <Navigation />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/feed" element={<Feed />} />
-            <Route path="/submit" element={<SubmitTea />} />
-            <Route path="/campaigns" element={<Campaigns />} />
-            <Route path="/features" element={<Features />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <main className="relative z-10">
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/feed" element={<Feed />} />
+              <Route path="/submit" element={<SubmitTea />} />
+              <Route path="/campaigns" element={<Campaigns />} />
+              <Route path="/features" element={<Features />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </main>
         </div>
       </BrowserRouter>
     </TooltipProvider>

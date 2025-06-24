@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Send, Sparkles } from 'lucide-react';
+import { Send, Sparkles, Upload, Link as LinkIcon, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUserProgression } from '@/hooks/useUserProgression';
 import { supabase } from '@/integrations/supabase/client';
@@ -110,53 +110,136 @@ const SubmissionForm = () => {
   };
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-ctea-dark/80 to-ctea-darker/90 border-ctea-teal/30 neon-border">
+    <Card className="card-responsive bg-gradient-to-br from-ctea-dark/80 to-ctea-darker/90 border-ctea-teal/30 neon-border">
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Sparkles className="w-6 h-6 text-ctea-teal" />
-          <h3 className="text-xl font-bold text-white">Spill the Tea ☕</h3>
-          <Badge className="bg-ctea-yellow text-ctea-dark font-bold">+10 $TEA Points</Badge>
+        {/* Header - Mobile responsive */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4 sm:mb-6">
+          <div className="flex items-center gap-3">
+            <Sparkles className="icon-responsive text-ctea-teal" />
+            <h3 className="text-lg sm:text-xl font-bold text-white">Spill the Tea ☕</h3>
+          </div>
+          <Badge className="bg-ctea-yellow text-ctea-dark font-bold badge-responsive self-start sm:self-auto">
+            +10 $TEA Points
+          </Badge>
         </div>
 
-        <CategorySelector 
-          selectedCategory={category}
-          onCategoryChange={setCategory}
-        />
+        {/* Category Selector - Mobile responsive */}
+        <div className="space-y-2">
+          <label className="text-sm sm:text-base font-medium text-white flex items-center gap-2">
+            <Sparkles className="icon-responsive text-ctea-purple" />
+            Category
+          </label>
+          <CategorySelector 
+            selectedCategory={category}
+            onCategoryChange={setCategory}
+          />
+        </div>
 
-        <ContentTextarea 
-          content={content}
-          onContentChange={setContent}
-        />
+        {/* Content Textarea - Mobile responsive */}
+        <div className="space-y-2">
+          <label className="text-sm sm:text-base font-medium text-white flex items-center gap-2">
+            <Send className="icon-responsive text-ctea-teal" />
+            Your Hot Take
+          </label>
+          <ContentTextarea 
+            content={content}
+            onContentChange={setContent}
+          />
+          <p className="text-xs sm:text-sm text-gray-400">
+            {content.length}/500 characters • Be spicy but respectful
+          </p>
+        </div>
 
-        <ImageUpload
-          onImageUploaded={setImageUrl}
-          onImageRemoved={() => setImageUrl('')}
-          currentImage={imageUrl}
-        />
+        {/* Media Upload Section - Mobile responsive */}
+        <div className="space-y-4">
+          <h4 className="text-sm sm:text-base font-medium text-white flex items-center gap-2">
+            <ImageIcon className="icon-responsive text-ctea-pink" />
+            Add Visual Spice (Optional)
+          </h4>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Image Upload */}
+            <div className="space-y-2">
+              <label className="text-xs sm:text-sm text-gray-300 flex items-center gap-1">
+                <Upload className="w-3 h-3 sm:w-4 sm:h-4" />
+                Image/Meme
+              </label>
+              <ImageUpload
+                onImageUploaded={setImageUrl}
+                onImageRemoved={() => setImageUrl('')}
+                currentImage={imageUrl}
+              />
+            </div>
 
-        <EvidenceUrlManager 
-          evidenceUrls={evidenceUrls}
-          onUrlsChange={setEvidenceUrls}
-        />
+            {/* Evidence Links */}
+            <div className="space-y-2">
+              <label className="text-xs sm:text-sm text-gray-300 flex items-center gap-1">
+                <LinkIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+                Evidence Links
+              </label>
+              <EvidenceUrlManager 
+                evidenceUrls={evidenceUrls}
+                onUrlsChange={setEvidenceUrls}
+              />
+            </div>
+          </div>
+        </div>
 
-        {/* Submit Button */}
+        {/* Submission Tips - Mobile responsive */}
+        <div className="bg-ctea-dark/30 border border-ctea-teal/20 rounded-lg p-3 sm:p-4">
+          <h4 className="text-sm sm:text-base font-medium text-white mb-2 flex items-center gap-2">
+            <Sparkles className="icon-responsive text-ctea-yellow" />
+            Pro Tips
+          </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-ctea-teal">•</span>
+              <span className="text-gray-300">Include specific details</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-ctea-teal">•</span>
+              <span className="text-gray-300">Add evidence when possible</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-ctea-teal">•</span>
+              <span className="text-gray-300">Use engaging language</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-ctea-teal">•</span>
+              <span className="text-gray-300">Keep it anonymous</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Submit Button - Mobile responsive */}
         <Button
           type="submit"
           disabled={!content.trim() || isSubmitting}
-          className="w-full bg-gradient-ctea text-white font-bold py-3 hover:opacity-90 disabled:opacity-50"
+          className="w-full bg-gradient-ctea text-white font-bold py-3 sm:py-4 hover:opacity-90 disabled:opacity-50 btn-responsive-lg"
         >
           {isSubmitting ? (
             <>
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Spilling Tea...
+              <span className="text-sm sm:text-base">Spilling Tea...</span>
             </>
           ) : (
             <>
-              <Send className="w-4 h-4 mr-2" />
-              Spill This Tea ☕
+              <Send className="icon-responsive mr-2" />
+              <span className="text-sm sm:text-base">Spill This Tea ☕</span>
             </>
           )}
         </Button>
+
+        {/* Character Count & Status - Mobile responsive */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs sm:text-sm text-gray-400">
+          <div className="flex items-center gap-4">
+            <span>Characters: {content.length}/500</span>
+            <span>Category: {category}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span>Evidence: {evidenceUrls.filter(url => url.trim() !== '').length + (imageUrl ? 1 : 0)} items</span>
+          </div>
+        </div>
       </form>
     </Card>
   );
