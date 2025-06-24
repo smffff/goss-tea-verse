@@ -2,64 +2,77 @@ import React from 'react';
 import SubmissionForm from '@/components/SubmissionForm';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import Layout from '@/components/Layout';
 import { Sparkles, Coffee, TrendingUp, Award } from 'lucide-react';
 
 const SubmitTea = () => {
   return (
-    <div className="min-h-screen bg-gradient-dark retro-grid">
-      {/* Header Section - Mobile First */}
-      <section className="section-responsive">
-        <div className="container-responsive">
-          <div className="text-center mb-6 sm:mb-8">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 sm:mb-4 animate-glow">
+    <Layout>
+      {/* Header Section */}
+      <section className="py-16 sm:py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 animate-glow">
               Spill the Tea ☕
             </h1>
-            <p className="text-base sm:text-lg md:text-xl text-gray-300 mb-6 sm:mb-8">
+            <p className="text-lg sm:text-xl text-gray-300 mb-8">
               Share the juiciest crypto gossip, drama, and receipts. No names needed - be as anonymous as you want.
             </p>
 
-            {/* Benefits Grid - Mobile responsive */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-              <div className="text-center card-responsive bg-ctea-dark/30 border border-ctea-teal/20 rounded-lg">
-                <Coffee className="icon-responsive-lg text-ctea-teal mx-auto mb-3" />
+            {/* Benefits Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+              <div className="text-center bg-ctea-dark/30 border border-ctea-teal/20 rounded-lg p-6">
+                <Coffee className="w-8 h-8 text-ctea-teal mx-auto mb-3" />
                 <h3 className="text-lg font-bold text-white mb-2">Anonymous</h3>
                 <p className="text-gray-300 text-sm">Share without revealing your identity</p>
               </div>
-              <div className="text-center card-responsive bg-ctea-dark/30 border border-ctea-teal/20 rounded-lg">
-                <TrendingUp className="icon-responsive-lg text-ctea-yellow mx-auto mb-3" />
+              <div className="text-center bg-ctea-dark/30 border border-ctea-teal/20 rounded-lg p-6">
+                <TrendingUp className="w-8 h-8 text-ctea-yellow mx-auto mb-3" />
                 <h3 className="text-lg font-bold text-white mb-2">Earn $TEA</h3>
                 <p className="text-gray-300 text-sm">Get rewarded for viral content</p>
               </div>
-              <div className="text-center card-responsive bg-ctea-dark/30 border border-ctea-teal/20 rounded-lg sm:col-span-3 lg:col-span-1">
-                <Award className="icon-responsive-lg text-ctea-pink mx-auto mb-3" />
+              <div className="text-center bg-ctea-dark/30 border border-ctea-teal/20 rounded-lg p-6">
+                <Award className="w-8 h-8 text-ctea-pink mx-auto mb-3" />
                 <h3 className="text-lg font-bold text-white mb-2">Build Rep</h3>
                 <p className="text-gray-300 text-sm">Gain credibility in the community</p>
               </div>
             </div>
 
-            {/* Guidelines - Mobile responsive */}
-            <Card className="card-responsive bg-gradient-to-br from-ctea-purple/20 to-ctea-pink/20 border-ctea-purple/30 mb-6 sm:mb-8">
-              <div className="text-center sm:text-left">
-                <h3 className="text-lg sm:text-xl font-bold text-white mb-3 flex items-center justify-center sm:justify-start gap-2">
-                  <Sparkles className="icon-responsive text-ctea-yellow" />
+            {/* Guidelines */}
+            <Card className="bg-gradient-to-br from-ctea-teal/20 to-ctea-purple/20 border-ctea-teal/30 max-w-2xl mx-auto">
+              <div className="p-6">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-ctea-teal" />
                   Submission Guidelines
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm sm:text-base">
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30 badge-responsive">✓</Badge>
-                    <span className="text-gray-300">Crypto drama & gossip</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">✅</Badge>
+                      <span className="text-gray-300">Include receipts/evidence</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">✅</Badge>
+                      <span className="text-gray-300">Be respectful & factual</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">✅</Badge>
+                      <span className="text-gray-300">Add relevant tags</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30 badge-responsive">✓</Badge>
-                    <span className="text-gray-300">Market insights & rumors</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30 badge-responsive">✓</Badge>
-                    <span className="text-gray-300">Project updates & leaks</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-red-500/20 text-red-400 border-red-500/30 badge-responsive">✗</Badge>
-                    <span className="text-gray-300">Personal attacks</span>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-red-500/20 text-red-400 border-red-500/30">❌</Badge>
+                      <span className="text-gray-300">No personal attacks</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-red-500/20 text-red-400 border-red-500/30">❌</Badge>
+                      <span className="text-gray-300">No fake news/FUD</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-red-500/20 text-red-400 border-red-500/30">❌</Badge>
+                      <span className="text-gray-300">No spam or ads</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -68,9 +81,9 @@ const SubmitTea = () => {
         </div>
       </section>
 
-      {/* Form Section - Mobile First */}
-      <section className="section-responsive">
-        <div className="container-responsive">
+      {/* Main Content */}
+      <section className="py-16 sm:py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Mobile: Single Column */}
           <div className="block lg:hidden">
             <SubmissionForm />
@@ -86,84 +99,62 @@ const SubmitTea = () => {
             {/* Sidebar - 1 column */}
             <div className="space-y-6">
               {/* Recent Submissions */}
-              <Card className="card-responsive bg-ctea-dark/30 border border-ctea-teal/20">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-ctea-teal" />
-                  Recent Hot Takes
-                </h3>
-                <div className="space-y-3">
-                  <div className="p-3 bg-ctea-dark/20 border border-ctea-teal/10 rounded-lg">
-                    <p className="text-white text-sm mb-2">"Solana just dropped another update and the devs are..."</p>
-                    <div className="flex justify-between items-center">
-                      <Badge className="bg-ctea-pink text-white text-xs">🔥 Hot</Badge>
-                      <span className="text-gray-400 text-xs">2 min ago</span>
+              <Card className="bg-ctea-dark/30 border border-ctea-teal/20">
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-ctea-teal" />
+                    Recent Hot Takes
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="p-3 bg-ctea-dark/20 border border-ctea-teal/10 rounded-lg">
+                      <div className="text-sm text-gray-300 mb-1">"Solana just pulled the biggest rug of 2024..."</div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <Badge className="bg-ctea-pink/20 text-ctea-pink border-ctea-pink/30">🔥 Hot</Badge>
+                        <span className="text-gray-400">2 hours ago</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-3 bg-ctea-dark/20 border border-ctea-teal/10 rounded-lg">
-                    <p className="text-white text-sm mb-2">"Ethereum ETF approval rumors are heating up..."</p>
-                    <div className="flex justify-between items-center">
-                      <Badge className="bg-ctea-yellow text-ctea-dark text-xs">📈 Rising</Badge>
-                      <span className="text-gray-400 text-xs">5 min ago</span>
+                    <div className="p-3 bg-ctea-dark/20 border border-ctea-teal/10 rounded-lg">
+                      <div className="text-sm text-gray-300 mb-1">"Ethereum ETF approval rumors heating up..."</div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <Badge className="bg-ctea-yellow/20 text-ctea-yellow border-ctea-yellow/30">📈 Rising</Badge>
+                        <span className="text-gray-400">4 hours ago</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-3 bg-ctea-dark/20 border border-ctea-teal/10 rounded-lg">
-                    <p className="text-white text-sm mb-2">"New meme coin launching on Base..."</p>
-                    <div className="flex justify-between items-center">
-                      <Badge className="bg-ctea-purple text-white text-xs">💎 Viral</Badge>
-                      <span className="text-gray-400 text-xs">8 min ago</span>
+                    <div className="p-3 bg-ctea-dark/20 border border-ctea-teal/10 rounded-lg">
+                      <div className="text-sm text-gray-300 mb-1">"New meme coin launching with suspicious timing..."</div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <Badge className="bg-ctea-purple/20 text-ctea-purple border-ctea-purple/30">💎 Viral</Badge>
+                        <span className="text-gray-400">6 hours ago</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </Card>
 
-              {/* Tips for Success */}
-              <Card className="card-responsive bg-gradient-to-br from-ctea-yellow/20 to-ctea-orange/20 border-ctea-yellow/30">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                  <Award className="w-5 h-5 text-ctea-yellow" />
-                  Tips for Success
-                </h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-start gap-2">
-                    <span className="text-ctea-yellow font-bold">1.</span>
-                    <span className="text-gray-300">Be specific with details and timing</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-ctea-yellow font-bold">2.</span>
-                    <span className="text-gray-300">Include evidence when possible</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-ctea-yellow font-bold">3.</span>
-                    <span className="text-gray-300">Use engaging, spicy language</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-ctea-yellow font-bold">4.</span>
-                    <span className="text-gray-300">Post during peak activity hours</span>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Community Stats */}
-              <Card className="card-responsive bg-ctea-dark/30 border border-ctea-teal/20">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                  <Coffee className="w-5 h-5 text-ctea-pink" />
-                  Submission Stats
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300 text-sm">Today's Submissions</span>
-                    <span className="text-white font-bold">247</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300 text-sm">Approval Rate</span>
-                    <span className="text-green-400 font-bold">94%</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300 text-sm">Avg. $TEA Earned</span>
-                    <span className="text-ctea-yellow font-bold">15.7</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300 text-sm">Viral Posts</span>
-                    <span className="text-ctea-pink font-bold">12</span>
+              {/* Tips & Tricks */}
+              <Card className="bg-gradient-to-br from-ctea-purple/20 to-ctea-pink/20 border-ctea-purple/30">
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-ctea-yellow" />
+                    Pro Tips
+                  </h3>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-start gap-2">
+                      <span className="text-ctea-teal">💡</span>
+                      <span className="text-gray-300">Use relevant hashtags to increase visibility</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-ctea-teal">💡</span>
+                      <span className="text-gray-300">Include screenshots or links as evidence</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-ctea-teal">💡</span>
+                      <span className="text-gray-300">Engage with the community to earn more $TEA</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-ctea-teal">💡</span>
+                      <span className="text-gray-300">Quality over quantity - focus on accuracy</span>
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -171,7 +162,7 @@ const SubmitTea = () => {
           </div>
         </div>
       </section>
-    </div>
+    </Layout>
   );
 };
 
