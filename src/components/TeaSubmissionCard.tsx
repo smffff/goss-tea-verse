@@ -21,6 +21,7 @@ interface TeaSubmission {
   average_rating: number;
   rating_count: number;
   has_evidence: boolean;
+  summary?: string;
 }
 
 interface AIComment {
@@ -71,10 +72,12 @@ const TeaSubmissionCard = ({
   ) || [];
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-ctea-dark/80 to-ctea-darker/90 border-ctea-teal/30 neon-border">
+    <div className="p-6 bg-white dark:bg-dark rounded-lg shadow-lg hover:shadow-2xl transition-shadow border border-gray-100 dark:border-accent mb-2">
       <SubmissionHeader submission={submission} />
       <div className="mb-2">
-        <span className="block text-gray-400 text-sm truncate">{submission.content.slice(0, 100)}{submission.content.length > 100 ? '…' : ''}</span>
+        <span className="block text-gray-500 dark:text-gray-300 text-base font-medium">
+          {submission.summary || submission.content.split(' ').slice(0,25).join(' ') + (submission.content.split(' ').length > 25 ? '...' : '')}
+        </span>
       </div>
       <SubmissionContent content={submission.content} />
       
@@ -174,7 +177,7 @@ const TeaSubmissionCard = ({
           <CommentSection submissionId={submission.id} />
         </div>
       )}
-    </Card>
+    </div>
   );
 };
 

@@ -59,28 +59,13 @@ const Index = () => {
 
       {/* Hero Section with Stronger CTAs */}
       <section className="relative py-20 px-4">
-        <div className="absolute inset-0 pointer-events-none" style={{background: 'linear-gradient(135deg, rgba(0,212,170,0.12) 0%, rgba(255,27,141,0.10) 100%)'}}></div>
+        <div className="absolute inset-0 pointer-events-none" style={{background: 'linear-gradient(135deg, #ffb6e6 0%, #ffddb0 40%, #b6f7ef 100%)'}}></div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <div className="mb-8">
-            <img src="/ctea-logo-full.png" alt="CTEA News Logo" className="w-40 h-40 mx-auto mb-8" />
-            <h1 className="text-6xl font-bold text-white mb-4 animate-glow font-montserrat">
-              CTea Newsroom
-            </h1>
-            <p className="text-2xl text-ctea-teal mb-4 font-montserrat">
-              Where Crypto Drama Gets Served Hot ☕
-            </p>
-            <div className="inline-block bg-gradient-to-r from-ctea-pink/20 to-ctea-purple/20 border border-ctea-teal/30 rounded-lg px-4 py-2 mb-8">
-              <span className="text-ctea-yellow font-bold">🚀 EARLY ACCESS</span>
-              <span className="text-white ml-2">• Earn $TEA Points • Build $SOAP Reputation</span>
-            </div>
-          </div>
-          <div className="max-w-2xl mx-auto mb-12">
-            <p className="text-xl text-gray-300 leading-relaxed">
-              The most unhinged gossip app in Web3. Anonymous spills, AI-powered hot takes, meme templates, and pure chaotic neutral energy. <span className="text-ctea-pink font-bold">No tokens required to start the drama.</span>
-            </p>
-          </div>
+          <img src="/ctea-logo-full.png" alt="CTEA News Logo" className="w-40 h-40 mx-auto mb-8" />
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 animate-glow font-montserrat">CTea Newsroom</h1>
+          <p className="text-2xl text-gray-700 dark:text-accent mb-6 font-montserrat">Where Crypto Twitter Comes to Spill.</p>
           <a href="#stories-feed" className="inline-block">
-            <button className="retro-button text-2xl px-8 py-4 rounded-lg font-bold shadow-lg hover:scale-105 transition-transform">
+            <button className="uppercase px-6 py-3 rounded-lg bg-accent hover:bg-accent2 text-white font-bold shadow-lg transition-colors text-lg tracking-wider">
               Serve the Tea
             </button>
           </a>
@@ -247,27 +232,23 @@ const Index = () => {
       </main>
 
       {/* Enhanced Footer CTA */}
-      <footer className="py-16 px-4 border-t border-ctea-teal/30 bg-ctea-darker/50">
+      <footer className="py-16 px-4 border-t border-accent dark:border-accent bg-ctea-darker/50">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Ready to Join the Beta? ☕
-          </h2>
-          <p className="text-xl text-gray-300 mb-8">
-            Be part of the most chaotic community in crypto. Early access means better rewards and exclusive badges.
-          </p>
+          <h2 className="text-3xl font-bold text-white mb-4">Ready to Join the Beta? ☕</h2>
+          <p className="text-xl text-gray-300 mb-8">Be part of the most chaotic community in crypto. Early access means better rewards and exclusive badges.</p>
           <div className="flex gap-4 justify-center mb-8">
             <Button size="lg" className="bg-gradient-ctea text-white font-bold hover:opacity-90" onClick={() => navigate('/submit')}>
               Spill Your First Tea
             </Button>
-            <Button size="lg" variant="outline" className="border-ctea-purple text-ctea-purple hover:bg-ctea-purple/10" onClick={() => navigate('/feed')}>
+            <Button size="lg" variant="outline" className="border-accent text-accent hover:bg-accent/10 dark:border-accent dark:text-accent hover:dark:bg-accent2/10" onClick={() => navigate('/feed')}>
               Browse the Drama
             </Button>
           </div>
-          <div className="flex flex-wrap gap-6 justify-center text-sm text-gray-400 mb-2">
-            <a href="#about" className="hover:text-ctea-teal transition">About</a>
-            <a href="#contact" className="hover:text-ctea-teal transition">Contact</a>
-            <a href="#privacy" className="hover:text-ctea-teal transition">Privacy</a>
-          </div>
+          <nav className="flex space-x-4 justify-center text-sm text-gray-500 dark:text-gray-400 py-6">
+            <a href="#about" className="hover:underline hover:decoration-accent hover:decoration-2 transition">About</a>
+            <a href="#contact" className="hover:underline hover:decoration-accent hover:decoration-2 transition">Contact</a>
+            <a href="#privacy" className="hover:underline hover:decoration-accent hover:decoration-2 transition">Privacy</a>
+          </nav>
           <div className="text-xs text-gray-600 mt-4">&copy; {new Date().getFullYear()} CTea Newsroom. All rights reserved.</div>
         </div>
       </footer>

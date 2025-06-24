@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserProgression } from '@/hooks/useUserProgression';
@@ -202,7 +201,7 @@ const TeaFeed = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 md:space-y-6">
       <HotTakesFilters
         activeFilter={activeFilter}
         onFilterChange={setActiveFilter}
@@ -221,7 +220,7 @@ const TeaFeed = () => {
           </p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-8 md:space-y-6">
           {submissions.map((submission) => (
             <TeaSubmissionCard
               key={submission.id}

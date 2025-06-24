@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -42,8 +41,8 @@ export default {
 					foreground: 'hsl(var(--muted-foreground))'
 				},
 				accent: {
-					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))'
+					DEFAULT: '#00d1c1',
+					2: '#ff61a6',
 				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
@@ -79,6 +78,7 @@ export default {
 				'gradient-ctea': 'linear-gradient(135deg, #ff1b8d 0%, #00d4aa 50%, #9b59b6 100%)',
 				'gradient-dark': 'linear-gradient(135deg, #1a0d26 0%, #0f0619 100%)',
 				'gradient-neon': 'linear-gradient(45deg, #ff1b8d, #00d4aa, #4dd9d4, #9b59b6)',
+				'gradient-ctea-pastel': 'linear-gradient(135deg, #ffb6e6 0%, #ffddb0 40%, #b6f7ef 100%)',
 			},
 			animation: {
 				'glow': 'glow 2s ease-in-out infinite alternate',
