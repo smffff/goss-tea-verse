@@ -19,4 +19,5 @@ const TestApp = () => {
   );
 };
 
+// Try the main App component
 createRoot(document.getElementById("root")!).render(<App />);
