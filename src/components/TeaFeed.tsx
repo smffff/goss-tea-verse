@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Heart, MessageCircle, Share2, Flag, ExternalLink, Flame, Snowflake } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useUserProgression } from '@/hooks/useUserProgression';
 import AICommentary from './AICommentary';
 import CommentSection from './CommentSection';
 
@@ -33,6 +33,7 @@ const TeaFeed = () => {
   const [aiComments, setAiComments] = useState<{ [key: string]: AIComment[] }>({});
   const [isLoading, setIsLoading] = useState(true);
   const [expandedSubmissions, setExpandedSubmissions] = useState<Set<string>>(new Set());
+  const { incrementReaction } = useUserProgression();
 
   useEffect(() => {
     fetchSubmissions();
@@ -108,6 +109,9 @@ const TeaFeed = () => {
             anonymous_token: anonymousToken,
             reaction_type: reactionType
           });
+
+        // Increment user progression for giving a reaction
+        await incrementReaction('given');
       }
 
       // Update local state

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Camera, Link2, Send, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useUserProgression } from '@/hooks/useUserProgression';
 import { supabase } from '@/integrations/supabase/client';
 
 const SubmissionForm = () => {
@@ -16,6 +16,7 @@ const SubmissionForm = () => {
   const [evidenceUrls, setEvidenceUrls] = useState<string[]>(['']);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { incrementPost } = useUserProgression();
 
   const categories = [
     { id: 'gossip', label: 'Hot Gossip', emoji: '☕' },
@@ -72,6 +73,9 @@ const SubmissionForm = () => {
 
       if (submissionError) throw submissionError;
 
+      // Increment user progression for posting
+      await incrementPost();
+
       // Generate AI commentary
       const { data: aiResponse, error: aiError } = await supabase.functions.invoke('generate-ai-commentary', {
         body: { 
@@ -87,7 +91,7 @@ const SubmissionForm = () => {
 
       toast({
         title: "Tea Spilled Successfully! ☕",
-        description: "Your submission is live and the AI is brewing a hot take...",
+        description: "Your submission is live and earning you $TEA points!",
       });
 
       // Reset form
@@ -113,6 +117,7 @@ const SubmissionForm = () => {
         <div className="flex items-center gap-3 mb-4">
           <Sparkles className="w-6 h-6 text-ctea-teal" />
           <h3 className="text-xl font-bold text-white">Spill the Tea ☕</h3>
+          <Badge className="bg-ctea-yellow text-ctea-dark font-bold">+10 $TEA Points</Badge>
         </div>
 
         {/* Category Selection */}
@@ -159,6 +164,7 @@ const SubmissionForm = () => {
           <div className="flex items-center gap-2">
             <Camera className="w-4 h-4 text-ctea-teal" />
             <Label className="text-white font-medium">Evidence (Optional)</Label>
+            <Badge variant="outline" className="border-ctea-yellow text-ctea-yellow text-xs">+5 Bonus Points</Badge>
           </div>
           {evidenceUrls.map((url, index) => (
             <div key={index} className="flex gap-2">
