@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +8,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Feed from "./pages/Feed";
 import SubmitTea from "./pages/SubmitTea";
+import Campaigns from "./pages/Campaigns";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +24,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/feed" element={<Feed />} />
             <Route path="/submit" element={<SubmitTea />} />
+            <Route path="/campaigns" element={<Campaigns />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

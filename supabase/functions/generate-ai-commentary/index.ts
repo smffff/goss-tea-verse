@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
@@ -15,6 +14,7 @@ interface AICommentaryRequest {
   content: string;
   category: string;
   submissionId: string;
+  commentaryType?: 'spicy' | 'smart' | 'memy' | 'savage';
   isComment?: boolean;
   chatRoomId?: string; 
 }
@@ -26,7 +26,7 @@ serve(async (req) => {
   }
 
   try {
-    const { content, category, submissionId, isComment = false, chatRoomId } = await req.json() as AICommentaryRequest;
+    const { content, category, submissionId, commentaryType = 'spicy', isComment = false, chatRoomId } = await req.json() as AICommentaryRequest;
 
     if (!content || !submissionId) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
@@ -35,11 +35,6 @@ serve(async (req) => {
       });
     }
 
-    // Determine AI response type based on content
-    const types = ['spicy', 'smart', 'memy', 'savage'];
-    const type = types[Math.floor(Math.random() * types.length)];
-
-    // Generate AI commentary based on content type and category
     let commentary = '';
     let aiToken = 'ai-commentary-bot';
 
@@ -57,13 +52,13 @@ serve(async (req) => {
         });
 
     } else {
-      // Generate AI commentary for a new submission
-      commentary = generateAICommentary(content, category, type);
+      // Generate AI commentary for a new submission with specific type
+      commentary = generateAICommentary(content, category, commentaryType);
     }
 
     return new Response(JSON.stringify({ 
       commentary, 
-      type,
+      type: commentaryType,
       success: true 
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -78,8 +73,8 @@ serve(async (req) => {
   }
 });
 
-// Function to generate AI commentary for submissions
-function generateAICommentary(content: string, category: string, type: string): string {
+// Function to generate AI commentary for submissions with specific types
+function generateAICommentary(content: string, category: string, type: 'spicy' | 'smart' | 'memy' | 'savage'): string {
   // Extract key topics
   const words = content.toLowerCase().split(' ');
   const topics = ['crypto', 'nft', 'ethereum', 'bitcoin', 'defi', 'web3', 'dao', 'hack', 'scam', 'rugpull']
@@ -93,51 +88,53 @@ function generateAICommentary(content: string, category: string, type: string): 
   switch (type) {
     case 'spicy':
       commentary = [
-        `Okay this is absolutely UNHINGED behavior and honestly? We're here for it. The audacity, the drama, the sheer chaos energy... *chef's kiss* 💀 This is why we can't have nice things in crypto, and that's exactly what makes it spicy 🌶️`,
-        `I'm sorry but this is SENDING ME. The messiness here is exactly what CT needed today. The absolute shamelessness is giving pure entertainment value.`,
-        `Not me watching this drama unfold while eating popcorn 🍿 The crypto space truly never sleeps and neither does the chaos. This tea is SCALDING.`,
-        `The way ${names || 'they'} just casually dropped this bomb like it's nothing... CT is never boring and this proves it. Screenshotting this for the history books!`
+        `🌶️ OKAY this is absolutely UNHINGED behavior and honestly? We're here for it. The audacity, the drama, the sheer chaos energy... *chef's kiss* 💀 This is why we can't have nice things in crypto, and that's exactly what makes it spicy!`,
+        `🔥 I'm sorry but this is SENDING ME. The messiness here is exactly what CT needed today. The absolute shamelessness is giving pure entertainment value. This right here? This is premium content.`,
+        `☕ Not me watching this drama unfold while eating popcorn 🍿 The crypto space truly never sleeps and neither does the chaos. This tea is SCALDING and I am absolutely living for every second of it.`,
+        `💀 The way ${names || 'they'} just casually dropped this bomb like it's nothing... CT is never boring and this proves it. Screenshotting this for the history books! The audacity is unmatched.`
       ][Math.floor(Math.random() * 4)];
       break;
 
     case 'smart':
       commentary = [
-        `If we analyze this objectively, what we're witnessing is a fascinating intersection of game theory and social capital dynamics that perfectly encapsulates the volatile nature of ${topics.length ? topics[0] : 'crypto'} communities.`,
-        `This actually exposes a fundamental misalignment of incentives in the ${topics.length ? topics[0] : 'web3'} ecosystem. When you follow the money, the systemic implications become quite concerning.`,
-        `From a macro perspective, this is actually quite predictable given the current market conditions. What's interesting is how these patterns consistently emerge when liquidity shifts suddenly.`,
-        `This is big brain stuff if you think about it. The meta implications here speak volumes about governance structures in decentralized systems. Not everyone will understand this level of analysis.`
+        `🧠 If we analyze this objectively, what we're witnessing is a fascinating intersection of game theory and social capital dynamics that perfectly encapsulates the volatile nature of ${topics.length ? topics[0] : 'crypto'} communities. The behavioral patterns here are textbook.`,
+        `📊 This actually exposes a fundamental misalignment of incentives in the ${topics.length ? topics[0] : 'web3'} ecosystem. When you follow the money and map the stakeholder relationships, the systemic implications become quite concerning for long-term sustainability.`,
+        `⚡ From a macro perspective, this is actually quite predictable given the current market conditions and regulatory uncertainty. What's interesting is how these patterns consistently emerge when liquidity shifts suddenly - it's almost algorithmic.`,
+        `🎯 This is big brain stuff if you think about it. The meta implications here speak volumes about governance structures in decentralized systems. The second and third-order effects of this will ripple through the ecosystem for months.`
       ][Math.floor(Math.random() * 4)];
       break;
 
     case 'memy':
       commentary = [
-        `*whispers* "and then they rug pulled anyway" 💀 Nobody: Absolutely nobody: CT: "Let's create ANOTHER pointless drama"`,
-        `POV: You just woke up and this is the first thing you see on CT. Me: *frantically makes popcorn* 🍿`,
-        `The simulation devs are getting lazy with these storylines. Next patch needs better character development but the plot twists are *chef's kiss*`,
-        `Web3 🤝 Drama. Name a more iconic duo, I'll wait. (Spoiler: you can't) 😂`
+        `😂 *whispers* "and then they rug pulled anyway" 💀 Nobody: Absolutely nobody: CT: "Let's create ANOTHER pointless drama that somehow makes perfect sense in this timeline"`,
+        `🍿 POV: You just woke up and this is the first thing you see on CT. Me: *frantically makes popcorn while questioning all life choices* This is why we can't have nice things but also why we absolutely NEED these things.`,
+        `🎮 The simulation devs are getting lazy with these storylines tbh. Next patch needs better character development but the plot twists are *chef's kiss* and the memes write themselves. 10/10 would chaos again.`,
+        `🤝 Web3 🤝 Drama. Name a more iconic duo, I'll wait. (Spoiler: you can't because this is the most entertaining dumpster fire and we're all here for it) 😂 Peak internet right here folks.`
       ][Math.floor(Math.random() * 4)];
       break;
 
     case 'savage':
       commentary = [
-        `Respectfully... this is the most clown behavior I've seen all week, and that's saying something given the usual circus on CT. The secondhand embarrassment is real. ☠️`,
-        `Not the hero we deserved, but definitely the chaos we needed 💀 Peak CT energy right here. This is exactly why normies think we're all insane.`,
-        `Someone check if Mercury is in retrograde because this level of unhinged behavior needs an astrological explanation. The bar was on the floor and they brought a shovel.`,
-        `This is what happens when exit liquidity thinks they're the main character. The confidence is admirable but misplaced. Babe, wake up, new CT villain just dropped.`
+        `💀 Respectfully... this is the most clown behavior I've seen all week, and that's saying something given the usual circus on CT. The secondhand embarrassment is real and I'm concerned for humanity. ☠️`,
+        `🗿 Not the hero we deserved, but definitely the chaos we needed 💀 Peak CT energy right here. This is exactly why normies think we're all insane and honestly? They're not wrong. The confidence is unmatched though.`,
+        `🔥 Someone check if Mercury is in retrograde because this level of unhinged behavior needs an astrological explanation. The bar was on the floor and they brought a shovel. The disrespect to common sense is astronomical.`,
+        `⚰️ This is what happens when exit liquidity thinks they're the main character. The confidence is admirable but misplaced. Babe, wake up, new CT villain just dropped and they chose violence against logic itself.`
       ][Math.floor(Math.random() * 4)];
       break;
 
     default:
-      commentary = "Hot take: this is exactly the kind of drama that makes crypto Twitter worth enduring. Spicy, messy, and completely on brand. 💯";
+      commentary = "🫖 Hot take: this is exactly the kind of drama that makes crypto Twitter worth enduring. Spicy, messy, and completely on brand. 💯";
   }
 
   // Add category-specific flavoring
   if (category === 'gossip') {
-    commentary += " Gossip like this is what keeps CT engaged during bear markets!";
+    commentary += " The gossip game is strong with this one! 🗣️";
   } else if (category === 'drama') {
     commentary += " The drama is giving Oscar-worthy performance. Standing ovation! 👏";
   } else if (category === 'exposed') {
-    commentary += " The receipts don't lie. Screenshots are forever on the blockchain of life.";
+    commentary += " The receipts don't lie. Screenshots are forever on the blockchain of life. 📸";
+  } else if (category === 'memes') {
+    commentary += " This meme energy is exactly what the timeline needed today! 🔥";
   }
 
   return commentary;

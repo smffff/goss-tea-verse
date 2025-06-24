@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
@@ -126,13 +125,14 @@ const TeaFeed = () => {
     }
   };
 
-  const generateAICommentary = async (submission: TeaSubmission) => {
+  const generateAICommentary = async (submission: TeaSubmission, type: 'spicy' | 'smart' | 'memy' | 'savage' = 'spicy') => {
     try {
       const { data, error } = await supabase.functions.invoke('generate-ai-commentary', {
         body: { 
           content: submission.content,
           category: submission.category,
-          submissionId: submission.id
+          submissionId: submission.id,
+          commentaryType: type
         }
       });
 
@@ -147,7 +147,7 @@ const TeaFeed = () => {
             {
               id: Date.now().toString(),
               content: data.commentary,
-              type: data.type || 'spicy',
+              type: type,
               submission_id: submission.id,
               created_at: new Date().toISOString()
             }

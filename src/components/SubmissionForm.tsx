@@ -10,11 +10,13 @@ import { supabase } from '@/integrations/supabase/client';
 import CategorySelector from './CategorySelector';
 import ContentTextarea from './ContentTextarea';
 import EvidenceUrlManager from './EvidenceUrlManager';
+import ImageUpload from './ImageUpload';
 
 const SubmissionForm = () => {
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('gossip');
   const [evidenceUrls, setEvidenceUrls] = useState<string[]>(['']);
+  const [imageUrl, setImageUrl] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { incrementPost } = useUserProgression();
@@ -33,6 +35,12 @@ const SubmissionForm = () => {
     try {
       const anonymousToken = generateAnonymousToken();
       const filteredEvidenceUrls = evidenceUrls.filter(url => url.trim() !== '');
+      
+      // Include image URL in evidence if provided
+      const allEvidenceUrls = [...filteredEvidenceUrls];
+      if (imageUrl) {
+        allEvidenceUrls.push(imageUrl);
+      }
 
       // Insert submission
       const { data: submission, error: submissionError } = await supabase
@@ -40,8 +48,8 @@ const SubmissionForm = () => {
         .insert({
           content: content.trim(),
           category,
-          evidence_urls: filteredEvidenceUrls.length > 0 ? filteredEvidenceUrls : null,
-          has_evidence: filteredEvidenceUrls.length > 0,
+          evidence_urls: allEvidenceUrls.length > 0 ? allEvidenceUrls : null,
+          has_evidence: allEvidenceUrls.length > 0,
           anonymous_token: anonymousToken,
           status: 'approved' // Auto-approve for demo
         })
@@ -68,13 +76,16 @@ const SubmissionForm = () => {
 
       toast({
         title: "Tea Spilled Successfully! ☕",
-        description: "Your submission is live and earning you $TEA points!",
+        description: imageUrl 
+          ? "Your submission with visual spice is live and earning you $TEA points!"
+          : "Your submission is live and earning you $TEA points!",
       });
 
       // Reset form
       setContent('');
       setCategory('gossip');
       setEvidenceUrls(['']);
+      setImageUrl('');
       
     } catch (error: any) {
       console.error('Submission error:', error);
@@ -105,6 +116,12 @@ const SubmissionForm = () => {
         <ContentTextarea 
           content={content}
           onContentChange={setContent}
+        />
+
+        <ImageUpload
+          onImageUploaded={setImageUrl}
+          onImageRemoved={() => setImageUrl('')}
+          currentImage={imageUrl}
         />
 
         <EvidenceUrlManager 

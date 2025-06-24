@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import SubmissionContent from './SubmissionContent';
 import EvidenceLinks from './EvidenceLinks';
 import ReactionButtons from './ReactionButtons';
 import AICommentary from './AICommentary';
+import AICommentarySelector from './AICommentarySelector';
 import CommentSection from './CommentSection';
 
 interface TeaSubmission {
@@ -37,7 +38,7 @@ interface TeaSubmissionCardProps {
   isExpanded: boolean;
   onReaction: (submissionId: string, reactionType: 'hot' | 'cold' | 'spicy') => void;
   onToggleComments: (submissionId: string) => void;
-  onGenerateAI: (submission: TeaSubmission) => void;
+  onGenerateAI: (submission: TeaSubmission, type?: 'spicy' | 'smart' | 'memy' | 'savage') => void;
 }
 
 const TeaSubmissionCard = ({
@@ -48,11 +49,54 @@ const TeaSubmissionCard = ({
   onToggleComments,
   onGenerateAI
 }: TeaSubmissionCardProps) => {
+  const [showAISelector, setShowAISelector] = useState(false);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+
+  const handleAIGeneration = async (type: 'spicy' | 'smart' | 'memy' | 'savage') => {
+    setIsGeneratingAI(true);
+    setShowAISelector(false);
+    try {
+      await onGenerateAI(submission, type);
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  };
+
+  // Separate image URLs from other evidence URLs
+  const imageUrls = submission.evidence_urls?.filter(url => 
+    url.match(/\.(jpg|jpeg|png|gif|webp)$/i)
+  ) || [];
+  
+  const otherEvidenceUrls = submission.evidence_urls?.filter(url => 
+    !url.match(/\.(jpg|jpeg|png|gif|webp)$/i)
+  ) || [];
+
   return (
     <Card className="p-6 bg-gradient-to-br from-ctea-dark/80 to-ctea-darker/90 border-ctea-teal/30 neon-border">
       <SubmissionHeader submission={submission} />
       <SubmissionContent content={submission.content} />
-      <EvidenceLinks evidenceUrls={submission.evidence_urls} />
+      
+      {/* Display uploaded images */}
+      {imageUrls.length > 0 && (
+        <div className="mb-4 space-y-2">
+          {imageUrls.map((url, index) => (
+            <div key={index} className="rounded-lg overflow-hidden">
+              <img 
+                src={url} 
+                alt={`Submission image ${index + 1}`}
+                className="w-full max-h-96 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                onClick={() => window.open(url, '_blank')}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+      
+      {/* Display other evidence links */}
+      {otherEvidenceUrls.length > 0 && (
+        <EvidenceLinks evidenceUrls={otherEvidenceUrls} />
+      )}
+      
       <ReactionButtons 
         reactions={submission.reactions}
         onReaction={(type) => onReaction(submission.id, type)}
@@ -73,8 +117,9 @@ const TeaSubmissionCard = ({
           <Button
             size="sm"
             variant="outline"
-            onClick={() => onGenerateAI(submission)}
+            onClick={() => setShowAISelector(!showAISelector)}
             className="border-ctea-purple/30 text-ctea-purple hover:bg-ctea-purple/10"
+            disabled={isGeneratingAI}
           >
             🤖 AI Take
           </Button>
@@ -89,15 +134,33 @@ const TeaSubmissionCard = ({
         </div>
       </div>
 
+      {/* AI Commentary Selector */}
+      {showAISelector && (
+        <div className="mt-4 p-4 bg-ctea-darker/50 rounded-lg border border-ctea-teal/20">
+          <h4 className="text-white font-medium mb-3">Choose AI Commentary Style:</h4>
+          <AICommentarySelector 
+            onSelectType={handleAIGeneration}
+            isGenerating={isGeneratingAI}
+          />
+        </div>
+      )}
+
       {/* AI Comments */}
-      {aiComments.length > 0 && (
+      {(aiComments.length > 0 || isGeneratingAI) && (
         <div className="mt-4 space-y-3">
+          {isGeneratingAI && (
+            <AICommentary
+              content=""
+              type="spicy"
+              isGenerating={true}
+            />
+          )}
           {aiComments.map((comment) => (
             <AICommentary
               key={comment.id}
               content={comment.content}
               type={comment.type}
-              onRegenerate={() => onGenerateAI(submission)}
+              onRegenerate={() => handleAIGeneration(comment.type)}
             />
           ))}
         </div>
