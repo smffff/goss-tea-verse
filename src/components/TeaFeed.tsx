@@ -1,8 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserProgression } from '@/hooks/useUserProgression';
 import TeaSubmissionCard from './TeaSubmissionCard';
+import HotTakesFilters from './HotTakesFilters';
+import LoadingSpinner from './LoadingSpinner';
 
 interface TeaSubmission {
   id: string;
@@ -29,33 +31,65 @@ const TeaFeed = () => {
   const [aiComments, setAiComments] = useState<{ [key: string]: AIComment[] }>({});
   const [isLoading, setIsLoading] = useState(true);
   const [expandedSubmissions, setExpandedSubmissions] = useState<Set<string>>(new Set());
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('latest');
   const { incrementReaction } = useUserProgression();
 
   useEffect(() => {
     fetchSubmissions();
     fetchAIComments();
-  }, []);
+  }, [activeFilter, sortBy]);
 
   const fetchSubmissions = async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('tea_submissions')
         .select('*')
-        .eq('status', 'approved')
-        .order('created_at', { ascending: false })
-        .limit(20);
+        .eq('status', 'approved');
+
+      // Apply sorting
+      switch (sortBy) {
+        case 'reactions':
+          query = query.order('rating_count', { ascending: false });
+          break;
+        case 'controversial':
+          // Sort by most balanced hot/cold reactions
+          query = query.order('created_at', { ascending: false });
+          break;
+        default:
+          query = query.order('created_at', { ascending: false });
+      }
+
+      const { data, error } = await query.limit(20);
 
       if (error) throw error;
       
-      // Transform the data to ensure reactions have the correct type
       const transformedData = (data || []).map(submission => ({
         ...submission,
         reactions: typeof submission.reactions === 'object' && submission.reactions !== null 
           ? submission.reactions as { hot: number; cold: number; spicy: number }
           : { hot: 0, cold: 0, spicy: 0 }
       }));
+
+      // Apply client-side filtering
+      let filteredData = transformedData;
+      if (activeFilter !== 'all') {
+        filteredData = transformedData.filter(submission => {
+          const reactions = submission.reactions;
+          switch (activeFilter) {
+            case 'hot':
+              return reactions.hot > reactions.cold;
+            case 'spicy':
+              return reactions.spicy > 5;
+            case 'trending':
+              return (reactions.hot + reactions.cold + reactions.spicy) > 10;
+            default:
+              return true;
+          }
+        });
+      }
       
-      setSubmissions(transformedData);
+      setSubmissions(filteredData);
     } catch (error) {
       console.error('Error fetching submissions:', error);
     } finally {
@@ -65,8 +99,6 @@ const TeaFeed = () => {
 
   const fetchAIComments = async () => {
     try {
-      // This would fetch from a future ai_comments table
-      // For now, we'll simulate with local storage or generate on demand
       console.log('AI comments would be fetched here');
     } catch (error) {
       console.error('Error fetching AI comments:', error);
@@ -82,7 +114,6 @@ const TeaFeed = () => {
       
       localStorage.setItem('ctea_anonymous_token', anonymousToken);
 
-      // Check if user already reacted
       const { data: existingReaction } = await supabase
         .from('user_reactions')
         .select('*')
@@ -91,13 +122,11 @@ const TeaFeed = () => {
         .single();
 
       if (existingReaction) {
-        // Update existing reaction
         await supabase
           .from('user_reactions')
           .update({ reaction_type: reactionType })
           .eq('id', existingReaction.id);
       } else {
-        // Create new reaction
         await supabase
           .from('user_reactions')
           .insert({
@@ -106,11 +135,9 @@ const TeaFeed = () => {
             reaction_type: reactionType
           });
 
-        // Increment user progression for giving a reaction
         await incrementReaction('given');
       }
 
-      // Update local state
       setSubmissions(prev => prev.map(sub => {
         if (sub.id === submissionId) {
           const newReactions = { ...sub.reactions };
@@ -138,7 +165,6 @@ const TeaFeed = () => {
 
       if (error) throw error;
       
-      // Update local state with new AI comment
       if (data?.commentary) {
         setAiComments(prev => ({
           ...prev,
@@ -172,36 +198,43 @@ const TeaFeed = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="space-y-4">
-        {[1, 2, 3].map(i => (
-          <Card key={i} className="p-6 bg-ctea-dark/50 animate-pulse">
-            <div className="h-4 bg-ctea-teal/20 rounded mb-3"></div>
-            <div className="h-20 bg-ctea-teal/10 rounded mb-4"></div>
-            <div className="flex gap-4">
-              <div className="h-8 w-16 bg-ctea-pink/20 rounded"></div>
-              <div className="h-8 w-16 bg-ctea-purple/20 rounded"></div>
-              <div className="h-8 w-16 bg-ctea-yellow/20 rounded"></div>
-            </div>
-          </Card>
-        ))}
-      </div>
-    );
+    return <LoadingSpinner count={3} message="Brewing the hottest takes..." />;
   }
 
   return (
     <div className="space-y-6">
-      {submissions.map((submission) => (
-        <TeaSubmissionCard
-          key={submission.id}
-          submission={submission}
-          aiComments={aiComments[submission.id] || []}
-          isExpanded={expandedSubmissions.has(submission.id)}
-          onReaction={handleReaction}
-          onToggleComments={toggleComments}
-          onGenerateAI={generateAICommentary}
-        />
-      ))}
+      <HotTakesFilters
+        activeFilter={activeFilter}
+        onFilterChange={setActiveFilter}
+        sortBy={sortBy}
+        onSortChange={setSortBy}
+      />
+
+      {submissions.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">☕</div>
+          <h3 className="text-xl font-bold text-white mb-2">No tea found</h3>
+          <p className="text-gray-400">
+            {activeFilter === 'all' 
+              ? "Be the first to spill some tea!" 
+              : "Try adjusting your filters to find more content."}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {submissions.map((submission) => (
+            <TeaSubmissionCard
+              key={submission.id}
+              submission={submission}
+              aiComments={aiComments[submission.id] || []}
+              isExpanded={expandedSubmissions.has(submission.id)}
+              onReaction={handleReaction}
+              onToggleComments={toggleComments}
+              onGenerateAI={generateAICommentary}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

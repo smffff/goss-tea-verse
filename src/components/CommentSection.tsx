@@ -2,164 +2,99 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Send, Reply, Heart, Bot } from 'lucide-react';
+import { MessageCircle, Send } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface Comment {
   id: string;
   content: string;
-  anonymous_token: string;
   created_at: string;
-  chat_room_id: string;
+  anonymous_token: string;
 }
 
 interface CommentSectionProps {
   submissionId: string;
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({ submissionId }) => {
+const CommentSection = ({ submissionId }: CommentSectionProps) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [chatRoomId, setChatRoomId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    setupChatRoom();
+    fetchComments();
   }, [submissionId]);
 
-  useEffect(() => {
-    if (chatRoomId) {
-      fetchComments();
-      
-      // Set up real-time subscription
-      const subscription = supabase
-        .channel(`comments-${chatRoomId}`)
-        .on('postgres_changes', 
-          { 
-            event: 'INSERT', 
-            schema: 'public', 
-            table: 'messages',
-            filter: `chat_room_id=eq.${chatRoomId}`
-          }, 
-          (payload) => {
-            setComments(prev => [payload.new as Comment, ...prev]);
-          }
-        )
-        .subscribe();
-
-      return () => {
-        subscription.unsubscribe();
-      };
-    }
-  }, [chatRoomId]);
-
-  const setupChatRoom = async () => {
-    try {
-      // Check if chat room exists for this submission
-      let { data: existingRoom, error: fetchError } = await supabase
-        .from('chat_rooms')
-        .select('id')
-        .eq('submission_id', submissionId)
-        .single();
-
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        throw fetchError;
-      }
-
-      if (existingRoom) {
-        setChatRoomId(existingRoom.id);
-      } else {
-        // Create new chat room
-        const { data: newRoom, error: createError } = await supabase
-          .from('chat_rooms')
-          .insert({
-            submission_id: submissionId,
-            name: `Comments for submission ${submissionId.slice(0, 8)}`
-          })
-          .select()
-          .single();
-
-        if (createError) throw createError;
-        setChatRoomId(newRoom.id);
-      }
-    } catch (error) {
-      console.error('Error setting up chat room:', error);
-    }
-  };
-
   const fetchComments = async () => {
-    if (!chatRoomId) return;
-
     try {
       const { data, error } = await supabase
         .from('messages')
         .select('*')
-        .eq('chat_room_id', chatRoomId)
-        .eq('is_deleted', false)
-        .order('created_at', { ascending: false })
-        .limit(50);
+        .eq('submission_id', submissionId)
+        .order('created_at', { ascending: true });
 
       if (error) throw error;
       setComments(data || []);
     } catch (error) {
       console.error('Error fetching comments:', error);
+    } finally {
+      setIsLoading(false);
     }
-  };
-
-  const getAnonymousToken = () => {
-    let token = localStorage.getItem('ctea_anonymous_token');
-    if (!token) {
-      token = Array.from(crypto.getRandomValues(new Uint8Array(32)))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-      localStorage.setItem('ctea_anonymous_token', token);
-    }
-    return token;
   };
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() || !chatRoomId || isSubmitting) return;
+    if (!newComment.trim()) return;
 
     setIsSubmitting(true);
     try {
-      const anonymousToken = getAnonymousToken();
+      const anonymousToken = localStorage.getItem('ctea_anonymous_token') || 
+        Array.from(crypto.getRandomValues(new Uint8Array(32)))
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('');
+      
+      localStorage.setItem('ctea_anonymous_token', anonymousToken);
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('messages')
         .insert({
           content: newComment.trim(),
-          chat_room_id: chatRoomId,
+          submission_id: submissionId,
           anonymous_token: anonymousToken
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
-      // Generate AI response to the comment
-      try {
-        await supabase.functions.invoke('generate-ai-commentary', {
-          body: { 
-            content: newComment.trim(),
-            category: 'comment',
-            submissionId: submissionId,
-            isComment: true,
-            chatRoomId
-          }
-        });
-      } catch (aiError) {
-        console.log('AI response generation error:', aiError);
-        // Don't throw, as the comment was still saved successfully
-      }
+      // Generate AI response
+      await supabase.functions.invoke('generate-ai-commentary', {
+        body: { 
+          content: newComment.trim(),
+          category: 'general',
+          submissionId: submissionId,
+          isComment: true
+        }
+      });
 
+      setComments(prev => [...prev, data]);
       setNewComment('');
+      
+      toast({
+        title: "Comment posted! ☕",
+        description: "Your comment is live and CTeaBot might respond soon!"
+      });
+
+      // Refresh comments to get AI response
+      setTimeout(fetchComments, 1000);
     } catch (error) {
       console.error('Error posting comment:', error);
       toast({
-        title: "Comment Failed",
-        description: "Couldn't post your comment. Please try again.",
+        title: "Failed to post comment",
+        description: "Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -174,90 +109,78 @@ const CommentSection: React.FC<CommentSectionProps> = ({ submissionId }) => {
     
     if (diffInMinutes < 1) return 'Just now';
     if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    
     const diffInHours = Math.floor(diffInMinutes / 60);
     if (diffInHours < 24) return `${diffInHours}h ago`;
-    
     return `${Math.floor(diffInHours / 24)}d ago`;
   };
 
-  const isUserComment = (anonymousToken: string) => {
-    return anonymousToken === localStorage.getItem('ctea_anonymous_token');
-  };
-
-  const isAIComment = (anonymousToken: string) => {
-    // A specific token to identify AI-generated comments
-    return anonymousToken === 'ai-commentary-bot';
-  };
+  if (isLoading) {
+    return (
+      <div className="animate-pulse">
+        <div className="h-4 bg-ctea-teal/20 rounded mb-2"></div>
+        <div className="h-20 bg-ctea-teal/10 rounded"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
-      {/* Comment form */}
-      <form onSubmit={handleSubmitComment} className="flex items-start gap-2">
-        <Textarea
+      <div className="flex items-center gap-2 text-white font-medium">
+        <MessageCircle className="w-4 h-4" />
+        Comments ({comments.length})
+      </div>
+
+      {/* Comment Form */}
+      <form onSubmit={handleSubmitComment} className="space-y-3">
+        <textarea
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Add to the drama..."
-          className="min-h-[60px] bg-ctea-darker/50 border-ctea-teal/30 text-white placeholder:text-gray-400 resize-none"
+          placeholder="Add a comment... CTeaBot might join the conversation! 🤖"
+          className="w-full p-3 bg-ctea-darker border border-ctea-teal/30 rounded-lg text-white placeholder-gray-400 resize-none focus:ring-2 focus:ring-ctea-teal focus:border-transparent"
+          rows={3}
           maxLength={500}
         />
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           disabled={!newComment.trim() || isSubmitting}
-          className="bg-gradient-to-r from-ctea-purple to-ctea-pink text-white"
+          size="sm"
+          className="bg-ctea-teal hover:bg-ctea-teal/80 text-white"
         >
-          {isSubmitting ? 
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> :
-            <Send className="w-4 h-4" />
-          }
+          {isSubmitting ? (
+            <>
+              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
+              Posting...
+            </>
+          ) : (
+            <>
+              <Send className="w-3 h-3 mr-2" />
+              Post Comment
+            </>
+          )}
         </Button>
       </form>
 
-      {/* Comments list */}
+      {/* Comments List */}
       <div className="space-y-3">
-        {comments.length === 0 ? (
-          <p className="text-gray-400 text-sm text-center italic">Be the first to comment...</p>
-        ) : (
-          comments.map((comment) => (
-            <Card 
-              key={comment.id} 
-              className={`p-4 ${
-                isAIComment(comment.anonymous_token) 
-                  ? 'bg-gradient-to-br from-ctea-purple/20 to-ctea-teal/20 border-ctea-teal/30' 
-                  : isUserComment(comment.anonymous_token)
-                    ? 'bg-gradient-to-br from-ctea-pink/20 to-ctea-purple/20 border-ctea-pink/30'
-                    : 'bg-ctea-dark/50 border-ctea-teal/10'
-              }`}
-            >
-              <div className="flex justify-between items-start mb-2">
-                <div className="flex items-center gap-2">
-                  {isAIComment(comment.anonymous_token) ? (
-                    <span className="text-sm font-bold text-ctea-teal flex items-center gap-1">
-                      <Bot className="w-4 h-4" /> CTeaBot
-                    </span>
-                  ) : (
-                    <span className="text-sm font-medium text-gray-300">
-                      {isUserComment(comment.anonymous_token) ? 'You' : 'Anonymous User'}
-                    </span>
-                  )}
-                </div>
-                <span className="text-xs text-gray-400">{formatTimeAgo(comment.created_at)}</span>
-              </div>
-              <p className={`text-sm ${isAIComment(comment.anonymous_token) ? 'text-white' : 'text-gray-100'}`}>
-                {comment.content}
-              </p>
-              <div className="flex items-center justify-between mt-2">
-                <div className="flex items-center gap-2">
-                  <button className="flex items-center gap-1 text-xs text-gray-400 hover:text-ctea-pink">
-                    <Heart className="w-3 h-3" /> Like
-                  </button>
-                  <button className="flex items-center gap-1 text-xs text-gray-400 hover:text-ctea-teal">
-                    <Reply className="w-3 h-3" /> Reply
-                  </button>
-                </div>
-              </div>
-            </Card>
-          ))
+        {comments.map((comment) => (
+          <Card key={comment.id} className="p-3 bg-ctea-darker/50 border-ctea-teal/20">
+            <div className="flex items-start justify-between mb-2">
+              <span className="text-sm font-medium text-ctea-teal">
+                {comment.anonymous_token === 'ai-commentary-bot' ? '🤖 CTeaBot' : 'Anonymous'}
+              </span>
+              <span className="text-xs text-gray-400">
+                {formatTimeAgo(comment.created_at)}
+              </span>
+            </div>
+            <p className="text-white text-sm leading-relaxed">{comment.content}</p>
+          </Card>
+        ))}
+        
+        {comments.length === 0 && (
+          <div className="text-center py-6 text-gray-400">
+            <MessageCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
+            <p>No comments yet. Be the first to start the conversation!</p>
+          </div>
         )}
       </div>
     </div>
