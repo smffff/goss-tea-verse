@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import CategorySelector from './CategorySelector';
 import ContentTextarea from './ContentTextarea';
 import EvidenceUrlManager from './EvidenceUrlManager';
 import ImageUpload from './ImageUpload';
+import { moderateText } from '@/lib/moderation';
 
 const SubmissionForm = () => {
   const [content, setContent] = useState('');
@@ -30,6 +30,16 @@ const SubmissionForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) return;
+
+    const result = moderateText(content);
+    if (!result.clean) {
+      toast({
+        title: "Submission Blocked",
+        description: result.reason,
+        variant: "destructive"
+      });
+      return;
+    }
 
     setIsSubmitting(true);
     try {

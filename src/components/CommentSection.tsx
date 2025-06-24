@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { MessageCircle, Send } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { moderateText } from '@/lib/moderation';
 
 interface Comment {
   id: string;
@@ -47,6 +48,16 @@ const CommentSection = ({ submissionId }: CommentSectionProps) => {
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim()) return;
+
+    const result = moderateText(newComment);
+    if (!result.clean) {
+      toast({
+        title: "Comment Blocked",
+        description: result.reason,
+        variant: "destructive"
+      });
+      return;
+    }
 
     setIsSubmitting(true);
     try {
