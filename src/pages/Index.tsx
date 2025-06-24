@@ -31,7 +31,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <img src="/ctea-logo-icon.png" alt="CTEA Logo" className="w-12 h-12" />
+              <img src="/ctea-logo-icon.svg" alt="CTEA Logo" className="w-8 h-8" style={{ height: 32, width: 32 }} />
               <div>
                 <h1 className="text-2xl font-bold text-white animate-glow font-montserrat">CTea Newsroom</h1>
                 <p className="text-sm text-ctea-teal font-montserrat">Where Crypto Drama Gets Served Hot ☕</p>
@@ -58,56 +58,32 @@ const Index = () => {
       </header>
 
       {/* Hero Section with Stronger CTAs */}
-      <section className="py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="relative py-20 px-4">
+        <div className="absolute inset-0 pointer-events-none" style={{background: 'linear-gradient(135deg, rgba(0,212,170,0.12) 0%, rgba(255,27,141,0.10) 100%)'}}></div>
+        <div className="max-w-4xl mx-auto text-center relative z-10">
           <div className="mb-8">
             <img src="/ctea-logo-full.png" alt="CTEA News Logo" className="w-40 h-40 mx-auto mb-8" />
             <h1 className="text-6xl font-bold text-white mb-4 animate-glow font-montserrat">
               CTea Newsroom
             </h1>
             <p className="text-2xl text-ctea-teal mb-4 font-montserrat">
-              Beta Launch • Join the Chaos ☕
+              Where Crypto Drama Gets Served Hot ☕
             </p>
             <div className="inline-block bg-gradient-to-r from-ctea-pink/20 to-ctea-purple/20 border border-ctea-teal/30 rounded-lg px-4 py-2 mb-8">
               <span className="text-ctea-yellow font-bold">🚀 EARLY ACCESS</span>
               <span className="text-white ml-2">• Earn $TEA Points • Build $SOAP Reputation</span>
             </div>
           </div>
-          
           <div className="max-w-2xl mx-auto mb-12">
             <p className="text-xl text-gray-300 leading-relaxed">
-              The most unhinged gossip app in Web3. Anonymous spills, AI-powered hot takes, 
-              meme templates, and pure chaotic neutral energy. <span className="text-ctea-pink font-bold">No tokens required to start the drama.</span>
+              The most unhinged gossip app in Web3. Anonymous spills, AI-powered hot takes, meme templates, and pure chaotic neutral energy. <span className="text-ctea-pink font-bold">No tokens required to start the drama.</span>
             </p>
           </div>
-          
-          {/* Enhanced CTA Section */}
-          <div className="grid md:grid-cols-2 gap-6 mb-12">
-            <Card className="p-6 bg-gradient-to-br from-ctea-pink/20 to-ctea-purple/20 border-ctea-pink/30 neon-border">
-              <Coffee className="w-12 h-12 text-ctea-pink mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">Spill the Tea</h3>
-              <p className="text-gray-300 mb-4">Share gossip, drama, and chaos. Earn $TEA points for viral content.</p>
-              <Button 
-                className="w-full bg-gradient-to-r from-ctea-pink to-ctea-purple text-white font-bold"
-                onClick={() => navigate('/submit')}
-              >
-                Start Spilling <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
-            </Card>
-            
-            <Card className="p-6 bg-gradient-to-br from-ctea-teal/20 to-ctea-cyan/20 border-ctea-teal/30 neon-border">
-              <TrendingUp className="w-12 h-12 text-ctea-teal mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">Browse Hot Takes</h3>
-              <p className="text-gray-300 mb-4">Rate, comment, and discover the spiciest crypto drama.</p>
-              <Button 
-                variant="outline"
-                className="w-full border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10"
-                onClick={() => navigate('/feed')}
-              >
-                View Feed <Sparkles className="ml-2 w-4 h-4" />
-              </Button>
-            </Card>
-          </div>
+          <a href="#stories-feed" className="inline-block">
+            <button className="retro-button text-2xl px-8 py-4 rounded-lg font-bold shadow-lg hover:scale-105 transition-transform">
+              Serve the Tea
+            </button>
+          </a>
         </div>
       </section>
 
@@ -279,23 +255,20 @@ const Index = () => {
           <p className="text-xl text-gray-300 mb-8">
             Be part of the most chaotic community in crypto. Early access means better rewards and exclusive badges.
           </p>
-          <div className="flex gap-4 justify-center">
-            <Button 
-              size="lg" 
-              className="bg-gradient-ctea text-white font-bold hover:opacity-90"
-              onClick={() => navigate('/submit')}
-            >
+          <div className="flex gap-4 justify-center mb-8">
+            <Button size="lg" className="bg-gradient-ctea text-white font-bold hover:opacity-90" onClick={() => navigate('/submit')}>
               Spill Your First Tea
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="border-ctea-purple text-ctea-purple hover:bg-ctea-purple/10"
-              onClick={() => navigate('/feed')}
-            >
+            <Button size="lg" variant="outline" className="border-ctea-purple text-ctea-purple hover:bg-ctea-purple/10" onClick={() => navigate('/feed')}>
               Browse the Drama
             </Button>
           </div>
+          <div className="flex flex-wrap gap-6 justify-center text-sm text-gray-400 mb-2">
+            <a href="#about" className="hover:text-ctea-teal transition">About</a>
+            <a href="#contact" className="hover:text-ctea-teal transition">Contact</a>
+            <a href="#privacy" className="hover:text-ctea-teal transition">Privacy</a>
+          </div>
+          <div className="text-xs text-gray-600 mt-4">&copy; {new Date().getFullYear()} CTea Newsroom. All rights reserved.</div>
         </div>
       </footer>
     </div>

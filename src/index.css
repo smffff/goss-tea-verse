@@ -47,6 +47,31 @@
     --sidebar-border: 77 217 212;
     --sidebar-ring: 0 212 170;
   }
+  .dark {
+    --background: 15 6 25;
+    --foreground: 255 255 255;
+    --card: 26 13 38;
+    --card-foreground: 255 255 255;
+    --primary: 0 212 170;
+    --primary-foreground: 0 0 0;
+    --secondary: 255 27 141;
+    --secondary-foreground: 255 255 255;
+    --accent: 0 212 170;
+    --accent-foreground: 255 255 255;
+    --muted: 31 16 44;
+    --muted-foreground: 156 163 175;
+    --border: 255 27 141;
+    --input: 31 16 44;
+    --ring: 255 27 141;
+    --sidebar-background: 15 6 25;
+    --sidebar-foreground: 255 255 255;
+    --sidebar-primary: 0 212 170;
+    --sidebar-primary-foreground: 0 0 0;
+    --sidebar-accent: 255 27 141;
+    --sidebar-accent-foreground: 255 255 255;
+    --sidebar-border: 0 212 170;
+    --sidebar-ring: 255 27 141;
+  }
 }
 
 @layer base {
@@ -58,6 +83,9 @@
     @apply bg-ctea-darker text-white font-sans;
     font-family: 'Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif';
     background: linear-gradient(135deg, #1a0d26 0%, #0f0619 100%);
+  }
+  .dark body {
+    background: linear-gradient(135deg, #0f0619 0%, #1a0d26 100%);
   }
 }
 

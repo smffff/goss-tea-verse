@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -74,6 +73,9 @@ const TeaSubmissionCard = ({
   return (
     <Card className="p-6 bg-gradient-to-br from-ctea-dark/80 to-ctea-darker/90 border-ctea-teal/30 neon-border">
       <SubmissionHeader submission={submission} />
+      <div className="mb-2">
+        <span className="block text-gray-400 text-sm truncate">{submission.content.slice(0, 100)}{submission.content.length > 100 ? '…' : ''}</span>
+      </div>
       <SubmissionContent content={submission.content} />
       
       {/* Display uploaded images */}

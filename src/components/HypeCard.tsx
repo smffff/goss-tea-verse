@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -57,6 +56,7 @@ const HypeCard: React.FC<HypeCardProps> = ({
         
         <div className="flex-1">
           <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
+          <p className="text-gray-400 text-sm mb-2 truncate">{description.slice(0, 100)}{description.length > 100 ? '…' : ''}</p>
           <p className="text-gray-300 mb-4">{description}</p>
           
           <div className="flex items-center justify-between">

@@ -4,6 +4,7 @@ import TeaCup from './TeaCup';
 import UserStats from './UserStats';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Coffee, PlusCircle, TrendingUp } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 
 const Navigation = () => {
   const navigate = useNavigate();
@@ -17,13 +18,29 @@ const Navigation = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  const [darkMode, setDarkMode] = React.useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('ctea-dark-mode') === 'true';
+    }
+    return true;
+  });
+
+  React.useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('ctea-dark-mode', darkMode);
+  }, [darkMode]);
+
   return (
     <header className="border-b border-ctea-teal/30 bg-ctea-darker/95 backdrop-blur-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Logo and Brand */}
           <div className="flex items-center gap-4 cursor-pointer" onClick={() => navigate('/')}>
-            <img src="/ctea-logo-icon.png" alt="CTEA Logo" className="w-10 h-10" />
+            <img src="/ctea-logo-icon.svg" alt="CTEA Logo" className="h-8 w-8" style={{ height: 32, width: 32 }} />
             <div>
               <h1 className="text-xl font-bold text-white animate-glow font-montserrat">CTea Newsroom</h1>
               <p className="text-xs text-ctea-teal font-montserrat">Beta • Managed Chaos, Served Hot</p>
@@ -72,6 +89,17 @@ const Navigation = () => {
             >
               <Coffee className="w-4 h-4" />
             </Button>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={darkMode}
+                onCheckedChange={setDarkMode}
+                className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-ctea-teal data-[state=checked]:to-ctea-pink border-ctea-teal"
+              />
+              <span className="text-xs text-gray-400">Dark</span>
+            </div>
           </div>
         </div>
 
