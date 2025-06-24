@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -55,6 +56,7 @@
 
   body {
     @apply bg-ctea-darker text-white font-sans;
+    font-family: 'Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif';
     background: linear-gradient(135deg, #1a0d26 0%, #0f0619 100%);
   }
 }
