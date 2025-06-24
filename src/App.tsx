@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import Feed from "./pages/Feed";
 import SubmitTea from "./pages/SubmitTea";
 import Campaigns from "./pages/Campaigns";
+import Features from "./pages/Features";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,6 +33,7 @@ const App = () => (
             <Route path="/feed" element={<Feed />} />
             <Route path="/submit" element={<SubmitTea />} />
             <Route path="/campaigns" element={<Campaigns />} />
+            <Route path="/features" element={<Features />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Flame, Snowflake, TrendingUp, Clock, Award } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Flame, TrendingUp, Zap, Clock, Crown } from 'lucide-react';
 
 interface HotTakesFiltersProps {
   activeFilter: string;
@@ -11,103 +10,69 @@ interface HotTakesFiltersProps {
   onSortChange: (sort: string) => void;
 }
 
-const HotTakesFilters = ({ activeFilter, onFilterChange, sortBy, onSortChange }: HotTakesFiltersProps) => {
+const HotTakesFilters: React.FC<HotTakesFiltersProps> = ({
+  activeFilter,
+  onFilterChange,
+  sortBy,
+  onSortChange
+}) => {
   const filters = [
-    { id: 'all', label: 'All Takes', icon: TrendingUp },
-    { id: 'hot', label: 'Hot', icon: Flame },
-    { id: 'spicy', label: 'Spicy', icon: '🌶️' },
-    { id: 'trending', label: 'Trending', icon: Award }
+    { id: 'all', label: 'All', icon: <Clock className="w-4 h-4" /> },
+    { id: 'hot', label: 'Hot Takes', icon: <Flame className="w-4 h-4" /> },
+    { id: 'spicy', label: 'Spicy', icon: <Zap className="w-4 h-4" /> },
+    { id: 'trending', label: 'Trending', icon: <TrendingUp className="w-4 h-4" /> },
+    { id: 'boosted', label: 'Boosted', icon: <Crown className="w-4 h-4" /> }
   ];
 
   const sortOptions = [
-    { id: 'latest', label: 'Latest', icon: Clock },
-    { id: 'reactions', label: 'Most Reactions', icon: Flame },
-    { id: 'controversial', label: 'Controversial', icon: '⚡' }
+    { value: 'latest', label: 'Latest' },
+    { value: 'reactions', label: 'Most Reactions' },
+    { value: 'controversial', label: 'Controversial' },
+    { value: 'boosted', label: 'Most Boosted' }
   ];
 
   return (
-    <div className="space-y-4 mb-6">
-      {/* Category Filters */}
-      <div>
-        <h3 className="text-sm font-medium text-gray-400 mb-2">Filter by Type</h3>
-        <div className="flex flex-wrap gap-2">
-          {filters.map(({ id, label, icon: Icon }) => (
-            <Button
-              key={id}
-              variant={activeFilter === id ? "default" : "outline"}
-              size="sm"
-              onClick={() => onFilterChange(id)}
-              className={`${
-                activeFilter === id 
-                  ? 'bg-gradient-ctea text-white' 
-                  : 'border-ctea-teal/30 text-ctea-teal hover:bg-ctea-teal/10'
-              }`}
-            >
-              {typeof Icon === 'string' ? (
-                <span className="mr-1">{Icon}</span>
-              ) : (
-                <Icon className="w-3 h-3 mr-1" />
-              )}
-              {label}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      {/* Sort Options */}
-      <div>
-        <h3 className="text-sm font-medium text-gray-400 mb-2">Sort by</h3>
-        <div className="flex flex-wrap gap-2">
-          {sortOptions.map(({ id, label, icon: Icon }) => (
-            <Button
-              key={id}
-              variant={sortBy === id ? "default" : "ghost"}
-              size="sm"
-              onClick={() => onSortChange(id)}
-              className={`${
-                sortBy === id 
-                  ? 'bg-ctea-purple text-white' 
-                  : 'text-gray-400 hover:text-white hover:bg-ctea-purple/20'
-              }`}
-            >
-              {typeof Icon === 'string' ? (
-                <span className="mr-1">{Icon}</span>
-              ) : (
-                <Icon className="w-3 h-3 mr-1" />
-              )}
-              {label}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      {/* Active Filters Display */}
-      {(activeFilter !== 'all' || sortBy !== 'latest') && (
-        <div className="flex items-center gap-2 text-sm">
-          <span className="text-gray-400">Active:</span>
-          {activeFilter !== 'all' && (
-            <Badge variant="outline" className="border-ctea-teal/30 text-ctea-teal">
-              {filters.find(f => f.id === activeFilter)?.label}
-            </Badge>
-          )}
-          {sortBy !== 'latest' && (
-            <Badge variant="outline" className="border-ctea-purple/30 text-ctea-purple">
-              {sortOptions.find(s => s.id === sortBy)?.label}
-            </Badge>
-          )}
+    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+      {/* Filter Buttons */}
+      <div className="flex flex-wrap gap-2">
+        {filters.map((filter) => (
           <Button
-            variant="ghost"
+            key={filter.id}
             size="sm"
-            onClick={() => {
-              onFilterChange('all');
-              onSortChange('latest');
-            }}
-            className="text-xs text-gray-500 hover:text-ctea-teal"
+            variant={activeFilter === filter.id ? "default" : "outline"}
+            onClick={() => onFilterChange(filter.id)}
+            className={`flex items-center gap-2 ${
+              activeFilter === filter.id
+                ? 'bg-gradient-ctea text-white'
+                : 'border-ctea-teal/30 text-ctea-teal hover:bg-ctea-teal/10'
+            }`}
           >
-            Clear all
+            {filter.icon}
+            {filter.label}
           </Button>
-        </div>
-      )}
+        ))}
+      </div>
+
+      {/* Sort Dropdown */}
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-gray-400">Sort by:</span>
+        <Select value={sortBy} onValueChange={onSortChange}>
+          <SelectTrigger className="w-40 bg-ctea-dark/50 border-ctea-teal/30 text-white">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-ctea-darker border-ctea-teal/30">
+            {sortOptions.map((option) => (
+              <SelectItem
+                key={option.value}
+                value={option.value}
+                className="text-white hover:bg-ctea-teal/20 focus:bg-ctea-teal/20"
+              >
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 };

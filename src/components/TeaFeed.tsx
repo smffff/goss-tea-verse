@@ -15,6 +15,7 @@ interface TeaSubmission {
   average_rating: number;
   rating_count: number;
   has_evidence: boolean;
+  boost_score?: number;
 }
 
 interface AIComment {
@@ -55,6 +56,10 @@ const TeaFeed = () => {
           // Sort by most balanced hot/cold reactions
           query = query.order('created_at', { ascending: false });
           break;
+        case 'boosted':
+          // Sort by boost score
+          query = query.order('boost_score', { ascending: false });
+          break;
         default:
           query = query.order('created_at', { ascending: false });
       }
@@ -67,7 +72,8 @@ const TeaFeed = () => {
         ...submission,
         reactions: typeof submission.reactions === 'object' && submission.reactions !== null 
           ? submission.reactions as { hot: number; cold: number; spicy: number }
-          : { hot: 0, cold: 0, spicy: 0 }
+          : { hot: 0, cold: 0, spicy: 0 },
+        boost_score: submission.boost_score || 0
       }));
 
       // Apply client-side filtering
@@ -82,6 +88,8 @@ const TeaFeed = () => {
               return reactions.spicy > 5;
             case 'trending':
               return (reactions.hot + reactions.cold + reactions.spicy) > 10;
+            case 'boosted':
+              return (submission.boost_score || 0) > 0;
             default:
               return true;
           }
@@ -149,6 +157,15 @@ const TeaFeed = () => {
     } catch (error) {
       console.error('Error handling reaction:', error);
     }
+  };
+
+  const handleBoostUpdated = (submissionId: string, newBoost: number) => {
+    setSubmissions(prev => prev.map(sub => {
+      if (sub.id === submissionId) {
+        return { ...sub, boost_score: newBoost };
+      }
+      return sub;
+    }));
   };
 
   const generateAICommentary = async (submission: TeaSubmission, type: 'spicy' | 'smart' | 'memy' | 'savage' = 'spicy') => {
@@ -230,6 +247,7 @@ const TeaFeed = () => {
               onReaction={handleReaction}
               onToggleComments={toggleComments}
               onGenerateAI={generateAICommentary}
+              onBoostUpdated={handleBoostUpdated}
             />
           ))}
         </div>

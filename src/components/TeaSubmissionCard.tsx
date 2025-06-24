@@ -10,6 +10,8 @@ import ReactionButtons from './ReactionButtons';
 import AICommentary from './AICommentary';
 import AICommentarySelector from './AICommentarySelector';
 import CommentSection from './CommentSection';
+import BribeBoostSystem from './BribeBoostSystem';
+import MemeRemixer from './MemeRemixer';
 
 interface TeaSubmission {
   id: string;
@@ -22,6 +24,7 @@ interface TeaSubmission {
   rating_count: number;
   has_evidence: boolean;
   summary?: string;
+  boost_score?: number;
 }
 
 interface AIComment {
@@ -38,7 +41,8 @@ interface TeaSubmissionCardProps {
   isExpanded: boolean;
   onReaction: (submissionId: string, reactionType: 'hot' | 'cold' | 'spicy') => void;
   onToggleComments: (submissionId: string) => void;
-  onGenerateAI: (submission: TeaSubmission, type?: 'spicy' | 'smart' | 'memy' | 'savage') => void;
+  onGenerateAI: (submission: TeaSubmission, type: 'spicy' | 'smart' | 'memy' | 'savage') => void;
+  onBoostUpdated?: (submissionId: string, newBoost: number) => void;
 }
 
 const TeaSubmissionCard = ({
@@ -47,7 +51,8 @@ const TeaSubmissionCard = ({
   isExpanded,
   onReaction,
   onToggleComments,
-  onGenerateAI
+  onGenerateAI,
+  onBoostUpdated
 }: TeaSubmissionCardProps) => {
   const [showAISelector, setShowAISelector] = useState(false);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
@@ -62,6 +67,12 @@ const TeaSubmissionCard = ({
     }
   };
 
+  const handleBoostUpdated = (newBoost: number) => {
+    if (onBoostUpdated) {
+      onBoostUpdated(submission.id, newBoost);
+    }
+  };
+
   // Separate image URLs from other evidence URLs
   const imageUrls = submission.evidence_urls?.filter(url => 
     url.match(/\.(jpg|jpeg|png|gif|webp)$/i)
@@ -72,35 +83,39 @@ const TeaSubmissionCard = ({
   ) || [];
 
   return (
-    <div className="p-6 bg-white dark:bg-dark rounded-lg shadow-lg hover:shadow-2xl transition-shadow border border-gray-100 dark:border-accent mb-2">
+    <Card className="p-6 bg-gradient-to-br from-ctea-dark/80 to-ctea-darker/90 border-ctea-teal/30 neon-border">
+      {/* Boost Indicator */}
+      {submission.boost_score && submission.boost_score > 0 && (
+        <div className="mb-4 p-2 bg-gradient-to-r from-ctea-yellow/20 to-ctea-orange/20 rounded-lg border border-ctea-yellow/30">
+          <div className="flex items-center gap-2">
+            <span className="text-ctea-yellow font-bold">🚀</span>
+            <span className="text-white text-sm">
+              Boosted with +{submission.boost_score} visibility points
+            </span>
+          </div>
+        </div>
+      )}
+
       <SubmissionHeader submission={submission} />
-      <div className="mb-2">
-        <span className="block text-gray-500 dark:text-gray-300 text-base font-medium">
-          {submission.summary || submission.content.split(' ').slice(0,25).join(' ') + (submission.content.split(' ').length > 25 ? '...' : '')}
-        </span>
-      </div>
+      
       <SubmissionContent content={submission.content} />
       
-      {/* Display uploaded images */}
       {imageUrls.length > 0 && (
-        <div className="mb-4 space-y-2">
-          {imageUrls.map((url, index) => (
-            <div key={index} className="rounded-lg overflow-hidden">
-              <img 
-                src={url} 
-                alt={`Submission image ${index + 1}`}
-                className="w-full max-h-96 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                onClick={() => window.open(url, '_blank')}
+        <div className="mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {imageUrls.map((url, index) => (
+              <img
+                key={index}
+                src={url}
+                alt={`Evidence ${index + 1}`}
+                className="w-full rounded-lg border border-ctea-teal/20"
               />
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
       
-      {/* Display other evidence links */}
-      {otherEvidenceUrls.length > 0 && (
-        <EvidenceLinks evidenceUrls={otherEvidenceUrls} />
-      )}
+      <EvidenceLinks evidenceUrls={otherEvidenceUrls} />
       
       <ReactionButtons 
         reactions={submission.reactions}
@@ -108,7 +123,7 @@ const TeaSubmissionCard = ({
       />
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex gap-2">
           <Button
             size="sm"
@@ -130,6 +145,16 @@ const TeaSubmissionCard = ({
           </Button>
         </div>
         <div className="flex gap-2">
+          <BribeBoostSystem
+            submissionId={submission.id}
+            currentBoost={submission.boost_score || 0}
+            onBoostUpdated={handleBoostUpdated}
+          />
+          <MemeRemixer
+            submissionId={submission.id}
+            content={submission.content}
+            category={submission.category}
+          />
           <Button size="sm" variant="ghost" className="text-gray-400 hover:text-ctea-teal">
             <Share2 className="w-4 h-4" />
           </Button>
@@ -177,7 +202,7 @@ const TeaSubmissionCard = ({
           <CommentSection submissionId={submission.id} />
         </div>
       )}
-    </div>
+    </Card>
   );
 };
 

@@ -1,19 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import TeaCup from './TeaCup';
+import { Badge } from '@/components/ui/badge';
+import { Menu, X, Coffee, TrendingUp, Plus, Trophy, Sparkles } from 'lucide-react';
+import { useUserProgression } from '@/hooks/useUserProgression';
 import UserStats from './UserStats';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Coffee, PlusCircle, TrendingUp } from 'lucide-react';
-import { Switch } from '@/components/ui/switch';
 
 const Navigation = () => {
-  const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const { userProgression } = useUserProgression();
 
-  const navItems = [
-    { path: '/', label: 'Home', icon: Home },
-    { path: '/feed', label: 'Hot Takes', icon: TrendingUp },
-    { path: '/submit', label: 'Spill Tea', icon: PlusCircle }
+  const navigationItems = [
+    { path: '/', label: 'Home', icon: <Coffee className="w-4 h-4" /> },
+    { path: '/feed', label: 'Feed', icon: <TrendingUp className="w-4 h-4" /> },
+    { path: '/submit', label: 'Submit', icon: <Plus className="w-4 h-4" /> },
+    { path: '/campaigns', label: 'Campaigns', icon: <Trophy className="w-4 h-4" /> },
+    { path: '/features', label: 'Features', icon: <Sparkles className="w-4 h-4" /> }
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -47,49 +50,45 @@ const Navigation = () => {
             </div>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-2">
-            {navItems.map(({ path, label, icon: Icon }) => (
-              <Button
-                key={path}
-                variant={isActive(path) ? "default" : "ghost"}
-                size="sm"
-                onClick={() => navigate(path)}
-                className={`flex items-center gap-2 ${
-                  isActive(path) 
-                    ? 'bg-gradient-ctea text-white' 
-                    : 'text-gray-300 hover:text-white hover:bg-ctea-teal/10'
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-6">
+            {navigationItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                  isActive(item.path)
+                    ? 'bg-ctea-teal/20 text-ctea-teal border border-ctea-teal/30'
+                    : 'text-gray-300 hover:text-white hover:bg-ctea-dark/50'
                 }`}
               >
-                <Icon className="w-4 h-4" />
-                {label}
-              </Button>
+                {item.icon}
+                {item.label}
+              </Link>
             ))}
-          </nav>
-
-          {/* User Stats (Desktop) */}
-          <div className="hidden lg:block w-80">
-            <UserStats />
           </div>
 
-          {/* Mobile Navigation */}
-          <div className="md:hidden flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/feed')}
-              className="border-ctea-teal text-ctea-teal"
-            >
-              Feed
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => navigate('/submit')}
-              className="bg-gradient-ctea text-white"
-            >
-              <Coffee className="w-4 h-4" />
-            </Button>
+          {/* User Stats */}
+          <div className="hidden md:flex items-center gap-4">
+            {userProgression && (
+              <div className="flex items-center gap-2">
+                <Badge className="bg-ctea-yellow text-ctea-dark font-bold">
+                  {userProgression.tea_points} $TEA
+                </Badge>
+                <UserStats />
+              </div>
+            )}
           </div>
+
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden text-white hover:bg-ctea-dark/50"
+          >
+            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </Button>
 
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
@@ -103,10 +102,39 @@ const Navigation = () => {
           </div>
         </div>
 
-        {/* Mobile User Stats */}
-        <div className="lg:hidden mt-3">
-          <UserStats />
-        </div>
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden py-4 border-t border-ctea-teal/30">
+            <div className="space-y-2">
+              {navigationItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    isActive(item.path)
+                      ? 'bg-ctea-teal/20 text-ctea-teal border border-ctea-teal/30'
+                      : 'text-gray-300 hover:text-white hover:bg-ctea-dark/50'
+                  }`}
+                >
+                  {item.icon}
+                  {item.label}
+                </Link>
+              ))}
+              
+              {userProgression && (
+                <div className="px-4 py-3 border-t border-ctea-teal/30">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">$TEA Points:</span>
+                    <Badge className="bg-ctea-yellow text-ctea-dark font-bold">
+                      {userProgression.tea_points}
+                    </Badge>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );
