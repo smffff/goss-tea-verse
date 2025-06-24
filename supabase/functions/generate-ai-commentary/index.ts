@@ -16,7 +16,24 @@ interface AICommentaryRequest {
   submissionId: string;
   commentaryType?: 'spicy' | 'smart' | 'memy' | 'savage';
   isComment?: boolean;
-  chatRoomId?: string; 
+  chatRoomId?: string;
+  trendAnalysis?: boolean;
+  sentimentData?: {
+    positive: number;
+    negative: number;
+    neutral: number;
+    volume: number;
+    change: number;
+  };
+}
+
+interface TrendAnalysis {
+  viralProbability: number;
+  growthRate: number;
+  peakTime: string;
+  relatedTopics: string[];
+  sentimentShift: 'positive' | 'negative' | 'stable';
+  riskLevel: 'low' | 'medium' | 'high';
 }
 
 serve(async (req) => {
@@ -26,7 +43,7 @@ serve(async (req) => {
   }
 
   try {
-    const { content, category, submissionId, commentaryType = 'spicy', isComment = false, chatRoomId } = await req.json() as AICommentaryRequest;
+    const { content, category, submissionId, commentaryType = 'spicy', isComment = false, chatRoomId, trendAnalysis = false, sentimentData } = await req.json() as AICommentaryRequest;
 
     if (!content || !submissionId) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
@@ -36,7 +53,13 @@ serve(async (req) => {
     }
 
     let commentary = '';
+    let trendInsights: TrendAnalysis | null = null;
     const aiToken = 'ai-commentary-bot';
+
+    if (trendAnalysis && sentimentData) {
+      // Generate trend analysis
+      trendInsights = generateTrendAnalysis(content, category, sentimentData);
+    }
 
     if (isComment && chatRoomId) {
       // Generate AI response to a user comment
@@ -53,12 +76,13 @@ serve(async (req) => {
 
     } else {
       // Generate AI commentary for a new submission with specific type
-      commentary = generateAICommentary(content, category, commentaryType);
+      commentary = generateAICommentary(content, category, commentaryType, trendInsights);
     }
 
     return new Response(JSON.stringify({ 
       commentary, 
       type: commentaryType,
+      trendAnalysis: trendInsights,
       success: true 
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -73,8 +97,64 @@ serve(async (req) => {
   }
 });
 
+// Function to generate trend analysis
+function generateTrendAnalysis(content: string, category: string, sentimentData: any): TrendAnalysis {
+  const words = content.toLowerCase().split(' ');
+  const cryptoKeywords = ['crypto', 'bitcoin', 'ethereum', 'solana', 'defi', 'nft', 'web3', 'dao'];
+  const dramaKeywords = ['hack', 'scam', 'rugpull', 'exposed', 'drama', 'chaos', 'controversy'];
+  const positiveKeywords = ['moon', 'pump', 'bullish', 'success', 'launch', 'partnership'];
+  const negativeKeywords = ['dump', 'bearish', 'crash', 'fail', 'exit', 'scam'];
+
+  const cryptoScore = cryptoKeywords.filter(k => words.some(w => w.includes(k))).length;
+  const dramaScore = dramaKeywords.filter(k => words.some(w => w.includes(k))).length;
+  const positiveScore = positiveKeywords.filter(k => words.some(w => w.includes(k))).length;
+  const negativeScore = negativeKeywords.filter(k => words.some(w => w.includes(k))).length;
+
+  // Calculate viral probability based on content analysis
+  let viralProbability = 50; // Base probability
+  viralProbability += cryptoScore * 10; // Crypto topics are more viral
+  viralProbability += dramaScore * 15; // Drama drives engagement
+  viralProbability += Math.min(sentimentData.volume / 1000, 20); // Volume bonus
+  viralProbability = Math.min(viralProbability, 95); // Cap at 95%
+
+  // Calculate growth rate
+  const growthRate = sentimentData.change || 0;
+
+  // Determine peak time based on category and sentiment
+  let peakTime = '2-4h';
+  if (dramaScore > 2) peakTime = '1-2h'; // Drama spreads fast
+  if (cryptoScore > 3) peakTime = '4-6h'; // Crypto topics have longer legs
+  if (sentimentData.volume > 10000) peakTime = '6-12h'; // High volume = longer peak
+
+  // Related topics based on content
+  const relatedTopics = [];
+  if (cryptoScore > 0) relatedTopics.push('Cryptocurrency', 'Blockchain');
+  if (dramaScore > 0) relatedTopics.push('Crypto Drama', 'Community');
+  if (words.some(w => w.includes('nft'))) relatedTopics.push('NFTs', 'Digital Art');
+  if (words.some(w => w.includes('defi'))) relatedTopics.push('DeFi', 'Yield Farming');
+
+  // Sentiment shift analysis
+  let sentimentShift: 'positive' | 'negative' | 'stable' = 'stable';
+  if (positiveScore > negativeScore && sentimentData.change > 10) sentimentShift = 'positive';
+  else if (negativeScore > positiveScore && sentimentData.change < -10) sentimentShift = 'negative';
+
+  // Risk level assessment
+  let riskLevel: 'low' | 'medium' | 'high' = 'low';
+  if (dramaScore > 3 || negativeScore > 2) riskLevel = 'high';
+  else if (dramaScore > 1 || negativeScore > 1) riskLevel = 'medium';
+
+  return {
+    viralProbability,
+    growthRate,
+    peakTime,
+    relatedTopics,
+    sentimentShift,
+    riskLevel
+  };
+}
+
 // Function to generate AI commentary for submissions with specific types
-function generateAICommentary(content: string, category: string, type: 'spicy' | 'smart' | 'memy' | 'savage'): string {
+function generateAICommentary(content: string, category: string, type: 'spicy' | 'smart' | 'memy' | 'savage', trendInsights?: TrendAnalysis | null): string {
   // Extract key topics
   const words = content.toLowerCase().split(' ');
   const topics = ['crypto', 'nft', 'ethereum', 'bitcoin', 'defi', 'web3', 'dao', 'hack', 'scam', 'rugpull']
@@ -85,9 +165,15 @@ function generateAICommentary(content: string, category: string, type: 'spicy' |
 
   let commentary = '';
 
+  // Add trend insights if available
+  if (trendInsights) {
+    const trendPrefix = `📊 TREND ANALYSIS: ${trendInsights.viralProbability}% viral probability, ${trendInsights.growthRate >= 0 ? '+' : ''}${trendInsights.growthRate.toFixed(1)}% growth. Peak expected in ${trendInsights.peakTime}. Risk level: ${trendInsights.riskLevel.toUpperCase()}. `;
+    commentary += trendPrefix;
+  }
+
   switch (type) {
     case 'spicy':
-      commentary = [
+      commentary += [
         `🌶️ OKAY this is absolutely UNHINGED behavior and honestly? We're here for it. The audacity, the drama, the sheer chaos energy... *chef's kiss* 💀 This is why we can't have nice things in crypto, and that's exactly what makes it spicy!`,
         `🔥 I'm sorry but this is SENDING ME. The messiness here is exactly what CT needed today. The absolute shamelessness is giving pure entertainment value. This right here? This is premium content.`,
         `☕ Not me watching this drama unfold while eating popcorn 🍿 The crypto space truly never sleeps and neither does the chaos. This tea is SCALDING and I am absolutely living for every second of it.`,
@@ -96,7 +182,7 @@ function generateAICommentary(content: string, category: string, type: 'spicy' |
       break;
 
     case 'smart':
-      commentary = [
+      commentary += [
         `🧠 If we analyze this objectively, what we're witnessing is a fascinating intersection of game theory and social capital dynamics that perfectly encapsulates the volatile nature of ${topics.length ? topics[0] : 'crypto'} communities. The behavioral patterns here are textbook.`,
         `📊 This actually exposes a fundamental misalignment of incentives in the ${topics.length ? topics[0] : 'web3'} ecosystem. When you follow the money and map the stakeholder relationships, the systemic implications become quite concerning for long-term sustainability.`,
         `⚡ From a macro perspective, this is actually quite predictable given the current market conditions and regulatory uncertainty. What's interesting is how these patterns consistently emerge when liquidity shifts suddenly - it's almost algorithmic.`,
@@ -105,7 +191,7 @@ function generateAICommentary(content: string, category: string, type: 'spicy' |
       break;
 
     case 'memy':
-      commentary = [
+      commentary += [
         `😂 *whispers* "and then they rug pulled anyway" 💀 Nobody: Absolutely nobody: CT: "Let's create ANOTHER pointless drama that somehow makes perfect sense in this timeline"`,
         `🍿 POV: You just woke up and this is the first thing you see on CT. Me: *frantically makes popcorn while questioning all life choices* This is why we can't have nice things but also why we absolutely NEED these things.`,
         `🎮 The simulation devs are getting lazy with these storylines tbh. Next patch needs better character development but the plot twists are *chef's kiss* and the memes write themselves. 10/10 would chaos again.`,
@@ -114,7 +200,7 @@ function generateAICommentary(content: string, category: string, type: 'spicy' |
       break;
 
     case 'savage':
-      commentary = [
+      commentary += [
         `💀 Respectfully... this is the most clown behavior I've seen all week, and that's saying something given the usual circus on CT. The secondhand embarrassment is real and I'm concerned for humanity. ☠️`,
         `🗿 Not the hero we deserved, but definitely the chaos we needed 💀 Peak CT energy right here. This is exactly why normies think we're all insane and honestly? They're not wrong. The confidence is unmatched though.`,
         `🔥 Someone check if Mercury is in retrograde because this level of unhinged behavior needs an astrological explanation. The bar was on the floor and they brought a shovel. The disrespect to common sense is astronomical.`,
@@ -123,7 +209,7 @@ function generateAICommentary(content: string, category: string, type: 'spicy' |
       break;
 
     default:
-      commentary = "🫖 Hot take: this is exactly the kind of drama that makes crypto Twitter worth enduring. Spicy, messy, and completely on brand. 💯";
+      commentary += "🫖 Hot take: this is exactly the kind of drama that makes crypto Twitter worth enduring. Spicy, messy, and completely on brand. 💯";
   }
 
   // Add category-specific flavoring
@@ -135,6 +221,15 @@ function generateAICommentary(content: string, category: string, type: 'spicy' |
     commentary += " The receipts don't lie. Screenshots are forever on the blockchain of life. 📸";
   } else if (category === 'memes') {
     commentary += " This meme energy is exactly what the timeline needed today! 🔥";
+  }
+
+  // Add trend prediction if available
+  if (trendInsights) {
+    if (trendInsights.viralProbability > 80) {
+      commentary += ` 🚀 This is going VIRAL. Buckle up!`;
+    } else if (trendInsights.riskLevel === 'high') {
+      commentary += ` ⚠️ High risk content detected. Proceed with caution.`;
+    }
   }
 
   return commentary;
@@ -156,7 +251,7 @@ function generateAICommentResponse(content: string, category: string): string {
       "Let me put it this way: in crypto, there are no coincidences, just convenient timing 💅",
       "That's something we're all wondering... The plot thickens with every new piece of evidence 🕵️"
     ][Math.floor(Math.random() * 4)];
-  } 
+  }
   else if (isAgreeing) {
     return [
       "BASED take. You clearly understand how this game is played 💯",

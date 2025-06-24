@@ -6,6 +6,7 @@ import Feed from "./pages/Feed";
 import SubmitTea from "./pages/SubmitTea";
 import Campaigns from "./pages/Campaigns";
 import Features from "./pages/Features";
+import Trends from "./pages/Trends";
 import NotFound from "./pages/NotFound";
 
 const App = () => (
@@ -18,6 +19,7 @@ const App = () => (
         <Route path="/submit" element={<SubmitTea />} />
         <Route path="/campaigns" element={<Campaigns />} />
         <Route path="/features" element={<Features />} />
+        <Route path="/trends" element={<Trends />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
