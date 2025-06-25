@@ -85,12 +85,21 @@ const Navigation = () => {
           <div className="flex items-center justify-between h-16 sm:h-20">
             {/* Logo and Brand - Left */}
             <div 
-              className="flex items-center gap-2 sm:gap-4 cursor-pointer" 
+              className="flex items-center gap-2 sm:gap-4 cursor-pointer transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg p-1" 
               onClick={handleLogoClick}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleLogoClick();
+                }
+              }}
+              tabIndex={0}
+              role="button"
+              aria-label="Navigate to home page"
             >
               <img 
                 src="/ctea-logo-icon.svg" 
-                alt="CTEA Logo" 
+                alt="CTEA Logo - Click to go home" 
                 className="w-6 h-6 sm:w-8 sm:h-8" 
               />
               <div className="hidden sm:block">
@@ -114,10 +123,10 @@ const Navigation = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 uppercase font-semibold ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 uppercase font-semibold focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent ${
                     isActive(item.path)
-                      ? 'bg-accent/20 text-accent dark:bg-ctea-teal/20 dark:text-ctea-teal border border-accent/30 dark:border-ctea-teal/30'
-                      : 'text-gray-600 dark:text-gray-300 hover:text-accent dark:hover:text-white hover:bg-accent/10 dark:hover:bg-ctea-dark/50'
+                      ? 'bg-accent/20 text-accent dark:bg-ctea-teal/20 dark:text-ctea-teal border border-accent/30 dark:border-ctea-teal/30 shadow-lg'
+                      : 'text-gray-600 dark:text-gray-300 hover:text-accent dark:hover:text-white hover:bg-accent/10 dark:hover:bg-ctea-dark/50 hover:shadow-md active:scale-95'
                   }`}
                 >
                   {item.icon}
@@ -145,7 +154,7 @@ const Navigation = () => {
                 <Switch
                   checked={darkMode}
                   onCheckedChange={setDarkMode}
-                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-accent data-[state=checked]:to-accent2 border-accent"
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-accent data-[state=checked]:to-accent2 border-accent focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent"
                 />
                 <span className="text-xs text-gray-400 hidden sm:inline flex items-center gap-1">
                   {darkMode ? <Moon className="w-3 h-3" /> : <Sun className="w-3 h-3" />}
@@ -158,8 +167,10 @@ const Navigation = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="lg:hidden text-gray-900 dark:text-white hover:bg-accent/10 dark:hover:bg-ctea-dark/50 p-2"
+                className="lg:hidden text-gray-900 dark:text-white hover:bg-accent/10 dark:hover:bg-ctea-dark/50 p-2 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95 transition-transform duration-150"
                 aria-label="Toggle mobile menu"
+                aria-expanded={isMenuOpen}
+                aria-controls="mobile-menu"
               >
                 {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </Button>
@@ -178,7 +189,13 @@ const Navigation = () => {
           />
           
           {/* Mobile Menu Panel */}
-          <div className="absolute top-16 left-0 right-0 bg-white/95 dark:bg-ctea-darker/95 backdrop-blur-md border-b border-accent/30 dark:border-ctea-teal/30 animate-slide-down">
+          <div 
+            id="mobile-menu"
+            className="absolute top-16 left-0 right-0 bg-white/95 dark:bg-ctea-darker/95 backdrop-blur-md border-b border-accent/30 dark:border-ctea-teal/30 animate-slide-down"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation menu"
+          >
             <div className="container mx-auto px-4 md:px-8 py-4">
               {/* Mobile Navigation Items */}
               <nav className="space-y-2">
@@ -187,10 +204,10 @@ const Navigation = () => {
                     key={item.path}
                     to={item.path}
                     onClick={() => setIsMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 uppercase font-semibold ${
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 uppercase font-semibold focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent ${
                       isActive(item.path)
-                        ? 'bg-accent/20 text-accent dark:bg-ctea-teal/20 dark:text-ctea-teal border border-accent/30 dark:border-ctea-teal/30'
-                        : 'text-gray-600 dark:text-gray-300 hover:text-accent dark:hover:text-white hover:bg-accent/10 dark:hover:bg-ctea-dark/50'
+                        ? 'bg-accent/20 text-accent dark:bg-ctea-teal/20 dark:text-ctea-teal border border-accent/30 dark:border-ctea-teal/30 shadow-lg'
+                        : 'text-gray-600 dark:text-gray-300 hover:text-accent dark:hover:text-white hover:bg-accent/10 dark:hover:bg-ctea-dark/50 active:scale-95'
                     }`}
                   >
                     {item.icon}

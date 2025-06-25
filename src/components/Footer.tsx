@@ -66,7 +66,7 @@ const Footer = () => {
                 <div className="relative">
                   <img 
                     src="/ctea-logo-icon.svg" 
-                    alt="CTea Newsroom Logo" 
+                    alt="CTea Newsroom Logo - Anonymous Crypto Gossip Platform" 
                     className="w-12 h-12 text-accent animate-float" 
                   />
                   <div className="absolute -top-1 -right-1">
@@ -85,7 +85,7 @@ const Footer = () => {
             {/* Get Started Button */}
             <div className="mb-8">
               <Link to="/feed">
-                <Button className="bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent text-white font-bold uppercase tracking-wide px-8 py-4 text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+                <Button className="bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent text-white font-bold uppercase tracking-wide px-8 py-4 text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95">
                   <ArrowRight className="w-5 h-5 mr-2" />
                   Enter the Newsroom
                 </Button>
@@ -98,7 +98,8 @@ const Footer = () => {
                 href="https://cteanews.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 group hover:bg-accent/10 px-2 py-1 rounded"
+                className="flex items-center gap-2 text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 group hover:bg-accent/10 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
+                aria-label="Visit cteanews.com (opens in new tab)"
               >
                 <ExternalLink className="w-4 h-4 group-hover:animate-pulse" />
                 <span className="font-medium">cteanews.com</span>
@@ -111,7 +112,8 @@ const Footer = () => {
                   href={link.href} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 group hover:bg-accent/10 px-2 py-1 rounded"
+                  className="flex items-center gap-2 text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 group hover:bg-accent/10 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
+                  aria-label={`Visit ${link.label} (opens in new tab)`}
                 >
                   {link.icon}
                   <span className="font-medium">{link.label}</span>
@@ -125,7 +127,7 @@ const Footer = () => {
                 <Link
                   key={index}
                   to={link.path}
-                  className="text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 font-medium hover:bg-accent/10 px-2 py-1 rounded"
+                  className="text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 font-medium hover:bg-accent/10 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
                 >
                   {link.label}
                 </Link>
@@ -138,7 +140,7 @@ const Footer = () => {
                 <DialogTrigger asChild>
                   <Button 
                     variant="outline" 
-                    className="border-accent text-accent hover:bg-accent/10 hover:text-accent2 transition-all duration-300 uppercase font-semibold px-6 py-3 rounded-lg shadow hover:scale-105"
+                    className="border-accent text-accent hover:bg-accent/10 hover:text-accent2 transition-all duration-300 uppercase font-semibold px-6 py-3 rounded-lg shadow hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
                     onClick={() => {
                       trackFeedbackButtonClick();
                     }}
@@ -164,7 +166,7 @@ const Footer = () => {
                         placeholder="Share your thoughts, suggestions, or report issues..."
                         value={feedbackText}
                         onChange={(e) => setFeedbackText(e.target.value)}
-                        className="min-h-[120px] bg-gray-800 border-accent/30 text-white placeholder-gray-400"
+                        className="min-h-[120px] bg-gray-800 border-accent/30 text-white placeholder-gray-400 focus:ring-2 focus:ring-accent/50 focus:border-accent"
                         required
                       />
                     </div>
@@ -172,7 +174,7 @@ const Footer = () => {
                       <Button
                         type="submit"
                         disabled={isSubmitting || !feedbackText.trim()}
-                        className="flex-1 bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent text-white font-bold uppercase px-6 py-3 rounded-lg transition-all shadow hover:scale-105"
+                        className="flex-1 bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent text-white font-bold uppercase px-6 py-3 rounded-lg transition-all shadow hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
                       >
                         {isSubmitting ? (
                           <>
@@ -190,7 +192,7 @@ const Footer = () => {
                         type="button"
                         variant="outline"
                         onClick={() => setShowFeedback(false)}
-                        className="border-accent/30 text-accent hover:bg-accent/10 uppercase font-semibold px-6 py-3 rounded-lg transition-all shadow hover:scale-105"
+                        className="border-accent/30 text-accent hover:bg-accent/10 uppercase font-semibold px-6 py-3 rounded-lg transition-all shadow hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
                       >
                         Cancel
                       </Button>
@@ -201,7 +203,8 @@ const Footer = () => {
 
               <a 
                 href="mailto:hello@cteanews.com"
-                className="flex items-center gap-2 border-accent text-accent hover:bg-accent/10 hover:text-accent2 transition-all duration-300 uppercase font-semibold px-6 py-3 rounded-lg shadow hover:scale-105 border"
+                className="flex items-center gap-2 border-accent text-accent hover:bg-accent/10 hover:text-accent2 transition-all duration-300 uppercase font-semibold px-6 py-3 rounded-lg shadow hover:scale-105 border focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
+                aria-label="Send email to hello@cteanews.com"
               >
                 <Mail className="w-4 h-4" />
                 Contact
