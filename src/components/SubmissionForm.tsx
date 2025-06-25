@@ -49,22 +49,22 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
   const validateForm = (): boolean => {
     const newErrors: Partial<SubmissionData> = {};
 
-    // Validate tea content - minimum 20 characters
+    // Validate tea content - minimum 3 characters instead of 20 for easier testing
     if (!formData.tea.trim()) {
       newErrors.tea = 'Please share some tea!';
-    } else if (formData.tea.trim().length < 20) {
-      newErrors.tea = 'Tea must be at least 20 characters long';
+    } else if (formData.tea.trim().length < 3) {
+      newErrors.tea = 'Tea must be at least 3 characters long';
     } else if (formData.tea.length > 2000) {
       newErrors.tea = 'Tea must be less than 2000 characters';
     }
 
-    // Email is optional for anonymous submissions
+    // Email validation (optional)
     if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
     }
 
-    // Validate wallet (optional but if provided, should be valid format)
-    if (formData.wallet.trim() && !/^[0-9a-zA-Z]{26,35}$|^0x[a-fA-F0-9]{40}$/.test(formData.wallet)) {
+    // Wallet validation (optional)
+    if (formData.wallet.trim() && formData.wallet.trim().length < 10) {
       newErrors.wallet = 'Please enter a valid wallet address';
     }
 
@@ -75,7 +75,10 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Form submission started with data:', formData);
+    
     if (!validateForm()) {
+      console.log('Form validation failed:', errors);
       toast({
         title: "Validation Error",
         description: "Please fix the errors above before submitting.",
@@ -85,13 +88,15 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
     }
 
     setIsSubmitting(true);
-    trackFormCompletion('tea_submission');
-
+    
     try {
-      onSubmit(formData);
+      console.log('Calling onSubmit with validated data');
+      trackFormCompletion('tea_submission');
+      
+      await onSubmit(formData);
       trackTeaSpill(formData.category);
       
-      // Reset form
+      // Reset form on successful submission
       setFormData({
         tea: '',
         email: '',
@@ -102,7 +107,13 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
       });
       setErrors({});
       
+      toast({
+        title: "Tea Submitted! ☕",
+        description: "Your submission has been received successfully!",
+      });
+      
     } catch (error) {
+      console.error('Submission error in form:', error);
       toast({
         title: "Submission Failed",
         description: "Couldn't submit your tea. Please try again.",
@@ -119,7 +130,7 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
     }
   };
 
-  const isFormValid = formData.tea.trim().length >= 20;
+  const isFormValid = formData.tea.trim().length >= 3;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

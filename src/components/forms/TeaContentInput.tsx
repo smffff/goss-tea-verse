@@ -35,7 +35,7 @@ const TeaContentInput: React.FC<TeaContentInputProps> = ({
       </Label>
       <Textarea
         id="tea"
-        placeholder="Share the hottest crypto gossip, alpha, or meme-fueled take... (minimum 20 characters)"
+        placeholder="Share the hottest crypto gossip, alpha, or meme-fueled take... (minimum 3 characters)"
         value={value}
         onChange={(e) => {
           onChange(e.target.value);

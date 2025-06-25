@@ -20,31 +20,43 @@ const SubmitTea = () => {
   const { toast } = useToast();
 
   const handleSubmit = async (data: SubmissionData) => {
+    console.log('SubmitTea handleSubmit called with:', data);
     setIsSubmitting(true);
     
     try {
       // Generate anonymous token for submissions
-      const anonymousToken = localStorage.getItem('ctea_anonymous_token') || 
-        Array.from(crypto.getRandomValues(new Uint8Array(32)))
+      let anonymousToken = localStorage.getItem('ctea_anonymous_token');
+      if (!anonymousToken) {
+        anonymousToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
           .map(b => b.toString(16).padStart(2, '0'))
           .join('');
-      
-      localStorage.setItem('ctea_anonymous_token', anonymousToken);
+        localStorage.setItem('ctea_anonymous_token', anonymousToken);
+      }
+
+      console.log('Submitting to Supabase with token:', anonymousToken);
 
       // Submit to Supabase
-      const { error } = await supabase
+      const submissionData = {
+        content: data.tea,
+        category: data.category,
+        evidence_urls: data.evidence_urls.length > 0 ? data.evidence_urls : null,
+        anonymous_token: anonymousToken,
+        status: 'pending'
+      };
+
+      console.log('Submission data:', submissionData);
+
+      const { data: result, error } = await supabase
         .from('tea_submissions')
-        .insert({
-          content: data.tea,
-          category: data.category,
-          evidence_urls: data.evidence_urls.length > 0 ? data.evidence_urls : null,
-          anonymous_token: anonymousToken,
-          status: 'pending'
-        });
+        .insert(submissionData)
+        .select();
 
       if (error) {
+        console.error('Supabase error:', error);
         throw error;
       }
+
+      console.log('Submission successful:', result);
 
       toast({
         title: "Tea Submitted! ☕",
@@ -60,7 +72,7 @@ const SubmitTea = () => {
       console.error('Submission error:', error);
       toast({
         title: "Submission Failed",
-        description: "Couldn't submit your tea. Please try again.",
+        description: `Couldn't submit your tea: ${error.message || 'Unknown error'}`,
         variant: "destructive"
       });
     } finally {
