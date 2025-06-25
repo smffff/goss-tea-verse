@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Twitter, Github, MessageCircle, Heart, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -46,17 +47,17 @@ const Footer = () => {
       links: [
         { name: 'Discord', href: 'https://discord.gg/ctea', external: true },
         { name: 'Twitter', href: 'https://twitter.com/cteaplatform', external: true },
-        { name: 'Blog', href: '/blog', external: false },
-        { name: 'Newsletter', href: '/newsletter', external: false }
+        { name: 'Trends', href: '/trends', external: false },
+        { name: 'Campaigns', href: '/campaigns', external: false }
       ]
     },
     {
       title: 'Resources',
       links: [
-        { name: 'Documentation', href: '/docs', external: false },
-        { name: 'API', href: '/api', external: false },
-        { name: 'Help Center', href: '/help', external: false },
-        { name: 'Status', href: 'https://status.ctea.io', external: true }
+        { name: 'Feed', href: '/feed', external: false },
+        { name: 'Submit Tea', href: '/submit', external: false },
+        { name: 'Enhanced Feed', href: '/enhanced-feed', external: false },
+        { name: 'Contact', href: '/contact', external: false }
       ]
     },
     {
@@ -64,7 +65,7 @@ const Footer = () => {
       links: [
         { name: 'Privacy Policy', href: '/privacy' },
         { name: 'Terms of Service', href: '/terms' },
-        { name: 'Cookie Policy', href: '/cookies' },
+        { name: 'About Us', href: '/about' },
         { name: 'Contact', href: '/contact' }
       ]
     }
@@ -77,12 +78,12 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-8">
           {/* Brand Section */}
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
+            <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 bg-gradient-to-br from-ctea-teal to-ctea-purple rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">C</span>
               </div>
               <span className="text-xl font-bold text-white">CTea</span>
-            </div>
+            </Link>
             <p className="text-gray-400 mb-4 text-sm leading-relaxed">
               The ultimate platform for crypto gossip, verified rumors, and community-driven truth. 
               Spill the tea, earn rewards, and stay ahead of the crypto narrative.
@@ -121,12 +122,12 @@ const Footer = () => {
                         <ExternalLink className="w-3 h-3 ml-1" />
                       </Button>
                     ) : (
-                      <a
-                        href={link.href}
-                        className="text-gray-400 hover:text-ctea-teal text-sm transition-colors duration-200"
+                      <Link
+                        to={link.href}
+                        className="text-gray-400 hover:text-ctea-teal text-sm transition-colors duration-200 block"
                       >
                         {link.name}
-                      </a>
+                      </Link>
                     )}
                   </li>
                 ))}

@@ -44,7 +44,7 @@ const AdminLayout = () => {
             
             <div className="flex items-center space-x-4">
               <span className="text-gray-400 text-sm">{user?.email}</span>
-              <NavLink to="/">
+              <NavLink to="/home">
                 <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
                   <Home className="w-4 h-4 mr-2" />
                   Back to Site

@@ -3,17 +3,19 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Menu, X, Coffee, TrendingUp, Users, Coins, Settings } from 'lucide-react';
+import { Menu, X, Coffee, TrendingUp, Users, Coins, Settings, User } from 'lucide-react';
 import { useUserProgression } from '@/hooks/useUserProgression';
+import { useAuth } from '@/hooks/useAuth';
 import BetaDisclaimer from '@/components/BetaDisclaimer';
 
 const Navigation = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { progression, currentLevel } = useUserProgression();
+  const { user, isAdmin, isModerator } = useAuth();
 
   const navItems = [
-    { path: '/', label: 'Home', icon: Coffee },
+    { path: '/home', label: 'Home', icon: Coffee },
     { path: '/feed', label: 'Feed', icon: TrendingUp },
     { path: '/submit', label: 'Submit Tea', icon: Coffee },
     { path: '/trends', label: 'Trends', icon: TrendingUp },
@@ -22,8 +24,8 @@ const Navigation = () => {
   ];
 
   const isActivePath = (path: string) => {
-    if (path === '/') {
-      return location.pathname === '/';
+    if (path === '/home') {
+      return location.pathname === '/' || location.pathname === '/home';
     }
     return location.pathname.startsWith(path);
   };
@@ -64,19 +66,37 @@ const Navigation = () => {
             })}
           </div>
 
-          {/* User Stats */}
+          {/* User Stats & Auth */}
           <div className="hidden md:flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Badge className="bg-ctea-teal/20 text-ctea-teal border border-ctea-teal/30">
-                Level {currentLevel.level}
-              </Badge>
-              <Badge className="bg-ctea-yellow/20 text-ctea-yellow border border-ctea-yellow/30">
-                {progression.tea_points} $TEA
-              </Badge>
-            </div>
-            <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-              <Settings className="w-4 h-4" />
-            </Button>
+            {user ? (
+              <>
+                <div className="flex items-center space-x-2">
+                  <Badge className="bg-ctea-teal/20 text-ctea-teal border border-ctea-teal/30">
+                    Level {currentLevel.level}
+                  </Badge>
+                  <Badge className="bg-ctea-yellow/20 text-ctea-yellow border border-ctea-yellow/30">
+                    {progression.tea_points} $TEA
+                  </Badge>
+                </div>
+                {(isAdmin || isModerator) && (
+                  <Link to="/admin">
+                    <Button size="sm" variant="outline" className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-black">
+                      Admin
+                    </Button>
+                  </Link>
+                )}
+                <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                  <Settings className="w-4 h-4" />
+                </Button>
+              </>
+            ) : (
+              <Link to="/auth">
+                <Button size="sm" variant="outline" className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-black">
+                  <User className="w-4 h-4 mr-2" />
+                  Sign In
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -117,17 +137,28 @@ const Navigation = () => {
                 );
               })}
               <div className="flex items-center justify-between pt-4 border-t border-ctea-teal/20">
-                <div className="flex items-center space-x-2">
-                  <Badge className="bg-ctea-teal/20 text-ctea-teal border border-ctea-teal/30">
-                    Level {currentLevel.level}
-                  </Badge>
-                  <Badge className="bg-ctea-yellow/20 text-ctea-yellow border border-ctea-yellow/30">
-                    {progression.tea_points} $TEA
-                  </Badge>
-                </div>
-                <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                  <Settings className="w-4 h-4" />
-                </Button>
+                {user ? (
+                  <>
+                    <div className="flex items-center space-x-2">
+                      <Badge className="bg-ctea-teal/20 text-ctea-teal border border-ctea-teal/30">
+                        Level {currentLevel.level}
+                      </Badge>
+                      <Badge className="bg-ctea-yellow/20 text-ctea-yellow border border-ctea-yellow/30">
+                        {progression.tea_points} $TEA
+                      </Badge>
+                    </div>
+                    <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                      <Settings className="w-4 h-4" />
+                    </Button>
+                  </>
+                ) : (
+                  <Link to="/auth" className="w-full">
+                    <Button size="sm" variant="outline" className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-black w-full">
+                      <User className="w-4 h-4 mr-2" />
+                      Sign In
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
