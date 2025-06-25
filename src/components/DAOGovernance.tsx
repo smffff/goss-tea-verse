@@ -24,6 +24,8 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+type ProposalCategory = 'governance' | 'feature' | 'economic' | 'emergency';
+
 interface GovernanceProposal {
   id: number;
   title: string;
@@ -35,7 +37,7 @@ interface GovernanceProposal {
   startTime: number;
   endTime: number;
   creator: string;
-  category: 'governance' | 'feature' | 'economic' | 'emergency';
+  category: ProposalCategory;
   quorum: number;
   executionDelay: number;
   executedAt?: number;
@@ -58,12 +60,18 @@ const DAOGovernance: React.FC = () => {
   const { toast } = useToast();
 
   // Form state for new proposal
-  const [newProposal, setNewProposal] = useState({
+  const [newProposal, setNewProposal] = useState<{
+    title: string;
+    description: string;
+    category: ProposalCategory;
+    duration: number;
+    quorum: number;
+  }>({
     title: '',
     description: '',
-    category: 'governance' as const,
-    duration: 7, // days
-    quorum: 10 // percentage
+    category: 'governance',
+    duration: 7,
+    quorum: 10
   });
 
   useEffect(() => {
@@ -165,7 +173,13 @@ const DAOGovernance: React.FC = () => {
 
       setProposals(prev => [proposal, ...prev]);
       setIsCreatingProposal(false);
-      setNewProposal({ title: '', description: '', category: 'governance', duration: 7, quorum: 10 });
+      setNewProposal({ 
+        title: '', 
+        description: '', 
+        category: 'governance', 
+        duration: 7, 
+        quorum: 10 
+      });
 
       toast({
         title: "Proposal Created! 🗳️",
@@ -357,7 +371,7 @@ const DAOGovernance: React.FC = () => {
                   <label className="text-sm text-gray-300 mb-1 block">Category</label>
                   <select
                     value={newProposal.category}
-                    onChange={(e) => setNewProposal(prev => ({ ...prev, category: e.target.value as 'governance' | 'feature' | 'economic' | 'emergency' }))}
+                    onChange={(e) => setNewProposal(prev => ({ ...prev, category: e.target.value as ProposalCategory }))}
                     className="w-full bg-ctea-dark/50 border border-ctea-teal/30 text-white rounded-md p-2"
                   >
                     <option value="governance">Governance</option>
@@ -712,4 +726,4 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
   );
 };
 
-export default DAOGovernance; 
+export default DAOGovernance;

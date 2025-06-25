@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,12 +33,12 @@ const CommentSection = ({ submissionId }: CommentSectionProps) => {
     try {
       const { data, error } = await supabase
         .from('messages')
-        .select('*')
+        .select('id, content, created_at, anonymous_token')
         .eq('submission_id', submissionId)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setComments((data || []) as Comment[]);
+      setComments(data || []);
     } catch (error) {
       console.error('Error fetching comments:', error);
     } finally {
@@ -75,7 +76,7 @@ const CommentSection = ({ submissionId }: CommentSectionProps) => {
           submission_id: submissionId,
           anonymous_token: anonymousToken
         })
-        .select()
+        .select('id, content, created_at, anonymous_token')
         .single();
 
       if (error) throw error;
@@ -90,7 +91,9 @@ const CommentSection = ({ submissionId }: CommentSectionProps) => {
         }
       });
 
-      setComments(prev => [...prev, data]);
+      if (data) {
+        setComments(prev => [...prev, data]);
+      }
       setNewComment('');
       
       toast({
