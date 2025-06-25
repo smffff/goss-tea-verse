@@ -29,7 +29,7 @@ const About = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-16">
+      <div className="py-16 px-4 sm:px-8">
         {/* Hero Section */}
         <div className="text-center mb-16">
           <img 
@@ -37,7 +37,7 @@ const About = () => {
             alt="CTea Newsroom Full Logo" 
             className="w-64 mx-auto mb-8"
           />
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 animate-glow">
+          <h1 className="text-4xl md:text-6xl font-[\'Anton\'] font-bold text-white mb-6 animate-glow">
             About CTea Newsroom
           </h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">

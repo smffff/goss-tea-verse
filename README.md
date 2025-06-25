@@ -242,3 +242,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **Made with ☕ by the CTea Team**
+
+## Build Mode Banner
+
+To enable the dismissible build mode banner at the top of the site, add the following to your `.env` file:
+
+```
+VITE_BUILD_MODE=true
+```
+
+Set to `false` or remove to hide the banner in production.

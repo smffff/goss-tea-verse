@@ -1,118 +1,74 @@
 import React from "react";
-import "../index.css";
 
-const HERO_TEXT = "Spill Tea. Stack Clout. Stay Shady.";
+interface HeroSectionProps {
+  showDisclaimer?: boolean;
+  customTitle?: string;
+  customSubtitle?: string;
+  ctaText?: string;
+  ctaLink?: string;
+  heroImage?: string;
+  ctaClassName?: string;
+}
+
+const HERO_TEXT = "Spill Tea. Stack Clout.";
 const HERO_SUBHEAD = "Anonymous, viral, and a little bit dangerous.";
-const HERO_IMAGE = "/assets/banner.png";
+const HERO_IMAGE = "/assets/cteacupicon.png";
+const CTA_TEXT = "🫖 Spill Tea Now";
+const CTA_LINK = "/spill";
+const CTA_CLASS = "px-8 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition hover-lift shadow-lg text-lg font-['Oswald']";
 
-const Hero: React.FC = () => {
-  const [imgLoaded, setImgLoaded] = React.useState(true);
-
-  React.useEffect(() => {
-    const img = new window.Image();
-    img.src = HERO_IMAGE;
-    img.onload = () => setImgLoaded(true);
-    img.onerror = () => setImgLoaded(false);
-  }, []);
-
+const HeroSection: React.FC<HeroSectionProps> = ({
+  showDisclaimer,
+  customTitle,
+  customSubtitle,
+  ctaText,
+  ctaLink,
+  heroImage,
+  ctaClassName,
+}) => {
   return (
-    <div
-      className="hero-banner"
-      style={
-        imgLoaded
-          ? {
-              backgroundImage: `url(${HERO_IMAGE})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              width: "100%",
-              height: "400px",
-              position: "relative",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              overflow: "hidden",
-            }
-          : {
-              background: "linear-gradient(90deg, #ffb6ff 0%, #b5ffd9 100%)",
-              width: "100%",
-              height: "400px",
-              position: "relative",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              overflow: "hidden",
-            }
-      }
+    <section
+      className="relative w-full flex flex-col-reverse md:flex-row items-center justify-between px-6 py-12 md:py-24 bg-gradient-to-r from-pink-200 via-purple-300 to-blue-300 overflow-hidden min-h-[400px] md:min-h-[500px]"
     >
-      {/* Floating Beta Badge */}
-      <div
-        className="absolute top-4 right-4 bg-yellow-400 px-3 py-1 text-xs font-bold rounded-full animate-bounce-subtle shadow-lg z-20"
-        style={{ pointerEvents: "none" }}
-      >
-        Beta Brew 🍵
-      </div>
-      {/* Overlay */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          background: "rgba(0,0,0,0.35)",
-          zIndex: 1,
-        }}
-      />
-      {/* Content */}
-      <div
-        className="relative z-10 flex flex-col items-center justify-center w-full"
-        style={{ textAlign: "center" }}
-      >
+      {/* Text Content */}
+      <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left z-10">
         <h1
-          className="animate-fadeInUp"
-          style={{
-            fontFamily: "'Anton', 'Oswald', Arial, sans-serif",
-            fontSize: "3rem",
-            color: "#fff",
-            textShadow:
-              "0 2px 16px #ff00cc, 0 4px 32px #00ffe7, 2px 2px 0 #000, 0 0 8px #fff",
-            letterSpacing: "0.05em",
-            padding: "0 2rem",
-            background: "linear-gradient(90deg, #ff0055 0%, #00ffe7 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            filter:
-              "drop-shadow(0 0 8px #fff) drop-shadow(0 0 16px #ff00cc)",
-          }}
+          className="font-['Anton'] font-extrabold uppercase text-4xl md:text-6xl mb-4 neon-glow"
+          style={{ letterSpacing: '0.04em' }}
         >
-          {HERO_TEXT}
+          {customTitle || HERO_TEXT}
         </h1>
-        <p
-          className="mt-2 animate-fadeInUp animation-delay-200"
-          style={{
-            fontFamily: "'Oswald', Arial, sans-serif",
-            fontSize: "1.25rem",
-            color: "#fff",
-            textShadow: "0 1px 8px #ffb6ff, 0 2px 16px #00ffe7",
-            padding: "0 1.5rem",
-            maxWidth: 600,
-            margin: "0 auto",
-            opacity: 0.95,
-          }}
-        >
-          {HERO_SUBHEAD}
+        <p className="font-['Oswald'] text-lg md:text-2xl font-semibold mb-6 text-gray-800 md:max-w-md">
+          {customSubtitle || HERO_SUBHEAD}
         </p>
-        <a href="/spill-manual" className="mt-4">
+        <a href={ctaLink || CTA_LINK}>
           <button
-            className="px-6 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition hover-lift animate-fadeInUp animation-delay-300 shadow-lg"
-            style={{ fontFamily: "'Oswald', Arial, sans-serif", fontSize: "1.1rem" }}
+            className={ctaClassName || CTA_CLASS}
           >
-            Submit Anonymous Tea
+            {ctaText || CTA_TEXT}
           </button>
         </a>
+        {showDisclaimer && (
+          <div className="mt-6 p-4 bg-yellow-100 border-l-4 border-yellow-400 text-yellow-900 rounded shadow-md animate-pulse-slow max-w-md">
+            <span className="font-bold">The tea is still steeping…</span> we're brewing something juicy. Come back soon or drop your gossip anyway.
+          </div>
+        )}
       </div>
-    </div>
+      {/* Hero Image */}
+      <div className="flex-1 flex justify-center md:justify-end items-center mb-8 md:mb-0">
+        <img
+          src={heroImage || HERO_IMAGE}
+          alt="Ctea Cup Icon"
+          className="w-40 h-40 md:w-64 md:h-64 object-contain drop-shadow-2xl animate-float"
+          draggable={false}
+        />
+      </div>
+      {/* Optional: Floating Beta Badge */}
+      <div className="absolute top-4 right-4 bg-yellow-400 px-3 py-1 text-xs font-bold rounded-full animate-bounce-subtle shadow-lg z-20 pointer-events-none">
+        Beta Brew 🫖
+      </div>
+    </section>
   );
 };
 
-export default Hero; 
+export default HeroSection; 
