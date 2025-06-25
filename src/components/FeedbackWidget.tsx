@@ -1,69 +1,69 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Bug, Lightbulb } from 'lucide-react';
-import FeedbackModal from '@/components/FeedbackModal';
+import { Card, CardContent } from '@/components/ui/card';
+import { ThumbsUp, ThumbsDown, MessageCircle } from 'lucide-react';
+import { track } from '@/utils/analytics';
 
-const FeedbackWidget: React.FC = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [feedbackType, setFeedbackType] = useState<'bug' | 'feature' | 'general'>('general');
-  const [isExpanded, setIsExpanded] = useState(false);
+interface FeedbackWidgetProps {
+  submissionId: string;
+  className?: string;
+}
 
-  const handleFeedbackClick = (type: 'bug' | 'feature' | 'general') => {
-    setFeedbackType(type);
-    setShowModal(true);
-    setIsExpanded(false);
+const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({ submissionId, className = '' }) => {
+  const [feedback, setFeedback] = useState<'fresh' | 'stale' | null>(null);
+
+  const handleFeedback = (type: 'fresh' | 'stale') => {
+    setFeedback(type);
+    track('tea_feedback', { 
+      submission_id: submissionId, 
+      feedback_type: type 
+    });
   };
 
   return (
-    <>
-      <div className="fixed bottom-6 right-6 z-50">
-        <div className="flex flex-col items-end gap-2">
-          {/* Expanded Options */}
-          {isExpanded && (
-            <div className="flex flex-col gap-2 mb-2">
-              <Button
-                onClick={() => handleFeedbackClick('bug')}
-                className="bg-red-500 hover:bg-red-600 text-white shadow-lg"
-                size="sm"
-              >
-                <Bug className="w-4 h-4 mr-2" />
-                Report Bug
-              </Button>
-              <Button
-                onClick={() => handleFeedbackClick('feature')}
-                className="bg-yellow-500 hover:bg-yellow-600 text-white shadow-lg"
-                size="sm"
-              >
-                <Lightbulb className="w-4 h-4 mr-2" />
-                Feature Request
-              </Button>
-              <Button
-                onClick={() => handleFeedbackClick('general')}
-                className="bg-blue-500 hover:bg-blue-600 text-white shadow-lg"
-                size="sm"
-              >
-                <MessageSquare className="w-4 h-4 mr-2" />
-                General Feedback
-              </Button>
-            </div>
-          )}
-
-          {/* Main Feedback Button */}
-          <Button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-full w-14 h-14"
-          >
-            <MessageSquare className="w-6 h-6" />
-          </Button>
+    <Card className={`bg-gradient-to-r from-amber-50 to-red-50 border-red-200 ${className}`}>
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-gray-900">
+            Was this tea fresh or stale?
+          </span>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              onClick={() => handleFeedback('fresh')}
+              disabled={feedback !== null}
+              className={`${
+                feedback === 'fresh' 
+                  ? 'bg-green-500 text-white' 
+                  : 'bg-white border border-green-300 text-green-600 hover:bg-green-50'
+              }`}
+            >
+              <ThumbsUp className="w-3 h-3 mr-1" />
+              Fresh
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => handleFeedback('stale')}
+              disabled={feedback !== null}
+              className={`${
+                feedback === 'stale' 
+                  ? 'bg-red-500 text-white' 
+                  : 'bg-white border border-red-300 text-red-600 hover:bg-red-50'
+              }`}
+            >
+              <ThumbsDown className="w-3 h-3 mr-1" />
+              Stale
+            </Button>
+          </div>
         </div>
-      </div>
-
-      <FeedbackModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        initialType={feedbackType}
-      />
-    </>
+        {feedback && (
+          <p className="text-xs text-gray-600 mt-2">
+            Thanks for the feedback! 🫖
+          </p>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 
