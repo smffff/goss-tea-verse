@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserProgression } from '@/hooks/useUserProgression';
@@ -23,7 +24,7 @@ type LocalAIComment = {
 
 const EnhancedTeaFeed = () => {
   const [submissions, setSubmissions] = useState<TeaSubmission[]>([]);
-  const [aiComments, setAiComments] = useState<{ [key: string]: LocalAIComment[] }>({});
+  const [aiComments, setAiComments] = useState<Record<string, LocalAIComment[]>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [expandedSubmissions, setExpandedSubmissions] = useState<Set<string>>(new Set());
   const [activeFilter, setActiveFilter] = useState('all');
@@ -258,19 +259,21 @@ const EnhancedTeaFeed = () => {
       if (error) throw error;
       
       if (data?.commentary) {
-        setAiComments(prev => ({
-          ...prev,
-          [submission.id]: [
-            ...(prev[submission.id] || []),
-            {
-              id: Date.now().toString(),
-              content: data.commentary,
-              type: type,
-              submission_id: submission.id,
-              created_at: new Date().toISOString()
-            }
-          ]
-        }));
+        const newComment: LocalAIComment = {
+          id: Date.now().toString(),
+          content: data.commentary,
+          type: type,
+          submission_id: submission.id,
+          created_at: new Date().toISOString()
+        };
+
+        setAiComments(prevComments => {
+          const existingComments = prevComments[submission.id] || [];
+          return {
+            ...prevComments,
+            [submission.id]: [...existingComments, newComment]
+          };
+        });
       }
     } catch (error) {
       console.error('EnhancedTeaFeed - Error generating AI commentary:', error);
