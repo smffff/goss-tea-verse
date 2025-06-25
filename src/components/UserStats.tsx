@@ -3,83 +3,87 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Trophy, Star, Coffee, Zap } from 'lucide-react';
+import { TrendingUp, Award, Coffee, Zap } from 'lucide-react';
 import { useUserProgression } from '@/hooks/useUserProgression';
 
-const UserStats = () => {
-  const { userProgression, userLevel, isLoading } = useUserProgression();
+const UserStats: React.FC = () => {
+  const { progression, currentLevel, nextLevel } = useUserProgression();
 
-  if (isLoading) {
-    return (
-      <Card className="p-4 bg-ctea-dark/50 animate-pulse">
-        <div className="h-4 bg-ctea-teal/20 rounded mb-2"></div>
-        <div className="h-8 bg-ctea-teal/10 rounded"></div>
-      </Card>
-    );
-  }
-
-  if (!userProgression || !userLevel) {
-    return null;
-  }
-
-  const progressToNextLevel = userLevel.max_xp 
-    ? ((userProgression.current_xp - userLevel.min_xp) / (userLevel.max_xp - userLevel.min_xp)) * 100
+  const xpProgress = nextLevel 
+    ? ((progression.current_xp - currentLevel.min_xp) / (nextLevel.min_xp - currentLevel.min_xp)) * 100
     : 100;
 
   return (
-    <Card className="p-4 bg-gradient-to-br from-ctea-dark/80 to-ctea-darker/90 border-ctea-teal/30 neon-border">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Trophy className="w-5 h-5 text-ctea-yellow" />
-          <span className="font-bold text-white">Level {userProgression.current_level}</span>
-          <Badge 
-            className="text-xs" 
-            style={{ backgroundColor: userLevel.badge_color, color: '#000' }}
-          >
-            {userLevel.name}
-          </Badge>
-        </div>
-        <div className="text-right">
-          <div className="text-sm text-ctea-teal font-bold">{userProgression.current_xp} XP</div>
-          {userLevel.max_xp && (
-            <div className="text-xs text-gray-400">/ {userLevel.max_xp} XP</div>
+    <Card className="p-6 bg-gradient-to-br from-ctea-dark/80 to-ctea-darker/90 border-ctea-teal/30">
+      <div className="space-y-6">
+        {/* Level Progress */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Award className="w-5 h-5 text-ctea-teal" />
+              <span className="text-white font-bold">Level {currentLevel.level}</span>
+              <Badge 
+                className="text-xs"
+                style={{ backgroundColor: currentLevel.badge_color + '20', color: currentLevel.badge_color, borderColor: currentLevel.badge_color + '50' }}
+              >
+                {currentLevel.name}
+              </Badge>
+            </div>
+            {nextLevel && (
+              <span className="text-sm text-gray-400">
+                {progression.current_xp} / {nextLevel.min_xp} XP
+              </span>
+            )}
+          </div>
+          {nextLevel && (
+            <Progress value={xpProgress} className="h-2 bg-ctea-darker" />
           )}
         </div>
-      </div>
 
-      {userLevel.max_xp && (
-        <div className="mb-4">
-          <Progress value={progressToNextLevel} className="h-2" />
-          <div className="text-xs text-gray-400 mt-1">
-            {userLevel.max_xp - userProgression.current_xp} XP to next level
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Coffee className="w-4 h-4 text-ctea-yellow" />
+              <span className="text-sm text-gray-400">Tea Points</span>
+            </div>
+            <p className="text-lg font-bold text-white">{progression.tea_points}</p>
+          </div>
+          
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-ctea-purple" />
+              <span className="text-sm text-gray-400">Posts</span>
+            </div>
+            <p className="text-lg font-bold text-white">{progression.total_posts}</p>
+          </div>
+          
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-ctea-pink" />
+              <span className="text-sm text-gray-400">Reactions Given</span>
+            </div>
+            <p className="text-lg font-bold text-white">{progression.total_reactions_given}</p>
+          </div>
+          
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Award className="w-4 h-4 text-ctea-teal" />
+              <span className="text-sm text-gray-400">Reactions Received</span>
+            </div>
+            <p className="text-lg font-bold text-white">{progression.total_reactions_received}</p>
           </div>
         </div>
-      )}
 
-      <div className="grid grid-cols-3 gap-3 text-center">
-        <div>
-          <div className="flex items-center justify-center mb-1">
-            <Coffee className="w-4 h-4 text-ctea-orange" />
+        {/* Next Level Preview */}
+        {nextLevel && (
+          <div className="p-3 bg-ctea-darker/50 rounded-lg border border-ctea-teal/20">
+            <h4 className="text-sm font-medium text-white mb-2">Next Level: {nextLevel.name}</h4>
+            <p className="text-xs text-gray-400">
+              {nextLevel.min_xp - progression.current_xp} XP needed to level up
+            </p>
           </div>
-          <div className="text-lg font-bold text-ctea-orange">{userProgression.tea_points}</div>
-          <div className="text-xs text-gray-400">$TEA Points</div>
-        </div>
-        
-        <div>
-          <div className="flex items-center justify-center mb-1">
-            <Star className="w-4 h-4 text-ctea-pink" />
-          </div>
-          <div className="text-lg font-bold text-ctea-pink">{userProgression.total_posts}</div>
-          <div className="text-xs text-gray-400">Posts</div>
-        </div>
-        
-        <div>
-          <div className="flex items-center justify-center mb-1">
-            <Zap className="w-4 h-4 text-ctea-cyan" />
-          </div>
-          <div className="text-lg font-bold text-ctea-cyan">{userProgression.total_reactions_received}</div>
-          <div className="text-xs text-gray-400">Reactions</div>
-        </div>
+        )}
       </div>
     </Card>
   );

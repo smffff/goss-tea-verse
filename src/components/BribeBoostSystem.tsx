@@ -1,18 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Slider } from '@/components/ui/slider';
-import { Zap, Coins, TrendingUp, Crown, CreditCard, Wallet } from 'lucide-react';
-import { useUserProgression } from '@/hooks/useUserProgression';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { loadStripe } from '@stripe/stripe-js';
 
-// Initialize Stripe
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import { Zap, TrendingUp, AlertTriangle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useUserProgression } from '@/hooks/useUserProgression';
 
 interface BribeBoostSystemProps {
   submissionId: string;
@@ -26,25 +20,23 @@ const BribeBoostSystem: React.FC<BribeBoostSystemProps> = ({
   onBoostUpdated
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [boostAmount, setBoostAmount] = useState(50);
+  const [boostAmount, setBoostAmount] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'tea'>('stripe');
-  const { userProgression, awardPoints } = useUserProgression();
   const { toast } = useToast();
+  const { progression, addTeaPoints } = useUserProgression();
 
   const boostTiers = [
-    { amount: 25, cost: 2.99, teaCost: 10, label: 'Small Boost', icon: '⚡', description: 'Minor visibility increase' },
-    { amount: 50, cost: 4.99, teaCost: 25, label: 'Medium Boost', icon: '🔥', description: 'Notable visibility boost' },
-    { amount: 100, cost: 8.99, teaCost: 50, label: 'Large Boost', icon: '🚀', description: 'Major visibility increase' },
-    { amount: 200, cost: 14.99, teaCost: 100, label: 'Viral Boost', icon: '👑', description: 'Maximum visibility' }
+    { amount: 10, multiplier: 1.5, label: 'Small Boost' },
+    { amount: 25, multiplier: 2.0, label: 'Medium Boost' },
+    { amount: 50, multiplier: 3.0, label: 'Large Boost' },
+    { amount: 100, multiplier: 5.0, label: 'Mega Boost' }
   ];
 
-  const handleStripePayment = async () => {
-    const stripe = await stripePromise;
-    if (!stripe) {
+  const handleBoost = async (amount: number) => {
+    if (progression.tea_points < amount) {
       toast({
-        title: "Payment Error",
-        description: "Stripe is not available. Please try again.",
+        title: "Insufficient $TEA",
+        description: `You need ${amount} $TEA tokens to boost this submission.`,
         variant: "destructive"
       });
       return;
@@ -52,86 +44,27 @@ const BribeBoostSystem: React.FC<BribeBoostSystemProps> = ({
 
     setIsProcessing(true);
     try {
-      // Create payment intent on backend
-      const { data: paymentIntent, error } = await supabase.functions.invoke('create-payment-intent', {
-        body: {
-          amount: boostAmount,
-          submissionId: submissionId,
-          boostTier: boostTiers.find(tier => tier.amount === boostAmount)
-        }
-      });
-
-      if (error) throw error;
-
-      // Redirect to Stripe Checkout
-      const { error: stripeError } = await stripe.redirectToCheckout({
-        sessionId: paymentIntent.sessionId
-      });
-
-      if (stripeError) throw stripeError;
-
-    } catch (error) {
-      console.error('Payment error:', error);
+      // Simulate boost transaction
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Deduct TEA points
+      await addTeaPoints(-amount);
+      
+      // Update boost score
+      const newBoost = currentBoost + amount;
+      onBoostUpdated(newBoost);
+      
       toast({
-        title: "Payment Failed",
-        description: "Couldn't process payment. Please try again.",
-        variant: "destructive"
+        title: "Boost Successful! 🚀",
+        description: `Boosted submission with ${amount} $TEA tokens.`,
       });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleTeaBoost = async () => {
-    const selectedTier = boostTiers.find(tier => tier.amount === boostAmount);
-    if (!userProgression || userProgression.tea_points < (selectedTier?.teaCost || 0)) {
-      toast({
-        title: "Insufficient $TEA Points",
-        description: "You need more $TEA points to boost this submission.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsProcessing(true);
-    try {
-      // Deduct points from user
-      await awardPoints(-(selectedTier?.teaCost || 0), `Boosted submission ${submissionId}`);
-
-      // Update submission boost in database
-      const { error } = await supabase
-        .from('tea_submissions')
-        .update({ 
-          boost_score: (currentBoost || 0) + boostAmount,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', submissionId);
-
-      if (error) throw error;
-
-      // Add boost transaction
-      await supabase
-        .from('tea_points_transactions')
-        .insert({
-          anonymous_token: userProgression.anonymous_token,
-          amount: -(selectedTier?.teaCost || 0),
-          transaction_type: 'boost_purchase',
-          description: `Boosted submission for ${selectedTier?.teaCost} $TEA points`
-        });
-
-      onBoostUpdated((currentBoost || 0) + boostAmount);
+      
       setIsOpen(false);
-
-      toast({
-        title: "Boost Applied! 🚀",
-        description: `Your submission is now boosted with +${boostAmount} visibility points!`,
-      });
-
+      setBoostAmount('');
     } catch (error) {
-      console.error('Boost error:', error);
       toast({
         title: "Boost Failed",
-        description: "Couldn't apply boost. Please try again.",
+        description: "Could not boost submission. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -139,189 +72,127 @@ const BribeBoostSystem: React.FC<BribeBoostSystemProps> = ({
     }
   };
 
-  const getBoostTier = (boost: number) => {
-    if (boost >= 200) return { ...boostTiers[3], current: true };
-    if (boost >= 100) return { ...boostTiers[2], current: true };
-    if (boost >= 50) return { ...boostTiers[1], current: true };
-    if (boost >= 25) return { ...boostTiers[0], current: true };
-    return null;
+  const handleCustomBoost = async () => {
+    const amount = parseInt(boostAmount);
+    if (!amount || amount < 1) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid boost amount.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    await handleBoost(amount);
   };
 
-  const currentTier = getBoostTier(currentBoost || 0);
-  const selectedTier = boostTiers.find(tier => tier.amount === boostAmount);
+  if (!isOpen) {
+    return (
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => setIsOpen(true)}
+        className="border-ctea-yellow/30 text-ctea-yellow hover:bg-ctea-yellow/10"
+      >
+        <Zap className="w-4 h-4 mr-1" />
+        Boost
+      </Button>
+    );
+  }
 
   return (
-    <>
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogTrigger asChild>
+    <Card className="absolute z-50 p-4 bg-ctea-dark border border-ctea-yellow/30 w-80 shadow-lg">
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-white font-bold flex items-center gap-2">
+            <Zap className="w-5 h-5 text-ctea-yellow" />
+            Boost Submission
+          </h3>
           <Button
             size="sm"
-            variant="outline"
-            className="border-ctea-yellow/30 text-ctea-yellow hover:bg-ctea-yellow/10"
+            variant="ghost"
+            onClick={() => setIsOpen(false)}
+            className="text-gray-400 hover:text-white"
           >
-            <Zap className="w-4 h-4 mr-1" />
-            Boost {currentBoost ? `(+${currentBoost})` : ''}
+            ×
           </Button>
-        </DialogTrigger>
-        <DialogContent className="bg-ctea-darker/95 border-ctea-teal/30 max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-white flex items-center gap-2">
-              <Coins className="w-5 h-5 text-ctea-yellow" />
-              Bribe to Boost Visibility
-            </DialogTitle>
-          </DialogHeader>
+        </div>
 
-          <div className="space-y-6">
-            {/* Current Status */}
-            <div className="p-4 bg-ctea-dark/50 rounded-lg border border-ctea-teal/20">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-white font-medium">Current Boost</span>
-                <Badge className="bg-ctea-yellow text-ctea-dark font-bold">
-                  +{currentBoost || 0}
-                </Badge>
-              </div>
-              {currentTier && (
-                <div className="flex items-center gap-2 text-sm text-ctea-teal">
-                  <span>{currentTier.icon}</span>
-                  <span>{currentTier.label}</span>
-                </div>
-              )}
-            </div>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-400">Your $TEA:</span>
+            <Badge className="bg-ctea-yellow/20 text-ctea-yellow border border-ctea-yellow/30">
+              {progression.tea_points}
+            </Badge>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-400">Current Boost:</span>
+            <span className="text-white">{currentBoost}</span>
+          </div>
+        </div>
 
-            {/* Payment Method Tabs */}
-            <Tabs value={paymentMethod} onValueChange={(value) => setPaymentMethod(value as 'stripe' | 'tea')}>
-              <TabsList className="grid w-full grid-cols-2 bg-ctea-dark/50">
-                <TabsTrigger value="stripe" className="flex items-center gap-2">
-                  <CreditCard className="w-4 h-4" />
-                  Credit Card
-                </TabsTrigger>
-                <TabsTrigger value="tea" className="flex items-center gap-2">
-                  <Wallet className="w-4 h-4" />
-                  $TEA Points
-                </TabsTrigger>
-              </TabsList>
+        <div className="space-y-2">
+          <p className="text-sm text-gray-300">Quick Boost Options:</p>
+          <div className="grid grid-cols-2 gap-2">
+            {boostTiers.map((tier) => (
+              <Button
+                key={tier.amount}
+                size="sm"
+                variant="outline"
+                onClick={() => handleBoost(tier.amount)}
+                disabled={isProcessing || progression.tea_points < tier.amount}
+                className={`flex flex-col h-auto p-2 ${
+                  progression.tea_points >= tier.amount
+                    ? 'border-ctea-yellow/30 text-ctea-yellow hover:bg-ctea-yellow/10'
+                    : 'border-gray-600 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                <span className="font-bold">{tier.amount} $TEA</span>
+                <span className="text-xs">{tier.label}</span>
+                <span className="text-xs">
+                  <TrendingUp className="w-3 h-3 inline mr-1" />
+                  {tier.multiplier}x
+                </span>
+              </Button>
+            ))}
+          </div>
+        </div>
 
-              <TabsContent value="stripe" className="space-y-4">
-                {/* Boost Options for Stripe */}
-                <div className="space-y-3">
-                  <h4 className="text-white font-medium">Choose Boost Amount:</h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    {boostTiers.map((tier) => (
-                      <Card
-                        key={tier.amount}
-                        className={`p-3 cursor-pointer transition-all ${
-                          boostAmount === tier.amount
-                            ? 'bg-gradient-to-r from-ctea-yellow/20 to-ctea-orange/20 border-ctea-yellow/50'
-                            : 'bg-ctea-dark/50 border-ctea-teal/20 hover:border-ctea-yellow/30'
-                        }`}
-                        onClick={() => setBoostAmount(tier.amount)}
-                      >
-                        <div className="text-center">
-                          <div className="text-2xl mb-1">{tier.icon}</div>
-                          <div className="text-white font-bold text-sm">{tier.label}</div>
-                          <div className="text-ctea-yellow font-bold text-xs">+{tier.amount}</div>
-                          <div className="text-green-400 font-bold text-xs">${tier.cost}</div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Stripe Payment Button */}
-                <Button
-                  onClick={handleStripePayment}
-                  disabled={isProcessing}
-                  className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-bold hover:opacity-90"
-                >
-                  {isProcessing ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <CreditCard className="w-4 h-4 mr-2" />
-                      Pay ${selectedTier?.cost} to Boost
-                    </>
-                  )}
-                </Button>
-              </TabsContent>
-
-              <TabsContent value="tea" className="space-y-4">
-                {/* Boost Options for TEA */}
-                <div className="space-y-3">
-                  <h4 className="text-white font-medium">Choose Boost Amount:</h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    {boostTiers.map((tier) => (
-                      <Card
-                        key={tier.amount}
-                        className={`p-3 cursor-pointer transition-all ${
-                          boostAmount === tier.amount
-                            ? 'bg-gradient-to-r from-ctea-yellow/20 to-ctea-orange/20 border-ctea-yellow/50'
-                            : 'bg-ctea-dark/50 border-ctea-teal/20 hover:border-ctea-yellow/30'
-                        }`}
-                        onClick={() => setBoostAmount(tier.amount)}
-                      >
-                        <div className="text-center">
-                          <div className="text-2xl mb-1">{tier.icon}</div>
-                          <div className="text-white font-bold text-sm">{tier.label}</div>
-                          <div className="text-ctea-yellow font-bold text-xs">+{tier.amount}</div>
-                          <div className="text-ctea-yellow text-xs">{tier.teaCost} $TEA</div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-
-                {/* User Balance */}
-                <div className="p-3 bg-ctea-purple/20 rounded-lg border border-ctea-purple/30">
-                  <div className="flex items-center justify-between">
-                    <span className="text-white text-sm">Your $TEA Balance:</span>
-                    <span className="text-ctea-yellow font-bold">
-                      {userProgression?.tea_points || 0} $TEA
-                    </span>
-                  </div>
-                  {userProgression && userProgression.tea_points < (selectedTier?.teaCost || 0) && (
-                    <div className="text-ctea-pink text-xs mt-1">
-                      Insufficient balance for this boost
-                    </div>
-                  )}
-                </div>
-
-                {/* TEA Payment Button */}
-                <Button
-                  onClick={handleTeaBoost}
-                  disabled={isProcessing || !userProgression || userProgression.tea_points < (selectedTier?.teaCost || 0)}
-                  className="w-full bg-gradient-to-r from-ctea-yellow to-ctea-orange text-ctea-dark font-bold hover:opacity-90"
-                >
-                  {isProcessing ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-ctea-dark mr-2"></div>
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <Wallet className="w-4 h-4 mr-2" />
-                      Boost for {selectedTier?.teaCost} $TEA
-                    </>
-                  )}
-                </Button>
-              </TabsContent>
-            </Tabs>
-
-            {/* Cancel Button */}
+        <div className="space-y-2">
+          <p className="text-sm text-gray-300">Custom Amount:</p>
+          <div className="flex gap-2">
+            <Input
+              type="number"
+              placeholder="Amount"
+              value={boostAmount}
+              onChange={(e) => setBoostAmount(e.target.value)}
+              className="bg-ctea-darker border-ctea-yellow/30 text-white"
+            />
             <Button
-              variant="outline"
-              onClick={() => setIsOpen(false)}
-              className="w-full border-ctea-teal/30 text-ctea-teal hover:bg-ctea-teal/10"
+              onClick={handleCustomBoost}
+              disabled={isProcessing}
+              className="bg-ctea-yellow text-ctea-dark hover:bg-ctea-yellow/90"
             >
-              Cancel
+              {isProcessing ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-ctea-dark"></div>
+              ) : (
+                'Boost'
+              )}
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
-    </>
+        </div>
+
+        <div className="p-2 bg-ctea-yellow/10 rounded border border-ctea-yellow/20">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="w-4 h-4 text-ctea-yellow mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-ctea-yellow">
+              Boosting increases visibility and engagement potential. Higher boosts get priority placement in feeds.
+            </p>
+          </div>
+        </div>
+      </div>
+    </Card>
   );
 };
 
-export default BribeBoostSystem; 
+export default BribeBoostSystem;

@@ -11,6 +11,7 @@ interface AnalyticsEvent {
   custom_parameter_2?: string;
   custom_parameter_3?: string;
   value?: number;
+  [key: string]: string | number | Record<string, string> | undefined;
 }
 
 export const trackEvent = (eventName: string, properties?: AnalyticsEvent) => {
@@ -51,6 +52,20 @@ export const trackTeaSubmission = (category: string, hasEvidence: boolean) => {
   });
 };
 
+export const trackFormCompletion = (formType: string) => {
+  trackEvent('form_completion', {
+    event_category: 'engagement',
+    event_label: formType
+  });
+};
+
+export const trackTeaSpill = (category: string) => {
+  trackEvent('tea_spill', {
+    event_category: 'content',
+    event_label: category
+  });
+};
+
 export const trackReaction = (reactionType: string, submissionCategory: string) => {
   trackEvent('reaction_given', {
     event_category: 'engagement',
@@ -71,6 +86,6 @@ export const trackError = (errorType: string, errorMessage: string) => {
   trackEvent('error_occurred', {
     event_category: 'error',
     event_label: errorType,
-    custom_parameter_1: errorMessage.substring(0, 100) // Truncate long error messages
+    custom_parameter_1: errorMessage.substring(0, 100)
   });
 };

@@ -4,11 +4,17 @@ import Layout from '@/components/Layout';
 import SubmissionForm from '@/components/SubmissionForm';
 import { useToast } from '@/hooks/use-toast';
 
+interface SubmissionData {
+  tea: string;
+  evidence: string[];
+  category: string;
+}
+
 const SubmitTea = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = async (data: { content: string; category: string; evidenceUrls: string[] }) => {
+  const handleSubmit = async (data: SubmissionData) => {
     setIsSubmitting(true);
     try {
       // Simulate submission

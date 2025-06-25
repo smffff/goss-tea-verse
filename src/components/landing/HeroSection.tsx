@@ -6,7 +6,15 @@ import { ArrowRight, Sparkles, TrendingUp, Users, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ShareButtons from '@/components/ShareButtons';
 
-const HeroSection = () => {
+interface HeroSectionProps {
+  onSpillFormOpen?: () => void;
+  onTippingModalOpen?: () => void;
+}
+
+const HeroSection: React.FC<HeroSectionProps> = ({
+  onSpillFormOpen,
+  onTippingModalOpen
+}) => {
   const navigate = useNavigate();
   const [animatedStats, setAnimatedStats] = useState({
     posts: 0,
@@ -38,8 +46,9 @@ const HeroSection = () => {
     // Apply glow effect to elements
     const elements = document.querySelectorAll('.animate-glow');
     elements.forEach((element) => {
-      if (element instanceof HTMLElement) {
-        element.style.textShadow = '0 0 20px rgba(0, 209, 193, 0.5)';
+      const htmlElement = element as HTMLElement;
+      if (htmlElement) {
+        htmlElement.style.textShadow = '0 0 20px rgba(0, 209, 193, 0.5)';
       }
     });
 
@@ -105,7 +114,7 @@ const HeroSection = () => {
           <p className="text-gray-400 mb-4">Share the revolution:</p>
           <ShareButtons
             url={window.location.origin}
-            title="CTea - The Ultimate Crypto Gossip Platform"
+            title="CTEA NEWS - The Ultimate Crypto Gossip Platform"
             variant="expanded"
             className="justify-center"
           />

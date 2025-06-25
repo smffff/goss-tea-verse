@@ -1,58 +1,56 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Brain, Flame, Laugh, Zap } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface AICommentarySelectorProps {
-  onSelectType: (type: 'spicy' | 'smart' | 'memy' | 'wise') => void;
+  onSelectType: (type: 'spicy' | 'smart' | 'memy' | 'savage') => void;
   isGenerating: boolean;
 }
 
-const AICommentarySelector = ({ onSelectType, isGenerating }: AICommentarySelectorProps) => {
+const AICommentarySelector: React.FC<AICommentarySelectorProps> = ({
+  onSelectType,
+  isGenerating
+}) => {
   const commentaryTypes = [
     {
       type: 'spicy' as const,
-      icon: <Flame className="w-4 h-4" />,
-      label: 'Spicy',
-      description: 'Hot takes that burn',
-      gradient: 'from-ctea-orange to-ctea-pink'
+      label: '🌶️ Spicy Take',
+      description: 'Hot and controversial',
+      color: 'bg-red-500/20 text-red-400 border-red-500/30'
     },
     {
       type: 'smart' as const,
-      icon: <Brain className="w-4 h-4" />,
-      label: 'Smart',
-      description: 'Big brain analysis',
-      gradient: 'from-ctea-purple to-ctea-teal'
+      label: '🧠 Smart Analysis',
+      description: 'Deep and analytical',
+      color: 'bg-blue-500/20 text-blue-400 border-blue-500/30'
     },
     {
       type: 'memy' as const,
-      icon: <Laugh className="w-4 h-4" />,
-      label: 'Memy',
-      description: 'Pure chaos energy',
-      gradient: 'from-ctea-teal to-ctea-yellow'
+      label: '😂 Meme Mode',
+      description: 'Funny and viral',
+      color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
     },
     {
-      type: 'wise' as const,
-      icon: <Zap className="w-4 h-4" />,
-      label: 'Wise',
-      description: 'Cutting insights',
-      gradient: 'from-ctea-pink to-ctea-purple'
+      type: 'savage' as const,
+      label: '🔥 Savage Roast',
+      description: 'Brutal but fair',
+      color: 'bg-purple-500/20 text-purple-400 border-purple-500/30'
     }
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-2">
-      {commentaryTypes.map(({ type, icon, label, description, gradient }) => (
+    <div className="grid grid-cols-2 gap-3">
+      {commentaryTypes.map((commentary) => (
         <Button
-          key={type}
-          variant="outline"
-          size="sm"
-          onClick={() => onSelectType(type)}
+          key={commentary.type}
+          onClick={() => onSelectType(commentary.type)}
           disabled={isGenerating}
-          className={`border-ctea-teal/30 text-white hover:bg-gradient-to-r hover:${gradient} hover:text-white transition-all duration-200 flex flex-col items-center gap-1 h-auto py-3`}
+          variant="outline"
+          className={`h-auto p-4 flex flex-col items-start gap-2 ${commentary.color} hover:opacity-80`}
         >
-          {icon}
-          <span className="font-bold text-xs">{label}</span>
-          <span className="text-xs opacity-75">{description}</span>
+          <div className="font-bold text-sm">{commentary.label}</div>
+          <div className="text-xs opacity-70">{commentary.description}</div>
         </Button>
       ))}
     </div>

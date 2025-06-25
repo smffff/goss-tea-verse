@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, Share2, Flag } from 'lucide-react';
+import { MessageCircle, Share2, Flag, TrendingUp, Award } from 'lucide-react';
 import SubmissionHeader from './SubmissionHeader';
 import SubmissionContent from './SubmissionContent';
 import EvidenceLinks from './EvidenceLinks';
@@ -25,8 +26,8 @@ interface TeaSubmission {
   average_rating: number;
   rating_count: number;
   has_evidence: boolean;
-  summary?: string;
   boost_score?: number;
+  credibility_score?: number;
 }
 
 interface AIComment {
@@ -47,7 +48,7 @@ interface TeaSubmissionCardProps {
   onBoostUpdated?: (submissionId: string, newBoost: number) => void;
 }
 
-const TeaSubmissionCard = ({
+const TeaSubmissionCard: React.FC<TeaSubmissionCardProps> = ({
   submission,
   aiComments,
   isExpanded,
@@ -55,7 +56,7 @@ const TeaSubmissionCard = ({
   onToggleComments,
   onGenerateAI,
   onBoostUpdated
-}: TeaSubmissionCardProps) => {
+}) => {
   const [showAISelector, setShowAISelector] = useState(false);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -86,22 +87,37 @@ const TeaSubmissionCard = ({
   ) || [];
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-ctea-dark/80 to-ctea-darker/90 border-ctea-teal/30 neon-border">
-      {/* Boost Indicator */}
-      {submission.boost_score && submission.boost_score > 0 && (
-        <div className="mb-4 p-2 bg-gradient-to-r from-ctea-yellow/20 to-ctea-orange/20 rounded-lg border border-ctea-yellow/30">
-          <div className="flex items-center gap-2">
-            <span className="text-ctea-yellow font-bold">🚀</span>
-            <span className="text-white text-sm">
-              Boosted with +{submission.boost_score} visibility points
-            </span>
-          </div>
-        </div>
-      )}
-
+    <Card className="p-6 bg-gradient-to-br from-ctea-dark/80 to-ctea-darker/90 border-ctea-teal/30 neon-border hover:border-ctea-teal/50 transition-all duration-300">
       <SubmissionHeader submission={submission} />
       
       <SubmissionContent content={submission.content} />
+
+      {/* Enhanced metrics display */}
+      <div className="mb-4 flex flex-wrap gap-2">
+        <Badge className="bg-ctea-teal/20 text-ctea-teal border border-ctea-teal/30">
+          <TrendingUp className="w-3 h-3 mr-1" />
+          {submission.rating_count} reactions
+        </Badge>
+        
+        {submission.has_evidence && (
+          <Badge className="bg-green-500/20 text-green-400 border border-green-500/30">
+            🔍 Verified Evidence
+          </Badge>
+        )}
+        
+        {submission.boost_score && submission.boost_score > 0 && (
+          <Badge className="bg-ctea-yellow/20 text-ctea-yellow border border-ctea-yellow/30">
+            🚀 Boosted
+          </Badge>
+        )}
+        
+        {submission.credibility_score && submission.credibility_score > 70 && (
+          <Badge className="bg-ctea-purple/20 text-ctea-purple border border-ctea-purple/30">
+            <Award className="w-3 h-3 mr-1" />
+            High Credibility
+          </Badge>
+        )}
+      </div>
       
       {imageUrls.length > 0 && (
         <div className="mb-4">
@@ -111,7 +127,7 @@ const TeaSubmissionCard = ({
                 key={index}
                 src={url}
                 alt={`Evidence image ${index + 1} for tea submission`}
-                className="w-full rounded-lg border border-ctea-teal/20"
+                className="w-full rounded-lg border border-ctea-teal/20 hover:border-ctea-teal/40 transition-colors"
               />
             ))}
           </div>
@@ -127,22 +143,12 @@ const TeaSubmissionCard = ({
 
       {/* Share Buttons */}
       <div className="my-2">
-        <div className="hidden md:block">
-          <ShareButtons
-            url={window.location.origin + '/feed/' + submission.id}
-            title={submission.content.slice(0, 80) + '...'}
-            variant="expanded"
-            className="w-full"
-          />
-        </div>
-        <div className="block md:hidden">
-          <ShareButtons
-            url={window.location.origin + '/feed/' + submission.id}
-            title={submission.content.slice(0, 80) + '...'}
-            variant="minimal"
-            className="w-full"
-          />
-        </div>
+        <ShareButtons
+          url={window.location.origin + '/feed/' + submission.id}
+          title={submission.content.slice(0, 80) + '...'}
+          variant="minimal"
+          className="w-full"
+        />
       </div>
 
       {/* Action Buttons */}

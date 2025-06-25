@@ -1,283 +1,135 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Menu, X, TrendingUp, Plus, Trophy, Sparkles, Home, Activity, Moon, Sun, Coins, Vote, Zap } from 'lucide-react';
+import { Menu, X, Coffee, TrendingUp, Users, Coins, Settings } from 'lucide-react';
 import { useUserProgression } from '@/hooks/useUserProgression';
-import UserStats from './UserStats';
 
 const Navigation = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
-  const { userProgression } = useUserProgression();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { progression, currentLevel } = useUserProgression();
 
-  const navigationItems = [
-    { path: '/', label: 'Home', icon: <Home className="w-4 h-4" /> },
-    { path: '/feed', label: 'Feed', icon: <TrendingUp className="w-4 h-4" /> },
-    { path: '/leaderboard', label: 'Leaderboard', icon: <Trophy className="w-4 h-4" /> },
-    { path: '/submit', label: 'Submit', icon: <Plus className="w-4 h-4" /> },
-    { path: '/about', label: 'About', icon: <Sparkles className="w-4 h-4" /> }
+  const navItems = [
+    { path: '/', label: 'Home', icon: Coffee },
+    { path: '/feed', label: 'Feed', icon: TrendingUp },
+    { path: '/submit', label: 'Submit Tea', icon: Coffee },
+    { path: '/trends', label: 'Trends', icon: TrendingUp },
+    { path: '/token', label: 'Token', icon: Coins },
+    { path: '/governance', label: 'Governance', icon: Users },
   ];
 
-  const [darkMode, setDarkMode] = React.useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('ctea-dark-mode') === 'true';
-    }
-    return true;
-  });
-
-  const isActive = (path: string) => {
+  const isActivePath = (path: string) => {
     if (path === '/') {
       return location.pathname === '/';
     }
     return location.pathname.startsWith(path);
   };
 
-  // Handle scroll effect for sticky behavior
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Close mobile menu when route changes
-  useEffect(() => {
-    setIsMenuOpen(false);
-  }, [location.pathname]);
-
-  // Prevent body scroll when mobile menu is open
-  useEffect(() => {
-    if (isMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isMenuOpen]);
-
-  // Handle dark mode
-  React.useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('ctea-dark-mode', darkMode.toString());
-  }, [darkMode]);
-
-  const handleLogoClick = () => {
-    navigate('/');
-    setIsMenuOpen(false);
-  };
-
-  const handleMobileMenuToggle = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      setIsMenuOpen(false);
-    }
-  };
-
   return (
-    <>
-      {/* Sticky Header */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-white/95 dark:bg-ctea-darker/95 backdrop-blur-md border-b border-[#00d1c1]/30 dark:border-[#00d1c1]/30' 
-          : 'bg-transparent'
-      }`}>
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-20">
-            {/* Logo and Brand - Left */}
-            <div 
-              className="flex items-center gap-2 sm:gap-4 cursor-pointer transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#00d1c1]/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg p-1" 
-              onClick={handleLogoClick}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleLogoClick();
-                }
-              }}
-              tabIndex={0}
-              role="button"
-              aria-label="Navigate to home page"
-            >
-              <img 
-                src="/ctea-logo-icon.svg" 
-                alt="CTEA Logo - Click to go home" 
-                className="w-6 h-6 sm:w-8 sm:h-8" 
-              />
-              <div className="hidden sm:block">
-                <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white animate-glow font-montserrat">
-                  CTea Newsroom
-                </h1>
-                <p className="text-xs text-[#00d1c1] dark:text-[#00d1c1] font-montserrat">
-                  Beta • Managed Chaos, Served Hot
-                </p>
-              </div>
-              <div className="sm:hidden">
-                <h1 className="text-base font-bold text-gray-900 dark:text-white animate-glow font-montserrat">
-                  CTea
-                </h1>
-              </div>
+    <nav className="bg-ctea-dark/90 backdrop-blur-lg border-b border-ctea-teal/20 sticky top-0 z-50">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-ctea-teal to-ctea-purple rounded-lg flex items-center justify-center">
+              <Coffee className="w-5 h-5 text-white" />
             </div>
+            <span className="font-bold text-xl text-white">CTEA NEWS</span>
+          </Link>
 
-            {/* Desktop Navigation - Center */}
-            <nav className="hidden lg:flex items-center gap-4 xl:gap-6">
-              {navigationItems.map((item) => (
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-6">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 uppercase font-semibold focus:outline-none focus:ring-2 focus:ring-[#00d1c1]/50 focus:ring-offset-2 focus:ring-offset-transparent ${
-                    isActive(item.path)
-                      ? 'bg-[#00d1c1]/20 text-[#00d1c1] dark:bg-[#00d1c1]/20 dark:text-[#00d1c1] border border-[#00d1c1]/30 dark:border-[#00d1c1]/30 shadow-lg'
-                      : 'text-gray-600 dark:text-gray-300 hover:text-[#00d1c1] dark:hover:text-white hover:bg-[#00d1c1]/10 dark:hover:bg-ctea-dark/50 hover:shadow-md active:scale-95'
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
+                    isActivePath(item.path)
+                      ? 'bg-ctea-teal/20 text-ctea-teal'
+                      : 'text-gray-300 hover:text-white hover:bg-ctea-dark/50'
                   }`}
                 >
-                  {item.icon}
-                  <span className="hidden xl:inline">{item.label}</span>
+                  <Icon className="w-4 h-4" />
+                  <span>{item.label}</span>
                 </Link>
-              ))}
-            </nav>
-
-            {/* Desktop User Stats */}
-            <div className="hidden lg:flex items-center gap-4">
-              {userProgression && (
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-[#ff61a6] text-white font-bold">
-                    {userProgression.tea_points} $TEA
-                  </Badge>
-                  <UserStats />
-                </div>
-              )}
-            </div>
-
-            {/* Controls - Right */}
-            <div className="flex items-center gap-2 sm:gap-4">
-              {/* Dark Mode Toggle */}
-              <div className="flex items-center gap-1 sm:gap-2">
-                <Switch
-                  checked={darkMode}
-                  onCheckedChange={setDarkMode}
-                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-[#00d1c1] data-[state=checked]:to-[#ff61a6] border-[#00d1c1] focus:ring-2 focus:ring-[#00d1c1]/50 focus:ring-offset-2 focus:ring-offset-transparent"
-                />
-                <span className="text-xs text-gray-400 hidden sm:inline flex items-center gap-1">
-                  {darkMode ? <Moon className="w-3 h-3" /> : <Sun className="w-3 h-3" />}
-                  {darkMode ? 'Dark' : 'Light'}
-                </span>
-              </div>
-
-              {/* Mobile Menu Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleMobileMenuToggle}
-                className="lg:hidden text-gray-900 dark:text-white hover:bg-[#00d1c1]/10 dark:hover:bg-ctea-dark/50 p-2 focus:outline-none focus:ring-2 focus:ring-[#00d1c1]/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95 transition-transform duration-150"
-                aria-label="Toggle mobile menu"
-                aria-expanded={isMenuOpen}
-                aria-controls="mobile-menu"
-              >
-                {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </Button>
-            </div>
+              );
+            })}
           </div>
-        </div>
-      </header>
 
-      {/* Mobile Menu Overlay */}
-      {isMenuOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          {/* Backdrop */}
-          <div 
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={handleBackdropClick}
-            aria-hidden="true"
-          />
-          
-          {/* Mobile Menu Panel */}
-          <div 
-            id="mobile-menu"
-            className="absolute top-16 left-0 right-0 bg-white/95 dark:bg-ctea-darker/95 backdrop-blur-md border-b border-[#00d1c1]/30 dark:border-[#00d1c1]/30 animate-slide-down"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Mobile navigation menu"
+          {/* User Stats */}
+          <div className="hidden md:flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Badge className="bg-ctea-teal/20 text-ctea-teal border border-ctea-teal/30">
+                Level {currentLevel.level}
+              </Badge>
+              <Badge className="bg-ctea-yellow/20 text-ctea-yellow border border-ctea-yellow/30">
+                {progression.tea_points} $TEA
+              </Badge>
+            </div>
+            <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+              <Settings className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {/* Mobile menu button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="md:hidden text-white"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            <div className="container mx-auto px-4 py-6">
-              {/* Mobile Navigation Items */}
-              <nav className="space-y-2">
-                {navigationItems.map((item) => (
+            {isMobileMenuOpen ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <Menu className="w-5 h-5" />
+            )}
+          </Button>
+        </div>
+
+        {/* Mobile Navigation */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden py-4 border-t border-ctea-teal/20">
+            <div className="flex flex-col space-y-2">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 font-semibold focus:outline-none focus:ring-2 focus:ring-[#00d1c1]/50 focus:ring-offset-2 focus:ring-offset-transparent ${
-                      isActive(item.path)
-                        ? 'bg-[#00d1c1]/20 text-[#00d1c1] dark:bg-[#00d1c1]/20 dark:text-[#00d1c1] border border-[#00d1c1]/30 dark:border-[#00d1c1]/30'
-                        : 'text-gray-600 dark:text-gray-300 hover:text-[#00d1c1] dark:hover:text-white hover:bg-[#00d1c1]/10 dark:hover:bg-ctea-dark/50'
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
+                      isActivePath(item.path)
+                        ? 'bg-ctea-teal/20 text-ctea-teal'
+                        : 'text-gray-300 hover:text-white hover:bg-ctea-dark/50'
                     }`}
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    {item.icon}
+                    <Icon className="w-4 h-4" />
                     <span>{item.label}</span>
                   </Link>
-                ))}
-              </nav>
-
-              {/* Mobile User Stats */}
-              {userProgression && (
-                <div className="mt-6 pt-6 border-t border-[#00d1c1]/20 dark:border-[#00d1c1]/20">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge className="bg-[#ff61a6] text-white font-bold">
-                        {userProgression.tea_points} $TEA
-                      </Badge>
-                    </div>
-                    <UserStats />
-                  </div>
+                );
+              })}
+              <div className="flex items-center justify-between pt-4 border-t border-ctea-teal/20">
+                <div className="flex items-center space-x-2">
+                  <Badge className="bg-ctea-teal/20 text-ctea-teal border border-ctea-teal/30">
+                    Level {currentLevel.level}
+                  </Badge>
+                  <Badge className="bg-ctea-yellow/20 text-ctea-yellow border border-ctea-yellow/30">
+                    {progression.tea_points} $TEA
+                  </Badge>
                 </div>
-              )}
-
-              {/* Mobile Quick Actions */}
-              <div className="mt-6 pt-6 border-t border-[#00d1c1]/20 dark:border-[#00d1c1]/20">
-                <div className="grid grid-cols-2 gap-3">
-                  <Button 
-                    className="bg-gradient-to-r from-[#00d1c1] to-[#ff61a6] text-white font-bold py-3 hover:scale-105 transition-transform duration-200"
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      navigate('/submit');
-                    }}
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Spill Tea
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    className="border-[#00d1c1] text-[#00d1c1] hover:bg-[#00d1c1]/10 py-3 hover:scale-105 transition-transform duration-200"
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      navigate('/leaderboard');
-                    }}
-                  >
-                    <Trophy className="w-4 h-4 mr-2" />
-                    Leaderboard
-                  </Button>
-                </div>
+                <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                  <Settings className="w-4 h-4" />
+                </Button>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </>
+        )}
+      </div>
+    </nav>
   );
 };
 
