@@ -68,25 +68,25 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-red-50 to-amber-100">
+    <div className="min-h-screen bg-gradient-hero">
       {/* Floating Badges */}
       <FloatingBadges />
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Retro newspaper texture overlay */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-32 h-32 bg-red-400 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-40 h-40 bg-amber-400 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-gray-800 rounded-full blur-3xl animate-pulse"></div>
+        {/* Subtle background elements */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-20 left-10 w-32 h-32 bg-vintage-red rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-40 h-40 bg-tabloid-black rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-vintage-red rounded-full blur-3xl animate-pulse"></div>
         </div>
 
         <div className="relative z-10 text-center px-4 max-w-6xl mx-auto">
-          {/* Beta Badge */}
+          {/* Breaking News Badge */}
           <div className="mb-6">
-            <Badge className="bg-gradient-to-r from-red-500 to-gray-800 text-white font-bold px-4 py-2 text-sm shadow-lg">
+            <Badge className="bg-gradient-to-r from-vintage-red to-tabloid-black text-white font-bold px-4 py-2 text-sm shadow-lg">
               <Sparkles className="w-4 h-4 mr-2" />
-              SCANDAL BREWING
+              BREAKING: GOSSIP INCOMING
             </Badge>
           </div>
 
@@ -100,33 +100,33 @@ const Landing = () => {
           </div>
 
           {/* Main Headline - Tabloid Style */}
-          <h1 className="text-4xl md:text-7xl font-bold bg-gradient-to-r from-red-600 via-gray-900 to-red-600 bg-clip-text text-transparent mb-6 font-display leading-tight">
+          <h1 className="text-4xl md:text-7xl font-display font-bold bg-gradient-to-r from-vintage-red via-tabloid-black to-vintage-red bg-clip-text text-transparent mb-6 leading-tight tabloid-headline">
             CTea Newsroom
           </h1>
 
           {/* Tabloid Subheading */}
-          <h2 className="text-xl md:text-3xl text-gray-800 mb-4 font-bold uppercase tracking-wide">
-            EXCLUSIVE CRYPTO GOSSIP
+          <h2 className="text-xl md:text-3xl text-tabloid-black mb-4 font-bold uppercase tracking-wide font-display">
+            Web3's Gossip Feed
           </h2>
-          <p className="text-lg md:text-2xl text-red-600 mb-12 font-bold">
-            Anonymous Tips • Hot Takes • Cold Hard Truth
+          <p className="text-lg md:text-2xl text-vintage-red mb-12 font-bold">
+            Where crypto's unspoken news gets surfaced
           </p>
 
           {/* Description */}
-          <p className="text-lg md:text-xl text-gray-700 mb-12 max-w-3xl mx-auto leading-relaxed font-medium">
-            The underground newsroom where crypto scandals break first. 
-            Spill anonymously, earn credibility, watch the chaos unfold.
+          <p className="text-lg md:text-xl text-tabloid-black mb-12 max-w-3xl mx-auto leading-relaxed font-medium">
+            Submit anonymous intel, vote on rumors, and catch early alpha. 
+            The underground newsroom where crypto scandals break first.
           </p>
 
-          {/* Updated CTA Buttons */}
+          {/* Updated CTA Buttons with New Language */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
             <Button
               size="lg"
               onClick={handleSpillClick}
-              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold px-8 py-4 text-lg border-0 shadow-xl transform hover:scale-105 transition-all"
+              className="btn-pill btn-pill-red text-white font-bold px-8 py-4 text-lg border-0 shadow-xl"
             >
               <Coffee className="w-5 h-5 mr-2" />
-              Spill Tea
+              Spill the Tea
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
             
@@ -134,7 +134,7 @@ const Landing = () => {
               size="lg"
               variant="outline"
               onClick={handleReadClick}
-              className="border-2 border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white font-bold px-8 py-4 text-lg shadow-lg"
+              className="btn-pill border-2 border-tabloid-black text-tabloid-black hover:bg-tabloid-black hover:text-white font-bold px-8 py-4 text-lg shadow-lg"
             >
               <Eye className="w-5 h-5 mr-2" />
               Read What's Brewing
@@ -144,18 +144,18 @@ const Landing = () => {
           {/* How It Works - Tabloid Style */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
             {[
-              { step: '1', title: 'LEAK INFO', desc: 'Drop anonymous crypto intel', icon: '🕵️' },
+              { step: '1', title: 'SPILL THE TEA', desc: 'Drop anonymous crypto intel', icon: '🕵️' },
               { step: '2', title: 'AI REACTS', desc: 'CTeaBot adds spicy commentary', icon: '🤖' },
-              { step: '3', title: 'CROWD JUDGES', desc: 'Community votes: hot or cold', icon: '👥' },
+              { step: '3', title: 'CROWD JUDGES', desc: 'Community votes: 🔥 or 🧊', icon: '👥' },
               { step: '4', title: 'EARN CLOUT', desc: 'Build credibility & unlock rewards', icon: '🏆' }
             ].map((item) => (
-              <div key={item.step} className="text-center p-6 bg-white/80 rounded-lg border-2 border-red-200 hover:border-red-400 transition-colors shadow-lg">
+              <div key={item.step} className="text-center p-6 bg-pale-pink rounded-lg border-2 border-vintage-red/20 hover:border-vintage-red/40 transition-colors shadow-lg card-tabloid-hover">
                 <div className="text-4xl mb-3">{item.icon}</div>
-                <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-gray-800 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-vintage-red to-tabloid-black rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
                   {item.step}
                 </div>
-                <h3 className="text-gray-900 font-bold mb-2 uppercase tracking-wide">{item.title}</h3>
-                <p className="text-gray-600 text-sm">{item.desc}</p>
+                <h3 className="text-tabloid-black font-bold mb-2 uppercase tracking-wide font-display">{item.title}</h3>
+                <p className="text-tabloid-black/70 text-sm">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -163,7 +163,7 @@ const Landing = () => {
       </section>
 
       {/* Leaderboard Teaser Section */}
-      <section className="py-16 bg-gradient-to-r from-red-100 to-amber-100">
+      <section className="py-16 bg-gradient-to-r from-pale-pink to-newsprint">
         <div className="container mx-auto px-4">
           <div className="max-w-md mx-auto">
             <LeaderboardTeaser />

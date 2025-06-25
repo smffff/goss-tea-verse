@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -21,7 +20,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Playfair Display', 'Georgia', 'serif'],
+        display: ['Playfair Display', 'DM Serif Display', 'Georgia', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -57,61 +56,35 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // CTea Brand Colors
-        'ctea-pink': {
-          DEFAULT: '#FF4C7B',
-          50: '#FFF1F4',
-          100: '#FFE1E8',
-          200: '#FFC8D7',
-          300: '#FF9FB8',
-          400: '#FF6B92',
-          500: '#FF4C7B',
-          600: '#E6356A',
-          700: '#C71E50',
-          800: '#A61641',
-          900: '#8F143C',
+        // CTea Tabloid Colors
+        'newsprint': '#fdf7f2',
+        'vintage-red': {
+          DEFAULT: '#cc2b2b',
+          50: '#fef7f7',
+          100: '#fee2e2',
+          200: '#fecaca',
+          300: '#fca5a5',
+          400: '#f87171',
+          500: '#cc2b2b',
+          600: '#b02525',
+          700: '#991b1b',
+          800: '#7f1d1d',
+          900: '#651b1b',
         },
-        'ctea-purple': {
-          DEFAULT: '#9333EA',
-          50: '#F4F1FF',
-          100: '#EBE5FF',
-          200: '#D9CFFF',
-          300: '#BFA8FF',
-          400: '#A855F7',
-          500: '#9333EA',
-          600: '#7C2D12',
-          700: '#6B21A8',
-          800: '#581C87',
-          900: '#4C1D95',
+        'tabloid-black': {
+          DEFAULT: '#1c1c1c',
+          50: '#f9fafb',
+          100: '#f3f4f6',
+          200: '#e5e7eb',
+          300: '#d1d5db',
+          400: '#9ca3af',
+          500: '#6b7280',
+          600: '#4b5563',
+          700: '#374151',
+          800: '#1f2937',
+          900: '#1c1c1c',
         },
-        'ctea-teal': {
-          DEFAULT: '#10B981',
-          50: '#F0FDF4',
-          100: '#DCFCE7',
-          200: '#BBF7D0',
-          300: '#86EFAC',
-          400: '#4ADE80',
-          500: '#22C55E',
-          600: '#10B981',
-          700: '#059669',
-          800: '#047857',
-          900: '#064E3B',
-        },
-        'ctea-yellow': {
-          DEFAULT: '#F59E0B',
-          50: '#FFFBEB',
-          100: '#FEF3C7',
-          200: '#FDE68A',
-          300: '#FCD34D',
-          400: '#FBBF24',
-          500: '#F59E0B',
-          600: '#D97706',
-          700: '#B45309',
-          800: '#92400E',
-          900: '#78350F',
-        },
-        'ctea-dark': '#1a1a1a',
-        'ctea-darker': '#0a0a0a',
+        'pale-pink': '#fef7f7',
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -129,10 +102,10 @@ const config: Config = {
         },
         glow: {
           '0%, 100%': {
-            textShadow: '0 0 20px rgba(16, 185, 129, 0.5)',
+            textShadow: '0 0 20px rgba(204, 43, 43, 0.5)',
           },
           '50%': {
-            textShadow: '0 0 30px rgba(16, 185, 129, 0.8)',
+            textShadow: '0 0 30px rgba(204, 43, 43, 0.8)',
           },
         },
         float: {

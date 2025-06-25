@@ -1,24 +1,26 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=DM+Serif+Display:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  /* CTea Retro Tabloid Theme */
-  --tea-beige: #FDF6F0;
-  --gossip-red: #D43A3A;
-  --fintech-black: #1E1E1E;
-  --scandal-amber: #F59E0B;
+  /* CTea Tabloid Theme */
+  --newsprint-bg: #fdf7f2;
+  --vintage-red: #cc2b2b;
+  --tabloid-black: #1c1c1c;
+  --pale-pink: #fef7f7;
+  --text-primary: #1c1c1c;
+  --text-secondary: #6b7280;
   
   /* Legacy colors for compatibility */
-  --accent: #D43A3A;
-  --accent2: #F59E0B;
-  --ctea-pink: #D43A3A;
-  --ctea-purple: #1E1E1E;
-  --ctea-teal: #10B981;
-  --ctea-yellow: #F59E0B;
-  --ctea-dark: #1E1E1E;
+  --accent: #cc2b2b;
+  --accent2: #1c1c1c;
+  --ctea-pink: #cc2b2b;
+  --ctea-purple: #1c1c1c;
+  --ctea-teal: #cc2b2b;
+  --ctea-yellow: #f59e0b;
+  --ctea-dark: #1c1c1c;
   --ctea-darker: #0a0a0a;
 }
 
@@ -28,10 +30,10 @@
 
 body {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  line-height: 1.5;
+  line-height: 1.6;
   font-weight: 400;
-  color: var(--fintech-black);
-  background: var(--tea-beige);
+  color: var(--text-primary);
+  background: var(--newsprint-bg);
   min-height: 100vh;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -39,51 +41,51 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Headlines use Oswald for that tabloid punch */
+/* Headlines use Playfair Display for that tabloid elegance */
 h1, h2, h3, h4, h5, h6, .font-display {
-  font-family: 'Oswald', 'Playfair Display', Georgia, serif;
+  font-family: 'Playfair Display', 'DM Serif Display', Georgia, serif;
   font-weight: 600;
+  color: var(--tabloid-black);
 }
 
-/* Retro tabloid styling */
+/* Tabloid headline styling */
 .tabloid-headline {
-  font-family: 'Oswald', serif;
+  font-family: 'Playfair Display', serif;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  color: var(--vintage-red);
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
 
-/* Custom scrollbar with retro theme */
+/* Custom scrollbar with red theme */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--tea-beige);
+  background: var(--newsprint-bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--gossip-red);
+  background: var(--vintage-red);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--scandal-amber);
+  background: #b02525;
 }
 
-/* Animations with tabloid flair */
-@keyframes scandal-glow {
+/* Red glow animation for breaking news */
+@keyframes red-glow {
   0%, 100% {
-    text-shadow: 0 0 20px rgba(212, 58, 58, 0.5);
+    text-shadow: 0 0 20px rgba(204, 43, 43, 0.5);
   }
   50% {
-    text-shadow: 0 0 30px rgba(212, 58, 58, 0.8);
+    text-shadow: 0 0 30px rgba(204, 43, 43, 0.8);
   }
 }
 
-.animate-scandal-glow {
-  animation: scandal-glow 2s ease-in-out infinite;
+.animate-red-glow {
+  animation: red-glow 2s ease-in-out infinite;
 }
 
 @keyframes breaking-news {
@@ -91,7 +93,7 @@ h1, h2, h3, h4, h5, h6, .font-display {
     transform: translateY(0px) scale(1);
   }
   50% {
-    transform: translateY(-5px) scale(1.02);
+    transform: translateY(-3px) scale(1.01);
   }
 }
 
@@ -99,39 +101,39 @@ h1, h2, h3, h4, h5, h6, .font-display {
   animation: breaking-news 2s ease-in-out infinite;
 }
 
-/* Gradient utilities with retro theme */
-.bg-gradient-scandal {
-  background: linear-gradient(135deg, var(--gossip-red), var(--fintech-black));
-}
-
+/* Gradient utilities with tabloid theme */
 .bg-gradient-tabloid {
-  background: linear-gradient(135deg, var(--tea-beige) 0%, var(--scandal-amber) 50%, var(--gossip-red) 100%);
+  background: linear-gradient(135deg, var(--newsprint-bg) 0%, var(--pale-pink) 50%, var(--vintage-red) 100%);
 }
 
-/* Text selection with theme colors */
+.bg-gradient-hero {
+  background: linear-gradient(135deg, var(--newsprint-bg) 0%, var(--pale-pink) 100%);
+}
+
+/* Text selection with red theme */
 ::selection {
-  background-color: var(--gossip-red);
+  background-color: var(--vintage-red);
   color: white;
 }
 
 ::-moz-selection {
-  background-color: var(--gossip-red);
+  background-color: var(--vintage-red);
   color: white;
 }
 
-/* Focus styles with retro flair */
+/* Focus styles with red theme */
 :focus-visible {
-  outline: 2px solid var(--gossip-red);
+  outline: 2px solid var(--vintage-red);
   outline-offset: 2px;
 }
 
 /* Button hover effects with tabloid style */
-.btn-scandal-hover {
+.btn-tabloid-hover {
   transition: all 0.3s ease;
 }
 
-.btn-scandal-hover:hover {
-  box-shadow: 0 0 20px rgba(212, 58, 58, 0.4);
+.btn-tabloid-hover:hover {
+  box-shadow: 0 0 20px rgba(204, 43, 43, 0.4);
   transform: translateY(-2px) scale(1.02);
 }
 
@@ -141,25 +143,43 @@ h1, h2, h3, h4, h5, h6, .font-display {
 }
 
 .card-tabloid-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 40px rgba(212, 58, 58, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(204, 43, 43, 0.15);
 }
 
-/* Retro newspaper texture */
-.newspaper-texture {
-  background-image: 
-    radial-gradient(circle at 1px 1px, rgba(30,30,30,0.1) 1px, transparent 0);
-  background-size: 20px 20px;
+/* Navigation hover effects */
+.nav-link-hover {
+  position: relative;
+  transition: color 0.3s ease;
 }
 
-/* Loading states with retro theme */
-.loading-scandal {
-  background: linear-gradient(90deg, var(--tea-beige) 25%, var(--scandal-amber) 50%, var(--tea-beige) 75%);
+.nav-link-hover::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: var(--vintage-red);
+  transition: width 0.3s ease;
+}
+
+.nav-link-hover:hover {
+  color: var(--vintage-red);
+}
+
+.nav-link-hover:hover::after {
+  width: 100%;
+}
+
+/* Loading states with red theme */
+.loading-tabloid {
+  background: linear-gradient(90deg, var(--newsprint-bg) 25%, var(--vintage-red) 50%, var(--newsprint-bg) 75%);
   background-size: 200% 100%;
-  animation: scandal-shimmer 1.5s infinite;
+  animation: tabloid-shimmer 1.5s infinite;
 }
 
-@keyframes scandal-shimmer {
+@keyframes tabloid-shimmer {
   0% {
     background-position: -200% 0;
   }
@@ -168,18 +188,39 @@ h1, h2, h3, h4, h5, h6, .font-display {
   }
 }
 
-/* Modal backdrop with tabloid flair */
-.modal-tabloid-backdrop {
-  backdrop-filter: blur(8px) sepia(0.1);
-  background: rgba(212, 58, 58, 0.1);
+/* Pill button styling */
+.btn-pill {
+  border-radius: 50px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-pill-red {
+  background: var(--vintage-red);
+  color: white;
+  border: none;
+}
+
+.btn-pill-red:hover {
+  background: #b02525;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(204, 43, 43, 0.3);
+}
+
+/* Tea rating block */
+.tea-rating-block {
+  background: linear-gradient(135deg, #fef7f7 0%, #fee2e2 100%);
+  border: 1px solid rgba(204, 43, 43, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 12px;
 }
 
 /* Sticky bottom padding for CTA bar */
 .pb-sticky-cta {
   padding-bottom: 80px;
 }
-
-/* ... keep existing code (mobile optimizations, accessibility, etc) */
 
 /* Mobile optimizations */
 @media (max-width: 768px) {
@@ -201,6 +242,22 @@ h1, h2, h3, h4, h5, h6, .font-display {
   }
 }
 
+/* Badge styling */
+.badge-gold {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #92400e;
+}
+
+.badge-silver {
+  background: linear-gradient(135deg, #c0c0c0, #e5e7eb);
+  color: #374151;
+}
+
+.badge-bronze {
+  background: linear-gradient(135deg, #cd7f32, #d97706);
+  color: #ffffff;
+}
+
 /* Body scroll lock for modals */
 .scroll-lock {
   overflow: hidden;
@@ -210,13 +267,13 @@ h1, h2, h3, h4, h5, h6, .font-display {
 
 /* Accessibility improvements */
 @media (prefers-reduced-motion: reduce) {
-  .animate-scandal-glow,
+  .animate-red-glow,
   .animate-breaking-news,
-  .loading-scandal {
+  .loading-tabloid {
     animation: none;
   }
   
-  .btn-scandal-hover:hover,
+  .btn-tabloid-hover:hover,
   .card-tabloid-hover:hover {
     transform: none;
   }

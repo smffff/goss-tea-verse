@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { X, UserX, User, Trophy, Star, TrendingUp } from 'lucide-react';
+import { UserX, User, Crown, Eye } from 'lucide-react';
 
 interface JoinModalProps {
   isOpen: boolean;
@@ -11,89 +11,80 @@ interface JoinModalProps {
   onSignIn: () => void;
 }
 
-const JoinModal: React.FC<JoinModalProps> = ({
-  isOpen,
-  onClose,
-  onAnonymous,
-  onSignIn
-}) => {
+const JoinModal: React.FC<JoinModalProps> = ({ isOpen, onClose, onAnonymous, onSignIn }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      
-      {/* Modal */}
-      <Card className="relative w-full max-w-md mx-4 bg-gradient-to-br from-amber-50 to-red-50 border-red-300 shadow-2xl">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b border-red-200">
-          <CardTitle className="text-gray-900 font-bold text-xl">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-lg bg-newsprint border-vintage-red/30 shadow-2xl">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-display font-bold text-tabloid-black mb-2">
             How do you want to spill today?
           </CardTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="text-gray-600 hover:text-gray-900"
-          >
-            <X className="w-4 h-4" />
-          </Button>
+          <p className="text-tabloid-black/70">
+            Choose your chaos level 🌶️
+          </p>
         </CardHeader>
         
-        <CardContent className="pt-6 space-y-4">
+        <CardContent className="space-y-4">
           {/* Anonymous Option */}
-          <div className="p-4 border-2 border-gray-300 rounded-lg hover:border-red-400 transition-colors">
-            <div className="flex items-center gap-3 mb-2">
-              <UserX className="w-6 h-6 text-gray-600" />
-              <h3 className="font-bold text-gray-900">🔒 Stay Anonymous</h3>
+          <div className="p-4 bg-pale-pink border border-vintage-red/20 rounded-lg">
+            <div className="flex items-center gap-3 mb-3">
+              <UserX className="w-6 h-6 text-tabloid-black" />
+              <h3 className="font-bold text-tabloid-black font-display">🔒 Stay Anonymous</h3>
             </div>
-            <p className="text-sm text-gray-700 mb-3">
-              Quick and dirty. No strings attached. Pure chaos mode.
+            <p className="text-sm text-tabloid-black/70 mb-4">
+              Spill the tea without revealing your identity. Perfect for sensitive intel.
             </p>
             <Button 
               onClick={onAnonymous}
-              className="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold"
+              className="btn-pill w-full bg-tabloid-black hover:bg-tabloid-black/80 text-white font-bold"
             >
               Spill Anonymously
             </Button>
           </div>
 
           {/* Sign In Option */}
-          <div className="p-4 border-2 border-red-300 rounded-lg bg-gradient-to-br from-red-50 to-amber-50">
-            <div className="flex items-center gap-3 mb-2">
-              <User className="w-6 h-6 text-red-600" />
-              <h3 className="font-bold text-gray-900">🔓 Sign in for rewards</h3>
+          <div className="p-4 bg-gradient-to-br from-vintage-red/10 to-pale-pink border border-vintage-red/30 rounded-lg">
+            <div className="flex items-center gap-3 mb-3">
+              <User className="w-6 h-6 text-vintage-red" />
+              <h3 className="font-bold text-tabloid-black font-display">🔓 Reveal Yourself 👀</h3>
             </div>
-            <p className="text-sm text-gray-700 mb-3">
-              Earn badges, gain gossip clout, and unlock leaderboard perks
+            <p className="text-sm text-tabloid-black/70 mb-3">
+              Sign in to earn badges, gain gossip clout, and unlock leaderboard perks.
             </p>
             
             {/* Reward Preview */}
-            <div className="grid grid-cols-3 gap-2 mb-3">
-              <div className="text-center p-2 bg-white/50 rounded">
-                <Trophy className="w-4 h-4 mx-auto text-amber-600 mb-1" />
-                <span className="text-xs font-bold text-gray-700">Badges</span>
-              </div>
-              <div className="text-center p-2 bg-white/50 rounded">
-                <Star className="w-4 h-4 mx-auto text-yellow-600 mb-1" />
-                <span className="text-xs font-bold text-gray-700">Clout</span>
-              </div>
-              <div className="text-center p-2 bg-white/50 rounded">
-                <TrendingUp className="w-4 h-4 mx-auto text-green-600 mb-1" />
-                <span className="text-xs font-bold text-gray-700">Perks</span>
-              </div>
+            <div className="bg-white/50 p-3 rounded border border-vintage-red/20 mb-4">
+              <h4 className="font-semibold text-tabloid-black mb-2 flex items-center gap-2">
+                <Crown className="w-4 h-4 text-vintage-red" />
+                Rewards Preview
+              </h4>
+              <ul className="text-xs text-tabloid-black/70 space-y-1">
+                <li>🫖 Top Spiller badges</li>
+                <li>🏆 Leaderboard rankings</li>
+                <li>🔥 AI favorite recognition</li>
+                <li>💰 Future token rewards</li>
+              </ul>
             </div>
-
+            
             <Button 
               onClick={onSignIn}
-              className="w-full bg-red-500 hover:bg-red-600 text-white font-bold"
+              className="btn-pill btn-pill-red w-full text-white font-bold"
             >
-              Connect & Earn Rewards
+              <Eye className="w-4 h-4 mr-2" />
+              Reveal Yourself 👀
             </Button>
           </div>
+
+          {/* Close Button */}
+          <Button 
+            onClick={onClose}
+            variant="outline"
+            className="w-full border-tabloid-black/20 text-tabloid-black hover:bg-tabloid-black hover:text-white"
+          >
+            Maybe Later
+          </Button>
         </CardContent>
       </Card>
     </div>

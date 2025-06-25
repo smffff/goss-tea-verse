@@ -9,35 +9,37 @@ const LeaderboardTeaser = () => {
   const navigate = useNavigate();
 
   const topSpillers = [
-    { rank: 1, name: 'Anonymous Oracle', spills: 42, badge: '🫖' },
-    { rank: 2, name: 'CryptoGossiper', spills: 38, badge: '🕵️' },
-    { rank: 3, name: 'TeaSpillMaster', spills: 35, badge: '🔥' }
+    { rank: 1, name: 'Anonymous Oracle', spills: 42, badge: '🏆', bgClass: 'badge-gold' },
+    { rank: 2, name: 'CryptoGossiper', spills: 38, badge: '🥈', bgClass: 'badge-silver' },
+    { rank: 3, name: 'TeaSpillMaster', spills: 35, badge: '🥉', bgClass: 'badge-bronze' }
   ];
 
   return (
-    <Card className="bg-gradient-to-br from-amber-50 to-red-50 border-red-300 shadow-lg">
+    <Card className="bg-gradient-to-br from-pale-pink to-newsprint border-vintage-red/30 shadow-lg card-tabloid-hover">
       <CardContent className="p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Crown className="w-5 h-5 text-amber-600" />
-          <h3 className="font-bold text-gray-900 text-lg">Who's stirring the pot this week?</h3>
+          <Crown className="w-5 h-5 text-vintage-red" />
+          <h3 className="font-bold text-tabloid-black text-lg font-display">Who's stirring the pot this week?</h3>
         </div>
         
         <div className="space-y-2 mb-4">
           {topSpillers.map((spiller) => (
-            <div key={spiller.rank} className="flex items-center justify-between p-2 bg-white/50 rounded">
+            <div key={spiller.rank} className="flex items-center justify-between p-2 bg-white/50 rounded border border-vintage-red/10">
               <div className="flex items-center gap-2">
-                <span className="text-lg">{spiller.badge}</span>
-                <span className="font-medium text-gray-900">#{spiller.rank}</span>
-                <span className="text-gray-700">{spiller.name}</span>
+                <span className={`text-lg px-2 py-1 rounded-full text-xs font-bold ${spiller.bgClass}`}>
+                  {spiller.badge}
+                </span>
+                <span className="font-medium text-tabloid-black">#{spiller.rank}</span>
+                <span className="text-tabloid-black/80">{spiller.name}</span>
               </div>
-              <span className="text-sm font-bold text-red-600">{spiller.spills} spills</span>
+              <span className="text-sm font-bold text-vintage-red">{spiller.spills} spills</span>
             </div>
           ))}
         </div>
 
         <Button 
           onClick={() => navigate('/leaderboard')}
-          className="w-full bg-red-500 hover:bg-red-600 text-white font-bold"
+          className="btn-pill btn-pill-red w-full text-white font-bold"
         >
           <TrendingUp className="w-4 h-4 mr-2" />
           See Spillerboard

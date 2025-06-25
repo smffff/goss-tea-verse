@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -5,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { MessageCircle, Share2, Flag, ThumbsUp, ThumbsDown, Coffee } from 'lucide-react';
 import ShareButtons from '@/components/ShareButtons';
 import ReportModal from '@/components/modals/ReportModal';
+import TeaRating from '@/components/TeaRating';
 import { useToast } from '@/hooks/use-toast';
 
 interface TeaSubmission {
@@ -76,25 +78,25 @@ const EnhancedTeaSubmissionCard: React.FC<EnhancedTeaSubmissionCardProps> = ({
 
   return (
     <>
-      <Card className="p-6 bg-gradient-to-br from-ctea-dark/80 to-ctea-darker/90 border-[#00d1c1]/30 hover:border-[#00d1c1]/50 transition-all duration-300">
+      <Card className="p-6 bg-pale-pink border-vintage-red/20 hover:border-vintage-red/40 transition-all duration-300 card-tabloid-hover shadow-sm">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#00d1c1] to-[#ff61a6] rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-vintage-red to-tabloid-black rounded-full flex items-center justify-center">
               <Coffee className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-white font-medium">
+              <p className="text-tabloid-black font-medium">
                 {submission.author || 'Anonymous Tea Spiller'}
               </p>
-              <p className="text-gray-400 text-sm">
+              <p className="text-tabloid-black/60 text-sm">
                 {formatTimeAgo(submission.created_at)}
               </p>
             </div>
           </div>
           
           {submission.category && (
-            <Badge className="bg-[#00d1c1]/20 text-[#00d1c1] border-[#00d1c1]/30">
+            <Badge className="bg-vintage-red/20 text-vintage-red border-vintage-red/30">
               #{submission.category}
             </Badge>
           )}
@@ -102,14 +104,14 @@ const EnhancedTeaSubmissionCard: React.FC<EnhancedTeaSubmissionCardProps> = ({
 
         {/* Content */}
         <div className="mb-4">
-          <p className="text-gray-300 leading-relaxed">
+          <p className="text-tabloid-black leading-relaxed">
             {submission.content}
           </p>
           
           {submission.summary && (
-            <div className="mt-3 p-3 bg-[#ff61a6]/10 border border-[#ff61a6]/30 rounded-lg">
-              <p className="text-sm text-gray-300">
-                <span className="text-[#ff61a6] font-medium">AI Summary:</span> {submission.summary}
+            <div className="mt-3 p-3 bg-vintage-red/10 border border-vintage-red/30 rounded-lg">
+              <p className="text-sm text-tabloid-black">
+                <span className="text-vintage-red font-medium">AI Summary:</span> {submission.summary}
               </p>
             </div>
           )}
@@ -124,7 +126,7 @@ const EnhancedTeaSubmissionCard: React.FC<EnhancedTeaSubmissionCardProps> = ({
                   key={index}
                   src={url}
                   alt={`Evidence ${index + 1}`}
-                  className="w-full rounded-lg border border-[#00d1c1]/20 hover:border-[#00d1c1]/40 transition-colors"
+                  className="w-full rounded-lg border border-vintage-red/20 hover:border-vintage-red/40 transition-colors"
                 />
               ))}
             </div>
@@ -132,36 +134,39 @@ const EnhancedTeaSubmissionCard: React.FC<EnhancedTeaSubmissionCardProps> = ({
         )}
 
         {/* Reactions */}
-        <div className="flex items-center gap-4 mb-4 p-3 bg-ctea-darker/50 rounded-lg">
+        <div className="flex items-center gap-4 mb-4 p-3 bg-white/50 rounded-lg border border-vintage-red/10">
           <button
             onClick={() => onReaction?.(submission.id, 'hot')}
-            className="flex items-center gap-2 text-orange-400 hover:text-orange-300 transition-colors"
+            className="flex items-center gap-2 text-orange-500 hover:text-orange-600 transition-colors"
           >
             🔥 <span>{submission.reactions.hot}</span>
           </button>
           <button
             onClick={() => onReaction?.(submission.id, 'spicy')}
-            className="flex items-center gap-2 text-red-400 hover:text-red-300 transition-colors"
+            className="flex items-center gap-2 text-red-500 hover:text-red-600 transition-colors"
           >
             🌶️ <span>{submission.reactions.spicy}</span>
           </button>
           <button
             onClick={() => onReaction?.(submission.id, 'cold')}
-            className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+            className="flex items-center gap-2 text-blue-500 hover:text-blue-600 transition-colors"
           >
             🧊 <span>{submission.reactions.cold}</span>
           </button>
         </div>
 
+        {/* Tea Rating Component */}
+        <TeaRating submissionId={submission.id} />
+
         {/* Actions */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mt-4">
           <div className="flex items-center gap-2">
             <Button
               size="sm"
               variant="outline"
               onClick={() => handleVote('up')}
               className={`border-green-500/30 hover:bg-green-500/10 ${
-                userVote === 'up' ? 'bg-green-500/20 text-green-400' : 'text-green-400'
+                userVote === 'up' ? 'bg-green-500/20 text-green-600' : 'text-green-600'
               }`}
             >
               <ThumbsUp className="w-4 h-4" />
@@ -172,7 +177,7 @@ const EnhancedTeaSubmissionCard: React.FC<EnhancedTeaSubmissionCardProps> = ({
               variant="outline"
               onClick={() => handleVote('down')}
               className={`border-red-500/30 hover:bg-red-500/10 ${
-                userVote === 'down' ? 'bg-red-500/20 text-red-400' : 'text-red-400'
+                userVote === 'down' ? 'bg-red-500/20 text-red-600' : 'text-red-600'
               }`}
             >
               <ThumbsDown className="w-4 h-4" />
@@ -181,7 +186,7 @@ const EnhancedTeaSubmissionCard: React.FC<EnhancedTeaSubmissionCardProps> = ({
             <Button
               size="sm"
               variant="outline"
-              className="border-[#00d1c1]/30 text-[#00d1c1] hover:bg-[#00d1c1]/10"
+              className="border-vintage-red/30 text-vintage-red hover:bg-vintage-red/10"
             >
               <MessageCircle className="w-4 h-4 mr-1" />
               Comment
@@ -199,7 +204,7 @@ const EnhancedTeaSubmissionCard: React.FC<EnhancedTeaSubmissionCardProps> = ({
               size="sm"
               variant="ghost"
               onClick={() => setShowReportModal(true)}
-              className="text-gray-400 hover:text-red-400"
+              className="text-tabloid-black/60 hover:text-vintage-red"
             >
               <Flag className="w-4 h-4" />
             </Button>

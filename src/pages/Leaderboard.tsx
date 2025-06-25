@@ -65,9 +65,9 @@ const Leaderboard = () => {
   ];
 
   const stats = [
-    { label: 'Total Users', value: '2,420', icon: Star, color: 'text-[#00d1c1]' },
-    { label: 'Tea Spilled', value: '15,742', icon: Coffee, color: 'text-[#ff61a6]' },
-    { label: 'Reactions Given', value: '89,324', icon: Zap, color: 'text-yellow-400' }
+    { label: 'Total Users', value: '2,420', icon: Star, color: 'text-vintage-red' },
+    { label: 'Tea Spilled', value: '15,742', icon: Coffee, color: 'text-tabloid-black' },
+    { label: 'Reactions Given', value: '89,324', icon: Zap, color: 'text-vintage-red' }
   ];
 
   const handleRefresh = () => {
@@ -77,20 +77,20 @@ const Leaderboard = () => {
     }, 2000);
   };
 
-  const getRankColor = (rank: number) => {
+  const getRankBadge = (rank: number) => {
     switch (rank) {
-      case 1: return 'text-yellow-400';
-      case 2: return 'text-gray-300';
-      case 3: return 'text-amber-600';
-      default: return 'text-gray-400';
+      case 1: return { icon: '🏆', class: 'badge-gold', tooltip: '🔥 Top Spiller – Your gossip is legendary' };
+      case 2: return { icon: '🥈', class: 'badge-silver', tooltip: '🌟 Silver Spiller – Elite gossip game' };
+      case 3: return { icon: '🥉', class: 'badge-bronze', tooltip: '🔥 Bronze Spiller – Rising star' };
+      default: return null;
     }
   };
 
   const getCredibilityColor = (score: number) => {
-    if (score >= 95) return 'text-green-400';
-    if (score >= 85) return 'text-[#00d1c1]';
-    if (score >= 75) return 'text-yellow-400';
-    return 'text-gray-400';
+    if (score >= 95) return 'text-green-600';
+    if (score >= 85) return 'text-vintage-red';
+    if (score >= 75) return 'text-yellow-600';
+    return 'text-tabloid-black/60';
   };
 
   const topSpillers = [
@@ -122,12 +122,12 @@ const Leaderboard = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Header Section */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-4 flex items-center justify-center gap-3">
-            <Trophy className="w-8 h-8 text-yellow-400" />
-            Leaderboard
-            <Crown className="w-8 h-8 text-[#ff61a6]" />
+          <h1 className="text-3xl font-display font-bold text-tabloid-black mb-4 flex items-center justify-center gap-3">
+            <Trophy className="w-8 h-8 text-vintage-red" />
+            Spillerboard
+            <Crown className="w-8 h-8 text-vintage-red" />
           </h1>
-          <p className="text-lg text-gray-300 mb-6">
+          <p className="text-lg text-tabloid-black/70 mb-6">
             See who's spilling the hottest tea and earning the most street cred
           </p>
 
@@ -135,7 +135,7 @@ const Leaderboard = () => {
           <Button
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="bg-gradient-to-r from-[#00d1c1] to-[#ff61a6] hover:opacity-90 text-white font-bold mb-8"
+            className="btn-pill btn-pill-red text-white font-bold mb-8"
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
             {isRefreshing ? 'Refreshing...' : 'Refresh Rankings'}
@@ -144,37 +144,37 @@ const Leaderboard = () => {
           {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-lg mx-auto mb-8">
             {stats.map(({ label, value, icon: Icon, color }) => (
-              <Card key={label} className="bg-ctea-darker/50 border-[#00d1c1]/30 text-center">
+              <Card key={label} className="bg-pale-pink border-vintage-red/20 text-center">
                 <CardContent className="p-4">
                   <Icon className={`w-6 h-6 mx-auto mb-2 ${color}`} />
                   <div className={`text-xl font-bold ${color}`}>{value}</div>
-                  <div className="text-sm text-gray-400">{label}</div>
+                  <div className="text-sm text-tabloid-black/70">{label}</div>
                 </CardContent>
               </Card>
             ))}
           </div>
 
           {/* Scoring Info */}
-          <Card className="bg-gradient-to-r from-[#ff61a6]/20 to-[#00d1c1]/20 border-[#ff61a6]/30 max-w-2xl mx-auto">
+          <Card className="bg-gradient-to-r from-vintage-red/10 to-pale-pink border-vintage-red/30 max-w-2xl mx-auto">
             <CardHeader>
-              <CardTitle className="text-white text-center text-xl flex items-center justify-center gap-2">
-                <TrendingUp className="w-5 h-5 text-yellow-400" />
+              <CardTitle className="text-tabloid-black text-center text-xl flex items-center justify-center gap-2 font-display">
+                <TrendingUp className="w-5 h-5 text-vintage-red" />
                 How Scoring Works
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-[#00d1c1] mb-1">+5</div>
-                  <div className="text-gray-300">Points per tea submitted</div>
+                  <div className="text-2xl font-bold text-vintage-red mb-1">+5</div>
+                  <div className="text-tabloid-black/70">Points per tea submitted</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-[#ff61a6] mb-1">+2</div>
-                  <div className="text-gray-300">Points per emoji reaction</div>
+                  <div className="text-2xl font-bold text-tabloid-black mb-1">+2</div>
+                  <div className="text-tabloid-black/70">Points per emoji reaction</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-yellow-400 mb-1">+10</div>
-                  <div className="text-gray-300">Bonus for high engagement</div>
+                  <div className="text-2xl font-bold text-vintage-red mb-1">+10</div>
+                  <div className="text-tabloid-black/70">Bonus for high engagement</div>
                 </div>
               </div>
             </CardContent>
@@ -184,98 +184,140 @@ const Leaderboard = () => {
         {/* MVP Leaderboard Categories */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           {/* Top Spillers */}
-          <Card className="bg-ctea-dark/50 border-[#00d1c1]/30">
+          <Card className="bg-pale-pink border-vintage-red/20">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white"><TrendingUp className="w-5 h-5 text-ctea-teal" /> Top Spillers</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-tabloid-black font-display">
+                <TrendingUp className="w-5 h-5 text-vintage-red" /> Top Spillers
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
-                {topSpillers.map((user) => (
-                  <li key={user.rank} className="flex items-center gap-3">
-                    <span className={`text-xl font-bold ${user.rank === 1 ? 'text-yellow-400' : user.rank === 2 ? 'text-gray-300' : user.rank === 3 ? 'text-amber-600' : 'text-gray-400'}`}>{user.rank}</span>
-                    <span className="font-semibold text-white flex-1">{user.username}</span>
-                    <span className="text-ctea-teal font-mono">{user.teas} teas</span>
-                  </li>
-                ))}
+                {topSpillers.map((user) => {
+                  const badge = getRankBadge(user.rank);
+                  return (
+                    <li key={user.rank} className="flex items-center gap-3">
+                      {badge ? (
+                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${badge.class}`} title={badge.tooltip}>
+                          {badge.icon}
+                        </span>
+                      ) : (
+                        <span className="text-xl font-bold text-tabloid-black/60">{user.rank}</span>
+                      )}
+                      <span className="font-semibold text-tabloid-black flex-1">{user.username}</span>
+                      <span className="text-vintage-red font-mono">{user.teas} teas</span>
+                    </li>
+                  );
+                })}
               </ul>
             </CardContent>
           </Card>
 
           {/* Most AI-Upvoted */}
-          <Card className="bg-ctea-dark/50 border-[#00d1c1]/30">
+          <Card className="bg-pale-pink border-vintage-red/20">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white"><Brain className="w-5 h-5 text-ctea-pink" /> Most AI-Upvoted</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-tabloid-black font-display">
+                <Brain className="w-5 h-5 text-tabloid-black" /> Most AI-Upvoted
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
-                {mostAIUpvoted.map((user) => (
-                  <li key={user.rank} className="flex items-center gap-3">
-                    <span className={`text-xl font-bold ${user.rank === 1 ? 'text-yellow-400' : user.rank === 2 ? 'text-gray-300' : user.rank === 3 ? 'text-amber-600' : 'text-gray-400'}`}>{user.rank}</span>
-                    <span className="font-semibold text-white flex-1">{user.username}</span>
-                    <span className="text-ctea-pink font-mono">{user.upvotes} upvotes</span>
-                  </li>
-                ))}
+                {mostAIUpvoted.map((user) => {
+                  const badge = getRankBadge(user.rank);
+                  return (
+                    <li key={user.rank} className="flex items-center gap-3">
+                      {badge ? (
+                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${badge.class}`}>
+                          {badge.icon}
+                        </span>
+                      ) : (
+                        <span className="text-xl font-bold text-tabloid-black/60">{user.rank}</span>
+                      )}
+                      <span className="font-semibold text-tabloid-black flex-1">{user.username}</span>
+                      <span className="text-tabloid-black font-mono">{user.upvotes} upvotes</span>
+                    </li>
+                  );
+                })}
               </ul>
             </CardContent>
           </Card>
 
           {/* Top Tippers */}
-          <Card className="bg-ctea-dark/50 border-[#00d1c1]/30">
+          <Card className="bg-pale-pink border-vintage-red/20">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white"><DollarSign className="w-5 h-5 text-yellow-400" /> Top Tippers</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-tabloid-black font-display">
+                <DollarSign className="w-5 h-5 text-yellow-600" /> Top Tippers
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
-                {topTippers.map((user) => (
-                  <li key={user.rank} className="flex items-center gap-3">
-                    <span className={`text-xl font-bold ${user.rank === 1 ? 'text-yellow-400' : user.rank === 2 ? 'text-gray-300' : user.rank === 3 ? 'text-amber-600' : 'text-gray-400'}`}>{user.rank}</span>
-                    <span className="font-semibold text-white flex-1">{user.username}</span>
-                    <span className="text-yellow-400 font-mono">{user.tips} tips</span>
-                  </li>
-                ))}
+                {topTippers.map((user) => {
+                  const badge = getRankBadge(user.rank);
+                  return (
+                    <li key={user.rank} className="flex items-center gap-3">
+                      {badge ? (
+                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${badge.class}`}>
+                          {badge.icon}
+                        </span>
+                      ) : (
+                        <span className="text-xl font-bold text-tabloid-black/60">{user.rank}</span>
+                      )}
+                      <span className="font-semibold text-tabloid-black flex-1">{user.username}</span>
+                      <span className="text-yellow-600 font-mono">{user.tips} tips</span>
+                    </li>
+                  );
+                })}
               </ul>
             </CardContent>
           </Card>
         </div>
 
         {/* Leaderboard Table */}
-        <Card className="bg-ctea-dark/50 border-[#00d1c1]/30 max-w-4xl mx-auto">
+        <Card className="bg-pale-pink border-vintage-red/20 max-w-4xl mx-auto">
           <CardHeader>
-            <CardTitle className="text-white text-center">Top Tea Spillers</CardTitle>
+            <CardTitle className="text-tabloid-black text-center font-display">Top Tea Spillers</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {leaderboardData.map((user) => (
-                <div
-                  key={user.rank}
-                  className={`flex items-center justify-between p-4 rounded-lg border transition-colors ${
-                    user.rank <= 3 
-                      ? 'bg-gradient-to-r from-yellow-500/10 to-[#00d1c1]/10 border-yellow-500/30' 
-                      : 'bg-ctea-darker/30 border-gray-600/30 hover:border-[#00d1c1]/30'
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`text-2xl font-bold ${getRankColor(user.rank)} min-w-[2rem]`}>
-                      {user.badge || `#${user.rank}`}
-                    </div>
-                    <div>
-                      <div className="text-white font-bold">{user.username}</div>
-                      <div className="text-sm text-gray-400">
-                        {user.teaSpilled} teas • {user.reactionsGiven} reactions
+              {leaderboardData.map((user) => {
+                const badge = getRankBadge(user.rank);
+                return (
+                  <div
+                    key={user.rank}
+                    className={`flex items-center justify-between p-4 rounded-lg border transition-colors ${
+                      user.rank <= 3 
+                        ? 'bg-gradient-to-r from-vintage-red/10 to-newsprint border-vintage-red/30' 
+                        : 'bg-white/50 border-vintage-red/10 hover:border-vintage-red/30'
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="text-2xl font-bold min-w-[2rem]">
+                        {badge ? (
+                          <span className={`px-2 py-1 rounded-full text-xs font-bold ${badge.class}`} title={badge.tooltip}>
+                            {badge.icon}
+                          </span>
+                        ) : (
+                          <span className="text-tabloid-black/60">#{user.rank}</span>
+                        )}
+                      </div>
+                      <div>
+                        <div className="text-tabloid-black font-bold">{user.username}</div>
+                        <div className="text-sm text-tabloid-black/60">
+                          {user.teaSpilled} teas • {user.reactionsGiven} reactions
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="text-right">
-                    <div className="text-xl font-bold text-[#00d1c1]">
-                      {user.points.toLocaleString()}
+                    <div className="text-right">
+                      <div className="text-xl font-bold text-vintage-red">
+                        {user.points.toLocaleString()}
+                      </div>
+                      <Badge className={`${getCredibilityColor(user.credibilityScore)} border-current`}>
+                        {user.credibilityScore}% credibility
+                      </Badge>
                     </div>
-                    <Badge className={`${getCredibilityColor(user.credibilityScore)} border-current`}>
-                      {user.credibilityScore}% credibility
-                    </Badge>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
