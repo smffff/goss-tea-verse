@@ -14,7 +14,7 @@ import SubmissionFormActions from './forms/SubmissionFormActions';
 interface SubmissionFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: SubmissionData) => void;
+  onSubmit: (data: SubmissionData) => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -49,7 +49,7 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
   const validateForm = (): boolean => {
     const newErrors: Partial<SubmissionData> = {};
 
-    // Validate tea content - minimum 3 characters instead of 20 for easier testing
+    // Validate tea content - minimum 3 characters
     if (!formData.tea.trim()) {
       newErrors.tea = 'Please share some tea!';
     } else if (formData.tea.trim().length < 3) {
@@ -106,11 +106,6 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
         isAnonymous: true
       });
       setErrors({});
-      
-      toast({
-        title: "Tea Submitted! ☕",
-        description: "Your submission has been received successfully!",
-      });
       
     } catch (error) {
       console.error('Submission error in form:', error);

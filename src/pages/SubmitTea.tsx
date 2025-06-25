@@ -35,7 +35,7 @@ const SubmitTea = () => {
 
       console.log('Submitting to Supabase with token:', anonymousToken);
 
-      // Submit to Supabase
+      // Submit directly to Supabase table instead of using functions
       const submissionData = {
         content: data.tea,
         category: data.category,
@@ -53,7 +53,7 @@ const SubmitTea = () => {
 
       if (error) {
         console.error('Supabase error:', error);
-        throw error;
+        throw new Error(error.message);
       }
 
       console.log('Submission successful:', result);
