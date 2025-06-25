@@ -13,6 +13,7 @@ import CommentSection from './CommentSection';
 import BribeBoostSystem from './BribeBoostSystem';
 import MemeRemixer from './MemeRemixer';
 import ReportModal from './ReportModal';
+import ShareButtons from './ShareButtons';
 
 interface TeaSubmission {
   id: string;
@@ -123,6 +124,26 @@ const TeaSubmissionCard = ({
         reactions={submission.reactions}
         onReaction={(type) => onReaction(submission.id, type)}
       />
+
+      {/* Share Buttons */}
+      <div className="my-2">
+        <div className="hidden md:block">
+          <ShareButtons
+            url={window.location.origin + '/feed/' + submission.id}
+            title={submission.content.slice(0, 80) + '...'}
+            variant="expanded"
+            className="w-full"
+          />
+        </div>
+        <div className="block md:hidden">
+          <ShareButtons
+            url={window.location.origin + '/feed/' + submission.id}
+            title={submission.content.slice(0, 80) + '...'}
+            variant="minimal"
+            className="w-full"
+          />
+        </div>
+      </div>
 
       {/* Action Buttons */}
       <div className="flex items-center justify-between mb-4">

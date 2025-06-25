@@ -30,6 +30,8 @@ import {
   Activity,
   Plus
 } from 'lucide-react';
+import TestimonialCarousel from '@/components/TestimonialCarousel';
+import ShareButtons from '@/components/ShareButtons';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -222,6 +224,7 @@ const Landing = () => {
                 Tip the Gatekeepers
               </Button>
             </div>
+            <ShareButtons className="mb-8 justify-center" variant="expanded" />
 
             {/* Beta Badge */}
             <div className="flex justify-center mb-8">
@@ -353,6 +356,19 @@ const Landing = () => {
             </p>
           </div>
           
+          <TestimonialCarousel
+            testimonials={testimonials.map((t, i) => ({
+              id: String(i),
+              text: t.text,
+              author: t.author,
+              handle: t.author,
+              rating: 5,
+              category: 'user',
+              verified: true,
+              date: new Date().toISOString()
+            }))}
+          />
+        </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {testimonials.map((testimonial, index) => (
               <Card key={index} className="p-6 bg-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transform border border-accent/10">
