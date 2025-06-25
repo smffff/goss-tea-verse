@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button, ButtonProps } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -37,6 +38,7 @@ const TabloidButton: React.FC<TabloidButtonProps> = ({
   
   return (
     <Button
+      variant="ghost"
       className={cn(
         tabloidClasses,
         getVariantStyles(),

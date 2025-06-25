@@ -1,8 +1,9 @@
+
 import React from 'react';
+import Layout from '@/components/Layout';
+import EnhancedTeaFeed from '@/components/EnhancedTeaFeed';
 import { Card, CardContent } from '@/components/ui/card';
 import { Coffee, TrendingUp, Flame, Users } from 'lucide-react';
-import EnhancedTeaFeed from '@/components/EnhancedTeaFeed';
-import Layout from '@/components/Layout';
 
 const Feed = () => {
   const trendingTopics = [
@@ -15,10 +16,10 @@ const Feed = () => {
 
   return (
     <Layout>
-      <div className="py-12 px-4 sm:px-8">
+      <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-[\'Oswald\'] font-bold text-white mb-4 flex items-center justify-center gap-3">
+          <h1 className="text-3xl font-bold text-white mb-4 flex items-center justify-center gap-3">
             <Coffee className="w-8 h-8 text-[#00d1c1]" />
             Tea Feed
             <Flame className="w-8 h-8 text-[#ff61a6]" />

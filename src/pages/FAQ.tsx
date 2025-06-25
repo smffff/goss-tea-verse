@@ -100,10 +100,10 @@ const FAQ = () => {
 
   return (
     <Layout>
-      <div className="py-12 px-4 sm:px-8">
+      <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-[\'Oswald\'] font-bold text-white mb-4 animate-glow flex items-center justify-center gap-3">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 animate-glow flex items-center justify-center gap-3">
             <HelpCircle className="w-10 h-10 text-ctea-teal" />
             Frequently Asked Questions
           </h1>

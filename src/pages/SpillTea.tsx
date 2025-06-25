@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { Coffee, Send, UserX, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { track } from '@/utils/analytics';
-import Layout from '@/components/Layout';
 
 const SpillTea = () => {
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ const SpillTea = () => {
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-hero">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
@@ -74,6 +74,7 @@ const SpillTea = () => {
             Drop your gossip here and we'll serve it up when we're back online.
           </p>
         </div>
+
         {/* Submission Form */}
         <div className="max-w-2xl mx-auto">
           <Card className="bg-pale-pink border-vintage-red/30 shadow-xl">
@@ -83,6 +84,7 @@ const SpillTea = () => {
                 What's the tea? ☕
               </CardTitle>
             </CardHeader>
+            
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Anonymous Toggle */}
@@ -90,7 +92,7 @@ const SpillTea = () => {
                   <div className="flex items-center gap-3">
                     <UserX className="w-5 h-5 text-tabloid-black" />
                     <span className="font-medium text-tabloid-black">
-                      {isAnonymous ? '🕵️‍♂️ Going Incognito' : '👀 Saying It With Your Chest'}
+                      {isAnonymous ? '🕵️ Going Incognito' : '👀 Saying It With Your Chest'}
                     </span>
                   </div>
                   <Button
@@ -103,6 +105,7 @@ const SpillTea = () => {
                     {isAnonymous ? 'Reveal Yourself' : 'Go Anonymous'}
                   </Button>
                 </div>
+
                 {/* Username Field (if not anonymous) */}
                 {!isAnonymous && (
                   <div>
@@ -118,6 +121,7 @@ const SpillTea = () => {
                     />
                   </div>
                 )}
+
                 {/* Tea Content */}
                 <div>
                   <label className="block text-sm font-medium text-tabloid-black mb-2">
@@ -139,6 +143,7 @@ const SpillTea = () => {
                     </span>
                   </div>
                 </div>
+
                 {/* Submit Button */}
                 <Button
                   type="submit"
@@ -157,6 +162,7 @@ const SpillTea = () => {
                     </>
                   )}
                 </Button>
+
                 {/* Back to Main Site */}
                 <div className="text-center pt-4 border-t border-vintage-red/20">
                   <p className="text-sm text-tabloid-black/70 mb-3">
@@ -175,6 +181,7 @@ const SpillTea = () => {
             </CardContent>
           </Card>
         </div>
+
         {/* How It Works */}
         <div className="max-w-4xl mx-auto mt-16">
           <h2 className="text-2xl font-display font-bold text-tabloid-black text-center mb-8">
@@ -191,14 +198,14 @@ const SpillTea = () => {
                 <div className="w-8 h-8 bg-vintage-red rounded-full flex items-center justify-center text-white font-bold mx-auto mb-3">
                   {item.step}
                 </div>
-                <div className="font-bold text-tabloid-black mb-2">{item.title}</div>
-                <div className="text-tabloid-black/80 text-sm">{item.desc}</div>
+                <h3 className="text-tabloid-black font-bold mb-2 uppercase tracking-wide font-display text-sm">{item.title}</h3>
+                <p className="text-tabloid-black/70 text-sm">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
