@@ -108,14 +108,17 @@ export const useEnhancedFeedState = () => {
         await incrementReaction('given');
       }
 
-      setSubmissions(prev => prev.map(sub => {
-        if (sub.id === submissionId) {
-          const newReactions = { ...sub.reactions };
-          newReactions[reactionType] = (newReactions[reactionType] || 0) + 1;
-          return { ...sub, reactions: newReactions };
-        }
-        return sub;
-      }));
+      // Update local state with new reaction count
+      setSubmissions(currentSubmissions => 
+        currentSubmissions.map(submission => {
+          if (submission.id === submissionId) {
+            const updatedReactions = { ...submission.reactions };
+            updatedReactions[reactionType] = (updatedReactions[reactionType] || 0) + 1;
+            return { ...submission, reactions: updatedReactions };
+          }
+          return submission;
+        })
+      );
 
       toast({
         title: `Reaction Added! ${reactionType === 'hot' ? '🔥' : reactionType === 'cold' ? '❄️' : '🌶️'}`,
@@ -133,17 +136,19 @@ export const useEnhancedFeedState = () => {
   };
 
   const handleBoostUpdated = (submissionId: string, newBoost: number) => {
-    setSubmissions(prev => prev.map(sub => {
-      if (sub.id === submissionId) {
-        return { ...sub, boost_score: newBoost };
-      }
-      return sub;
-    }));
+    setSubmissions(currentSubmissions => 
+      currentSubmissions.map(submission => {
+        if (submission.id === submissionId) {
+          return { ...submission, boost_score: newBoost };
+        }
+        return submission;
+      })
+    );
   };
 
   const toggleComments = (submissionId: string) => {
-    setExpandedSubmissions(prev => {
-      const newSet = new Set(prev);
+    setExpandedSubmissions(currentExpanded => {
+      const newSet = new Set(currentExpanded);
       if (newSet.has(submissionId)) {
         newSet.delete(submissionId);
       } else {
