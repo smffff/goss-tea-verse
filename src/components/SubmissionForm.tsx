@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Coffee } from 'lucide-react';
@@ -30,10 +31,10 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
   } = useSubmissionForm(onSubmit, isLoading);
 
   return (
-    <Card className="bg-ctea-dark/95 backdrop-blur-md border-ctea-teal/30">
+    <Card className="bg-pale-pink border-vintage-red/30 shadow-xl">
       <CardHeader>
-        <CardTitle className="text-white flex items-center gap-2 text-xl">
-          <Coffee className="w-6 h-6 text-accent" />
+        <CardTitle className="text-tabloid-black flex items-center gap-2 text-xl font-display">
+          <Coffee className="w-6 h-6 text-vintage-red" />
           Spill Your Tea ☕
         </CardTitle>
       </CardHeader>

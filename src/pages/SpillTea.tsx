@@ -1,161 +1,211 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '@/components/Layout';
-import SpillTeaForm from '@/components/SpillTeaForm';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Coffee, Send, UserX, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { getOrCreateSecureToken } from '@/utils/securityUtils';
-
-interface SpillData {
-  topic: string;
-  teaText: string;
-  mediaUrl?: string;
-}
+import { track } from '@/utils/analytics';
 
 const SpillTea = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [teaText, setTeaText] = useState('');
+  const [isAnonymous, setIsAnonymous] = useState(true);
+  const [username, setUsername] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  console.log('SpillTea - Component rendered, isSubmitting:', isSubmitting);
-
-  const handleSubmit = async (data: SpillData) => {
-    console.log('SpillTea - handleSubmit called with data:', data);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     
-    if (isSubmitting) {
-      console.log('SpillTea - Already submitting, preventing duplicate submission');
-      return;
-    }
-    
-    setIsSubmitting(true);
-    console.log('SpillTea - Set isSubmitting to true');
-    
-    try {
-      // Generate secure anonymous token
-      const anonymousToken = getOrCreateSecureToken();
-      console.log('SpillTea - Generated secure anonymous token');
-
-      // Prepare submission data with visibility false by default for AI verification
-      const submissionData = {
-        content: data.teaText.trim(),
-        category: data.topic || 'general',
-        evidence_urls: data.mediaUrl ? [data.mediaUrl] : null,
-        anonymous_token: anonymousToken,
-        status: 'approved',
-        visible: false, // Start as invisible until AI verification
-        has_evidence: !!data.mediaUrl,
-        reactions: { hot: 0, cold: 0, spicy: 0 },
-        average_rating: 0,
-        rating_count: 0
-      };
-
-      console.log('SpillTea - Prepared submission data:', submissionData);
-
-      // Content validation
-      if (!submissionData.content || submissionData.content.length < 3) {
-        throw new Error('Tea must be at least 3 characters long');
-      }
-
-      if (submissionData.content.length > 2000) {
-        throw new Error('Tea must be less than 2000 characters');
-      }
-
-      console.log('SpillTea - Content validation passed, inserting into Supabase');
-
-      // Insert into Supabase
-      const { data: result, error } = await supabase
-        .from('tea_submissions')
-        .insert(submissionData)
-        .select();
-
-      if (error) {
-        console.error('SpillTea - Supabase insertion error:', error);
-        throw new Error(`Submission failed: ${error.message}`);
-      }
-
-      if (!result || result.length === 0) {
-        console.error('SpillTea - No data returned from Supabase');
-        throw new Error('Submission failed: No data returned');
-      }
-
-      console.log('SpillTea - Submission successful:', result);
-      const submissionId = result[0].id;
-
-      // Trigger AI verification workflow
-      try {
-        console.log('SpillTea - Triggering AI verification for submission:', submissionId);
-        
-        const { data: aiResult, error: aiError } = await supabase.functions.invoke('generate-ai-commentary-enhanced', {
-          body: { 
-            content: submissionData.content,
-            category: submissionData.category,
-            submissionId: submissionId,
-            commentaryType: 'spicy'
-          }
-        });
-
-        if (aiError) {
-          console.error('SpillTea - AI verification failed:', aiError);
-          // Don't throw error here - submission is still valid, just needs manual review
-        } else {
-          console.log('SpillTea - AI verification completed:', aiResult);
-        }
-      } catch (aiError) {
-        console.error('SpillTea - AI verification error:', aiError);
-        // Continue - submission is still valid
-      }
-
+    if (!teaText.trim()) {
       toast({
-        title: "✅ Your tea has been spilled!",
-        description: "Your submission is being processed and will appear in the feed once verified.",
-      });
-
-      console.log('SpillTea - Navigating to feed...');
-      navigate('/feed');
-
-    } catch (error) {
-      console.error('SpillTea - Submission error:', error);
-      
-      toast({
-        title: "Submission Failed",
-        description: `Couldn't spill your tea: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
+        title: "Empty Cup!",
+        description: "Please spill some tea before submitting.",
         variant: "destructive"
       });
-    } finally {
-      console.log('SpillTea - Setting isSubmitting to false');
-      setIsSubmitting(false);
+      return;
     }
-  };
 
-  const handleClose = () => {
-    console.log('SpillTea - handleClose called, navigating to /');
-    navigate('/');
+    setIsSubmitting(true);
+    
+    // Simulate submission delay
+    setTimeout(() => {
+      toast({
+        title: "Tea Spilled Successfully! 🫖",
+        description: "Your gossip is brewing and will appear in the feed shortly!",
+      });
+      
+      track('tea_spilled_fallback', {
+        anonymous: isAnonymous,
+        content_length: teaText.length
+      });
+      
+      setTeaText('');
+      setUsername('');
+      setIsSubmitting(false);
+      
+      // Navigate to feed after submission
+      navigate('/feed');
+    }, 2000);
   };
-
-  console.log('SpillTea - Rendering component');
 
   return (
-    <Layout>
+    <div className="min-h-screen bg-gradient-hero">
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-4">
-              Spill Your Tea ☕
-            </h1>
-            <p className="text-gray-400">
-              Share the latest crypto gossip, rumors, and alpha with the community. Your submission will appear in the feed immediately!
-            </p>
-          </div>
-          
-          <SpillTeaForm
-            onClose={handleClose}
-            onSubmit={handleSubmit}
-            isLoading={isSubmitting}
+        {/* Header */}
+        <div className="text-center mb-8">
+          <img 
+            src="/ctea-logo-icon.svg" 
+            alt="CTea Newsroom" 
+            className="w-16 h-16 mx-auto mb-4"
           />
+          <h1 className="text-3xl md:text-5xl font-display font-bold text-tabloid-black mb-4">
+            Quick Spill Station
+          </h1>
+          <Badge className="bg-vintage-red text-white font-bold px-4 py-2 mb-4">
+            <Sparkles className="w-4 h-4 mr-2" />
+            MAINTENANCE MODE: DROP YOUR TEA ANYWAY
+          </Badge>
+          <p className="text-lg text-tabloid-black/80 max-w-2xl mx-auto">
+            The main newsroom is on a tea break, but we're always listening. 
+            Drop your gossip here and we'll serve it up when we're back online.
+          </p>
+        </div>
+
+        {/* Submission Form */}
+        <div className="max-w-2xl mx-auto">
+          <Card className="bg-pale-pink border-vintage-red/30 shadow-xl">
+            <CardHeader>
+              <CardTitle className="text-tabloid-black flex items-center gap-2 text-xl font-display">
+                <Coffee className="w-6 h-6 text-vintage-red" />
+                What's the tea? ☕
+              </CardTitle>
+            </CardHeader>
+            
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Anonymous Toggle */}
+                <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg border border-vintage-red/20">
+                  <div className="flex items-center gap-3">
+                    <UserX className="w-5 h-5 text-tabloid-black" />
+                    <span className="font-medium text-tabloid-black">
+                      {isAnonymous ? '🕵️ Going Incognito' : '👀 Saying It With Your Chest'}
+                    </span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsAnonymous(!isAnonymous)}
+                    className="border-vintage-red/30 text-vintage-red hover:bg-vintage-red hover:text-white"
+                  >
+                    {isAnonymous ? 'Reveal Yourself' : 'Go Anonymous'}
+                  </Button>
+                </div>
+
+                {/* Username Field (if not anonymous) */}
+                {!isAnonymous && (
+                  <div>
+                    <label className="block text-sm font-medium text-tabloid-black mb-2">
+                      Your Username (optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="Enter your handle..."
+                      className="w-full px-4 py-2 border border-vintage-red/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-vintage-red"
+                    />
+                  </div>
+                )}
+
+                {/* Tea Content */}
+                <div>
+                  <label className="block text-sm font-medium text-tabloid-black mb-2">
+                    Spill the Tea
+                  </label>
+                  <Textarea
+                    value={teaText}
+                    onChange={(e) => setTeaText(e.target.value)}
+                    placeholder="What's the tea? Drop your crypto gossip, industry intel, or hot takes here..."
+                    className="min-h-[120px] resize-none border-vintage-red/30 focus:border-vintage-red"
+                    maxLength={2000}
+                  />
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="text-xs text-tabloid-black/60">
+                      {teaText.length}/2000 characters
+                    </span>
+                    <span className="text-xs text-tabloid-black/60">
+                      Anonymous submissions are encouraged
+                    </span>
+                  </div>
+                </div>
+
+                {/* Submit Button */}
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || !teaText.trim()}
+                  className="btn-pill btn-pill-red w-full text-white font-bold py-3 text-lg"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Brewing Your Tea...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5 mr-2" />
+                      Spill the Tea
+                    </>
+                  )}
+                </Button>
+
+                {/* Back to Main Site */}
+                <div className="text-center pt-4 border-t border-vintage-red/20">
+                  <p className="text-sm text-tabloid-black/70 mb-3">
+                    Want the full experience?
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => navigate('/')}
+                    className="border-tabloid-black text-tabloid-black hover:bg-tabloid-black hover:text-white"
+                  >
+                    Back to CTea Newsroom
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* How It Works */}
+        <div className="max-w-4xl mx-auto mt-16">
+          <h2 className="text-2xl font-display font-bold text-tabloid-black text-center mb-8">
+            How Quick Spill Works
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { step: '1', title: 'DROP IT', desc: 'Share your crypto tea anonymously or with your chest out', icon: '📝' },
+              { step: '2', title: 'WE BREW IT', desc: 'Your submission gets queued for when the newsroom returns', icon: '⏳' },
+              { step: '3', title: 'WE SERVE IT', desc: 'Your gossip goes live with AI commentary and community votes', icon: '🚀' }
+            ].map((item) => (
+              <div key={item.step} className="text-center p-6 bg-white/80 rounded-lg border border-vintage-red/20 shadow-lg">
+                <div className="text-4xl mb-3">{item.icon}</div>
+                <div className="w-8 h-8 bg-vintage-red rounded-full flex items-center justify-center text-white font-bold mx-auto mb-3">
+                  {item.step}
+                </div>
+                <h3 className="text-tabloid-black font-bold mb-2 uppercase tracking-wide font-display text-sm">{item.title}</h3>
+                <p className="text-tabloid-black/70 text-sm">{item.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 

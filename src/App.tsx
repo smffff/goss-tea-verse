@@ -1,3 +1,4 @@
+
 import '@/utils/analytics';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -44,118 +45,47 @@ const App = () => {
     <ErrorBoundary componentName="App">
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <ErrorBoundary componentName="AuthProvider">
-            <AuthProvider>
-              <ErrorBoundary componentName="WalletProvider">
-                <WalletProvider>
-                  <Toaster />
-                  <Sonner />
-                  <BrowserRouter>
-                    <ErrorBoundary componentName="Router">
-                      <Routes>
-                        {/* Core App Routes */}
-                        <Route path="/" element={
-                          <ErrorBoundary componentName="Landing">
-                            <Landing />
-                          </ErrorBoundary>
-                        } />
-                        
-                        <Route path="/feed" element={
-                          <ErrorBoundary componentName="Feed">
-                            <Feed />
-                          </ErrorBoundary>
-                        } />
-                        
-                        <Route path="/spill" element={
-                          <ErrorBoundary componentName="SpillTea">
-                            <SpillTea />
-                          </ErrorBoundary>
-                        } />
-                        
-                        <Route path="/leaderboard" element={
-                          <ErrorBoundary componentName="Leaderboard">
-                            <Leaderboard />
-                          </ErrorBoundary>
-                        } />
-                        
-                        <Route path="/about" element={
-                          <ErrorBoundary componentName="About">
-                            <About />
-                          </ErrorBoundary>
-                        } />
-                        
-                        <Route path="/faq" element={
-                          <ErrorBoundary componentName="FAQ">
-                            <FAQ />
-                          </ErrorBoundary>
-                        } />
+          <AuthProvider>
+            <WalletProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  {/* Core App Routes */}
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/feed" element={<Feed />} />
+                  <Route path="/spill" element={<SpillTea />} />
+                  <Route path="/leaderboard" element={<Leaderboard />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/faq" element={<FAQ />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/terms" element={<Terms />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/settings" element={<Settings />} />
 
-                        {/* Legal Pages */}
-                        <Route path="/privacy" element={
-                          <ErrorBoundary componentName="Privacy">
-                            <Privacy />
-                          </ErrorBoundary>
-                        } />
-                        
-                        <Route path="/terms" element={
-                          <ErrorBoundary componentName="Terms">
-                            <Terms />
-                          </ErrorBoundary>
-                        } />
-                        
-                        <Route path="/contact" element={
-                          <ErrorBoundary componentName="Contact">
-                            <Contact />
-                          </ErrorBoundary>
-                        } />
-
-                        {/* Legacy Redirects */}
-                        <Route path="/submit" element={<Navigate to="/spill" replace />} />
-                        <Route path="/trends" element={<Navigate to="/feed" replace />} />
-                        <Route path="/governance" element={<Navigate to="/about" replace />} />
-                        <Route path="/token" element={<Navigate to="/about" replace />} />
-                        <Route path="/campaigns" element={<Navigate to="/feed" replace />} />
-                        <Route path="/features" element={<Navigate to="/about" replace />} />
-
-                        <Route path="/auth" element={
-                          <ErrorBoundary componentName="Auth">
-                            <Auth />
-                          </ErrorBoundary>
-                        } />
-                        
-                        {/* Protected Admin Routes */}
-                        <Route path="/admin" element={
-                          <ErrorBoundary componentName="AdminRoute">
-                            <ProtectedRoute requireModerator>
-                              <AdminLayout />
-                            </ProtectedRoute>
-                          </ErrorBoundary>
-                        }>
-                          <Route index element={
-                            <ErrorBoundary componentName="AdminDashboard">
-                              <AdminDashboard />
-                            </ErrorBoundary>
-                          } />
-                        </Route>
-                        
-                        <Route path="/settings" element={
-                          <ErrorBoundary componentName="Settings">
-                            <Settings />
-                          </ErrorBoundary>
-                        } />
-                        
-                        <Route path="*" element={
-                          <ErrorBoundary componentName="NotFound">
-                            <NotFound />
-                          </ErrorBoundary>
-                        } />
-                      </Routes>
-                    </ErrorBoundary>
-                  </BrowserRouter>
-                </WalletProvider>
-              </ErrorBoundary>
-            </AuthProvider>
-          </ErrorBoundary>
+                  {/* Legacy Redirects */}
+                  <Route path="/submit" element={<Navigate to="/spill" replace />} />
+                  <Route path="/trends" element={<Navigate to="/feed" replace />} />
+                  <Route path="/governance" element={<Navigate to="/about" replace />} />
+                  <Route path="/token" element={<Navigate to="/about" replace />} />
+                  <Route path="/campaigns" element={<Navigate to="/feed" replace />} />
+                  <Route path="/features" element={<Navigate to="/about" replace />} />
+                  
+                  {/* Protected Admin Routes */}
+                  <Route path="/admin" element={
+                    <ProtectedRoute requireModerator>
+                      <AdminLayout />
+                    </ProtectedRoute>
+                  }>
+                    <Route index element={<AdminDashboard />} />
+                  </Route>
+                  
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </WalletProvider>
+          </AuthProvider>
         </TooltipProvider>
       </QueryClientProvider>
     </ErrorBoundary>

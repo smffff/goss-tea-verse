@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import SubmissionForm from '@/components/SubmissionForm';
@@ -17,7 +18,7 @@ const SubmissionModal: React.FC<SubmissionModalProps> = ({
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-ctea-dark/95 backdrop-blur-md border-ctea-teal/30 max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-newsprint border-vintage-red/30 max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="sr-only">Submit Tea</DialogTitle>
         </DialogHeader>
