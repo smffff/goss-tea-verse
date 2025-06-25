@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { MessageCircle } from 'lucide-react';
 import { Comment } from '@/types/comments';
-import CommentCard from './CommentCard';
+import CommentCard from '@/components/comments/CommentCard';
 
 interface CommentsListProps {
   comments: Comment[];

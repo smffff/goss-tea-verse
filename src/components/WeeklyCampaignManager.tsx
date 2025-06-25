@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
-import WeeklyCampaign from './WeeklyCampaign';
+import WeeklyCampaign from '@/components/WeeklyCampaign';
 
 const WeeklyCampaignManager = () => {
   const [currentCampaign, setCurrentCampaign] = useState(null);

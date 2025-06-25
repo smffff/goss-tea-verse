@@ -2,7 +2,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AlertTriangle, RefreshCw, MessageSquare } from 'lucide-react';
-import FeedbackModal from './FeedbackModal';
+import FeedbackModal from '@/components/FeedbackModal';
 
 interface Props {
   children: ReactNode;

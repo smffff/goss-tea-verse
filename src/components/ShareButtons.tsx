@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Twitter, Copy, Share2 } from 'lucide-react';

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useWallet } from '@/components/WalletProvider';
 import { TokenBalance, EarlyAccessStatus } from '@/types/wallet';

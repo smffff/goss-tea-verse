@@ -1,14 +1,13 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Coffee } from 'lucide-react';
 import { useSubmissionForm, SubmissionData } from '@/hooks/useSubmissionForm';
-import CategorySelector from './forms/CategorySelector';
-import TeaContentInput from './forms/TeaContentInput';
-import EvidenceUrlInput from './forms/EvidenceUrlInput';
-import ContactFields from './forms/ContactFields';
-import AnonymousCheckbox from './forms/AnonymousCheckbox';
-import SubmissionFormActions from './forms/SubmissionFormActions';
+import CategorySelector from '@/components/forms/CategorySelector';
+import TeaContentInput from '@/components/forms/TeaContentInput';
+import EvidenceUrlInput from '@/components/forms/EvidenceUrlInput';
+import ContactFields from '@/components/forms/ContactFields';
+import AnonymousCheckbox from '@/components/forms/AnonymousCheckbox';
+import SubmissionFormActions from '@/components/forms/SubmissionFormActions';
 
 interface SubmissionFormProps {
   onClose: () => void;

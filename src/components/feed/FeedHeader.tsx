@@ -1,10 +1,9 @@
-
 import React from 'react';
 import BetaDisclaimer from '@/components/BetaDisclaimer';
-import FeedStats from './FeedStats';
-import WalletStatus from './WalletStatus';
-import LiveFeedNotice from './LiveFeedNotice';
-import FeedCTA from './FeedCTA';
+import FeedStats from '@/components/feed/FeedStats';
+import WalletStatus from '@/components/feed/WalletStatus';
+import LiveFeedNotice from '@/components/feed/LiveFeedNotice';
+import FeedCTA from '@/components/feed/FeedCTA';
 
 const FeedHeader = () => {
   return (

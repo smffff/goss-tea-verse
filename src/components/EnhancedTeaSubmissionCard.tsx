@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MessageCircle, Share2, Flag, ThumbsUp, ThumbsDown, Coffee } from 'lucide-react';
-import ShareButtons from './ShareButtons';
-import ReportModal from './modals/ReportModal';
+import ShareButtons from '@/components/ShareButtons';
+import ReportModal from '@/components/modals/ReportModal';
 import { useToast } from '@/hooks/use-toast';
 
 interface TeaSubmission {

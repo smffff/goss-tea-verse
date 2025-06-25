@@ -1,10 +1,9 @@
-
 import React from 'react';
 import TokenGatedContent from '@/components/TokenGatedContent';
 import Leaderboard from '@/components/Leaderboard';
-import TrendingTopics from './TrendingTopics';
-import QuickActions from './QuickActions';
-import CommunityStats from './CommunityStats';
+import TrendingTopics from '@/components/feed/TrendingTopics';
+import QuickActions from '@/components/feed/QuickActions';
+import CommunityStats from '@/components/feed/CommunityStats';
 import { Card } from '@/components/ui/card';
 import { Crown } from 'lucide-react';
 

@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X, Users, Moon, Sun } from 'lucide-react';
 import { navigationItems } from '@/data/navigationItems';
-import TipButton from './TipButton';
+import TipButton from '@/components/TipButton';
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

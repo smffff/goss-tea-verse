@@ -10,19 +10,19 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 // Core Pages
-import Landing from "./pages/Landing";
-import Feed from "./pages/Feed";
-import SpillTea from "./pages/SpillTea";
-import Leaderboard from "./pages/Leaderboard";
-import About from "./pages/About";
-import FAQ from "./pages/FAQ";
-import Contact from "./pages/Contact";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
-import NotFound from "./pages/NotFound";
-import Auth from "./pages/Auth";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import Settings from "./pages/Settings";
+import Landing from '@/pages/Landing';
+import Feed from '@/pages/Feed';
+import SpillTea from '@/pages/SpillTea';
+import Leaderboard from '@/pages/Leaderboard';
+import About from '@/pages/About';
+import FAQ from '@/pages/FAQ';
+import Contact from '@/pages/Contact';
+import Privacy from '@/pages/Privacy';
+import Terms from '@/pages/Terms';
+import NotFound from '@/pages/NotFound';
+import Auth from '@/pages/Auth';
+import AdminDashboard from '@/pages/admin/AdminDashboard';
+import Settings from '@/pages/Settings';
 
 const queryClient = new QueryClient({
   defaultOptions: {

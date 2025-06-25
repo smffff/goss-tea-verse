@@ -1,7 +1,6 @@
-
 import React, { useEffect, useState } from 'react';
-import EnhancedTeaSubmissionCard from './EnhancedTeaSubmissionCard';
-import FeedSkeleton from './FeedSkeleton';
+import EnhancedTeaSubmissionCard from '@/components/EnhancedTeaSubmissionCard';
+import FeedSkeleton from '@/components/FeedSkeleton';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Coffee } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';

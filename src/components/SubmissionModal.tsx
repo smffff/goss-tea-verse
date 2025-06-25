@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import SubmissionForm from './SubmissionForm';
+import SubmissionForm from '@/components/SubmissionForm';
 
 interface SubmissionModalProps {
   isOpen: boolean;

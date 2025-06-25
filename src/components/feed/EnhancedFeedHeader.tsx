@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { useWallet } from '@/components/WalletProvider';
-import FeedStats from './FeedStats';
-import WalletStatus from './WalletStatus';
+import FeedStats from '@/components/feed/FeedStats';
+import WalletStatus from '@/components/feed/WalletStatus';
 
 const EnhancedFeedHeader = () => {
   return (

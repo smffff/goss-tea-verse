@@ -1,8 +1,8 @@
-
 import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
-import App from './App.tsx'
+import App from '@/App'
 import './index.css'
+import { inject } from '@vercel/analytics'
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {
@@ -27,3 +27,6 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
       });
   });
 }
+
+// Call Vercel Analytics inject
+inject();

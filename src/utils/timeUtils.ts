@@ -1,4 +1,3 @@
-
 export const formatTimeAgo = (dateString: string): string => {
   const date = new Date(dateString);
   const now = new Date();

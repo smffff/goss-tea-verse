@@ -1,18 +1,17 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import SubmissionHeader from './SubmissionHeader';
-import SubmissionContent from './SubmissionContent';
-import SubmissionMetrics from './submission/SubmissionMetrics';
-import SubmissionMedia from './submission/SubmissionMedia';
-import SubmissionActions from './submission/SubmissionActions';
-import EvidenceLinks from './EvidenceLinks';
-import ReactionButtons from './ReactionButtons';
-import AICommentary from './AICommentary';
-import AICommentarySelector from './AICommentarySelector';
-import CommentSection from './CommentSection';
-import ReportModal from './ReportModal';
-import ShareButtons from './ShareButtons';
+import SubmissionHeader from '@/components/SubmissionHeader';
+import SubmissionContent from '@/components/SubmissionContent';
+import SubmissionMetrics from '@/components/submission/SubmissionMetrics';
+import SubmissionMedia from '@/components/submission/SubmissionMedia';
+import SubmissionActions from '@/components/submission/SubmissionActions';
+import EvidenceLinks from '@/components/EvidenceLinks';
+import ReactionButtons from '@/components/ReactionButtons';
+import AICommentary from '@/components/AICommentary';
+import AICommentarySelector from '@/components/AICommentarySelector';
+import CommentSection from '@/components/CommentSection';
+import ReportModal from '@/components/ReportModal';
+import ShareButtons from '@/components/ShareButtons';
 
 interface TeaSubmission {
   id: string;

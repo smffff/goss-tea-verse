@@ -1,12 +1,11 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Coffee } from 'lucide-react';
 import { useSpillTeaForm, SpillData } from '@/hooks/useSpillTeaForm';
-import TopicSelector from './forms/TopicSelector';
-import TeaTextInput from './forms/TeaTextInput';
-import MediaUrlInput from './forms/MediaUrlInput';
-import SpillTeaFormActions from './forms/SpillTeaFormActions';
+import TopicSelector from '@/components/forms/TopicSelector';
+import TeaTextInput from '@/components/forms/TeaTextInput';
+import MediaUrlInput from '@/components/forms/MediaUrlInput';
+import SpillTeaFormActions from '@/components/forms/SpillTeaFormActions';
 
 interface SpillTeaFormProps {
   onClose: () => void;

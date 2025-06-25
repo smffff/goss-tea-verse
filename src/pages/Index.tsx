@@ -1,7 +1,6 @@
-
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import Landing from './Landing';
+import Landing from '@/pages/Landing';
 
 const Index = () => {
   const navigate = useNavigate();

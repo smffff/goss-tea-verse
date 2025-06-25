@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { MinimalTipButton, InlineTipButton, DefaultTipButton } from './tip/TipButtonVariants';
-import ConnectTipButton from './tip/ConnectTipButton';
+import { MinimalTipButton, InlineTipButton, DefaultTipButton } from '@/components/tip/TipButtonVariants';
+import ConnectTipButton from '@/components/tip/ConnectTipButton';
 
 interface TipButtonProps {
   variant?: 'default' | 'minimal' | 'inline' | 'connect';

@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Crown, Coins, Zap, Gift } from 'lucide-react';
-import { useWallet } from './WalletProvider';
+import { useWallet } from '@/components/WalletProvider';
 import { useTeaToken } from '@/hooks/useTeaToken';
 
 interface EarlyAccessGateProps {

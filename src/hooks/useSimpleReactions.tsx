@@ -1,7 +1,6 @@
-
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useUserProgression } from './useUserProgression';
+import { useUserProgression } from '@/hooks/useUserProgression';
 
 export const useSimpleReactions = () => {
   const { incrementReaction } = useUserProgression();

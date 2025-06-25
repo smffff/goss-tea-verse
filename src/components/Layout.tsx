@@ -1,9 +1,8 @@
-
 import React from 'react';
-import UnifiedNavigation from './UnifiedNavigation';
-import UnifiedFooter from './UnifiedFooter';
-import FeedbackWidget from './FeedbackWidget';
-import ErrorBoundary from './ErrorBoundary';
+import UnifiedNavigation from '@/components/UnifiedNavigation';
+import UnifiedFooter from '@/components/UnifiedFooter';
+import FeedbackWidget from '@/components/FeedbackWidget';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 interface LayoutProps {
   children: React.ReactNode;

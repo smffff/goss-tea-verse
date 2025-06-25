@@ -1,4 +1,3 @@
-
 import { TeaSubmission } from '@/types/teaFeed';
 
 export const transformSubmission = (submission: any): TeaSubmission => {

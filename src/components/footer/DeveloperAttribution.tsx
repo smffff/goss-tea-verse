@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Code, Heart, Users, Twitter, LinkIcon } from 'lucide-react';
-import TipButton from '../TipButton';
+import TipButton from '@/components/TipButton';
 
 const DeveloperAttribution = () => {
   const openLink = (url: string) => {

@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, Bug, Lightbulb } from 'lucide-react';
-import FeedbackModal from './FeedbackModal';
+import FeedbackModal from '@/components/FeedbackModal';
 
 const FeedbackWidget: React.FC = () => {
   const [showModal, setShowModal] = useState(false);

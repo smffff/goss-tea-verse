@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { MessageCircle } from 'lucide-react';
 import { useComments } from '@/hooks/useComments';
-import CommentForm from './comments/CommentForm';
-import CommentsList from './comments/CommentsList';
+import CommentForm from '@/components/comments/CommentForm';
+import CommentsList from '@/components/comments/CommentsList';
 
 interface CommentSectionProps {
   submissionId: string;

@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { MessageSquare } from 'lucide-react';
-import FeedbackForm from './feedback/FeedbackForm';
+import FeedbackForm from '@/components/feedback/FeedbackForm';
 
 interface FeedbackModalProps {
   isOpen: boolean;
