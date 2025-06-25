@@ -10,7 +10,6 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import AdminLayout from '@/components/admin/AdminLayout';
 
 import Landing from "./pages/Landing";
-import Index from "./pages/Index";
 import Feed from "./pages/Feed";
 import SubmitTea from "./pages/SubmitTea";
 import GovernancePage from "./pages/GovernancePage";
@@ -39,7 +38,6 @@ const App = () => (
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Landing />} />
-              <Route path="/home" element={<Index />} />
               <Route path="/feed" element={<Feed />} />
               <Route path="/submit" element={<SubmitTea />} />
               <Route path="/governance" element={<GovernancePage />} />

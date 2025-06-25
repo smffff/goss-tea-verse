@@ -6,9 +6,16 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect to landing page
-    navigate('/', { replace: true });
+    // Only redirect if we're actually on /home or /index
+    if (window.location.pathname === '/home' || window.location.pathname === '/index') {
+      navigate('/', { replace: true });
+    }
   }, [navigate]);
+
+  // If we're on the root path, don't redirect, just return null
+  if (window.location.pathname === '/') {
+    return null;
+  }
 
   return null;
 };

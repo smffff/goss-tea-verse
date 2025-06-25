@@ -12,6 +12,7 @@ import LeaderboardPreview from '@/components/landing/LeaderboardPreview';
 import SocialProofSection from '@/components/landing/SocialProofSection';
 import AboutSection from '@/components/landing/AboutSection';
 import LandingHeader from '@/components/landing/LandingHeader';
+import LiveStats from '@/components/landing/LiveStats';
 import { useAuth } from '@/hooks/useAuth';
 
 const Landing = () => {
