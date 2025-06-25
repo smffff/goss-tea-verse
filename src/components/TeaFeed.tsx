@@ -34,18 +34,29 @@ interface AIComment {
   created_at: string;
 }
 
-const TeaFeed = () => {
+interface TeaFeedProps {
+  filter?: string;
+}
+
+const TeaFeed: React.FC<TeaFeedProps> = ({ filter: externalFilter }) => {
   const [submissions, setSubmissions] = useState<TeaSubmission[]>([]);
   const [aiComments, setAiComments] = useState<{ [key: string]: AIComment[] }>({});
   const [isLoading, setIsLoading] = useState(true);
   const [expandedSubmissions, setExpandedSubmissions] = useState<Set<string>>(new Set());
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState(externalFilter || 'all');
   const [sortBy, setSortBy] = useState('latest');
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportingSubmission, setReportingSubmission] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
   const { incrementReaction } = useUserProgression();
   const { toast } = useToast();
+
+  // Update activeFilter when externalFilter changes
+  useEffect(() => {
+    if (externalFilter) {
+      setActiveFilter(externalFilter);
+    }
+  }, [externalFilter]);
 
   // Mock data for development
   const mockSubmissions: TeaSubmission[] = [
