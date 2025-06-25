@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { TeaSubmission } from '@/types/teaFeed';
@@ -21,6 +21,8 @@ export const useSimpleTeaFeed = (externalFilter?: string) => {
   const { copiedLink, handleShare } = useSimpleSharing(submissions);
   const { aiComments, generateAICommentary } = useSimpleAICommentary();
   const { toast } = useToast();
+  
+  const channelRef = useRef<any>(null);
 
   // Update activeFilter when externalFilter changes
   useEffect(() => {
@@ -33,9 +35,16 @@ export const useSimpleTeaFeed = (externalFilter?: string) => {
     console.log('useSimpleTeaFeed - Initial load or filter change, fetching submissions...');
     fetchSubmissions();
 
+    // Clean up any existing channel first
+    if (channelRef.current) {
+      console.log('useSimpleTeaFeed - Cleaning up existing channel');
+      supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
+
     // Set up real-time subscription for new submissions
     const channel = supabase
-      .channel('tea_feed_changes')
+      .channel(`tea_feed_changes_${Date.now()}`) // Unique channel name
       .on(
         'postgres_changes',
         {
@@ -47,8 +56,8 @@ export const useSimpleTeaFeed = (externalFilter?: string) => {
           console.log('useSimpleTeaFeed - New submission received via real-time:', payload);
           const newSubmission = payload.new as any;
           
-          // Only add if status is approved AND visible
-          if (newSubmission.status === 'approved' && newSubmission.visible === true) {
+          // Only add if status is approved
+          if (newSubmission.status === 'approved') {
             const transformedSubmission = transformSubmission(newSubmission);
             setSubmissions(prev => [transformedSubmission, ...prev]);
             
@@ -70,8 +79,8 @@ export const useSimpleTeaFeed = (externalFilter?: string) => {
           console.log('useSimpleTeaFeed - Submission updated via real-time:', payload);
           const updatedSubmission = payload.new as any;
           
-          // Handle visibility updates (AI verification completed)
-          if (updatedSubmission.status === 'approved' && updatedSubmission.visible === true) {
+          // Handle status updates
+          if (updatedSubmission.status === 'approved') {
             const transformedSubmission = transformSubmission(updatedSubmission);
             
             setSubmissions(prev => {
@@ -82,25 +91,32 @@ export const useSimpleTeaFeed = (externalFilter?: string) => {
                 newSubmissions[existingIndex] = transformedSubmission;
                 return newSubmissions;
               } else {
-                // Add new visible submission
+                // Add new approved submission
                 return [transformedSubmission, ...prev];
               }
             });
             
             toast({
-              title: "Tea Verified! ☕",
-              description: "New verified tea just appeared in the feed!",
+              title: "Tea Updated! ☕",
+              description: "Tea has been updated!",
             });
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('useSimpleTeaFeed - Subscription status:', status);
+      });
+
+    channelRef.current = channel;
 
     return () => {
       console.log('useSimpleTeaFeed - Cleaning up real-time subscription');
-      supabase.removeChannel(channel);
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
     };
-  }, [activeFilter, sortBy]);
+  }, [activeFilter, sortBy, toast]);
 
   const fetchSubmissions = async () => {
     try {
@@ -110,8 +126,7 @@ export const useSimpleTeaFeed = (externalFilter?: string) => {
       let query = supabase
         .from('tea_submissions')
         .select('*')
-        .eq('status', 'approved')
-        .eq('visible', true); // Only fetch visible submissions
+        .eq('status', 'approved');
 
       // Apply sorting
       switch (sortBy) {

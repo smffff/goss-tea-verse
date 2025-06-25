@@ -9,11 +9,13 @@ import { useWallet } from './WalletProvider';
 import { useEnhancedFeedState } from '@/hooks/useEnhancedFeedState';
 import { useEnhancedAIComments } from '@/hooks/useEnhancedAIComments';
 import { useEnhancedRealTime } from '@/hooks/useEnhancedRealTime';
+import { useToast } from '@/hooks/use-toast';
 
 const EnhancedTeaFeed = () => {
   const [viewMode, setViewMode] = useState<'quick' | 'detailed'>('detailed');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const { wallet } = useWallet();
+  const { toast } = useToast();
 
   const {
     submissions,
@@ -32,26 +34,46 @@ const EnhancedTeaFeed = () => {
 
   const { aiComments, generateAICommentary } = useEnhancedAIComments();
 
+  // Set up real-time subscriptions
   useEnhancedRealTime({ setSubmissions, activeFilter, sortBy });
 
   useEffect(() => {
     console.log('EnhancedTeaFeed - Initial load, fetching submissions...');
-    fetchSubmissions();
     
+    // Check for onboarding
     const hasSeenOnboarding = localStorage.getItem('ctea_onboarding_complete');
     if (!hasSeenOnboarding && !wallet.isConnected) {
       setShowOnboarding(true);
+      return; // Don't fetch submissions if showing onboarding
     }
+    
+    // Fetch submissions with error handling
+    fetchSubmissions().catch((error) => {
+      console.error('EnhancedTeaFeed - Failed to fetch submissions:', error);
+      toast({
+        title: "Error Loading Feed",
+        description: "Failed to load the tea feed. Please refresh the page.",
+        variant: "destructive"
+      });
+    });
   }, []);
 
   useEffect(() => {
-    console.log('EnhancedTeaFeed - Filter or sort changed, refetching...');
-    fetchSubmissions();
-  }, [activeFilter, sortBy]);
+    if (!showOnboarding) {
+      console.log('EnhancedTeaFeed - Filter or sort changed, refetching...');
+      fetchSubmissions().catch((error) => {
+        console.error('EnhancedTeaFeed - Failed to refetch submissions:', error);
+      });
+    }
+  }, [activeFilter, sortBy, showOnboarding]);
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
     localStorage.setItem('ctea_onboarding_complete', 'true');
+    // Fetch submissions after onboarding is complete
+    fetchSubmissions().catch((error) => {
+      console.error('EnhancedTeaFeed - Failed to fetch submissions after onboarding:', error);
+    });
   };
 
   if (showOnboarding) {

@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { TeaSubmission } from '@/types/teaFeed';
@@ -13,12 +13,20 @@ interface UseEnhancedRealTimeProps {
 
 export const useEnhancedRealTime = ({ setSubmissions, activeFilter, sortBy }: UseEnhancedRealTimeProps) => {
   const { toast } = useToast();
+  const channelRef = useRef<any>(null);
 
   useEffect(() => {
     console.log('useEnhancedRealTime - Setting up real-time subscription');
     
+    // Clean up any existing channel first
+    if (channelRef.current) {
+      console.log('useEnhancedRealTime - Cleaning up existing channel');
+      supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
+    
     const channel = supabase
-      .channel('tea_submissions_changes')
+      .channel(`tea_submissions_changes_${Date.now()}`) // Unique channel name
       .on(
         'postgres_changes',
         {
@@ -30,7 +38,7 @@ export const useEnhancedRealTime = ({ setSubmissions, activeFilter, sortBy }: Us
           console.log('useEnhancedRealTime - New submission received:', payload);
           const newSubmission = payload.new as any;
           
-          if (newSubmission.status === 'approved' && newSubmission.visible === true) {
+          if (newSubmission.status === 'approved') {
             const transformedSubmission = transformSubmission(newSubmission);
             setSubmissions(prev => [transformedSubmission, ...prev]);
             
@@ -52,7 +60,7 @@ export const useEnhancedRealTime = ({ setSubmissions, activeFilter, sortBy }: Us
           console.log('useEnhancedRealTime - Submission updated:', payload);
           const updatedSubmission = payload.new as any;
           
-          if (updatedSubmission.status === 'approved' && updatedSubmission.visible === true && updatedSubmission.ai_rated === true) {
+          if (updatedSubmission.status === 'approved') {
             const transformedSubmission = transformSubmission(updatedSubmission);
             
             setSubmissions(prev => {
@@ -67,17 +75,24 @@ export const useEnhancedRealTime = ({ setSubmissions, activeFilter, sortBy }: Us
             });
             
             toast({
-              title: "AI Analysis Complete! 🤖",
-              description: "Tea has been rated and is now live!",
+              title: "Tea Updated! ☕",
+              description: "Tea has been updated and is now live!",
             });
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('useEnhancedRealTime - Subscription status:', status);
+      });
+
+    channelRef.current = channel;
 
     return () => {
       console.log('useEnhancedRealTime - Cleaning up real-time subscription');
-      supabase.removeChannel(channel);
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
     };
-  }, [setSubmissions, activeFilter, sortBy, toast]);
+  }, [setSubmissions, toast]); // Removed activeFilter and sortBy to prevent unnecessary re-subscriptions
 };
