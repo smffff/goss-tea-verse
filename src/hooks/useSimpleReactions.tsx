@@ -1,21 +1,22 @@
 
-import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useUserProgression } from '@/hooks/useUserProgression';
 import { useToast } from '@/hooks/use-toast';
-import { getOrCreateSecureToken } from '@/utils/securityUtils';
+import { supabase } from '@/integrations/supabase/client';
+import { useUserProgression } from './useUserProgression';
 
-export const useReactions = () => {
+export const useSimpleReactions = () => {
   const { incrementReaction } = useUserProgression();
   const { toast } = useToast();
 
-  const handleReaction = async (submissionId: string, reactionType: 'hot' | 'cold' | 'spicy') => {
+  const handleReaction = async (submissionId: string, reactionType: 'hot' | 'cold' | 'spicy'): Promise<boolean> => {
     try {
-      console.log('useReactions - Adding reaction:', { submissionId, reactionType });
+      console.log('useSimpleReactions - Adding reaction:', { submissionId, reactionType });
       
-      // Use secure token generation
-      const anonymousToken = getOrCreateSecureToken();
-      console.log('useReactions - Using secure anonymous token');
+      const anonymousToken = localStorage.getItem('ctea_anonymous_token') || 
+        Array.from(crypto.getRandomValues(new Uint8Array(32)))
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('');
+      
+      localStorage.setItem('ctea_anonymous_token', anonymousToken);
 
       const { data: existingReaction } = await supabase
         .from('user_reactions')
@@ -25,13 +26,11 @@ export const useReactions = () => {
         .single();
 
       if (existingReaction) {
-        // Update existing reaction
         await supabase
           .from('user_reactions')
           .update({ reaction_type: reactionType })
           .eq('id', existingReaction.id);
       } else {
-        // Create new reaction
         await supabase
           .from('user_reactions')
           .insert({
@@ -39,10 +38,9 @@ export const useReactions = () => {
             anonymous_token: anonymousToken,
             reaction_type: reactionType
           });
-      }
 
-      // Track user progression
-      incrementReaction('given');
+        await incrementReaction('given');
+      }
 
       toast({
         title: `Reaction Added! ${reactionType === 'hot' ? '🔥' : reactionType === 'cold' ? '❄️' : '🌶️'}`,
@@ -51,7 +49,7 @@ export const useReactions = () => {
 
       return true;
     } catch (error) {
-      console.error('useReactions - Error adding reaction:', error);
+      console.error('useSimpleReactions - Error handling reaction:', error);
       toast({
         title: "Reaction Failed",
         description: "Couldn't add your reaction. Please try again.",

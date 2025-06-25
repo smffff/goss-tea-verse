@@ -5,7 +5,7 @@ import HotTakesFilters from './HotTakesFilters';
 import FeedSkeleton from './FeedSkeleton';
 import ReportModal from './ReportModal';
 import TeaFeedActions from './TeaFeedActions';
-import { useTeaFeed } from '@/hooks/useTeaFeed';
+import { useSimpleTeaFeed } from '@/hooks/useSimpleTeaFeed';
 import { TeaFeedProps } from '@/types/teaFeed';
 
 const TeaFeed: React.FC<TeaFeedProps> = ({ filter: externalFilter }) => {
@@ -29,7 +29,7 @@ const TeaFeed: React.FC<TeaFeedProps> = ({ filter: externalFilter }) => {
     toggleComments,
     handleShare,
     handleReport
-  } = useTeaFeed(externalFilter);
+  } = useSimpleTeaFeed(externalFilter);
 
   if (isLoading) {
     return <FeedSkeleton />;

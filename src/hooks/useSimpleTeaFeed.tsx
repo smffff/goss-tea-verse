@@ -3,12 +3,12 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { TeaSubmission } from '@/types/teaFeed';
-import { useReactions } from './useReactions';
-import { useSharing } from './useSharing';
-import { useAICommentary } from './useAICommentary';
 import { transformSubmission, filterSubmissions } from '@/utils/submissionUtils';
+import { useSimpleReactions } from './useSimpleReactions';
+import { useSimpleSharing } from './useSimpleSharing';
+import { useSimpleAICommentary } from './useSimpleAICommentary';
 
-export const useTeaFeed = (externalFilter?: string) => {
+export const useSimpleTeaFeed = (externalFilter?: string) => {
   const [submissions, setSubmissions] = useState<TeaSubmission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedSubmissions, setExpandedSubmissions] = useState<Set<string>>(new Set());
@@ -17,9 +17,9 @@ export const useTeaFeed = (externalFilter?: string) => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportingSubmission, setReportingSubmission] = useState<string | null>(null);
   
-  const { handleReaction } = useReactions();
-  const { copiedLink, handleShare } = useSharing(submissions);
-  const { aiComments, generateAICommentary } = useAICommentary();
+  const { handleReaction } = useSimpleReactions();
+  const { copiedLink, handleShare } = useSimpleSharing(submissions);
+  const { aiComments, generateAICommentary } = useSimpleAICommentary();
   const { toast } = useToast();
 
   // Update activeFilter when externalFilter changes
@@ -30,7 +30,7 @@ export const useTeaFeed = (externalFilter?: string) => {
   }, [externalFilter]);
 
   useEffect(() => {
-    console.log('useTeaFeed - Initial load or filter change, fetching submissions...');
+    console.log('useSimpleTeaFeed - Initial load or filter change, fetching submissions...');
     fetchSubmissions();
 
     // Set up real-time subscription for new submissions
@@ -44,7 +44,7 @@ export const useTeaFeed = (externalFilter?: string) => {
           table: 'tea_submissions'
         },
         (payload) => {
-          console.log('useTeaFeed - New submission received via real-time:', payload);
+          console.log('useSimpleTeaFeed - New submission received via real-time:', payload);
           const newSubmission = payload.new as any;
           
           // Only add if status is approved AND visible
@@ -67,7 +67,7 @@ export const useTeaFeed = (externalFilter?: string) => {
           table: 'tea_submissions'
         },
         (payload) => {
-          console.log('useTeaFeed - Submission updated via real-time:', payload);
+          console.log('useSimpleTeaFeed - Submission updated via real-time:', payload);
           const updatedSubmission = payload.new as any;
           
           // Handle visibility updates (AI verification completed)
@@ -97,7 +97,7 @@ export const useTeaFeed = (externalFilter?: string) => {
       .subscribe();
 
     return () => {
-      console.log('useTeaFeed - Cleaning up real-time subscription');
+      console.log('useSimpleTeaFeed - Cleaning up real-time subscription');
       supabase.removeChannel(channel);
     };
   }, [activeFilter, sortBy]);
@@ -105,7 +105,7 @@ export const useTeaFeed = (externalFilter?: string) => {
   const fetchSubmissions = async () => {
     try {
       setIsLoading(true);
-      console.log('useTeaFeed - Fetching submissions from Supabase...');
+      console.log('useSimpleTeaFeed - Fetching submissions from Supabase...');
       
       let query = supabase
         .from('tea_submissions')
@@ -131,19 +131,19 @@ export const useTeaFeed = (externalFilter?: string) => {
       const { data, error } = await query.limit(30);
 
       if (error) {
-        console.error('useTeaFeed - Error fetching submissions:', error);
+        console.error('useSimpleTeaFeed - Error fetching submissions:', error);
         throw error;
       }
       
-      console.log('useTeaFeed - Fetched submissions:', data?.length || 0);
+      console.log('useSimpleTeaFeed - Fetched submissions:', data?.length || 0);
       
       const transformedData = (data || []).map(transformSubmission);
       const filteredData = filterSubmissions(transformedData, activeFilter);
       
-      console.log('useTeaFeed - Filtered submissions:', filteredData.length);
+      console.log('useSimpleTeaFeed - Filtered submissions:', filteredData.length);
       setSubmissions(filteredData);
     } catch (error) {
-      console.error('useTeaFeed - Error in fetchSubmissions:', error);
+      console.error('useSimpleTeaFeed - Error in fetchSubmissions:', error);
       toast({
         title: "Failed to Load Feed",
         description: "Couldn't fetch the latest tea. Please try refreshing.",
