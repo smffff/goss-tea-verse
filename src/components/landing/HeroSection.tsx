@@ -44,15 +44,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({
       if (step >= steps) clearInterval(timer);
     }, stepTime);
 
-    // Apply glow effect to elements
-    const elements = document.querySelectorAll('.animate-glow');
-    elements.forEach((element) => {
-      const htmlElement = element as HTMLElement;
-      if (htmlElement) {
-        htmlElement.style.textShadow = '0 0 20px rgba(0, 209, 193, 0.5)';
-      }
-    });
-
     return () => clearInterval(timer);
   }, []);
 
@@ -126,29 +117,29 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           />
         </div>
 
-        {/* Live Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-2xl mx-auto">
-          <div className="bg-ctea-dark/30 backdrop-blur-lg border border-ctea-teal/20 rounded-xl p-6 hover:border-ctea-teal/40 transition-colors duration-300">
-            <div className="flex items-center justify-center mb-2">
-              <TrendingUp className="w-6 h-6 text-ctea-teal mr-2" />
-              <span className="text-2xl font-bold text-white">{animatedStats.posts.toLocaleString()}</span>
+        {/* Consolidated Live Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
+          <div className="bg-ctea-dark/30 backdrop-blur-lg border border-ctea-teal/30 rounded-xl p-6 hover:border-ctea-teal/50 transition-all duration-300 hover:scale-105">
+            <div className="flex items-center justify-center mb-3">
+              <TrendingUp className="w-8 h-8 text-ctea-teal mr-3" />
             </div>
+            <div className="text-3xl font-bold text-ctea-teal mb-1">{animatedStats.posts.toLocaleString()}</div>
             <p className="text-gray-400 text-sm">Hot Takes Shared</p>
           </div>
           
-          <div className="bg-ctea-dark/30 backdrop-blur-lg border border-ctea-purple/20 rounded-xl p-6 hover:border-ctea-purple/40 transition-colors duration-300">
-            <div className="flex items-center justify-center mb-2">
-              <Users className="w-6 h-6 text-ctea-purple mr-2" />
-              <span className="text-2xl font-bold text-white">{animatedStats.users.toLocaleString()}</span>
+          <div className="bg-ctea-dark/30 backdrop-blur-lg border border-ctea-purple/30 rounded-xl p-6 hover:border-ctea-purple/50 transition-all duration-300 hover:scale-105">
+            <div className="flex items-center justify-center mb-3">
+              <Users className="w-8 h-8 text-ctea-purple mr-3" />
             </div>
+            <div className="text-3xl font-bold text-ctea-purple mb-1">{animatedStats.users.toLocaleString()}</div>
             <p className="text-gray-400 text-sm">Active Tea Sippers</p>
           </div>
           
-          <div className="bg-ctea-dark/30 backdrop-blur-lg border border-ctea-pink/20 rounded-xl p-6 hover:border-ctea-pink/40 transition-colors duration-300">
-            <div className="flex items-center justify-center mb-2">
-              <Zap className="w-6 h-6 text-ctea-pink mr-2" />
-              <span className="text-2xl font-bold text-white">{animatedStats.points.toLocaleString()}</span>
+          <div className="bg-ctea-dark/30 backdrop-blur-lg border border-ctea-pink/30 rounded-xl p-6 hover:border-ctea-pink/50 transition-all duration-300 hover:scale-105">
+            <div className="flex items-center justify-center mb-3">
+              <Zap className="w-8 h-8 text-ctea-pink mr-3" />
             </div>
+            <div className="text-3xl font-bold text-ctea-pink mb-1">{animatedStats.points.toLocaleString()}</div>
             <p className="text-gray-400 text-sm">$TEA Points Earned</p>
           </div>
         </div>

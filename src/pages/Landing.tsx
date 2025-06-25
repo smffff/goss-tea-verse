@@ -11,7 +11,6 @@ import TrendingTicker from '@/components/landing/TrendingTicker';
 import HeroSection from '@/components/landing/HeroSection';
 import LeaderboardPreview from '@/components/landing/LeaderboardPreview';
 import SocialProofSection from '@/components/landing/SocialProofSection';
-import LiveStatsSection from '@/components/landing/LiveStatsSection';
 import AboutSection from '@/components/landing/AboutSection';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -28,9 +27,7 @@ const Landing = () => {
   useEffect(() => {
     const refParam = searchParams.get('ref');
     if (refParam) {
-      // Automatically trigger the spill modal
       setShowSpillForm(true);
-      // Clean up the URL without the ref parameter
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.delete('ref');
       const newUrl = newSearchParams.toString() ? `?${newSearchParams.toString()}` : '';
@@ -39,7 +36,6 @@ const Landing = () => {
   }, [searchParams, navigate]);
 
   const handleSpillSubmit = (data: { tea: string; email: string; wallet: string }) => {
-    // TODO: Implement submission logic
     console.log('Tea spilled:', data);
     setShowSpillForm(false);
     setSuccessType('spill');
@@ -53,17 +49,17 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-cyan-50">
-      {/* Authentication Bar */}
-      <div className="bg-ctea-dark/95 backdrop-blur-lg border-b border-ctea-teal/20 px-4 py-2">
+    <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black">
+      {/* Simplified Authentication Bar */}
+      <div className="bg-ctea-dark/95 backdrop-blur-lg border-b border-ctea-teal/20 px-4 py-3">
         <div className="container mx-auto flex justify-between items-center">
-          <div className="text-ctea-teal text-sm">
-            🔥 Join the hottest tea community - Spill responsibly!
+          <div className="text-ctea-teal text-sm font-medium">
+            ☕ The Ultimate Crypto Gossip Platform
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             {user ? (
-              <div className="flex items-center space-x-4">
-                <span className="text-white text-sm">Welcome, {user.email}</span>
+              <div className="flex items-center space-x-3">
+                <span className="text-white text-sm">Welcome back!</span>
                 {(isAdmin || isModerator) && (
                   <Link to="/admin">
                     <Button size="sm" variant="outline" className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-black">
@@ -72,8 +68,8 @@ const Landing = () => {
                   </Link>
                 )}
                 <Link to="/feed">
-                  <Button size="sm" className="bg-ctea-teal hover:bg-ctea-teal/80">
-                    Go to Feed
+                  <Button size="sm" className="bg-ctea-teal hover:bg-ctea-teal/80 text-black font-bold">
+                    Enter App
                   </Button>
                 </Link>
               </div>
@@ -81,7 +77,7 @@ const Landing = () => {
               <Link to="/auth">
                 <Button size="sm" variant="outline" className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-black">
                   <User className="w-4 h-4 mr-2" />
-                  Sign In / Sign Up
+                  Sign In
                 </Button>
               </Link>
             )}
@@ -97,7 +93,6 @@ const Landing = () => {
       />
       <LeaderboardPreview />
       <SocialProofSection />
-      <LiveStatsSection />
       <AboutSection />
 
       {/* Spill Tea Modal */}
