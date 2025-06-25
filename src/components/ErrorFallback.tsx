@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { AlertTriangle, RefreshCw, Coffee, MessageSquare } from 'lucide-react';
-import { TabloidButton } from '@/components/ui/TabloidButton';
+import TabloidButton from '@/components/ui/TabloidButton';
 
 interface ErrorFallbackProps {
   error?: Error;

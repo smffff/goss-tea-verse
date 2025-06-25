@@ -36,10 +36,12 @@ const SpillTeaFormActions: React.FC<SpillTeaFormActionsProps> = ({
         disabled={!isFormValid || isLoading}
       >
         {isSubmitting ? (
-          <>
-            <LoadingSpinner className="w-4 h-4 mr-2" />
+          <div className="flex items-center">
+            <div className="w-4 h-4 mr-2">
+              <LoadingSpinner size="sm" message="" />
+            </div>
             Spilling Tea...
-          </>
+          </div>
         ) : (
           <>
             <Coffee className="w-4 h-4 mr-2" />

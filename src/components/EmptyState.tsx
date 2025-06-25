@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Coffee, MessageSquare, Sparkles, Crown, Eye } from 'lucide-react';
-import { TabloidButton } from '@/components/ui/TabloidButton';
+import TabloidButton from '@/components/ui/TabloidButton';
 
 interface EmptyStateProps {
   variant?: 'feed' | 'comments' | 'leaderboard' | 'search' | 'error';
