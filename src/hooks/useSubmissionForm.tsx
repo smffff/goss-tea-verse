@@ -90,7 +90,8 @@ export const useSubmissionForm = (
     }
 
     try {
-      console.log('handleSubmit - Sanitizing content before submission');
+      console.log('handleSubmit - About to call onSubmit with form data');
+      console.log('handleSubmit - Form data being submitted:', formData);
       
       // Sanitize all user inputs before submission
       const sanitizedData: SubmissionData = {
@@ -107,7 +108,7 @@ export const useSubmissionForm = (
       await onSubmit(sanitizedData);
       trackTeaSpill(sanitizedData.category);
       
-      console.log('handleSubmit - Submission successful, resetting form');
+      console.log('handleSubmit - onSubmit completed successfully, resetting form');
       // Reset form on successful submission
       setFormData({
         tea: '',

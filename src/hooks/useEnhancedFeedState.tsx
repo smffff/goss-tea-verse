@@ -54,11 +54,11 @@ export const useEnhancedFeedState = () => {
       let query = supabase
         .from('tea_submissions')
         .select('*')
-        .eq('status', 'approved')
-        .eq('visible', true)
-        .eq('ai_rated', true);
+        .eq('status', 'approved');
 
-      switch (feedState.sortBy) {
+      // Apply sorting based on current sortBy value
+      const currentSortBy = feedState.sortBy;
+      switch (currentSortBy) {
         case 'reactions':
           query = query.order('rating_count', { ascending: false });
           break;
@@ -88,7 +88,10 @@ export const useEnhancedFeedState = () => {
       console.log('useEnhancedFeedState - Fetched submissions:', data?.length || 0);
       
       const transformedData = (data || []).map(transformSubmission);
-      const filteredData = filterSubmissions(transformedData, feedState.activeFilter);
+      
+      // Apply filtering based on current activeFilter value
+      const currentFilter = feedState.activeFilter;
+      const filteredData = filterSubmissions(transformedData, currentFilter);
       
       console.log('useEnhancedFeedState - Filtered submissions:', filteredData.length);
       setSubmissions(filteredData);

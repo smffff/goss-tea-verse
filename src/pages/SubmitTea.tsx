@@ -36,9 +36,11 @@ const SubmitTea = () => {
     console.log('SubmitTea - Set isSubmitting to true');
     
     try {
+      console.log('SubmitTea - Starting submission process...');
+      
       // Generate secure anonymous token with proper validation
       const anonymousToken = getOrCreateSecureToken();
-      console.log('SubmitTea - Generated secure anonymous token');
+      console.log('SubmitTea - Generated secure anonymous token:', anonymousToken?.substring(0, 8) + '...');
 
       // Prepare submission data with enhanced security
       const submissionData = {
@@ -46,7 +48,7 @@ const SubmitTea = () => {
         category: data.category || 'general',
         evidence_urls: data.evidence_urls && data.evidence_urls.length > 0 ? data.evidence_urls : null,
         anonymous_token: anonymousToken,
-        status: 'approved',
+        status: 'approved', // Set to approved for immediate visibility
         has_evidence: data.evidence_urls && data.evidence_urls.length > 0,
         reactions: { hot: 0, cold: 0, spicy: 0 },
         average_rating: 0,
@@ -66,11 +68,15 @@ const SubmitTea = () => {
         throw new Error('Content must be less than 2000 characters');
       }
 
-      console.log('SubmitTea - Inserting into Supabase...');
+      console.log('SubmitTea - About to insert into Supabase...');
+      console.log('SubmitTea - Insertion data:', JSON.stringify(submissionData, null, 2));
+      
       const { data: result, error } = await supabase
         .from('tea_submissions')
         .insert(submissionData)
         .select();
+
+      console.log('SubmitTea - Supabase response:', { result, error });
 
       if (error) {
         console.error('SubmitTea - Supabase insertion error:', error);
