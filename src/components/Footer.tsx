@@ -84,7 +84,7 @@ const Footer = () => {
             
             {/* Get Started Button */}
             <div className="mb-8">
-              <Link to="/app">
+              <Link to="/feed">
                 <Button className="bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent text-white font-bold uppercase tracking-wide px-8 py-4 text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                   <ArrowRight className="w-5 h-5 mr-2" />
                   Enter the Newsroom
@@ -92,8 +92,19 @@ const Footer = () => {
               </Link>
             </div>
             
-            {/* Social Links */}
+            {/* Footer Links */}
             <div className="flex flex-wrap justify-center gap-6 mb-8">
+              <a 
+                href="https://cteanews.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 group hover:bg-accent/10 px-2 py-1 rounded"
+              >
+                <ExternalLink className="w-4 h-4 group-hover:animate-pulse" />
+                <span className="font-medium">cteanews.com</span>
+              </a>
+              
+              {/* Social Links */}
               {socialLinks.map((link, index) => (
                 <a 
                   key={index}
@@ -190,7 +201,7 @@ const Footer = () => {
 
               <a 
                 href="mailto:hello@cteanews.com"
-                className="flex items-center gap-2 border-accent text-accent hover:bg-accent/10 hover:text-accent2 transition-all duration-300 uppercase font-semibold px-6 py-3 rounded-lg shadow hover:scale-105"
+                className="flex items-center gap-2 border-accent text-accent hover:bg-accent/10 hover:text-accent2 transition-all duration-300 uppercase font-semibold px-6 py-3 rounded-lg shadow hover:scale-105 border"
               >
                 <Mail className="w-4 h-4" />
                 Contact
@@ -200,10 +211,10 @@ const Footer = () => {
             {/* Copyright */}
             <div className="border-t border-gray-700 pt-8">
               <p className="text-sm text-gray-400">
-                © 2024 CTea Newsroom. All rights reserved. Built with ☕️ and chaos.
+                © 2024 CTea Newsroom. All rights reserved. Built with ☕ and chaos.
               </p>
               <p className="text-xs text-gray-500 mt-2">
-                Beta v0.1.0 • Managed Chaos, Served Hot
+                Beta v1.0 • Managed Chaos, Served Hot
               </p>
             </div>
           </div>
