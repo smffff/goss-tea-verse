@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +6,7 @@ import { Bot, Sparkles, Zap, RefreshCw, Brain, Laugh, Flame } from 'lucide-react
 
 interface AICommentaryProps {
   content: string;
-  type: 'spicy' | 'smart' | 'memy' | 'savage';
+  type: 'spicy' | 'smart' | 'memy' | 'wise';
   isGenerating?: boolean;
   onRegenerate?: () => void;
 }
@@ -67,13 +66,13 @@ const AICommentary: React.FC<AICommentaryProps> = ({
           bgGradient: 'from-ctea-teal/20 to-ctea-yellow/20',
           description: 'Pure internet chaos and humor'
         };
-      case 'savage':
+      case 'wise':
         return {
           icon: <Zap className="w-4 h-4" />,
-          label: 'SAVAGE MODE',
+          label: 'WISE MODE',
           gradient: 'from-ctea-pink to-ctea-purple',
           bgGradient: 'from-ctea-pink/20 to-ctea-purple/20',
-          description: 'No mercy, just pure roast energy'
+          description: 'Cutting insights with no mercy'
         };
     }
   };

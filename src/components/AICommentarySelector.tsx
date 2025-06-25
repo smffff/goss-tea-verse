@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Brain, Flame, Laugh, Zap } from 'lucide-react';
 
 interface AICommentarySelectorProps {
-  onSelectType: (type: 'spicy' | 'smart' | 'memy' | 'savage') => void;
+  onSelectType: (type: 'spicy' | 'smart' | 'memy' | 'wise') => void;
   isGenerating: boolean;
 }
 
@@ -32,10 +31,10 @@ const AICommentarySelector = ({ onSelectType, isGenerating }: AICommentarySelect
       gradient: 'from-ctea-teal to-ctea-yellow'
     },
     {
-      type: 'savage' as const,
+      type: 'wise' as const,
       icon: <Zap className="w-4 h-4" />,
-      label: 'Savage',
-      description: 'No mercy mode',
+      label: 'Wise',
+      description: 'Cutting insights',
       gradient: 'from-ctea-pink to-ctea-purple'
     }
   ];

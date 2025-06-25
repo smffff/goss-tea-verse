@@ -169,7 +169,7 @@ const TeaFeed = () => {
     }));
   };
 
-  const generateAICommentary = async (submission: TeaSubmission, type: 'spicy' | 'smart' | 'memy' | 'savage' = 'spicy') => {
+  const generateAICommentary = async (submission: TeaSubmission, type: 'spicy' | 'smart' | 'memy' | 'wise' = 'spicy') => {
     try {
       const { data, error } = await supabase.functions.invoke('generate-ai-commentary', {
         body: { 

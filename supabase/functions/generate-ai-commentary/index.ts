@@ -14,7 +14,7 @@ interface AICommentaryRequest {
   content: string;
   category: string;
   submissionId: string;
-  commentaryType?: 'spicy' | 'smart' | 'memy' | 'savage';
+  commentaryType?: 'spicy' | 'smart' | 'memy' | 'wise';
   isComment?: boolean;
   chatRoomId?: string;
   trendAnalysis?: boolean;
@@ -160,7 +160,7 @@ function generateTrendAnalysis(content: string, category: string, sentimentData:
 }
 
 // Function to generate AI commentary for submissions with specific types
-function generateAICommentary(content: string, category: string, type: 'spicy' | 'smart' | 'memy' | 'savage', trendInsights?: TrendAnalysis | null): string {
+function generateAICommentary(content: string, category: string, type: 'spicy' | 'smart' | 'memy' | 'wise', trendInsights?: TrendAnalysis | null): string {
   // Extract key topics
   const words = content.toLowerCase().split(' ');
   const topics = ['crypto', 'nft', 'ethereum', 'bitcoin', 'defi', 'web3', 'dao', 'hack', 'scam', 'rugpull']
@@ -205,9 +205,9 @@ function generateAICommentary(content: string, category: string, type: 'spicy' |
       ][Math.floor(Math.random() * 4)];
       break;
 
-    case 'savage':
+    case 'wise':
       commentary += [
-        `💀 Respectfully... this is the most clown behavior I've seen all week, and that's saying something given the usual circus on CT. The secondhand embarrassment is real and I'm concerned for humanity. ☠️`,
+        `🤔 Respectfully... this is the most clown behavior I've seen all week, and that's saying something given the usual circus on CT. The secondhand embarrassment is real and I'm concerned for humanity. ☠️`,
         `🗿 Not the hero we deserved, but definitely the chaos we needed 💀 Peak CT energy right here. This is exactly why normies think we're all insane and honestly? They're not wrong. The confidence is unmatched though.`,
         `🔥 Someone check if Mercury is in retrograde because this level of unhinged behavior needs an astrological explanation. The bar was on the floor and they brought a shovel. The disrespect to common sense is astronomical.`,
         `⚰️ This is what happens when exit liquidity thinks they're the main character. The confidence is admirable but misplaced. Babe, wake up, new CT villain just dropped and they chose violence against logic itself.`
