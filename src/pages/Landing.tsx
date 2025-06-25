@@ -7,7 +7,7 @@ import { ArrowRight, Coffee, Eye, Sparkles } from 'lucide-react';
 import FloatingBadges from '@/components/ui/floating-badges';
 import StickyCTABar from '@/components/StickyCTABar';
 import JoinModal from '@/components/modals/JoinModal';
-import SubmissionModal from '@/components/modals/SubmissionModal';
+import SubmissionModal from '@/components/SubmissionModal';
 import TipModal from '@/components/modals/TipModal';
 import LeaderboardTeaser from '@/components/LeaderboardTeaser';
 import { useScrollLock } from '@/hooks/useScrollLock';
@@ -68,7 +68,7 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero">
+    <div className="min-h-screen bg-gradient-hero pb-sticky-cta">
       {/* Floating Badges */}
       <FloatingBadges />
 
@@ -77,14 +77,14 @@ const Landing = () => {
         {/* Subtle background elements */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-20 left-10 w-32 h-32 bg-vintage-red rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-40 h-40 bg-tabloid-black rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-vintage-red rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-40 h-40 bg-tabloid-black rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-vintage-red rounded-full blur-3xl animate-pulse delay-2000"></div>
         </div>
 
-        <div className="relative z-10 text-center px-4 max-w-6xl mx-auto">
+        <div className="relative z-base text-center px-4 max-w-6xl mx-auto">
           {/* Breaking News Badge */}
           <div className="mb-6">
-            <Badge className="bg-gradient-to-r from-vintage-red to-tabloid-black text-white font-bold px-4 py-2 text-sm shadow-lg">
+            <Badge className="bg-gradient-to-r from-vintage-red to-tabloid-black text-white font-bold px-4 py-2 text-sm shadow-lg animate-breaking-news">
               <Sparkles className="w-4 h-4 mr-2" />
               BREAKING: GOSSIP INCOMING
             </Badge>
@@ -95,12 +95,12 @@ const Landing = () => {
             <img 
               src="/ctea-logo-icon.svg" 
               alt="CTea Newsroom" 
-              className="w-24 h-24 mx-auto mb-4 drop-shadow-lg"
+              className="w-24 h-24 md:w-32 md:h-32 mx-auto mb-4 drop-shadow-lg animate-float"
             />
           </div>
 
           {/* Main Headline - Tabloid Style */}
-          <h1 className="text-4xl md:text-7xl font-display font-bold bg-gradient-to-r from-vintage-red via-tabloid-black to-vintage-red bg-clip-text text-transparent mb-6 leading-tight tabloid-headline">
+          <h1 className="text-4xl md:text-7xl font-display font-bold text-vintage-red mb-6 leading-tight tabloid-headline animate-red-glow">
             CTea Newsroom
           </h1>
 
@@ -108,7 +108,7 @@ const Landing = () => {
           <h2 className="text-xl md:text-3xl text-tabloid-black mb-4 font-bold uppercase tracking-wide font-display">
             Web3's Gossip Feed
           </h2>
-          <p className="text-lg md:text-2xl text-vintage-red mb-12 font-bold">
+          <p className="text-lg md:text-2xl text-vintage-red mb-12 font-bold italic">
             Where crypto's unspoken news gets surfaced
           </p>
 
@@ -118,12 +118,12 @@ const Landing = () => {
             The underground newsroom where crypto scandals break first.
           </p>
 
-          {/* Updated CTA Buttons with New Language */}
+          {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
             <Button
               size="lg"
               onClick={handleSpillClick}
-              className="btn-pill btn-pill-red text-white font-bold px-8 py-4 text-lg border-0 shadow-xl"
+              className="btn-pill btn-pill-red text-white font-bold px-8 py-4 text-lg border-0 shadow-xl btn-tabloid-hover"
             >
               <Coffee className="w-5 h-5 mr-2" />
               Spill the Tea
@@ -134,14 +134,14 @@ const Landing = () => {
               size="lg"
               variant="outline"
               onClick={handleReadClick}
-              className="btn-pill border-2 border-tabloid-black text-tabloid-black hover:bg-tabloid-black hover:text-white font-bold px-8 py-4 text-lg shadow-lg"
+              className="btn-pill border-2 border-tabloid-black text-tabloid-black hover:bg-tabloid-black hover:text-white font-bold px-8 py-4 text-lg shadow-lg btn-tabloid-hover"
             >
               <Eye className="w-5 h-5 mr-2" />
               Read What's Brewing
             </Button>
           </div>
 
-          {/* How It Works - Tabloid Style */}
+          {/* How It Works */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
             {[
               { step: '1', title: 'SPILL THE TEA', desc: 'Drop anonymous crypto intel', icon: '🕵️' },
@@ -163,7 +163,7 @@ const Landing = () => {
       </section>
 
       {/* Leaderboard Teaser Section */}
-      <section className="py-16 bg-gradient-to-r from-pale-pink to-newsprint">
+      <section className="py-16 bg-gradient-to-r from-pale-pink to-newsprint relative z-base">
         <div className="container mx-auto px-4">
           <div className="max-w-md mx-auto">
             <LeaderboardTeaser />

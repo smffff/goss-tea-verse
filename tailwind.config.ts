@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -56,7 +57,7 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // CTea Tabloid Colors
+        // CTea Tabloid Colors - Updated for consistency
         'newsprint': '#fdf7f2',
         'vintage-red': {
           DEFAULT: '#cc2b2b',
@@ -90,6 +91,13 @@ const config: Config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      zIndex: {
+        'modal': '50',
+        'sticky-cta': '40',
+        'floating-badges': '30',
+        'navigation': '20',
+        'base': '10',
       },
       keyframes: {
         "accordion-down": {

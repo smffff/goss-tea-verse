@@ -13,15 +13,12 @@
   --text-primary: #1c1c1c;
   --text-secondary: #6b7280;
   
-  /* Legacy colors for compatibility */
-  --accent: #cc2b2b;
-  --accent2: #1c1c1c;
-  --ctea-pink: #cc2b2b;
-  --ctea-purple: #1c1c1c;
-  --ctea-teal: #cc2b2b;
-  --ctea-yellow: #f59e0b;
-  --ctea-dark: #1c1c1c;
-  --ctea-darker: #0a0a0a;
+  /* Proper Z-index hierarchy */
+  --z-modal: 50;
+  --z-sticky-cta: 40;
+  --z-floating-badges: 30;
+  --z-navigation: 20;
+  --z-base: 10;
 }
 
 * {
@@ -216,7 +213,7 @@ h1, h2, h3, h4, h5, h6, .font-display {
   }
 }
 
-/* Pill button styling */
+/* Pill button styling - Updated for consistency */
 .btn-pill {
   border-radius: 50px;
   padding: 12px 24px;
@@ -236,6 +233,27 @@ h1, h2, h3, h4, h5, h6, .font-display {
   box-shadow: 0 4px 15px rgba(204, 43, 43, 0.3);
 }
 
+/* Z-index utility classes for proper layering */
+.z-modal {
+  z-index: var(--z-modal);
+}
+
+.z-sticky-cta {
+  z-index: var(--z-sticky-cta);
+}
+
+.z-floating-badges {
+  z-index: var(--z-floating-badges);
+}
+
+.z-navigation {
+  z-index: var(--z-navigation);
+}
+
+.z-base {
+  z-index: var(--z-base);
+}
+
 /* Tea rating block */
 .tea-rating-block {
   background: linear-gradient(135deg, #fef7f7 0%, #fee2e2 100%);
@@ -248,26 +266,6 @@ h1, h2, h3, h4, h5, h6, .font-display {
 /* Sticky bottom padding for CTA bar */
 .pb-sticky-cta {
   padding-bottom: 80px;
-}
-
-/* Mobile optimizations */
-@media (max-width: 768px) {
-  body {
-    font-size: 16px;
-  }
-  
-  h1 {
-    font-size: 2rem;
-  }
-  
-  h2 {
-    font-size: 1.5rem;
-  }
-  
-  /* Improve touch targets */
-  button, a, input, textarea, select {
-    min-height: 44px;
-  }
 }
 
 /* Badge styling */
@@ -306,5 +304,35 @@ h1, h2, h3, h4, h5, h6, .font-display {
   .btn-tabloid-hover:hover,
   .card-tabloid-hover:hover {
     transform: none;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  /* Improve touch targets */
+  button, a, input, textarea, select {
+    min-height: 44px;
+  }
+
+  /* Prevent floating badges from overlapping content on mobile */
+  .z-floating-badges {
+    display: none;
+  }
+
+  /* Adjust sticky CTA for mobile */
+  .z-sticky-cta {
+    padding: 12px;
   }
 }

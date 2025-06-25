@@ -18,7 +18,7 @@ const SubmissionModal: React.FC<SubmissionModalProps> = ({
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-newsprint border-vintage-red/30 max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-newsprint border-vintage-red/30 max-w-2xl max-h-[90vh] overflow-y-auto z-modal">
         <DialogHeader>
           <DialogTitle className="sr-only">Submit Tea</DialogTitle>
         </DialogHeader>
