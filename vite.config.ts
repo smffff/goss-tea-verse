@@ -8,7 +8,16 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => {
   // Get the WS token and ensure it's safely handled
   const rawToken = process.env.VITE_WS_TOKEN;
-  const wsToken = rawToken && rawToken.trim() ? rawToken.trim() : 'development-fallback';
+  
+  // Sanitize the token to ensure it's safe for JavaScript injection
+  let wsToken = 'development-fallback';
+  if (rawToken && typeof rawToken === 'string') {
+    // Remove any potentially problematic characters and validate
+    const sanitized = rawToken.trim().replace(/[^\w\-]/g, '');
+    if (sanitized.length > 0) {
+      wsToken = sanitized;
+    }
+  }
   
   console.log('Raw WS Token:', rawToken ? '[PRESENT]' : '[MISSING]');
   console.log('Final WS Token:', wsToken ? '[SET]' : '[EMPTY]');
@@ -32,8 +41,8 @@ export default defineConfig(({ mode }) => {
       },
     },
     define: {
-      // Ensure proper string literal injection with safe fallback
-      '__WS_TOKEN__': JSON.stringify(wsToken || 'development-fallback'),
+      // Ensure safe string literal injection with validated token
+      '__WS_TOKEN__': JSON.stringify(wsToken),
     },
   };
 });
