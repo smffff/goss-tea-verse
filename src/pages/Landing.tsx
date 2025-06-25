@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle, Crown } from 'lucide-react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { CheckCircle, Crown, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import Footer from '@/components/Footer';
 import Modal from '@/components/Modal';
 import TippingModal from '@/components/TippingModal';
@@ -12,6 +13,7 @@ import LeaderboardPreview from '@/components/landing/LeaderboardPreview';
 import SocialProofSection from '@/components/landing/SocialProofSection';
 import LiveStatsSection from '@/components/landing/LiveStatsSection';
 import AboutSection from '@/components/landing/AboutSection';
+import { useAuth } from '@/hooks/useAuth';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -20,6 +22,7 @@ const Landing = () => {
   const [showTippingModal, setShowTippingModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successType, setSuccessType] = useState<'spill' | 'vip'>('spill');
+  const { user, isAdmin, isModerator } = useAuth();
 
   // Check for ?ref= parameter on component mount
   useEffect(() => {
@@ -51,6 +54,41 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-cyan-50">
+      {/* Authentication Bar */}
+      <div className="bg-ctea-dark/95 backdrop-blur-lg border-b border-ctea-teal/20 px-4 py-2">
+        <div className="container mx-auto flex justify-between items-center">
+          <div className="text-ctea-teal text-sm">
+            🔥 Join the hottest tea community - Spill responsibly!
+          </div>
+          <div className="flex items-center space-x-4">
+            {user ? (
+              <div className="flex items-center space-x-4">
+                <span className="text-white text-sm">Welcome, {user.email}</span>
+                {(isAdmin || isModerator) && (
+                  <Link to="/admin">
+                    <Button size="sm" variant="outline" className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-black">
+                      Admin Panel
+                    </Button>
+                  </Link>
+                )}
+                <Link to="/feed">
+                  <Button size="sm" className="bg-ctea-teal hover:bg-ctea-teal/80">
+                    Go to Feed
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <Link to="/auth">
+                <Button size="sm" variant="outline" className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-black">
+                  <User className="w-4 h-4 mr-2" />
+                  Sign In / Sign Up
+                </Button>
+              </Link>
+            )}
+          </div>
+        </div>
+      </div>
+
       <LandingNavigation />
       <TrendingTicker />
       <HeroSection 

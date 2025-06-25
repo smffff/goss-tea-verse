@@ -299,6 +299,36 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
       rate_limits: {
         Row: {
           action_count: number | null
@@ -1081,6 +1111,10 @@ export type Database = {
         Returns: Json
       }
       test_rls_enforcement: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      validate_admin_access: {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
