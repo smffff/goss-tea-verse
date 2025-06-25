@@ -1,164 +1,99 @@
 
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Menu, X, Coffee, TrendingUp, Users, Coins, Settings, User } from 'lucide-react';
-import { useUserProgression } from '@/hooks/useUserProgression';
-import { useAuth } from '@/hooks/useAuth';
-import BetaDisclaimer from '@/components/BetaDisclaimer';
+import { Coffee, Menu, X, Plus, Sparkles, TrendingUp, Heart } from 'lucide-react';
+import TipButton from './TipButton';
 
 const Navigation = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { progression, currentLevel } = useUserProgression();
-  const { user, isAdmin, isModerator } = useAuth();
+  const navigate = useNavigate();
 
-  const navItems = [
-    { path: '/home', label: 'Home', icon: Coffee },
-    { path: '/feed', label: 'Feed', icon: TrendingUp },
-    { path: '/submit', label: 'Submit Tea', icon: Coffee },
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  const navigationItems = [
+    { path: '/feed', label: 'Feed', icon: Coffee },
+    { path: '/enhanced-feed', label: 'Enhanced', icon: Sparkles },
     { path: '/trends', label: 'Trends', icon: TrendingUp },
-    { path: '/token', label: 'Token', icon: Coins },
-    { path: '/governance', label: 'Governance', icon: Users },
+    { path: '/submit', label: 'Submit', icon: Plus },
   ];
 
-  const isActivePath = (path: string) => {
-    if (path === '/home') {
-      return location.pathname === '/' || location.pathname === '/home';
-    }
-    return location.pathname.startsWith(path);
-  };
+  const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="bg-ctea-dark/90 backdrop-blur-lg border-b border-ctea-teal/20 sticky top-0 z-50">
+    <nav className="bg-ctea-darker border-b border-ctea-teal/20 sticky top-0 z-50 backdrop-blur-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-gradient-to-br from-ctea-teal to-ctea-purple rounded-lg flex items-center justify-center">
-              <Coffee className="w-5 h-5 text-white" />
+              <span className="text-white font-bold text-sm">C</span>
             </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-xl text-white">CTEA NEWS</span>
-              <BetaDisclaimer variant="compact" className="text-xs" />
-            </div>
+            <span className="text-xl font-bold text-white hidden sm:block">CTea</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
-            {navItems.map((item) => {
+          <div className="hidden md:flex items-center gap-6">
+            {navigationItems.map((item) => {
               const Icon = item.icon;
               return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
-                    isActivePath(item.path)
-                      ? 'bg-ctea-teal/20 text-ctea-teal'
-                      : 'text-gray-300 hover:text-white hover:bg-ctea-dark/50'
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                    isActive(item.path)
+                      ? 'bg-ctea-teal text-white'
+                      : 'text-gray-300 hover:text-white hover:bg-ctea-teal/20'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
-                  <span>{item.label}</span>
+                  {item.label}
                 </Link>
               );
             })}
+            <div className="border-l border-ctea-teal/20 pl-4">
+              <TipButton variant="minimal" />
+            </div>
           </div>
 
-          {/* User Stats & Auth */}
-          <div className="hidden md:flex items-center space-x-4">
-            {user ? (
-              <>
-                <div className="flex items-center space-x-2">
-                  <Badge className="bg-ctea-teal/20 text-ctea-teal border border-ctea-teal/30">
-                    Level {currentLevel.level}
-                  </Badge>
-                  <Badge className="bg-ctea-yellow/20 text-ctea-yellow border border-ctea-yellow/30">
-                    {progression.tea_points} $TEA
-                  </Badge>
-                </div>
-                {(isAdmin || isModerator) && (
-                  <Link to="/admin">
-                    <Button size="sm" variant="outline" className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-black">
-                      Admin
-                    </Button>
-                  </Link>
-                )}
-                <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                  <Settings className="w-4 h-4" />
-                </Button>
-              </>
-            ) : (
-              <Link to="/auth">
-                <Button size="sm" variant="outline" className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-black">
-                  <User className="w-4 h-4 mr-2" />
-                  Sign In
-                </Button>
-              </Link>
-            )}
-          </div>
-
-          {/* Mobile menu button */}
+          {/* Mobile Menu Button */}
           <Button
             variant="ghost"
             size="sm"
+            onClick={toggleMenu}
             className="md:hidden text-white"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            {isMobileMenuOpen ? (
-              <X className="w-5 h-5" />
-            ) : (
-              <Menu className="w-5 h-5" />
-            )}
+            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
         </div>
 
-        {/* Mobile Navigation */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-ctea-teal/20">
-            <div className="flex flex-col space-y-2">
-              {navItems.map((item) => {
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden border-t border-ctea-teal/20 py-4">
+            <div className="flex flex-col gap-2">
+              {navigationItems.map((item) => {
                 const Icon = item.icon;
                 return (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
-                      isActivePath(item.path)
-                        ? 'bg-ctea-teal/20 text-ctea-teal'
-                        : 'text-gray-300 hover:text-white hover:bg-ctea-dark/50'
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                      isActive(item.path)
+                        ? 'bg-ctea-teal text-white'
+                        : 'text-gray-300 hover:text-white hover:bg-ctea-teal/20'
                     }`}
-                    onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <Icon className="w-4 h-4" />
-                    <span>{item.label}</span>
+                    {item.label}
                   </Link>
                 );
               })}
-              <div className="flex items-center justify-between pt-4 border-t border-ctea-teal/20">
-                {user ? (
-                  <>
-                    <div className="flex items-center space-x-2">
-                      <Badge className="bg-ctea-teal/20 text-ctea-teal border border-ctea-teal/30">
-                        Level {currentLevel.level}
-                      </Badge>
-                      <Badge className="bg-ctea-yellow/20 text-ctea-yellow border border-ctea-yellow/30">
-                        {progression.tea_points} $TEA
-                      </Badge>
-                    </div>
-                    <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                      <Settings className="w-4 h-4" />
-                    </Button>
-                  </>
-                ) : (
-                  <Link to="/auth" className="w-full">
-                    <Button size="sm" variant="outline" className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-black w-full">
-                      <User className="w-4 h-4 mr-2" />
-                      Sign In
-                    </Button>
-                  </Link>
-                )}
+              <div className="border-t border-ctea-teal/20 pt-4 mt-2">
+                <div className="px-3">
+                  <TipButton variant="inline" />
+                </div>
               </div>
             </div>
           </div>

@@ -1,8 +1,8 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Twitter, Github, MessageCircle, Heart, ExternalLink } from 'lucide-react';
+import { Twitter, Github, MessageCircle, Heart, ExternalLink, Code } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import TipButton from './TipButton';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -155,6 +155,22 @@ const Footer = () => {
               <div className="text-2xl font-bold text-ctea-pink">99.9%</div>
               <div className="text-sm text-gray-400">Uptime</div>
             </div>
+          </div>
+        </div>
+
+        {/* Developer Attribution Section */}
+        <div className="border-t border-ctea-teal/20 pt-8 mb-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Code className="w-5 h-5 text-ctea-purple" />
+                <span className="text-gray-300">Built with</span>
+                <Heart className="w-4 h-4 text-red-400" />
+                <span className="text-gray-300">by</span>
+                <span className="text-ctea-teal font-semibold">ladyinvsible</span>
+              </div>
+            </div>
+            <TipButton variant="default" />
           </div>
         </div>
 
