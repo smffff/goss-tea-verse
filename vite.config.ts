@@ -32,8 +32,8 @@ export default defineConfig(({ mode }) => {
       },
     },
     define: {
-      // Properly escape and stringify the token to prevent syntax errors
-      '__WS_TOKEN__': JSON.stringify(wsToken),
+      // Ensure the token is properly stringified as a string literal
+      '__WS_TOKEN__': `"${wsToken.replace(/"/g, '\\"')}"`,
     },
   };
 });
