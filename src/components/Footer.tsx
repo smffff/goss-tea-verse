@@ -17,13 +17,14 @@ const Footer = () => {
   const footerLinks = [
     { path: '/about', label: 'About' },
     { path: '/contact', label: 'Contact' },
-    { path: '/privacy', label: 'Privacy' }
+    { path: '/privacy', label: 'Privacy' },
+    { path: '/terms', label: 'Terms' }
   ];
 
   const socialLinks = [
     { href: 'https://twitter.com/ctea_newsroom', label: 'Twitter', icon: <Twitter className="w-4 h-4" /> },
-    { href: '#', label: 'Arena', icon: <MessageCircle className="w-4 h-4" /> },
-    { href: '#', label: 'Discord', icon: <Users className="w-4 h-4" /> }
+    { href: 'https://arena.ctea.news', label: 'Arena', icon: <MessageCircle className="w-4 h-4" /> },
+    { href: 'https://discord.gg/ctea', label: 'Discord', icon: <Users className="w-4 h-4" /> }
   ];
 
   const handleFeedbackSubmit = async (e: React.FormEvent) => {
@@ -71,11 +72,10 @@ const Footer = () => {
                 </div>
               </div>
               <p className="text-lg text-gray-300 leading-relaxed mb-4">
-                Now accepting early users, contributors, and meme whisperers. 
-                Because Web3 doesn't need another whitepaper—it needs a gossip column.
+                Where Crypto Twitter Comes to Spill. Submit, track, and score the latest gossip & alpha—anonymous, algorithmic, and spicy.
               </p>
               <p className="text-sm text-gray-400 italic">
-                Spill responsibly, but spill often. 🫖
+                Beta open. VIPs welcome. ☕️
               </p>
             </div>
             
@@ -84,7 +84,7 @@ const Footer = () => {
               <Link to="/app">
                 <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold uppercase tracking-wide px-8 py-4 text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                   <ArrowRight className="w-5 h-5 mr-2" />
-                  Get Started - Enter the Newsroom
+                  Enter the Newsroom
                 </Button>
               </Link>
             </div>
@@ -193,7 +193,10 @@ const Footer = () => {
             </div>
             
             <div className="text-sm text-gray-500 border-t border-gray-700 pt-6">
-              © 2024 CTea Newsroom. Spill responsibly. 🫖
+              <p>© 2024 CTea Newsroom. Powered by CTea Newsroom. Spill responsibly. 🫖</p>
+              <p className="mt-2 text-xs">
+                Where Crypto Twitter Comes to Spill • Submit, track, and score the latest gossip & alpha—anonymous, algorithmic, and spicy
+              </p>
             </div>
           </div>
         </div>

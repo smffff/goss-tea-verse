@@ -23,7 +23,11 @@ import {
   ArrowRight,
   Flame,
   Clock,
-  Sparkles
+  Sparkles,
+  Home,
+  Trophy,
+  Activity,
+  Plus
 } from 'lucide-react';
 
 const Landing = () => {
@@ -32,6 +36,8 @@ const Landing = () => {
   const [showSpillForm, setShowSpillForm] = useState(false);
   const [showVipModal, setShowVipModal] = useState(false);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successType, setSuccessType] = useState<'spill' | 'vip'>('spill');
 
   // Check for ?ref= parameter on component mount
   useEffect(() => {
@@ -91,10 +97,40 @@ const Landing = () => {
   const handleSpillSubmit = (data: { tea: string; email: string; wallet: string }) => {
     // TODO: Implement submission logic
     console.log('Tea spilled:', data);
+    setShowSpillForm(false);
+    setSuccessType('spill');
+    setShowSuccessModal(true);
+  };
+
+  const handleVipTip = () => {
+    setShowVipModal(false);
+    setSuccessType('vip');
+    setShowSuccessModal(true);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-cyan-50">
+      {/* Simple Navigation Bar */}
+      <nav className="bg-white/80 backdrop-blur-sm border-b border-purple-200/50 sticky top-0 z-40">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-2">
+              <img 
+                src="/ctea-logo-icon.svg" 
+                alt="CTea Newsroom Logo" 
+                className="w-8 h-8"
+              />
+              <span className="font-bold text-gray-900">CTea Newsroom</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <a href="#leaderboard" className="text-gray-600 hover:text-purple-600 font-medium">Leaderboard</a>
+              <a href="#about" className="text-gray-600 hover:text-purple-600 font-medium">About</a>
+              <a href="#submit" className="text-gray-600 hover:text-purple-600 font-medium">Submit</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
       {/* Trending Ticker */}
       <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 text-white py-2 overflow-hidden">
         <div className="flex items-center justify-center space-x-8 animate-marquee">
@@ -148,88 +184,88 @@ const Landing = () => {
               </span>
             </h1>
             
-            {/* Subheadline */}
-            <p className="text-lg sm:text-xl md:text-2xl text-gray-700 mb-8 font-medium">
-              Beta access now open. Managed chaos, served hot.
-            </p>
-            
-            {/* Enhanced Value Proposition with Visual Cue */}
-            <div className="max-w-2xl mx-auto mb-12">
-              <div className="flex items-start gap-4 p-6 bg-white/50 backdrop-blur-sm rounded-xl border border-purple-200/50">
-                <div className="flex-shrink-0 mt-1">
-                  <Coffee className="w-6 h-6 text-purple-600" />
-                </div>
-                <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
-                  CTea Newsroom is the anonymous dropbox for crypto gossip, alpha leaks, and meme-fueled market takes. 
-                  Submit, track, and score the hottest stories across the spaces—served algorithmically spicy.
-                </p>
-              </div>
+            {/* Enhanced Value Proposition */}
+            <div className="max-w-3xl mx-auto mb-12">
+              <p className="text-lg sm:text-xl md:text-2xl text-gray-700 mb-6 font-medium">
+                CTea Newsroom is where Crypto Twitter's hottest gossip, alpha leaks, and meme-fueled market takes get dropped, tracked, and scored—anonymously and algorithmically spicy.
+              </p>
+              <p className="text-base sm:text-lg text-gray-600">
+                Submit your story or tip the gatekeepers to join the beta.
+              </p>
             </div>
             
-            {/* Enhanced CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-              <Button 
-                onClick={() => {
-                  // Track CTA click
-                  trackCTAClick('spill_tea_cta');
-                  setShowSpillForm(true);
-                }}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold uppercase tracking-wide px-8 py-4 text-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group"
-              >
-                <Coffee className="w-5 h-5 mr-2 group-hover:animate-bounce" />
-                Spill Tea for Beta Access
-              </Button>
+            {/* Enhanced CTA Buttons with Microcopy */}
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8">
+              <div className="text-center">
+                <Button 
+                  onClick={() => {
+                    trackCTAClick('spill_tea_cta');
+                    setShowSpillForm(true);
+                  }}
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold uppercase tracking-wide px-8 py-4 text-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group"
+                >
+                  <Coffee className="w-5 h-5 mr-2 group-hover:animate-bounce" />
+                  Spill Tea for Beta Access
+                </Button>
+                <p className="text-sm text-gray-600 mt-2 max-w-xs">
+                  Submit your first rumor or alpha to unlock the beta.
+                </p>
+              </div>
               
-              <Dialog open={showVipModal} onOpenChange={setShowVipModal}>
-                <DialogTrigger asChild>
-                  <Button 
-                    onClick={() => {
-                      // Track CTA click
-                      trackCTAClick('tip_gatekeepers_cta');
-                    }}
-                    variant="outline"
-                    className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white font-bold uppercase tracking-wide px-8 py-4 text-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group"
-                  >
-                    <Gift className="w-5 h-5 mr-2 group-hover:animate-pulse" />
-                    Tip Gatekeepers
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle className="text-center">VIP Benefits</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div className="text-center">
-                      <Crown className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-                      <h3 className="text-lg font-bold mb-2">Exclusive VIP Features</h3>
-                      <ul className="text-sm space-y-2 text-left">
-                        <li className="flex items-center gap-2">
-                          <Star className="w-4 h-4 text-yellow-500" />
-                          Early access to new features
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <Star className="w-4 h-4 text-yellow-500" />
-                          Priority submission queue
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <Star className="w-4 h-4 text-yellow-500" />
-                          Exclusive community access
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <Star className="w-4 h-4 text-yellow-500" />
-                          Higher $TEA point multipliers
-                        </li>
-                      </ul>
+              <div className="text-center">
+                <Dialog open={showVipModal} onOpenChange={setShowVipModal}>
+                  <DialogTrigger asChild>
+                    <Button 
+                      onClick={() => {
+                        trackCTAClick('tip_gatekeepers_cta');
+                      }}
+                      variant="outline"
+                      className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white font-bold uppercase tracking-wide px-8 py-4 text-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group"
+                    >
+                      <Gift className="w-5 h-5 mr-2 group-hover:animate-pulse" />
+                      VIP Access
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle className="text-center">VIP Benefits</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="text-center">
+                        <Crown className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+                        <h3 className="text-lg font-bold mb-2">Exclusive VIP Features</h3>
+                        <ul className="text-sm space-y-2 text-left">
+                          <li className="flex items-center gap-2">
+                            <Star className="w-4 h-4 text-yellow-500" />
+                            Early access to new features
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <Star className="w-4 h-4 text-yellow-500" />
+                            Priority submission queue
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <Star className="w-4 h-4 text-yellow-500" />
+                            Exclusive community access
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <Star className="w-4 h-4 text-yellow-500" />
+                            Higher $TEA point multipliers
+                          </li>
+                        </ul>
+                      </div>
+                      <div className="text-center">
+                        <Badge variant="secondary" className="bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800">
+                          <Gift className="w-3 h-3 mr-1" />
+                          VIP Benefits: Early Access, Recognition, Premium Features
+                        </Badge>
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <Badge variant="secondary" className="bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800">
-                        <Gift className="w-3 h-3 mr-1" />
-                        VIP Benefits: Early Access, Recognition, Premium Features
-                      </Badge>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
+                  </DialogContent>
+                </Dialog>
+                <p className="text-sm text-gray-600 mt-2 max-w-xs">
+                  Tip the gatekeepers and skip the line—instant VIP entry.
+                </p>
+              </div>
             </div>
 
             {/* Enhanced Urgency Badge */}
@@ -251,8 +287,45 @@ const Landing = () => {
         submitButtonText="Spill Tea"
       />
 
+      {/* Success Modal */}
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title={successType === 'spill' ? "Tea Spilled! ☕" : "VIP Access Granted! 👑"}
+      >
+        <div className="text-center space-y-4">
+          {successType === 'spill' ? (
+            <>
+              <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
+              <h3 className="text-xl font-bold text-white">Thanks for spilling!</h3>
+              <p className="text-gray-300">
+                Check your inbox for beta access. We'll review your submission and get back to you within 24 hours.
+              </p>
+              <div className="bg-green-900/30 border border-green-500/30 rounded-lg p-4 mt-4">
+                <p className="text-sm text-green-300">
+                  💡 Pro tip: Follow us on Twitter for real-time updates and exclusive alpha drops.
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <Crown className="w-16 h-16 text-yellow-500 mx-auto" />
+              <h3 className="text-xl font-bold text-white">VIP Access Granted!</h3>
+              <p className="text-gray-300">
+                Tip sent? DM us your transaction hash for instant access to exclusive features.
+              </p>
+              <div className="bg-yellow-900/30 border border-yellow-500/30 rounded-lg p-4 mt-4">
+                <p className="text-sm text-yellow-300">
+                  🚀 You'll receive priority access to all new features and exclusive community channels.
+                </p>
+              </div>
+            </>
+          )}
+        </div>
+      </Modal>
+
       {/* Leaderboard Preview */}
-      <section className="py-16 bg-white">
+      <section id="leaderboard" className="py-16 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
@@ -364,6 +437,33 @@ const Landing = () => {
             <div className="text-center p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl border border-yellow-200">
               <div className="text-3xl sm:text-4xl font-bold text-yellow-600 mb-2">69</div>
               <div className="text-sm text-gray-600 font-medium">Viral Memes</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section id="about" className="py-16 bg-gradient-to-r from-purple-50 to-pink-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
+              About CTea Newsroom
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-gray-900">🎯 Our Mission</h3>
+                <p className="text-gray-700 leading-relaxed">
+                  We're building the ultimate anonymous gossip platform for crypto Twitter—where alpha leaks, 
+                  market takes, and spicy rumors get the attention they deserve.
+                </p>
+              </div>
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-gray-900">🛡️ Privacy First</h3>
+                <p className="text-gray-700 leading-relaxed">
+                  All submissions are anonymous by default. We use advanced encryption to protect your identity 
+                  while ensuring quality content rises to the top.
+                </p>
+              </div>
             </div>
           </div>
         </div>
