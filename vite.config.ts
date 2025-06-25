@@ -6,10 +6,12 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  // Safely get the WS token with proper fallback and validation
-  const wsToken = process.env.VITE_WS_TOKEN || 'development-fallback';
+  // Get the WS token and ensure it's safely handled
+  const rawToken = process.env.VITE_WS_TOKEN;
+  const wsToken = rawToken || 'development-fallback';
   
-  console.log('Vite WS Token:', wsToken); // Debug log to see what we're working with
+  console.log('Raw WS Token:', rawToken);
+  console.log('Final WS Token:', wsToken);
   
   return {
     server: {
@@ -30,8 +32,8 @@ export default defineConfig(({ mode }) => {
       },
     },
     define: {
-      // Ensure the token is always a valid string
-      __WS_TOKEN__: JSON.stringify(String(wsToken)),
+      // Properly escape and stringify the token to prevent syntax errors
+      '__WS_TOKEN__': JSON.stringify(wsToken),
     },
   };
 });
