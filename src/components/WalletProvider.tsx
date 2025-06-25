@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { identify, track } from '@/utils/analytics';
 
 interface WalletState {
   isConnected: boolean;
@@ -73,6 +74,10 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
 
           localStorage.setItem('ctea_wallet_connected', 'true');
           localStorage.setItem('ctea_wallet_type', type);
+
+          // Analytics: identify user and track wallet connection
+          identify(accounts[0]);
+          track('connected_wallet');
         }
       }
     } catch (error) {
