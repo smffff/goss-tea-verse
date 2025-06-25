@@ -215,92 +215,94 @@
     animation: shimmer 2s infinite;
   }
 
-  /* Enhanced button styles */
+  /* Enhanced Button Styles */
   .btn-primary {
-    @apply bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold uppercase tracking-wide px-6 py-3 rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300;
+    @apply uppercase font-semibold px-6 py-3 rounded-lg transition-all shadow hover:scale-105;
+    background: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent2)) 100%);
+    color: white;
   }
 
   .btn-secondary {
-    @apply border-2 border-cyan-500 text-cyan-600 hover:bg-cyan-50 font-bold uppercase tracking-wide px-6 py-3 rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300;
+    @apply uppercase font-semibold px-6 py-3 rounded-lg transition-all shadow hover:scale-105;
+    border: 2px solid hsl(var(--accent));
+    color: hsl(var(--accent));
   }
 
   .btn-glow {
-    @apply btn-primary animate-neon-glow;
+    @apply uppercase font-semibold px-6 py-3 rounded-lg transition-all shadow-lg hover:scale-105;
+    background: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent2)) 100%);
+    color: white;
+    box-shadow: 0 0 20px rgba(0, 209, 193, 0.3);
   }
 
-  /* Enhanced card styles */
+  /* Enhanced Card Styles */
   .card-hover {
-    @apply transition-all duration-300 hover:shadow-xl hover:scale-105 transform;
+    @apply p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow;
   }
 
   .card-gradient {
-    @apply bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200;
+    @apply p-6 bg-gradient-to-br from-accent/5 to-accent2/5 border border-accent/20 rounded-lg shadow-lg;
   }
 
-  /* Enhanced text styles */
+  /* Enhanced Typography */
   .text-gradient {
-    @apply bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 bg-clip-text text-transparent;
+    background: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent2)) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .text-glow {
-    @apply text-gradient animate-glow;
+    text-shadow: 0 0 10px hsl(var(--accent)), 0 0 20px hsl(var(--accent));
   }
 
-  /* Mobile-first responsive container */
+  /* Responsive Utilities */
   .container-responsive {
-    @apply w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16;
-    max-width: 100%;
+    @apply container mx-auto px-4 md:px-8;
   }
 
-  /* Mobile-first responsive grid */
   .grid-responsive {
-    @apply grid gap-4 sm:gap-6 md:gap-8;
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
   }
 
   .grid-cols-responsive {
     @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
   }
 
-  /* Mobile-first responsive spacing */
   .section-responsive {
-    @apply py-8 sm:py-12 md:py-16 lg:py-20;
+    @apply py-16;
   }
 
   .padding-responsive {
-    @apply p-4 sm:p-6 md:p-8 lg:p-12;
+    @apply px-4 md:px-8 py-6;
   }
 
-  /* Mobile-first responsive text */
   .text-responsive {
-    @apply text-sm sm:text-base md:text-lg lg:text-xl;
+    @apply text-sm sm:text-base lg:text-lg;
   }
 
   .text-responsive-lg {
-    @apply text-base sm:text-lg md:text-xl lg:text-2xl;
+    @apply text-lg sm:text-xl md:text-2xl lg:text-3xl;
   }
 
-  /* Mobile-first responsive buttons */
   .btn-responsive {
-    @apply px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base;
+    @apply w-full sm:w-auto;
   }
 
   .btn-responsive-lg {
-    @apply px-6 py-3 sm:px-8 sm:py-4 md:px-10 md:py-5 text-base sm:text-lg md:text-xl;
+    @apply w-full sm:w-auto text-base sm:text-lg;
   }
 
-  /* Mobile-first responsive cards */
   .card-responsive {
-    @apply p-4 sm:p-6 md:p-8 rounded-lg;
+    @apply w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl;
   }
 
-  /* Mobile-first responsive navigation */
   .nav-responsive {
-    @apply flex flex-col sm:flex-row items-center gap-4 sm:gap-6 md:gap-8;
+    @apply hidden lg:flex;
   }
 
-  /* Mobile-first responsive sidebar */
   .sidebar-responsive {
-    @apply fixed inset-y-0 left-0 z-50 w-64 sm:w-72 md:w-80 transform transition-transform duration-300 ease-in-out;
+    @apply fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-900 shadow-lg transform transition-transform duration-300 ease-in-out;
   }
 
   .sidebar-responsive.closed {
@@ -311,39 +313,40 @@
     @apply translate-x-0;
   }
 
-  /* Mobile-first responsive modal */
   .modal-responsive {
-    @apply fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-8;
+    @apply w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl;
   }
 
   .modal-content-responsive {
-    @apply w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl;
+    @apply p-4 sm:p-6 md:p-8;
   }
 
-  /* Retro Grid Background */
+  /* Retro and Vaporwave Styles */
   .retro-grid {
     background-image: 
-      linear-gradient(rgba(0, 212, 170, 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 212, 170, 0.1) 1px, transparent 1px);
-    background-size: 50px 50px;
-    position: relative;
+      linear-gradient(rgba(0, 209, 193, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 209, 193, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
   }
 
   .retro-grid::before {
     content: '';
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at 50% 50%, rgba(0, 212, 170, 0.1) 0%, transparent 70%);
+    width: 100%;
+    height: 100%;
+    background-image: 
+      linear-gradient(rgba(255, 97, 166, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 97, 166, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
     pointer-events: none;
+    z-index: -1;
   }
 
-  /* Neon Border Effect */
   .neon-border {
     border: 2px solid transparent;
-    background: linear-gradient(45deg, #00d4aa, #ff1b8d, #00d4aa) border-box;
+    background: linear-gradient(45deg, hsl(var(--accent)), hsl(var(--accent2))) border-box;
     -webkit-mask: 
       linear-gradient(#fff 0 0) padding-box, 
       linear-gradient(#fff 0 0);
@@ -352,14 +355,15 @@
   }
 
   .neon-border:hover {
-    background: linear-gradient(45deg, #00d4aa, #ff1b8d, #00d4aa, #00d4aa) border-box;
-    animation: glow 2s ease-in-out infinite;
+    box-shadow: 
+      0 0 10px hsl(var(--accent)),
+      0 0 20px hsl(var(--accent)),
+      0 0 30px hsl(var(--accent));
   }
 
-  /* Glitch Effect */
   .glitch {
     position: relative;
-    animation: glitch-1 2s infinite linear alternate-reverse;
+    animation: glitch 1s infinite;
   }
 
   .glitch::before,
@@ -373,82 +377,78 @@
   }
 
   .glitch::before {
-    animation: glitch-2 2s infinite linear alternate-reverse;
-    color: #00d4aa;
+    animation: glitch-1 0.5s infinite;
+    color: hsl(var(--accent));
     z-index: -1;
   }
 
   .glitch::after {
-    animation: glitch-1 2s infinite linear alternate-reverse;
-    color: #ff1b8d;
+    animation: glitch-2 0.5s infinite;
+    color: hsl(var(--accent2));
     z-index: -2;
   }
 
   @keyframes glitch-1 {
-    0%, 14%, 15%, 49%, 50%, 99%, 100% {
-      transform: translate(0);
-    }
-    15%, 49% {
-      transform: translate(-2px, 2px);
-    }
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
   }
 
   @keyframes glitch-2 {
-    0%, 20%, 21%, 62%, 63%, 99%, 100% {
-      transform: translate(0);
-    }
-    21%, 62% {
-      transform: translate(2px, -2px);
-    }
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(2px, -2px); }
+    40% { transform: translate(2px, 2px); }
+    60% { transform: translate(-2px, -2px); }
+    80% { transform: translate(-2px, 2px); }
   }
 
-  /* Retro Button Style */
   .retro-button {
-    background: linear-gradient(45deg, #00d4aa, #ff1b8d);
-    border: 2px solid #00d4aa;
-    box-shadow: 0 0 10px rgba(0, 212, 170, 0.5);
-    transition: all 0.3s ease;
+    @apply uppercase font-bold px-6 py-3 rounded-lg transition-all duration-300;
+    background: linear-gradient(45deg, hsl(var(--accent)), hsl(var(--accent2)));
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
   }
 
   .retro-button:hover {
-    box-shadow: 0 0 20px rgba(0, 212, 170, 0.8);
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
   }
 
-  /* Vaporwave Card Style */
   .vaporwave-card {
-    background: linear-gradient(135deg, rgba(147, 51, 234, 0.1), rgba(236, 72, 153, 0.1));
-    border: 1px solid rgba(147, 51, 234, 0.3);
-    backdrop-filter: blur(10px);
+    @apply p-6 rounded-lg transition-all duration-300;
+    background: linear-gradient(135deg, rgba(0, 209, 193, 0.1), rgba(255, 97, 166, 0.1));
+    border: 1px solid rgba(0, 209, 193, 0.2);
   }
 
   .vaporwave-card:hover {
-    border-color: rgba(147, 51, 234, 0.6);
-    box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 209, 193, 0.2);
   }
 
-  /* Neon Text Effect */
   .neon-text {
-    color: #00d4aa;
-    text-shadow: 0 0 5px #00d4aa, 0 0 10px #00d4aa, 0 0 15px #00d4aa;
+    color: hsl(var(--accent));
+    text-shadow: 0 0 10px hsl(var(--accent)), 0 0 20px hsl(var(--accent));
   }
 
   .neon-text-pink {
-    color: #ff1b8d;
-    text-shadow: 0 0 5px #ff1b8d, 0 0 10px #ff1b8d, 0 0 15px #ff1b8d;
+    color: hsl(var(--accent2));
+    text-shadow: 0 0 10px hsl(var(--accent2)), 0 0 20px hsl(var(--accent2));
   }
 
-  /* Responsive form elements */
+  /* Form and Input Styles */
   .input-responsive {
-    @apply w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base;
+    @apply w-full px-4 py-3 rounded-lg border border-accent/30 focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all;
   }
 
   .textarea-responsive {
-    @apply w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base min-h-[100px] sm:min-h-[120px];
+    @apply w-full px-4 py-3 rounded-lg border border-accent/30 focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all resize-none;
   }
 
+  /* Image and Icon Styles */
   .img-responsive {
-    @apply w-full h-auto max-w-full;
+    @apply w-full h-auto object-cover;
   }
 
   .icon-responsive {
@@ -459,302 +459,376 @@
     @apply w-6 h-6 sm:w-8 sm:h-8;
   }
 
+  /* Badge and Status Styles */
   .badge-responsive {
-    @apply px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm;
+    @apply px-2 py-1 text-xs sm:text-sm font-medium rounded-full;
   }
 
+  /* Table Styles */
   .table-responsive {
     @apply w-full overflow-x-auto;
   }
 
   .table-responsive table {
-    @apply min-w-full;
+    @apply min-w-full divide-y divide-accent/20;
   }
 
+  /* List Styles */
   .list-responsive {
-    @apply space-y-2 sm:space-y-3;
+    @apply space-y-4 sm:space-y-6;
   }
 
+  /* Divider Styles */
   .divider-responsive {
-    @apply my-4 sm:my-6 md:my-8;
+    @apply border-t border-accent/20 my-6 sm:my-8;
   }
 
+  /* Animation Utilities */
   .animate-responsive {
     @apply transition-all duration-300 ease-in-out;
   }
 
+  /* Shadow Utilities */
   .shadow-responsive {
-    @apply shadow-sm sm:shadow-md lg:shadow-lg;
+    @apply shadow-lg hover:shadow-xl transition-shadow duration-300;
   }
 
+  /* Border Utilities */
   .border-responsive {
-    @apply border border-gray-200 dark:border-gray-700;
+    @apply border border-accent/20 rounded-lg;
   }
 
+  /* Rounded Utilities */
   .rounded-responsive {
     @apply rounded-lg sm:rounded-xl;
   }
 
+  /* Opacity Utilities */
   .opacity-responsive {
-    @apply opacity-90 sm:opacity-95;
+    @apply opacity-90 hover:opacity-100 transition-opacity;
   }
 
+  /* Z-index Utilities */
   .z-responsive {
-    @apply z-10 sm:z-20 lg:z-30;
+    @apply z-10 sm:z-20;
   }
 
+  /* Overflow Utilities */
   .overflow-responsive {
-    @apply overflow-hidden;
+    @apply overflow-hidden sm:overflow-visible;
   }
 
+  /* Position Utilities */
   .position-responsive {
-    @apply relative sm:relative;
+    @apply relative sm:static;
   }
 
+  /* Display Utilities */
   .display-responsive {
-    @apply block sm:block;
+    @apply block sm:inline-block;
   }
 
+  /* Flex Utilities */
   .flex-responsive {
     @apply flex flex-col sm:flex-row;
   }
 
+  /* Justify Utilities */
   .justify-responsive {
     @apply justify-start sm:justify-center;
   }
 
+  /* Align Utilities */
   .align-responsive {
     @apply items-start sm:items-center;
   }
 
+  /* Gap Utilities */
   .gap-responsive {
-    @apply gap-2 sm:gap-4 md:gap-6;
+    @apply gap-4 sm:gap-6 lg:gap-8;
   }
 
+  /* Margin Utilities */
   .margin-responsive {
-    @apply m-2 sm:m-4 md:m-6;
+    @apply m-4 sm:m-6 lg:m-8;
   }
 
+  /* Padding Utilities */
   .padding-responsive {
-    @apply p-2 sm:p-4 md:p-6;
+    @apply p-4 sm:p-6 lg:p-8;
   }
 
+  /* Width Utilities */
   .width-responsive {
     @apply w-full sm:w-auto;
   }
 
+  /* Height Utilities */
   .height-responsive {
-    @apply h-auto sm:h-auto;
+    @apply h-auto sm:h-full;
   }
 
+  /* Max-width Utilities */
   .max-width-responsive {
-    @apply max-w-full sm:max-w-none;
+    @apply max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl;
   }
 
+  /* Min-width Utilities */
   .min-width-responsive {
-    @apply min-w-0 sm:min-w-0;
+    @apply min-w-0 sm:min-w-full;
   }
 
+  /* Aspect Ratio Utilities */
   .aspect-responsive {
     @apply aspect-square sm:aspect-video;
   }
 
+  /* Object Fit Utilities */
   .object-responsive {
-    @apply object-cover;
+    @apply object-cover sm:object-contain;
   }
 
+  /* Background Utilities */
   .bg-responsive {
-    @apply bg-white dark:bg-gray-900;
+    @apply bg-cover sm:bg-contain;
   }
 
+  /* Backdrop Utilities */
   .backdrop-responsive {
-    @apply backdrop-blur-sm;
+    @apply backdrop-blur-sm sm:backdrop-blur-md;
   }
 
+  /* Filter Utilities */
   .filter-responsive {
-    @apply filter-none;
+    @apply filter-none sm:filter;
   }
 
+  /* Transform Utilities */
   .transform-responsive {
-    @apply transform-none;
+    @apply transform-none sm:transform;
   }
 
+  /* Transition Utilities */
   .transition-responsive {
     @apply transition-all duration-300 ease-in-out;
   }
 
+  /* Animation Utilities */
   .animation-responsive {
-    @apply animate-none;
+    @apply animate-none sm:animate-pulse;
   }
 
+  /* Cursor Utilities */
   .cursor-responsive {
     @apply cursor-pointer;
   }
 
+  /* Pointer Events Utilities */
   .pointer-responsive {
-    @apply pointer-events-auto;
+    @apply pointer-events-auto sm:pointer-events-none;
   }
 
+  /* User Select Utilities */
   .select-responsive {
-    @apply select-none;
+    @apply select-none sm:select-text;
   }
 
+  /* Resize Utilities */
   .resize-responsive {
-    @apply resize-none;
+    @apply resize-none sm:resize;
   }
 
+  /* Scroll Utilities */
   .scroll-responsive {
     @apply scroll-smooth;
   }
 
+  /* Snap Utilities */
   .snap-responsive {
-    @apply snap-start;
+    @apply snap-none sm:snap-y;
   }
 
+  /* Touch Utilities */
   .touch-responsive {
-    @apply touch-manipulation;
+    @apply touch-pan-y sm:touch-pan-x;
   }
 
+  /* Will Change Utilities */
   .will-change-responsive {
-    @apply will-change-auto;
+    @apply will-change-auto sm:will-change-transform;
   }
 
+  /* Fill Utilities */
   .fill-responsive {
     @apply fill-current;
   }
 
+  /* Stroke Utilities */
   .stroke-responsive {
     @apply stroke-current;
   }
 
+  /* Stroke Width Utilities */
   .stroke-width-responsive {
-    @apply stroke-2;
+    @apply stroke-1 sm:stroke-2;
   }
 
+  /* Fill Rule Utilities */
   .fill-rule-responsive {
     @apply fill-rule-evenodd;
   }
 
+  /* Clip Rule Utilities */
   .clip-rule-responsive {
     @apply clip-rule-evenodd;
   }
 
+  /* Vector Effect Utilities */
   .vector-effect-responsive {
     @apply vector-effect-none;
   }
 
+  /* Mask Utilities */
   .mask-responsive {
     @apply mask-none;
   }
 
+  /* Mask Type Utilities */
   .mask-type-responsive {
     @apply mask-type-alpha;
   }
 
+  /* Mask Size Utilities */
   .mask-size-responsive {
     @apply mask-size-auto;
   }
 
+  /* Mask Repeat Utilities */
   .mask-repeat-responsive {
     @apply mask-repeat-no-repeat;
   }
 
+  /* Mask Position Utilities */
   .mask-position-responsive {
     @apply mask-position-center;
   }
 
+  /* Mask Origin Utilities */
   .mask-origin-responsive {
-    @apply mask-origin-border-box;
+    @apply mask-origin-border;
   }
 
+  /* Mask Clip Utilities */
   .mask-clip-responsive {
-    @apply mask-clip-border-box;
+    @apply mask-clip-border;
   }
 
+  /* Mask Composite Utilities */
   .mask-composite-responsive {
     @apply mask-composite-add;
   }
 
+  /* Mask Mode Utilities */
   .mask-mode-responsive {
     @apply mask-mode-alpha;
   }
 
+  /* Isolation Utilities */
   .isolation-responsive {
     @apply isolation-auto;
   }
 
+  /* Mix Blend Mode Utilities */
   .mix-blend-responsive {
     @apply mix-blend-normal;
   }
 
+  /* Background Blend Mode Utilities */
   .bg-blend-responsive {
     @apply bg-blend-normal;
   }
 
+  /* Color Scheme Utilities */
   .color-scheme-responsive {
-    @apply color-scheme-light dark:color-scheme-dark;
+    @apply color-scheme-light;
   }
 
+  /* Forced Color Adjust Utilities */
   .forced-color-adjust-responsive {
     @apply forced-color-adjust-auto;
   }
 
+  /* Print Color Adjust Utilities */
   .print-color-adjust-responsive {
     @apply print-color-adjust-economy;
   }
 
+  /* Accent Color Utilities */
   .accent-color-responsive {
     @apply accent-color-auto;
   }
 
+  /* Caret Color Utilities */
   .caret-color-responsive {
     @apply caret-color-auto;
   }
 
+  /* Scrollbar Color Utilities */
   .scrollbar-color-responsive {
     @apply scrollbar-color-auto;
   }
 
+  /* Scrollbar Width Utilities */
   .scrollbar-width-responsive {
     @apply scrollbar-width-auto;
   }
 
+  /* Scrollbar Gutter Utilities */
   .scrollbar-gutter-responsive {
     @apply scrollbar-gutter-auto;
   }
 
+  /* Scroll Margin Utilities */
   .scroll-margin-responsive {
     @apply scroll-m-0;
   }
 
+  /* Scroll Padding Utilities */
   .scroll-padding-responsive {
     @apply scroll-p-0;
   }
 
+  /* Scroll Snap Align Utilities */
   .scroll-snap-align-responsive {
-    @apply scroll-snap-align-start;
+    @apply snap-start;
   }
 
+  /* Scroll Snap Stop Utilities */
   .scroll-snap-stop-responsive {
-    @apply scroll-snap-stop-normal;
+    @apply snap-normal;
   }
 
+  /* Scroll Snap Type Utilities */
   .scroll-snap-type-responsive {
-    @apply scroll-snap-type-none;
+    @apply snap-none;
   }
 
+  /* Scroll Behavior Utilities */
   .scroll-behavior-responsive {
-    @apply scroll-behavior-auto;
+    @apply scroll-smooth;
   }
 
+  /* Overscroll Utilities */
   .overscroll-responsive {
     @apply overscroll-auto;
   }
 
+  /* Overscroll X Utilities */
   .overscroll-x-responsive {
     @apply overscroll-x-auto;
   }
 
+  /* Overscroll Y Utilities */
   .overscroll-y-responsive {
     @apply overscroll-y-auto;
   }
