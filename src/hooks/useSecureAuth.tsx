@@ -12,6 +12,11 @@ interface SecureAuthState {
   sessionExpiry: number | null;
 }
 
+interface AdminAccessResponse {
+  is_admin?: boolean;
+  user_role?: string;
+}
+
 export const useSecureAuth = () => {
   const { user, isAdmin, isModerator } = useAuth();
   const [secureState, setSecureState] = useState<SecureAuthState>({
@@ -58,10 +63,16 @@ export const useSecureAuth = () => {
         const lastSignIn = user.last_sign_in_at ? new Date(user.last_sign_in_at) : null;
         const sessionExpiry = lastSignIn ? lastSignIn.getTime() + (24 * 60 * 60 * 1000) : null;
         
+        // Safely parse the response data
+        let adminData: AdminAccessResponse = {};
+        if (data && typeof data === 'object') {
+          adminData = data as AdminAccessResponse;
+        }
+
         setSecureState({
           isAuthenticated: true,
-          isAdmin: data?.is_admin || false,
-          isModerator: data?.user_role === 'moderator' || data?.is_admin || false,
+          isAdmin: adminData.is_admin || false,
+          isModerator: adminData.user_role === 'moderator' || adminData.is_admin || false,
           isVerified,
           sessionExpiry
         });

@@ -47,13 +47,22 @@ const ModQueue = () => {
       if (error) throw error;
 
       // Transform data and add mock AI analysis since these fields don't exist
-      const transformedItems = (data || []).map(item => ({
-        ...item,
-        ai_risk_score: Math.floor(Math.random() * 100),
-        ai_recommendation: Math.random() > 0.5 ? 'approve' : 'review',
-        priority: Math.random() > 0.7 ? 'high' : Math.random() > 0.4 ? 'medium' : 'low',
-        status: item.status as 'approved' | 'pending' | 'rejected'
-      }));
+      const transformedItems: QueueItem[] = (data || []).map(item => {
+        // Safely parse reactions from Json type
+        let reactions = { hot: 0, cold: 0, spicy: 0 };
+        if (item.reactions && typeof item.reactions === 'object') {
+          reactions = item.reactions as { hot: number; cold: number; spicy: number };
+        }
+
+        return {
+          ...item,
+          reactions,
+          ai_risk_score: Math.floor(Math.random() * 100),
+          ai_recommendation: Math.random() > 0.5 ? 'approve' : 'review',
+          priority: Math.random() > 0.7 ? 'high' : Math.random() > 0.4 ? 'medium' : 'low',
+          status: item.status as 'approved' | 'pending' | 'rejected'
+        };
+      });
 
       setQueueItems(transformedItems);
     } catch (error) {
