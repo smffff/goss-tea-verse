@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Coffee, Eye } from 'lucide-react';
+import TabloidButton from '@/components/ui/TabloidButton';
 
 interface StickyCTABarProps {
   onSpillClick: () => void;
