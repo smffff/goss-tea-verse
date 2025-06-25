@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserProgression } from '@/hooks/useUserProgression';
@@ -102,7 +101,7 @@ const EnhancedTeaFeed = () => {
         boost_score: submission.boost_score || 0,
         // Add synthetic enhanced metrics for demo
         credibility_score: Math.floor(Math.random() * 100),
-        verification_level: ['none', 'basic', 'verified', 'trusted', 'legendary'][Math.floor(Math.random() * 5)] as any,
+        verification_level: ['none', 'basic', 'verified', 'trusted', 'legendary'][Math.floor(Math.random() * 5)] as 'none' | 'basic' | 'verified' | 'trusted' | 'legendary',
         memeability_score: Math.floor(Math.random() * 100),
         viral_potential: Math.floor(Math.random() * 100),
         engagement_rate: Math.min(100, (submission.reactions?.hot || 0) + (submission.reactions?.cold || 0) + (submission.reactions?.spicy || 0)),

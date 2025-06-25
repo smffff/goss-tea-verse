@@ -357,7 +357,7 @@ const DAOGovernance: React.FC = () => {
                   <label className="text-sm text-gray-300 mb-1 block">Category</label>
                   <select
                     value={newProposal.category}
-                    onChange={(e) => setNewProposal(prev => ({ ...prev, category: e.target.value as any }))}
+                    onChange={(e) => setNewProposal(prev => ({ ...prev, category: e.target.value as 'governance' | 'feature' | 'economic' | 'emergency' }))}
                     className="w-full bg-ctea-dark/50 border border-ctea-teal/30 text-white rounded-md p-2"
                   >
                     <option value="governance">Governance</option>

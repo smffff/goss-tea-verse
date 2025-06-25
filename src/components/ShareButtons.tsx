@@ -56,20 +56,23 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
       trackSocialShare(platform);
 
       switch (platform) {
-        case 'twitter':
+        case 'twitter': {
           const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}&hashtags=${encodeURIComponent(hashtags.join(','))}`;
           window.open(twitterUrl, '_blank', 'width=600,height=400');
           break;
+        }
 
-        case 'discord':
+        case 'discord': {
           const discordUrl = `https://discord.com/channels/@me?content=${encodeURIComponent(`${title} ${url}`)}`;
           window.open(discordUrl, '_blank');
           break;
+        }
 
-        case 'telegram':
+        case 'telegram': {
           const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
           window.open(telegramUrl, '_blank');
           break;
+        }
 
         case 'copy':
           await navigator.clipboard.writeText(`${title} ${url}`);

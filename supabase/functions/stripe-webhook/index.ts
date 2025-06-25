@@ -26,20 +26,23 @@ serve(async (req) => {
 
     // Handle the event
     switch (event.type) {
-      case 'checkout.session.completed':
+      case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
         await handleSuccessfulPayment(session);
         break;
+      }
       
-      case 'payment_intent.succeeded':
+      case 'payment_intent.succeeded': {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         console.log('Payment succeeded:', paymentIntent.id);
         break;
+      }
       
-      case 'payment_intent.payment_failed':
+      case 'payment_intent.payment_failed': {
         const failedPayment = event.data.object as Stripe.PaymentIntent;
         console.log('Payment failed:', failedPayment.id);
         break;
+      }
       
       default:
         console.log(`Unhandled event type ${event.type}`);
