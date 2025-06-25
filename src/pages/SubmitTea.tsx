@@ -46,7 +46,7 @@ const SubmitTea = () => {
         category: data.category || 'general',
         evidence_urls: data.evidence_urls && data.evidence_urls.length > 0 ? data.evidence_urls : null,
         anonymous_token: anonymousToken,
-        status: 'approved', // Changed from 'pending' to 'approved' for immediate visibility
+        status: 'approved',
         has_evidence: data.evidence_urls && data.evidence_urls.length > 0,
         reactions: { hot: 0, cold: 0, spicy: 0 },
         average_rating: 0,
@@ -66,22 +66,7 @@ const SubmitTea = () => {
         throw new Error('Content must be less than 2000 characters');
       }
 
-      // Check for potentially malicious content
-      const suspiciousPatterns = [
-        /<script[^>]*>/i,
-        /javascript:/i,
-        /data:text\/html/i,
-        /vbscript:/i,
-        /on\w+\s*=/i
-      ];
-
-      if (suspiciousPatterns.some(pattern => pattern.test(submissionData.content))) {
-        console.error('SubmitTea - Malicious content detected');
-        throw new Error('Content contains potentially harmful elements');
-      }
-
       console.log('SubmitTea - Inserting into Supabase...');
-      // Insert into Supabase with enhanced validation
       const { data: result, error } = await supabase
         .from('tea_submissions')
         .insert(submissionData)
@@ -104,8 +89,7 @@ const SubmitTea = () => {
         description: "Your submission is now live in the feed! Check it out and see the community reactions.",
       });
 
-      console.log('SubmitTea - Navigating to main feed...');
-      // Navigate to main feed (not enhanced-feed) after successful submission
+      console.log('SubmitTea - Navigating to feed...');
       navigate('/feed');
 
     } catch (error) {

@@ -1,20 +1,22 @@
 
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Landing from './Landing';
 
 const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Only redirect if we're actually on /home or /index
-    if (window.location.pathname === '/home' || window.location.pathname === '/index') {
+    // Only redirect if we're on specific legacy paths
+    const pathname = window.location.pathname;
+    if (pathname === '/home' || pathname === '/index') {
       navigate('/', { replace: true });
     }
   }, [navigate]);
 
-  // If we're on the root path, don't redirect, just return null
+  // For root path, show Landing page directly
   if (window.location.pathname === '/') {
-    return null;
+    return <Landing />;
   }
 
   return null;

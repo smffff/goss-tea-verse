@@ -122,8 +122,12 @@ export const useSubmissionForm = (
     } catch (error) {
       console.error('handleSubmit - Form submission error:', error);
       
-      // Don't show error toast here as it's handled by the parent component
-      // This prevents duplicate error messages
+      // Show error toast here since parent might not handle it
+      toast({
+        title: "Submission Failed",
+        description: error instanceof Error ? error.message : 'An unexpected error occurred',
+        variant: "destructive"
+      });
     }
   };
 
