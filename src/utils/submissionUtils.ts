@@ -17,8 +17,13 @@ export const transformSubmission = (submission: any): TeaSubmission => {
     ...submission,
     reactions: parsedReactions,
     boost_score: submission.boost_score || 0,
-    // Include AI reaction if available
-    ai_reaction: submission.ai_reaction || null,
+    // AI reaction fields
+    ai_reaction: submission.ai_reaction || submission.reaction || null,
+    reaction: submission.reaction || null,
+    spiciness: submission.spiciness || null,
+    chaos: submission.chaos || null,
+    relevance: submission.relevance || null,
+    ai_rated: submission.ai_rated || false,
     // Ensure visibility field is included
     visible: submission.visible || false,
     // Include Twitter integration fields
@@ -48,7 +53,13 @@ export const filterSubmissions = (submissions: TeaSubmission[], filter: string):
       case 'verified':
         return submission.has_evidence;
       case 'ai-commented':
-        return !!submission.ai_reaction;
+        return !!submission.ai_reaction || !!submission.reaction;
+      case 'spiciest':
+        return (submission.spiciness || 0) >= 8;
+      case 'chaotic':
+        return (submission.chaos || 0) >= 8;
+      case 'relevant':
+        return (submission.relevance || 0) >= 8;
       default:
         return true;
     }
@@ -60,4 +71,9 @@ export const calculateViralityScore = (reactions: { hot: number; cold: number; s
   const hotWeight = reactions.hot * 1.5;
   const spicyWeight = reactions.spicy * 2;
   return Math.round(hotWeight + reactions.cold + spicyWeight);
+};
+
+export const calculateOverallRating = (spiciness: number | null, chaos: number | null, relevance: number | null): number => {
+  if (!spiciness || !chaos || !relevance) return 0;
+  return Math.round((spiciness + chaos + relevance) / 3);
 };

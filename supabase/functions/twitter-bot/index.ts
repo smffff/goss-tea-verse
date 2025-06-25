@@ -12,6 +12,10 @@ interface TweetableSubmission {
   content: string
   category: string
   ai_reaction: string
+  reaction: string
+  spiciness: number
+  chaos: number
+  relevance: number
   evidence_urls: string[] | null
   created_at: string
 }
@@ -27,7 +31,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Get tweetable submissions
+    // Get tweetable submissions with AI ratings
     const { data: submissions, error: fetchError } = await supabase.rpc('get_tweetable_submissions', {
       p_limit: 5
     })
@@ -51,8 +55,8 @@ serve(async (req) => {
 
     for (const submission of submissions as TweetableSubmission[]) {
       try {
-        // Format tweet content
-        const tweetText = formatTweetContent(submission)
+        // Format tweet content with AI ratings
+        const tweetText = formatEnhancedTweetContent(submission)
         
         // Post to Twitter (mock for now - replace with actual Twitter API)
         const tweetId = await postToTwitter(tweetText, submission.evidence_urls)
@@ -103,7 +107,7 @@ serve(async (req) => {
   }
 })
 
-function formatTweetContent(submission: TweetableSubmission): string {
+function formatEnhancedTweetContent(submission: TweetableSubmission): string {
   const categoryEmojis = {
     'general': '☕',
     'tech': '⚡',
@@ -119,19 +123,18 @@ function formatTweetContent(submission: TweetableSubmission): string {
   const emoji = categoryEmojis[submission.category] || '🫖'
   const category = submission.category.charAt(0).toUpperCase() + submission.category.slice(1)
   
-  // Truncate content to fit Twitter limits
-  const maxContentLength = 150
-  const truncatedContent = submission.content.length > maxContentLength 
-    ? submission.content.substring(0, maxContentLength) + '...'
-    : submission.content
+  // Use AI reaction as the main quote
+  const reaction = submission.reaction || submission.ai_reaction || "Fresh tea just dropped!"
+  
+  const tweetText = `${emoji} New Tea Dropped: ${category}
 
-  const tweetText = `${emoji} Tea spilled: **${category}**
+"${reaction}"
 
-"${submission.ai_reaction}"
+🔥 Spiciness: ${submission.spiciness || 0}/10
+😵‍💫 Chaos: ${submission.chaos || 0}/10  
+🎯 Relevance: ${submission.relevance || 0}/10
 
-${truncatedContent}
-
-Read more 👇 cteanews.com/feed/${submission.id}
+Read the tea 👉 cteanews.com/feed/${submission.id}
 
 🌶️ #CryptoTea #Web3Drama`
 

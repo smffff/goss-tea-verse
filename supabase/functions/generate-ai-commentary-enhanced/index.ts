@@ -14,6 +14,13 @@ interface AICommentaryRequest {
   commentaryType?: 'spicy' | 'smart' | 'memy' | 'savage'
 }
 
+interface AIRatingResponse {
+  reaction: string
+  spiciness: number
+  chaos: number
+  relevance: number
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -27,18 +34,32 @@ serve(async (req) => {
 
     const { content, category, submissionId, commentaryType = 'spicy' }: AICommentaryRequest = await req.json()
 
-    // Enhanced AI commentary generation using OpenAI or similar
-    const aiPrompts = {
-      spicy: `You are CTeaBot, a sassy crypto gossip AI. Roast this crypto tea with witty commentary: "${content}". Be spicy but not mean. Keep it under 200 chars.`,
-      smart: `You are CTeaBot, an analytical crypto AI. Provide smart commentary on this crypto news: "${content}". Be insightful and factual. Keep it under 200 chars.`,
-      memy: `You are CTeaBot, a crypto meme lord AI. React to this crypto tea with meme energy: "${content}". Use crypto Twitter slang. Keep it under 200 chars.`,
-      savage: `You are CTeaBot, a brutally honest crypto AI. Give savage but constructive commentary on: "${content}". Be direct and honest. Keep it under 200 chars.`
-    }
+    // Enhanced AI prompt for CTeaBot with rating system
+    const aiPrompt = `You are CTeaBot, a sharp, emotionally intelligent AI gossip analyst for crypto tea.
 
-    // Simulate AI response for now (replace with actual OpenAI call)
-    const aiReaction = generateMockAIResponse(content, commentaryType)
+You'll be given anonymous crypto gossip. React with:
+1. A short, witty one-liner reaction (max 140 characters)
+2. Three ratings from 1–10:
+   🔥 Spiciness (how controversial/dramatic)
+   😵‍💫 Chaos (how messy/confusing)  
+   🎯 Relevance (how important to crypto community)
 
-    if (!aiReaction || aiReaction.trim().length === 0) {
+Format your response as valid JSON only:
+{
+  "reaction": "Your witty one-liner here",
+  "spiciness": 7,
+  "chaos": 5,
+  "relevance": 8
+}
+
+Tea: """${content}"""
+
+Category: ${category}`
+
+    // Call OpenAI API (mock for now - replace with actual OpenAI call)
+    const aiResponse = await generateAIRating(content, category, commentaryType)
+
+    if (!aiResponse || !aiResponse.reaction || aiResponse.reaction.trim().length === 0) {
       // Handle AI verification failure
       const { error: failureError } = await supabase.rpc('handle_ai_verification_failure', {
         p_submission_id: submissionId,
@@ -62,10 +83,13 @@ serve(async (req) => {
       )
     }
 
-    // Handle successful AI verification
+    // Handle successful AI verification with ratings
     const { error: successError } = await supabase.rpc('handle_ai_verification_workflow', {
       p_submission_id: submissionId,
-      p_ai_reaction: aiReaction
+      p_ai_reaction: aiResponse.reaction,
+      p_spiciness: aiResponse.spiciness,
+      p_chaos: aiResponse.chaos,
+      p_relevance: aiResponse.relevance
     })
 
     if (successError) {
@@ -82,7 +106,12 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        commentary: aiReaction,
+        commentary: aiResponse.reaction,
+        ratings: {
+          spiciness: aiResponse.spiciness,
+          chaos: aiResponse.chaos,
+          relevance: aiResponse.relevance
+        },
         submissionId,
         visibilityUpdated: true
       }),
@@ -101,38 +130,51 @@ serve(async (req) => {
   }
 })
 
-function generateMockAIResponse(content: string, type: string): string {
-  const responses = {
-    spicy: [
-      "🔥 This tea is SCALDING! Someone's about to get burned.",
-      "☕ Piping hot take incoming! This is spicier than my morning brew.",
-      "🌶️ SPICY! This drama is better than reality TV.",
-      "🔥 Well well well... the plot thickens like oat milk.",
-      "☕ This tea is so hot, it could power a mining rig!"
-    ],
-    smart: [
-      "📊 Interesting market dynamics at play here. Worth monitoring.",
-      "🧠 This aligns with current DeFi trends. Smart observation.",
-      "📈 Technical analysis suggests this could be significant.",
-      "🔍 Data points to potential market implications.",
-      "📊 Fundamentally sound observation with merit."
-    ],
-    memy: [
-      "💎🙌 THIS IS THE WAY! Diamond hands only!",
-      "🚀 TO THE MOON! This is straight fire fam!",
-      "🦍 APE TOGETHER STRONG! This is based and redpilled.",
-      "📈 NUMBER GO UP! This is the alpha we needed!",
-      "🔥 WAGMI! This tea hits different fr fr."
-    ],
-    savage: [
-      "💀 Brutal but necessary. Someone had to say it.",
-      "🎯 Straight facts, no printer. Respect the honesty.",
-      "⚡ Raw truth served ice cold. Can't argue with that.",
-      "💯 Savage but accurate. This needed to be called out.",
-      "🔪 Cutting deep but fair. Truth hurts sometimes."
-    ]
+async function generateAIRating(content: string, category: string, type: string): Promise<AIRatingResponse> {
+  // Mock AI response with realistic ratings based on content analysis
+  const reactions = [
+    "🔥 This tea is SCALDING! Someone's about to get burned.",
+    "☕ Piping hot take incoming! This is spicier than my morning brew.",
+    "🌶️ SPICY! This drama is better than reality TV.",
+    "🔥 Well well well... the plot thickens like oat milk.",
+    "☕ This tea is so hot, it could power a mining rig!",
+    "💀 Brutal but necessary. Someone had to say it.",
+    "🎯 Straight facts, no printer. Respect the honesty.",
+    "⚡ Raw truth served ice cold. Can't argue with that.",
+    "💎🙌 THIS IS THE WAY! Diamond hands only!",
+    "🚀 TO THE MOON! This is straight fire fam!"
+  ]
+
+  // Generate ratings based on content analysis
+  const contentLength = content.length
+  const hasControversialWords = /drama|scandal|dump|pump|scam|hack|exploit/i.test(content)
+  const hasTechnicalTerms = /defi|nft|dao|blockchain|protocol|smart contract/i.test(content)
+  
+  let spiciness = Math.floor(Math.random() * 4) + 4 // 4-7 base
+  let chaos = Math.floor(Math.random() * 4) + 3 // 3-6 base  
+  let relevance = Math.floor(Math.random() * 4) + 5 // 5-8 base
+
+  // Adjust based on content
+  if (hasControversialWords) {
+    spiciness += 2
+    chaos += 2
+  }
+  if (hasTechnicalTerms) {
+    relevance += 2
+  }
+  if (contentLength > 200) {
+    chaos += 1
   }
 
-  const typeResponses = responses[type] || responses.spicy
-  return typeResponses[Math.floor(Math.random() * typeResponses.length)]
+  // Cap at 10
+  spiciness = Math.min(10, spiciness)
+  chaos = Math.min(10, chaos)
+  relevance = Math.min(10, relevance)
+
+  return {
+    reaction: reactions[Math.floor(Math.random() * reactions.length)],
+    spiciness,
+    chaos,
+    relevance
+  }
 }

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserProgression } from '@/hooks/useUserProgression';
@@ -9,25 +10,8 @@ import ContentModeSelector from './ContentModeSelector';
 import WalletConnectOnboarding from './WalletConnectOnboarding';
 import { useWallet } from './WalletProvider';
 import { useToast } from '@/hooks/use-toast';
-
-interface TeaSubmission {
-  id: string;
-  content: string;
-  category: string;
-  evidence_urls: string[] | null;
-  reactions: { hot: number; cold: number; spicy: number };
-  created_at: string;
-  average_rating: number;
-  rating_count: number;
-  has_evidence: boolean;
-  boost_score?: number;
-  credibility_score?: number;
-  verification_level?: 'none' | 'basic' | 'verified' | 'trusted' | 'legendary';
-  memeability_score?: number;
-  viral_potential?: number;
-  engagement_rate?: number;
-  is_trending?: boolean;
-}
+import { TeaSubmission } from '@/types/teaFeed';
+import { transformSubmission, filterSubmissions } from '@/utils/submissionUtils';
 
 interface AIComment {
   id: string;
@@ -74,8 +58,8 @@ const EnhancedTeaFeed = () => {
           console.log('EnhancedTeaFeed - New submission received via real-time:', payload);
           const newSubmission = payload.new as any;
           
-          // Only add if status is approved
-          if (newSubmission.status === 'approved') {
+          // Only add if status is approved and visible
+          if (newSubmission.status === 'approved' && newSubmission.visible === true) {
             const transformedSubmission = transformSubmission(newSubmission);
             setSubmissions(prev => [transformedSubmission, ...prev]);
             
@@ -97,11 +81,26 @@ const EnhancedTeaFeed = () => {
           console.log('EnhancedTeaFeed - Submission updated via real-time:', payload);
           const updatedSubmission = payload.new as any;
           
-          setSubmissions(prev => prev.map(sub => 
-            sub.id === updatedSubmission.id 
-              ? transformSubmission(updatedSubmission)
-              : sub
-          ));
+          // Handle AI verification completed - submission becomes visible
+          if (updatedSubmission.status === 'approved' && updatedSubmission.visible === true && updatedSubmission.ai_rated === true) {
+            const transformedSubmission = transformSubmission(updatedSubmission);
+            
+            setSubmissions(prev => {
+              const existingIndex = prev.findIndex(sub => sub.id === updatedSubmission.id);
+              if (existingIndex >= 0) {
+                const newSubmissions = [...prev];
+                newSubmissions[existingIndex] = transformedSubmission;
+                return newSubmissions;
+              } else {
+                return [transformedSubmission, ...prev];
+              }
+            });
+            
+            toast({
+              title: "AI Analysis Complete! 🤖",
+              description: "Tea has been rated and is now live!",
+            });
+          }
         }
       )
       .subscribe();
@@ -117,32 +116,6 @@ const EnhancedTeaFeed = () => {
     fetchSubmissions();
   }, [activeFilter, sortBy]);
 
-  const transformSubmission = (submission: any): TeaSubmission => {
-    // Safely parse reactions
-    let parsedReactions = { hot: 0, cold: 0, spicy: 0 };
-    if (submission.reactions && typeof submission.reactions === 'object') {
-      const reactions = submission.reactions as any;
-      parsedReactions = {
-        hot: reactions.hot || 0,
-        cold: reactions.cold || 0,
-        spicy: reactions.spicy || 0
-      };
-    }
-
-    return {
-      ...submission,
-      reactions: parsedReactions,
-      boost_score: submission.boost_score || 0,
-      // Add synthetic enhanced metrics for demo
-      credibility_score: Math.floor(Math.random() * 100),
-      verification_level: ['none', 'basic', 'verified', 'trusted', 'legendary'][Math.floor(Math.random() * 5)] as 'none' | 'basic' | 'verified' | 'trusted' | 'legendary',
-      memeability_score: Math.floor(Math.random() * 100),
-      viral_potential: Math.floor(Math.random() * 100),
-      engagement_rate: Math.min(100, parsedReactions.hot + parsedReactions.cold + parsedReactions.spicy),
-      is_trending: Math.random() > 0.8
-    };
-  };
-
   const fetchSubmissions = async () => {
     try {
       setIsLoading(true);
@@ -152,24 +125,25 @@ const EnhancedTeaFeed = () => {
         .from('tea_submissions')
         .select('*')
         .eq('status', 'approved')
-        .eq('visible', true); // Only fetch visible (AI-verified) submissions
+        .eq('visible', true)
+        .eq('ai_rated', true); // Only fetch AI-rated submissions
 
       // Apply sorting
       switch (sortBy) {
         case 'reactions':
           query = query.order('rating_count', { ascending: false });
           break;
-        case 'controversial':
-          query = query.order('created_at', { ascending: false });
+        case 'spiciest':
+          query = query.order('spiciness', { ascending: false });
+          break;
+        case 'chaotic':
+          query = query.order('chaos', { ascending: false });
+          break;
+        case 'relevant':
+          query = query.order('relevance', { ascending: false });
           break;
         case 'boosted':
           query = query.order('created_at', { ascending: false });
-          break;
-        case 'credibility':
-          query = query.order('created_at', { ascending: false });
-          break;
-        case 'viral':
-          query = query.order('rating_count', { ascending: false });
           break;
         default:
           query = query.order('created_at', { ascending: false });
@@ -185,32 +159,7 @@ const EnhancedTeaFeed = () => {
       console.log('EnhancedTeaFeed - Fetched submissions:', data?.length || 0);
       
       const transformedData = (data || []).map(transformSubmission);
-
-      // Apply client-side filtering with enhanced options
-      let filteredData = transformedData;
-      if (activeFilter !== 'all') {
-        filteredData = transformedData.filter(submission => {
-          const reactions = submission.reactions;
-          switch (activeFilter) {
-            case 'hot':
-              return reactions.hot > reactions.cold;
-            case 'spicy':
-              return reactions.spicy > 5;
-            case 'trending':
-              return submission.is_trending || (reactions.hot + reactions.cold + reactions.spicy) > 10;
-            case 'boosted':
-              return (submission.boost_score || 0) > 0;
-            case 'verified':
-              return submission.verification_level !== 'none';
-            case 'memeworthy':
-              return (submission.memeability_score || 0) > 70;
-            case 'credible':
-              return (submission.credibility_score || 0) > 70;
-            default:
-              return true;
-          }
-        });
-      }
+      const filteredData = filterSubmissions(transformedData, activeFilter);
       
       console.log('EnhancedTeaFeed - Filtered submissions:', filteredData.length);
       setSubmissions(filteredData);
@@ -297,7 +246,7 @@ const EnhancedTeaFeed = () => {
 
   const generateAICommentary = async (submission: TeaSubmission, type: 'spicy' | 'smart' | 'memy' | 'savage' = 'spicy') => {
     try {
-      const { data, error } = await supabase.functions.invoke('generate-ai-commentary', {
+      const { data, error } = await supabase.functions.invoke('generate-ai-commentary-enhanced', {
         body: { 
           content: submission.content,
           category: submission.category,

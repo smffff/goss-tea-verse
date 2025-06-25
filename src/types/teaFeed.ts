@@ -12,6 +12,16 @@ export interface TeaSubmission {
   boost_score?: number;
   author?: string;
   is_viral?: boolean;
+  // AI Rating System fields
+  ai_reaction?: string | null;
+  reaction?: string | null;
+  spiciness?: number | null;
+  chaos?: number | null;
+  relevance?: number | null;
+  ai_rated?: boolean;
+  visible?: boolean;
+  tweeted?: boolean;
+  tweet_id?: string | null;
 }
 
 export interface AIComment {
@@ -24,4 +34,11 @@ export interface AIComment {
 
 export interface TeaFeedProps {
   filter?: string;
+}
+
+export interface AIRatingResponse {
+  reaction: string;
+  spiciness: number;
+  chaos: number;
+  relevance: number;
 }

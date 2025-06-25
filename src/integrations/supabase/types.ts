@@ -563,9 +563,11 @@ export type Database = {
       }
       tea_submissions: {
         Row: {
+          ai_rated: boolean | null
           anonymous_token: string
           average_rating: number | null
           category: string
+          chaos: number | null
           content: string
           created_at: string | null
           evidence_credibility_score: number | null
@@ -576,7 +578,10 @@ export type Database = {
           is_verified: boolean | null
           moderator_notes: string | null
           rating_count: number | null
+          reaction: string | null
           reactions: Json | null
+          relevance: number | null
+          spiciness: number | null
           status: string | null
           updated_at: string | null
           verification_data: Json | null
@@ -584,9 +589,11 @@ export type Database = {
           verification_score: number | null
         }
         Insert: {
+          ai_rated?: boolean | null
           anonymous_token: string
           average_rating?: number | null
           category: string
+          chaos?: number | null
           content: string
           created_at?: string | null
           evidence_credibility_score?: number | null
@@ -597,7 +604,10 @@ export type Database = {
           is_verified?: boolean | null
           moderator_notes?: string | null
           rating_count?: number | null
+          reaction?: string | null
           reactions?: Json | null
+          relevance?: number | null
+          spiciness?: number | null
           status?: string | null
           updated_at?: string | null
           verification_data?: Json | null
@@ -605,9 +615,11 @@ export type Database = {
           verification_score?: number | null
         }
         Update: {
+          ai_rated?: boolean | null
           anonymous_token?: string
           average_rating?: number | null
           category?: string
+          chaos?: number | null
           content?: string
           created_at?: string | null
           evidence_credibility_score?: number | null
@@ -618,7 +630,10 @@ export type Database = {
           is_verified?: boolean | null
           moderator_notes?: string | null
           rating_count?: number | null
+          reaction?: string | null
           reactions?: Json | null
+          relevance?: number | null
+          spiciness?: number | null
           status?: string | null
           updated_at?: string | null
           verification_data?: Json | null
@@ -992,6 +1007,21 @@ export type Database = {
           status: string
         }[]
       }
+      get_tweetable_submissions: {
+        Args: { p_limit?: number }
+        Returns: {
+          id: string
+          content: string
+          category: string
+          ai_reaction: string
+          reaction: string
+          spiciness: number
+          chaos: number
+          relevance: number
+          evidence_urls: string[]
+          created_at: string
+        }[]
+      }
       get_user_role_by_email: {
         Args: { user_email: string }
         Returns: Database["public"]["Enums"]["user_role"]
@@ -1007,6 +1037,16 @@ export type Database = {
       get_user_role_secure: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      handle_ai_verification_workflow: {
+        Args: {
+          p_submission_id: string
+          p_ai_reaction: string
+          p_spiciness?: number
+          p_chaos?: number
+          p_relevance?: number
+        }
+        Returns: Json
       }
       is_admin_secure: {
         Args: Record<PropertyKey, never>
