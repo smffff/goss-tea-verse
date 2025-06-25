@@ -47,38 +47,64 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
   const { toast } = useToast();
 
   const validateForm = (): boolean => {
+    console.log('=== FORM VALIDATION START ===');
+    console.log('Form data to validate:', JSON.stringify(formData, null, 2));
+    
     const newErrors: Partial<SubmissionData> = {};
 
     // Validate tea content - minimum 3 characters
-    if (!formData.tea.trim()) {
+    const trimmedTea = formData.tea.trim();
+    console.log('Tea content length:', trimmedTea.length);
+    console.log('Tea content:', `"${trimmedTea}"`);
+    
+    if (!trimmedTea) {
       newErrors.tea = 'Please share some tea!';
-    } else if (formData.tea.trim().length < 3) {
+      console.log('Validation error: Tea content is empty');
+    } else if (trimmedTea.length < 3) {
       newErrors.tea = 'Tea must be at least 3 characters long';
-    } else if (formData.tea.length > 2000) {
+      console.log('Validation error: Tea too short');
+    } else if (trimmedTea.length > 2000) {
       newErrors.tea = 'Tea must be less than 2000 characters';
+      console.log('Validation error: Tea too long');
     }
 
     // Email validation (optional)
     if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
+      console.log('Validation error: Invalid email format');
     }
 
     // Wallet validation (optional)
     if (formData.wallet.trim() && formData.wallet.trim().length < 10) {
       newErrors.wallet = 'Please enter a valid wallet address';
+      console.log('Validation error: Invalid wallet address');
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const isValid = Object.keys(newErrors).length === 0;
+    console.log('Validation result:', isValid ? 'PASSED' : 'FAILED');
+    console.log('Validation errors:', newErrors);
+    console.log('=== FORM VALIDATION END ===');
+    
+    return isValid;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('Form submission started with data:', formData);
+    console.log('=== FORM SUBMIT START ===');
+    console.log('Form submission initiated');
+    console.log('Current isSubmitting state:', isSubmitting);
+    console.log('Parent isLoading state:', isLoading);
+    
+    // Prevent multiple submissions
+    if (isSubmitting || isLoading) {
+      console.log('Submission blocked - already in progress');
+      return;
+    }
     
     if (!validateForm()) {
-      console.log('Form validation failed:', errors);
+      console.log('Form validation failed - aborting submission');
       toast({
         title: "Validation Error",
         description: "Please fix the errors above before submitting.",
@@ -87,16 +113,21 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
       return;
     }
 
+    console.log('Form validation passed - proceeding with submission');
     setIsSubmitting(true);
     
     try {
-      console.log('Calling onSubmit with validated data');
+      console.log('Tracking form completion...');
       trackFormCompletion('tea_submission');
       
+      console.log('Calling parent onSubmit function...');
       await onSubmit(formData);
+      
+      console.log('Parent onSubmit completed successfully');
       trackTeaSpill(formData.category);
       
       // Reset form on successful submission
+      console.log('Resetting form data...');
       setFormData({
         tea: '',
         email: '',
@@ -106,16 +137,23 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
         isAnonymous: true
       });
       setErrors({});
+      console.log('Form reset completed');
       
     } catch (error) {
-      console.error('Submission error in form:', error);
+      console.error('=== FORM SUBMISSION ERROR ===');
+      console.error('Error in form submission:', error);
+      console.error('Error type:', typeof error);
+      console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
+      
       toast({
         title: "Submission Failed",
-        description: "Couldn't submit your tea. Please try again.",
+        description: `Couldn't submit your tea: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
         variant: "destructive"
       });
     } finally {
+      console.log('Setting form isSubmitting to false');
       setIsSubmitting(false);
+      console.log('=== FORM SUBMIT END ===');
     }
   };
 
@@ -126,6 +164,9 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
   };
 
   const isFormValid = formData.tea.trim().length >= 3;
+  const isCurrentlySubmitting = isSubmitting || isLoading;
+
+  console.log('Render state - isFormValid:', isFormValid, 'isSubmitting:', isCurrentlySubmitting);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -181,7 +222,7 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
           </div>
 
           <SubmissionFormActions
-            isSubmitting={isSubmitting}
+            isSubmitting={isCurrentlySubmitting}
             isLoading={isLoading}
             isFormValid={isFormValid}
             onCancel={onClose}
