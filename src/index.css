@@ -1,338 +1,251 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=DM+Serif+Display:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton:wght@400&family=Oswald:wght@200..700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  /* CTea Tabloid Theme */
-  --newsprint-bg: #fdf7f2;
-  --vintage-red: #cc2b2b;
-  --tabloid-black: #1c1c1c;
-  --pale-pink: #fef7f7;
-  --text-primary: #1c1c1c;
-  --text-secondary: #6b7280;
-  
-  /* Proper Z-index hierarchy */
-  --z-modal: 50;
-  --z-sticky-cta: 40;
-  --z-floating-badges: 30;
-  --z-navigation: 20;
-  --z-base: 10;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  line-height: 1.6;
-  font-weight: 400;
-  color: var(--text-primary);
-  background: var(--newsprint-bg);
-  min-height: 100vh;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Headlines use Playfair Display for that tabloid elegance */
-h1, h2, h3, h4, h5, h6, .font-display {
-  font-family: 'Playfair Display', 'DM Serif Display', Georgia, serif;
-  font-weight: 600;
-  color: var(--tabloid-black);
-}
-
-/* Tabloid headline styling */
-.tabloid-headline {
-  font-family: 'Playfair Display', serif;
-  font-weight: 700;
-  color: var(--vintage-red);
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-}
-
-/* Custom scrollbar with red theme */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--newsprint-bg);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--vintage-red);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #b02525;
-}
-
-/* Red glow animation for breaking news */
-@keyframes red-glow {
-  0%, 100% {
-    text-shadow: 0 0 20px rgba(204, 43, 43, 0.5);
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 10% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
   }
-  50% {
-    text-shadow: 0 0 30px rgba(204, 43, 43, 0.8);
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
   }
 }
 
-.animate-red-glow {
-  animation: red-glow 2s ease-in-out infinite;
-}
-
-@keyframes breaking-news {
-  0%, 100% {
-    transform: translateY(0px) scale(1);
+@layer base {
+  * {
+    @apply border-border;
   }
-  50% {
-    transform: translateY(-3px) scale(1.01);
+  body {
+    @apply bg-background text-foreground;
   }
 }
 
-.animate-breaking-news {
-  animation: breaking-news 2s ease-in-out infinite;
+/* CTea Brand Animations */
+@keyframes teacup-shake {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-2deg); }
+  75% { transform: rotate(2deg); }
 }
 
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 5px rgba(220, 38, 127, 0.2);
+    transform: scale(1); 
   }
-  50% {
-    transform: translateY(-10px);
+  50% { 
+    box-shadow: 0 0 20px rgba(220, 38, 127, 0.4);
+    transform: scale(1.02); 
   }
 }
 
-.animate-float {
-  animation: float 6s ease-in-out infinite;
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
 }
 
-@keyframes fade-in {
-  0% {
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: 200px 0; }
+}
+
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes fadeInUp {
+  from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
-  100% {
+  to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out;
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-/* Gradient utilities with tabloid theme */
-.bg-gradient-tabloid {
-  background: linear-gradient(135deg, var(--newsprint-bg) 0%, var(--pale-pink) 50%, var(--vintage-red) 100%);
+/* Utility Classes */
+.animate-teacup-shake {
+  animation: teacup-shake 2s ease-in-out infinite;
 }
 
-.bg-gradient-hero {
-  background: linear-gradient(135deg, var(--newsprint-bg) 0%, var(--pale-pink) 100%);
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }
 
-/* Text selection with red theme */
-::selection {
-  background-color: var(--vintage-red);
-  color: white;
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
 }
 
-::-moz-selection {
-  background-color: var(--vintage-red);
-  color: white;
+.animate-bounce-subtle {
+  animation: bounce-subtle 1s ease-in-out infinite;
 }
 
-/* Focus styles with red theme */
-:focus-visible {
-  outline: 2px solid var(--vintage-red);
-  outline-offset: 2px;
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
 }
 
-/* Button hover effects with tabloid style */
-.btn-tabloid-hover {
-  transition: all 0.3s ease;
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out forwards;
 }
 
-.btn-tabloid-hover:hover {
-  box-shadow: 0 0 20px rgba(204, 43, 43, 0.4);
-  transform: translateY(-2px) scale(1.02);
+.animate-slideInRight {
+  animation: slideInRight 0.5s ease-out forwards;
 }
 
-/* Card hover effects */
-.card-tabloid-hover {
-  transition: all 0.3s ease;
+/* Animation Delays */
+.animation-delay-100 { animation-delay: 0.1s; }
+.animation-delay-200 { animation-delay: 0.2s; }
+.animation-delay-300 { animation-delay: 0.3s; }
+.animation-delay-500 { animation-delay: 0.5s; }
+
+/* Hover Effects */
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.card-tabloid-hover:hover {
+.hover-lift:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(204, 43, 43, 0.15);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
-/* Navigation hover effects */
-.nav-link-hover {
-  position: relative;
-  transition: color 0.3s ease;
+.hover-scale {
+  transition: transform 0.2s ease;
 }
 
-.nav-link-hover::after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 2px;
-  bottom: -4px;
-  left: 0;
-  background-color: var(--vintage-red);
-  transition: width 0.3s ease;
+.hover-scale:hover {
+  transform: scale(1.05);
 }
 
-.nav-link-hover:hover {
-  color: var(--vintage-red);
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-.nav-link-hover:hover::after {
-  width: 100%;
+::-webkit-scrollbar-track {
+  background: rgba(255, 245, 245, 0.5);
 }
 
-/* Loading states with red theme */
-.loading-tabloid {
-  background: linear-gradient(90deg, var(--newsprint-bg) 25%, var(--vintage-red) 50%, var(--newsprint-bg) 75%);
+::-webkit-scrollbar-thumb {
+  background: rgba(220, 38, 127, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(220, 38, 127, 0.5);
+}
+
+/* Text Effects */
+.text-shadow-glow {
+  text-shadow: 0 0 10px rgba(220, 38, 127, 0.3);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #dc267f, #ff6b9d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Loading States */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
-  animation: tabloid-shimmer 1.5s infinite;
+  animation: shimmer 1.5s infinite;
 }
 
-@keyframes tabloid-shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+/* Focus States */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-vintage-red/50 focus:ring-offset-2;
 }
 
-/* Pill button styling - Updated for consistency */
-.btn-pill {
-  border-radius: 50px;
-  padding: 12px 24px;
-  font-weight: 600;
-  transition: all 0.3s ease;
+/* Glass Effect */
+.glass-effect {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.btn-pill-red {
-  background: var(--vintage-red);
-  color: white;
-  border: none;
+/* CTea Brand Patterns */
+.polka-dots {
+  background-image: radial-gradient(circle, rgba(220, 38, 127, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
-.btn-pill-red:hover {
-  background: #b02525;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(204, 43, 43, 0.3);
-}
-
-/* Z-index utility classes for proper layering */
-.z-modal {
-  z-index: var(--z-modal);
-}
-
-.z-sticky-cta {
-  z-index: var(--z-sticky-cta);
-}
-
-.z-floating-badges {
-  z-index: var(--z-floating-badges);
-}
-
-.z-navigation {
-  z-index: var(--z-navigation);
-}
-
-.z-base {
-  z-index: var(--z-base);
-}
-
-/* Tea rating block */
-.tea-rating-block {
-  background: linear-gradient(135deg, #fef7f7 0%, #fee2e2 100%);
-  border: 1px solid rgba(204, 43, 43, 0.2);
-  border-radius: 8px;
-  padding: 12px;
-  margin-top: 12px;
-}
-
-/* Sticky bottom padding for CTA bar */
-.pb-sticky-cta {
-  padding-bottom: 80px;
-}
-
-/* Badge styling */
-.badge-gold {
-  background: linear-gradient(135deg, #ffd700, #ffed4e);
-  color: #92400e;
-}
-
-.badge-silver {
-  background: linear-gradient(135deg, #c0c0c0, #e5e7eb);
-  color: #374151;
-}
-
-.badge-bronze {
-  background: linear-gradient(135deg, #cd7f32, #d97706);
-  color: #ffffff;
-}
-
-/* Body scroll lock for modals */
-.scroll-lock {
-  overflow: hidden;
-  position: fixed;
-  width: 100%;
-}
-
-/* Accessibility improvements */
-@media (prefers-reduced-motion: reduce) {
-  .animate-red-glow,
-  .animate-breaking-news,
-  .animate-float,
-  .animate-fade-in,
-  .loading-tabloid {
-    animation: none;
-  }
-  
-  .btn-tabloid-hover:hover,
-  .card-tabloid-hover:hover {
-    transform: none;
-  }
-}
-
-/* Mobile optimizations */
-@media (max-width: 768px) {
-  body {
-    font-size: 16px;
-  }
-  
-  h1 {
-    font-size: 2rem;
-  }
-  
-  h2 {
-    font-size: 1.5rem;
-  }
-  
-  /* Improve touch targets */
-  button, a, input, textarea, select {
-    min-height: 44px;
-  }
-
-  /* Prevent floating badges from overlapping content on mobile */
-  .z-floating-badges {
-    display: none;
-  }
-
-  /* Adjust sticky CTA for mobile */
-  .z-sticky-cta {
-    padding: 12px;
-  }
+.diagonal-stripes {
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(220, 38, 127, 0.05) 10px,
+    rgba(220, 38, 127, 0.05) 20px
+  );
 }
