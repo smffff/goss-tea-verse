@@ -16,11 +16,13 @@ const SubmissionFormActions: React.FC<SubmissionFormActionsProps> = ({
   isFormValid,
   onCancel
 }) => {
+  const isDisabled = isSubmitting || isLoading || !isFormValid;
+
   return (
     <div className="flex gap-3 pt-4">
       <Button
         type="submit"
-        disabled={isSubmitting || isLoading || !isFormValid}
+        disabled={isDisabled}
         className="flex-1 bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent text-white font-bold uppercase px-6 py-3 rounded-lg transition-all shadow hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isSubmitting || isLoading ? (
@@ -39,7 +41,8 @@ const SubmissionFormActions: React.FC<SubmissionFormActionsProps> = ({
         type="button"
         variant="outline"
         onClick={onCancel}
-        className="border-accent/30 text-accent hover:bg-accent/10 uppercase font-semibold px-6 py-3 rounded-lg transition-all shadow hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
+        disabled={isSubmitting || isLoading}
+        className="border-accent/30 text-accent hover:bg-accent/10 uppercase font-semibold px-6 py-3 rounded-lg transition-all shadow hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95 disabled:opacity-50"
       >
         Cancel
       </Button>

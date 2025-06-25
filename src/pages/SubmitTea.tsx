@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import SubmissionForm from '@/components/SubmissionForm';
 import { useToast } from '@/hooks/use-toast';
@@ -18,12 +19,9 @@ interface SubmissionData {
 const SubmitTea = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (data: SubmissionData) => {
-    console.log('=== SUBMISSION START ===');
-    console.log('SubmitTea handleSubmit called with data:', JSON.stringify(data, null, 2));
-    
-    // Prevent multiple submissions
     if (isSubmitting) {
       console.log('Already submitting, preventing duplicate submission');
       return;
@@ -35,14 +33,10 @@ const SubmitTea = () => {
       // Generate or get anonymous token
       let anonymousToken = localStorage.getItem('ctea_anonymous_token');
       if (!anonymousToken) {
-        console.log('Generating new anonymous token');
         anonymousToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
           .map(b => b.toString(16).padStart(2, '0'))
           .join('');
         localStorage.setItem('ctea_anonymous_token', anonymousToken);
-        console.log('New token generated and stored');
-      } else {
-        console.log('Using existing token from localStorage');
       }
 
       // Validate token format
@@ -50,9 +44,7 @@ const SubmitTea = () => {
         throw new Error('Invalid anonymous token generated');
       }
 
-      console.log('Token validation passed, length:', anonymousToken.length);
-
-      // Prepare submission data with validation
+      // Prepare submission data
       const submissionData = {
         content: data.tea.trim(),
         category: data.category || 'general',
@@ -61,9 +53,7 @@ const SubmitTea = () => {
         status: 'pending'
       };
 
-      console.log('Prepared submission data:', JSON.stringify(submissionData, null, 2));
-
-      // Validate content before submission
+      // Validate content
       if (!submissionData.content || submissionData.content.length < 3) {
         throw new Error('Content must be at least 3 characters long');
       }
@@ -72,53 +62,33 @@ const SubmitTea = () => {
         throw new Error('Content must be less than 2000 characters');
       }
 
-      console.log('Content validation passed');
-      console.log('Attempting Supabase insertion...');
-
       // Insert into Supabase
       const { data: result, error } = await supabase
         .from('tea_submissions')
         .insert(submissionData)
         .select();
 
-      console.log('Supabase response received');
-      console.log('Result:', result);
-      console.log('Error:', error);
-
       if (error) {
-        console.error('Supabase insertion error:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
+        console.error('Supabase insertion error:', error);
         throw new Error(`Submission failed: ${error.message}`);
       }
 
       if (!result || result.length === 0) {
-        console.error('No result returned from Supabase insertion');
         throw new Error('Submission failed: No data returned');
       }
-
-      console.log('=== SUBMISSION SUCCESS ===');
-      console.log('Submission successful with result:', result[0]);
 
       toast({
         title: "Tea Submitted! ☕",
         description: "Your submission has been received. Check back soon to see it in the feed!",
       });
 
-      // Redirect after successful submission
+      // Navigate to feed after successful submission
       setTimeout(() => {
-        console.log('Redirecting to feed...');
-        window.location.href = '/feed';
+        navigate('/feed');
       }, 2000);
 
     } catch (error) {
-      console.error('=== SUBMISSION ERROR ===');
-      console.error('Full error object:', error);
-      console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
-      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      console.error('Submission error:', error);
       
       toast({
         title: "Submission Failed",
@@ -126,14 +96,12 @@ const SubmitTea = () => {
         variant: "destructive"
       });
     } finally {
-      console.log('Setting isSubmitting to false');
       setIsSubmitting(false);
     }
   };
 
   const handleClose = () => {
-    console.log('Form closed, redirecting to home');
-    window.location.href = '/';
+    navigate('/');
   };
 
   return (
@@ -151,7 +119,6 @@ const SubmitTea = () => {
           </div>
           
           <SubmissionForm
-            isOpen={true}
             onClose={handleClose}
             onSubmit={handleSubmit}
             isLoading={isSubmitting}
