@@ -19,7 +19,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { trackReportSubmission } from '@/lib/analytics';
+import { trackFeedbackSubmission } from '@/lib/analytics';
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -137,7 +137,7 @@ const ReportModal: React.FC<ReportModalProps> = ({
     }
 
     setIsSubmitting(true);
-    trackReportSubmission();
+    trackFeedbackSubmission('report');
 
     try {
       // Simulate API call

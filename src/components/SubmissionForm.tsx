@@ -19,7 +19,7 @@ import {
   Crown
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { trackSubmissionAttempt, trackSubmissionSuccess } from '@/lib/analytics';
+import { trackFormCompletion, trackTeaSpill } from '@/lib/analytics';
 
 interface SubmissionFormProps {
   isOpen: boolean;
@@ -108,14 +108,14 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
     }
 
     setIsSubmitting(true);
-    trackSubmissionAttempt();
+    trackFormCompletion('tea_submission');
 
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       onSubmit(formData);
-      trackSubmissionSuccess();
+      trackTeaSpill();
       
       toast({
         title: "Tea Spilled Successfully! ☕",

@@ -83,6 +83,11 @@
 
   html {
     scroll-behavior: smooth;
+    /* Prevent zoom on iOS */
+    -webkit-text-size-adjust: 100%;
+    /* Improve mobile performance */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
@@ -95,6 +100,10 @@
     -webkit-tap-highlight-color: transparent;
     /* Smooth scrolling for iOS */
     -webkit-overflow-scrolling: touch;
+    /* Prevent pull-to-refresh on mobile */
+    overscroll-behavior: none;
+    /* Better mobile performance */
+    will-change: auto;
   }
   .dark body {
     background: linear-gradient(135deg, #0f0619 0%, #1a0d26 100%);
@@ -103,24 +112,30 @@
   /* Mobile-first responsive typography */
   h1 {
     @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl;
+    line-height: 1.1;
   }
   
   h2 {
     @apply text-xl sm:text-2xl md:text-3xl lg:text-4xl;
+    line-height: 1.2;
   }
   
   h3 {
     @apply text-lg sm:text-xl md:text-2xl lg:text-3xl;
+    line-height: 1.3;
   }
   
   p {
     @apply text-sm sm:text-base lg:text-lg;
+    line-height: 1.6;
   }
 
   /* Improve button touch targets on mobile */
   button, a {
     min-height: 44px;
     min-width: 44px;
+    /* Better touch feedback */
+    transition: all 0.2s ease;
   }
 
   /* Better focus states for accessibility */
@@ -130,6 +145,48 @@
   textarea:focus-visible {
     outline: 2px solid #9b59b6;
     outline-offset: 2px;
+  }
+
+  /* Mobile-specific improvements */
+  @media (max-width: 768px) {
+    /* Larger touch targets on mobile */
+    button, a {
+      min-height: 48px;
+      min-width: 48px;
+    }
+    
+    /* Better mobile spacing */
+    .container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    
+    /* Mobile-optimized text sizes */
+    h1 {
+      font-size: 1.75rem;
+      line-height: 1.2;
+    }
+    
+    h2 {
+      font-size: 1.5rem;
+      line-height: 1.3;
+    }
+    
+    h3 {
+      font-size: 1.25rem;
+      line-height: 1.4;
+    }
+  }
+
+  /* PWA-specific styles */
+  @media (display-mode: standalone) {
+    body {
+      /* Remove browser UI space */
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
   }
 }
 
@@ -198,11 +255,11 @@
   }
 
   .animate-glow {
-    animation: glow 2s ease-in-out infinite;
+    animation: glow 2s ease-in-out infinite alternate;
   }
 
   .animate-neon-glow {
-    animation: neon-glow 2s ease-in-out infinite;
+    animation: neon-glow 2s ease-in-out infinite alternate;
   }
 
   .animate-scale-pulse {
@@ -210,71 +267,67 @@
   }
 
   .animate-shimmer {
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
     background-size: 200% 100%;
     animation: shimmer 2s infinite;
   }
 
-  /* Enhanced Button Styles */
+  /* Mobile-optimized button styles */
   .btn-primary {
-    @apply uppercase font-semibold px-6 py-3 rounded-lg transition-all shadow hover:scale-105;
-    background: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent2)) 100%);
-    color: white;
+    @apply bg-gradient-to-r from-accent to-accent2 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 active:scale-95;
+    min-height: 48px;
   }
 
   .btn-secondary {
-    @apply uppercase font-semibold px-6 py-3 rounded-lg transition-all shadow hover:scale-105;
-    border: 2px solid hsl(var(--accent));
-    color: hsl(var(--accent));
+    @apply bg-gradient-to-r from-ctea-purple to-ctea-pink text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 active:scale-95;
+    min-height: 48px;
   }
 
   .btn-glow {
-    @apply uppercase font-semibold px-6 py-3 rounded-lg transition-all shadow-lg hover:scale-105;
-    background: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent2)) 100%);
-    color: white;
-    box-shadow: 0 0 20px rgba(0, 209, 193, 0.3);
+    @apply bg-gradient-to-r from-ctea-yellow to-ctea-orange text-ctea-dark font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 active:scale-95 animate-glow;
+    min-height: 48px;
   }
 
-  /* Enhanced Card Styles */
+  /* Mobile-optimized card styles */
   .card-hover {
-    @apply p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow;
+    @apply transition-all duration-300 hover:shadow-xl hover:scale-105;
   }
 
   .card-gradient {
-    @apply p-6 bg-gradient-to-br from-accent/5 to-accent2/5 border border-accent/20 rounded-lg shadow-lg;
+    @apply bg-gradient-to-br from-ctea-dark/50 to-ctea-darker/50 border border-ctea-teal/20 rounded-lg p-6;
   }
 
-  /* Enhanced Typography */
+  /* Mobile-optimized text styles */
   .text-gradient {
-    background: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent2)) 100%);
+    background: linear-gradient(135deg, #00d4aa 0%, #ff1b8d 50%, #9b59b6 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .text-glow {
-    text-shadow: 0 0 10px hsl(var(--accent)), 0 0 20px hsl(var(--accent));
+    text-shadow: 0 0 10px rgba(0, 212, 170, 0.5), 0 0 20px rgba(0, 212, 170, 0.3);
   }
 
-  /* Responsive Utilities */
+  /* Mobile-first responsive utilities */
   .container-responsive {
-    @apply container mx-auto px-4 md:px-8;
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
   }
 
   .grid-responsive {
-    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6;
   }
 
   .grid-cols-responsive {
-    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+    @apply grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
   }
 
   .section-responsive {
-    @apply py-16;
+    @apply py-8 sm:py-12 lg:py-16;
   }
 
   .padding-responsive {
-    @apply px-4 md:px-8 py-6;
+    @apply p-4 sm:p-6 lg:p-8;
   }
 
   .text-responsive {
@@ -282,50 +335,52 @@
   }
 
   .text-responsive-lg {
-    @apply text-lg sm:text-xl md:text-2xl lg:text-3xl;
+    @apply text-lg sm:text-xl lg:text-2xl;
   }
 
   .btn-responsive {
-    @apply w-full sm:w-auto;
+    @apply text-sm sm:text-base py-2 sm:py-3 px-4 sm:px-6;
+    min-height: 44px;
   }
 
   .btn-responsive-lg {
-    @apply w-full sm:w-auto text-base sm:text-lg;
+    @apply text-base sm:text-lg py-3 sm:py-4 px-6 sm:px-8;
+    min-height: 48px;
   }
 
   .card-responsive {
-    @apply w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl;
+    @apply p-4 sm:p-6 lg:p-8;
   }
 
   .nav-responsive {
-    @apply hidden lg:flex;
+    @apply h-16 sm:h-20;
   }
 
   .sidebar-responsive {
-    @apply fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-900 shadow-lg transform transition-transform duration-300 ease-in-out;
+    @apply w-64 sm:w-72 lg:w-80;
   }
 
   .sidebar-responsive.closed {
-    @apply -translate-x-full;
+    @apply w-16 sm:w-20;
   }
 
   .sidebar-responsive.open {
-    @apply translate-x-0;
+    @apply w-64 sm:w-72 lg:w-80;
   }
 
   .modal-responsive {
-    @apply w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl;
+    @apply w-11/12 sm:w-3/4 lg:w-1/2 xl:w-1/3;
   }
 
   .modal-content-responsive {
-    @apply p-4 sm:p-6 md:p-8;
+    @apply max-h-[90vh] overflow-y-auto;
   }
 
-  /* Retro and Vaporwave Styles */
+  /* Mobile-optimized background patterns */
   .retro-grid {
     background-image: 
-      linear-gradient(rgba(0, 209, 193, 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 209, 193, 0.1) 1px, transparent 1px);
+      linear-gradient(rgba(0, 212, 170, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 212, 170, 0.1) 1px, transparent 1px);
     background-size: 20px 20px;
   }
 
@@ -336,34 +391,35 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: 
-      linear-gradient(rgba(255, 97, 166, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 97, 166, 0.05) 1px, transparent 1px);
-    background-size: 40px 40px;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(255, 27, 141, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(0, 212, 170, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(155, 89, 182, 0.1) 0%, transparent 50%);
     pointer-events: none;
     z-index: -1;
   }
 
+  /* Mobile-optimized border effects */
   .neon-border {
     border: 2px solid transparent;
-    background: linear-gradient(45deg, hsl(var(--accent)), hsl(var(--accent2))) border-box;
+    background: linear-gradient(45deg, #00d4aa, #ff1b8d, #9b59b6) border-box;
     -webkit-mask: 
       linear-gradient(#fff 0 0) padding-box, 
       linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
+    -webkit-mask-composite: destination-out;
     mask-composite: exclude;
   }
 
   .neon-border:hover {
     box-shadow: 
-      0 0 10px hsl(var(--accent)),
-      0 0 20px hsl(var(--accent)),
-      0 0 30px hsl(var(--accent));
+      0 0 10px rgba(0, 212, 170, 0.5),
+      0 0 20px rgba(0, 212, 170, 0.3),
+      0 0 30px rgba(0, 212, 170, 0.1);
   }
 
+  /* Mobile-optimized glitch effect */
   .glitch {
     position: relative;
-    animation: glitch 1s infinite;
   }
 
   .glitch::before,
@@ -378,13 +434,13 @@
 
   .glitch::before {
     animation: glitch-1 0.5s infinite;
-    color: hsl(var(--accent));
+    color: #ff1b8d;
     z-index: -1;
   }
 
   .glitch::after {
     animation: glitch-2 0.5s infinite;
-    color: hsl(var(--accent2));
+    color: #00d4aa;
     z-index: -2;
   }
 
@@ -404,53 +460,49 @@
     80% { transform: translate(-2px, 2px); }
   }
 
+  /* Mobile-optimized button styles */
   .retro-button {
-    @apply uppercase font-bold px-6 py-3 rounded-lg transition-all duration-300;
-    background: linear-gradient(45deg, hsl(var(--accent)), hsl(var(--accent2)));
-    color: white;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    @apply bg-gradient-to-r from-ctea-yellow to-ctea-orange text-ctea-dark font-bold py-3 px-6 rounded-lg shadow-lg transition-all duration-200;
+    min-height: 48px;
   }
 
   .retro-button:hover {
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    @apply shadow-xl transform scale-105;
   }
 
+  /* Mobile-optimized card styles */
   .vaporwave-card {
-    @apply p-6 rounded-lg transition-all duration-300;
-    background: linear-gradient(135deg, rgba(0, 209, 193, 0.1), rgba(255, 97, 166, 0.1));
-    border: 1px solid rgba(0, 209, 193, 0.2);
+    @apply bg-gradient-to-br from-ctea-purple/20 to-ctea-pink/20 border border-ctea-purple/30 rounded-lg p-6 backdrop-blur-sm;
   }
 
   .vaporwave-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0, 209, 193, 0.2);
+    @apply border-ctea-purple/50 shadow-lg;
   }
 
+  /* Mobile-optimized text effects */
   .neon-text {
-    color: hsl(var(--accent));
-    text-shadow: 0 0 10px hsl(var(--accent)), 0 0 20px hsl(var(--accent));
+    text-shadow: 0 0 5px #00d4aa, 0 0 10px #00d4aa, 0 0 15px #00d4aa;
   }
 
   .neon-text-pink {
-    color: hsl(var(--accent2));
-    text-shadow: 0 0 10px hsl(var(--accent2)), 0 0 20px hsl(var(--accent2));
+    text-shadow: 0 0 5px #ff1b8d, 0 0 10px #ff1b8d, 0 0 15px #ff1b8d;
   }
 
-  /* Form and Input Styles */
+  /* Mobile-optimized form elements */
   .input-responsive {
-    @apply w-full px-4 py-3 rounded-lg border border-accent/30 focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all;
+    @apply text-sm sm:text-base;
   }
 
   .textarea-responsive {
-    @apply w-full px-4 py-3 rounded-lg border border-accent/30 focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all resize-none;
+    @apply text-sm sm:text-base resize-none;
   }
 
-  /* Image and Icon Styles */
+  /* Mobile-optimized images */
   .img-responsive {
-    @apply w-full h-auto object-cover;
+    @apply w-full h-auto;
   }
 
+  /* Mobile-optimized icons */
   .icon-responsive {
     @apply w-4 h-4 sm:w-5 sm:h-5;
   }
@@ -459,376 +511,376 @@
     @apply w-6 h-6 sm:w-8 sm:h-8;
   }
 
-  /* Badge and Status Styles */
+  /* Mobile-optimized badges */
   .badge-responsive {
-    @apply px-2 py-1 text-xs sm:text-sm font-medium rounded-full;
+    @apply text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2;
   }
 
-  /* Table Styles */
+  /* Mobile-optimized tables */
   .table-responsive {
-    @apply w-full overflow-x-auto;
+    @apply overflow-x-auto;
   }
 
   .table-responsive table {
-    @apply min-w-full divide-y divide-accent/20;
+    @apply min-w-full;
   }
 
-  /* List Styles */
+  /* Mobile-optimized lists */
   .list-responsive {
-    @apply space-y-4 sm:space-y-6;
+    @apply space-y-2 sm:space-y-3;
   }
 
-  /* Divider Styles */
+  /* Mobile-optimized dividers */
   .divider-responsive {
-    @apply border-t border-accent/20 my-6 sm:my-8;
+    @apply my-4 sm:my-6 lg:my-8;
   }
 
-  /* Animation Utilities */
+  /* Mobile-optimized animations */
   .animate-responsive {
-    @apply transition-all duration-300 ease-in-out;
+    @apply transition-all duration-200 ease-in-out;
   }
 
-  /* Shadow Utilities */
+  /* Mobile-optimized shadows */
   .shadow-responsive {
-    @apply shadow-lg hover:shadow-xl transition-shadow duration-300;
+    @apply shadow-lg sm:shadow-xl lg:shadow-2xl;
   }
 
-  /* Border Utilities */
+  /* Mobile-optimized borders */
   .border-responsive {
-    @apply border border-accent/20 rounded-lg;
+    @apply border border-ctea-teal/20 sm:border-ctea-teal/30;
   }
 
-  /* Rounded Utilities */
+  /* Mobile-optimized rounded corners */
   .rounded-responsive {
-    @apply rounded-lg sm:rounded-xl;
+    @apply rounded-lg sm:rounded-xl lg:rounded-2xl;
   }
 
-  /* Opacity Utilities */
+  /* Mobile-optimized opacity */
   .opacity-responsive {
-    @apply opacity-90 hover:opacity-100 transition-opacity;
+    @apply opacity-90 sm:opacity-95 lg:opacity-100;
   }
 
-  /* Z-index Utilities */
+  /* Mobile-optimized z-index */
   .z-responsive {
-    @apply z-10 sm:z-20;
+    @apply z-10 sm:z-20 lg:z-30;
   }
 
-  /* Overflow Utilities */
+  /* Mobile-optimized overflow */
   .overflow-responsive {
     @apply overflow-hidden sm:overflow-visible;
   }
 
-  /* Position Utilities */
+  /* Mobile-optimized positioning */
   .position-responsive {
-    @apply relative sm:static;
+    @apply relative sm:absolute;
   }
 
-  /* Display Utilities */
+  /* Mobile-optimized display */
   .display-responsive {
     @apply block sm:inline-block;
   }
 
-  /* Flex Utilities */
+  /* Mobile-optimized flexbox */
   .flex-responsive {
     @apply flex flex-col sm:flex-row;
   }
 
-  /* Justify Utilities */
+  /* Mobile-optimized justify content */
   .justify-responsive {
-    @apply justify-start sm:justify-center;
+    @apply justify-center sm:justify-between;
   }
 
-  /* Align Utilities */
+  /* Mobile-optimized align items */
   .align-responsive {
-    @apply items-start sm:items-center;
+    @apply items-center sm:items-start;
   }
 
-  /* Gap Utilities */
+  /* Mobile-optimized gap */
   .gap-responsive {
-    @apply gap-4 sm:gap-6 lg:gap-8;
+    @apply gap-2 sm:gap-4 lg:gap-6;
   }
 
-  /* Margin Utilities */
+  /* Mobile-optimized margin */
   .margin-responsive {
-    @apply m-4 sm:m-6 lg:m-8;
+    @apply m-2 sm:m-4 lg:m-6;
   }
 
-  /* Padding Utilities */
+  /* Mobile-optimized padding */
   .padding-responsive {
-    @apply p-4 sm:p-6 lg:p-8;
+    @apply p-2 sm:p-4 lg:p-6;
   }
 
-  /* Width Utilities */
+  /* Mobile-optimized width */
   .width-responsive {
     @apply w-full sm:w-auto;
   }
 
-  /* Height Utilities */
+  /* Mobile-optimized height */
   .height-responsive {
     @apply h-auto sm:h-full;
   }
 
-  /* Max-width Utilities */
+  /* Mobile-optimized max width */
   .max-width-responsive {
-    @apply max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl;
+    @apply max-w-full sm:max-w-md lg:max-w-lg;
   }
 
-  /* Min-width Utilities */
+  /* Mobile-optimized min width */
   .min-width-responsive {
-    @apply min-w-0 sm:min-w-full;
+    @apply min-w-0 sm:min-w-64;
   }
 
-  /* Aspect Ratio Utilities */
+  /* Mobile-optimized aspect ratio */
   .aspect-responsive {
     @apply aspect-square sm:aspect-video;
   }
 
-  /* Object Fit Utilities */
+  /* Mobile-optimized object fit */
   .object-responsive {
     @apply object-cover sm:object-contain;
   }
 
-  /* Background Utilities */
+  /* Mobile-optimized background */
   .bg-responsive {
-    @apply bg-cover sm:bg-contain;
+    @apply bg-ctea-dark/50 sm:bg-ctea-dark/30;
   }
 
-  /* Backdrop Utilities */
+  /* Mobile-optimized backdrop */
   .backdrop-responsive {
     @apply backdrop-blur-sm sm:backdrop-blur-md;
   }
 
-  /* Filter Utilities */
+  /* Mobile-optimized filters */
   .filter-responsive {
     @apply filter-none sm:filter;
   }
 
-  /* Transform Utilities */
+  /* Mobile-optimized transforms */
   .transform-responsive {
     @apply transform-none sm:transform;
   }
 
-  /* Transition Utilities */
+  /* Mobile-optimized transitions */
   .transition-responsive {
-    @apply transition-all duration-300 ease-in-out;
+    @apply transition-all duration-200 ease-in-out;
   }
 
-  /* Animation Utilities */
+  /* Mobile-optimized animations */
   .animation-responsive {
     @apply animate-none sm:animate-pulse;
   }
 
-  /* Cursor Utilities */
+  /* Mobile-optimized cursor */
   .cursor-responsive {
     @apply cursor-pointer;
   }
 
-  /* Pointer Events Utilities */
+  /* Mobile-optimized pointer events */
   .pointer-responsive {
-    @apply pointer-events-auto sm:pointer-events-none;
+    @apply pointer-events-auto;
   }
 
-  /* User Select Utilities */
+  /* Mobile-optimized user select */
   .select-responsive {
     @apply select-none sm:select-text;
   }
 
-  /* Resize Utilities */
+  /* Mobile-optimized resize */
   .resize-responsive {
     @apply resize-none sm:resize;
   }
 
-  /* Scroll Utilities */
+  /* Mobile-optimized scroll */
   .scroll-responsive {
     @apply scroll-smooth;
   }
 
-  /* Snap Utilities */
+  /* Mobile-optimized snap */
   .snap-responsive {
-    @apply snap-none sm:snap-y;
+    @apply snap-y snap-mandatory;
   }
 
-  /* Touch Utilities */
+  /* Mobile-optimized touch */
   .touch-responsive {
-    @apply touch-pan-y sm:touch-pan-x;
+    @apply touch-pan-y;
   }
 
-  /* Will Change Utilities */
+  /* Mobile-optimized will change */
   .will-change-responsive {
-    @apply will-change-auto sm:will-change-transform;
+    @apply will-change-auto;
   }
 
-  /* Fill Utilities */
+  /* Mobile-optimized fill */
   .fill-responsive {
     @apply fill-current;
   }
 
-  /* Stroke Utilities */
+  /* Mobile-optimized stroke */
   .stroke-responsive {
     @apply stroke-current;
   }
 
-  /* Stroke Width Utilities */
+  /* Mobile-optimized stroke width */
   .stroke-width-responsive {
     @apply stroke-1 sm:stroke-2;
   }
 
-  /* Fill Rule Utilities */
+  /* Mobile-optimized fill rule */
   .fill-rule-responsive {
     @apply fill-rule-evenodd;
   }
 
-  /* Clip Rule Utilities */
+  /* Mobile-optimized clip rule */
   .clip-rule-responsive {
     @apply clip-rule-evenodd;
   }
 
-  /* Vector Effect Utilities */
+  /* Mobile-optimized vector effect */
   .vector-effect-responsive {
-    @apply vector-effect-none;
+    @apply vector-effect-non-scaling-stroke;
   }
 
-  /* Mask Utilities */
+  /* Mobile-optimized mask */
   .mask-responsive {
     @apply mask-none;
   }
 
-  /* Mask Type Utilities */
+  /* Mobile-optimized mask type */
   .mask-type-responsive {
     @apply mask-type-alpha;
   }
 
-  /* Mask Size Utilities */
+  /* Mobile-optimized mask size */
   .mask-size-responsive {
     @apply mask-size-auto;
   }
 
-  /* Mask Repeat Utilities */
+  /* Mobile-optimized mask repeat */
   .mask-repeat-responsive {
     @apply mask-repeat-no-repeat;
   }
 
-  /* Mask Position Utilities */
+  /* Mobile-optimized mask position */
   .mask-position-responsive {
     @apply mask-position-center;
   }
 
-  /* Mask Origin Utilities */
+  /* Mobile-optimized mask origin */
   .mask-origin-responsive {
-    @apply mask-origin-border;
+    @apply mask-origin-border-box;
   }
 
-  /* Mask Clip Utilities */
+  /* Mobile-optimized mask clip */
   .mask-clip-responsive {
-    @apply mask-clip-border;
+    @apply mask-clip-border-box;
   }
 
-  /* Mask Composite Utilities */
+  /* Mobile-optimized mask composite */
   .mask-composite-responsive {
     @apply mask-composite-add;
   }
 
-  /* Mask Mode Utilities */
+  /* Mobile-optimized mask mode */
   .mask-mode-responsive {
     @apply mask-mode-alpha;
   }
 
-  /* Isolation Utilities */
+  /* Mobile-optimized isolation */
   .isolation-responsive {
     @apply isolation-auto;
   }
 
-  /* Mix Blend Mode Utilities */
+  /* Mobile-optimized mix blend mode */
   .mix-blend-responsive {
     @apply mix-blend-normal;
   }
 
-  /* Background Blend Mode Utilities */
+  /* Mobile-optimized background blend mode */
   .bg-blend-responsive {
     @apply bg-blend-normal;
   }
 
-  /* Color Scheme Utilities */
+  /* Mobile-optimized color scheme */
   .color-scheme-responsive {
-    @apply color-scheme-light;
+    @apply color-scheme-dark;
   }
 
-  /* Forced Color Adjust Utilities */
+  /* Mobile-optimized forced color adjust */
   .forced-color-adjust-responsive {
     @apply forced-color-adjust-auto;
   }
 
-  /* Print Color Adjust Utilities */
+  /* Mobile-optimized print color adjust */
   .print-color-adjust-responsive {
     @apply print-color-adjust-economy;
   }
 
-  /* Accent Color Utilities */
+  /* Mobile-optimized accent color */
   .accent-color-responsive {
     @apply accent-color-auto;
   }
 
-  /* Caret Color Utilities */
+  /* Mobile-optimized caret color */
   .caret-color-responsive {
     @apply caret-color-auto;
   }
 
-  /* Scrollbar Color Utilities */
+  /* Mobile-optimized scrollbar color */
   .scrollbar-color-responsive {
     @apply scrollbar-color-auto;
   }
 
-  /* Scrollbar Width Utilities */
+  /* Mobile-optimized scrollbar width */
   .scrollbar-width-responsive {
     @apply scrollbar-width-auto;
   }
 
-  /* Scrollbar Gutter Utilities */
+  /* Mobile-optimized scrollbar gutter */
   .scrollbar-gutter-responsive {
     @apply scrollbar-gutter-auto;
   }
 
-  /* Scroll Margin Utilities */
+  /* Mobile-optimized scroll margin */
   .scroll-margin-responsive {
     @apply scroll-m-0;
   }
 
-  /* Scroll Padding Utilities */
+  /* Mobile-optimized scroll padding */
   .scroll-padding-responsive {
     @apply scroll-p-0;
   }
 
-  /* Scroll Snap Align Utilities */
+  /* Mobile-optimized scroll snap align */
   .scroll-snap-align-responsive {
-    @apply snap-start;
+    @apply scroll-snap-align-start;
   }
 
-  /* Scroll Snap Stop Utilities */
+  /* Mobile-optimized scroll snap stop */
   .scroll-snap-stop-responsive {
-    @apply snap-normal;
+    @apply scroll-snap-stop-normal;
   }
 
-  /* Scroll Snap Type Utilities */
+  /* Mobile-optimized scroll snap type */
   .scroll-snap-type-responsive {
-    @apply snap-none;
+    @apply scroll-snap-type-none;
   }
 
-  /* Scroll Behavior Utilities */
+  /* Mobile-optimized scroll behavior */
   .scroll-behavior-responsive {
     @apply scroll-smooth;
   }
 
-  /* Overscroll Utilities */
+  /* Mobile-optimized overscroll */
   .overscroll-responsive {
     @apply overscroll-auto;
   }
 
-  /* Overscroll X Utilities */
+  /* Mobile-optimized overscroll x */
   .overscroll-x-responsive {
     @apply overscroll-x-auto;
   }
 
-  /* Overscroll Y Utilities */
+  /* Mobile-optimized overscroll y */
   .overscroll-y-responsive {
     @apply overscroll-y-auto;
   }

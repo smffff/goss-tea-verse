@@ -368,8 +368,8 @@ const Landing = () => {
               date: new Date().toISOString()
             }))}
           />
-        </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto mt-8">
             {testimonials.map((testimonial, index) => (
               <Card key={index} className="p-6 bg-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transform border border-accent/10">
                 <div className="flex items-start gap-3">

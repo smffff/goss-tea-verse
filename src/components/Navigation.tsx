@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Menu, X, TrendingUp, Plus, Trophy, Sparkles, Home, Activity, Moon, Sun } from 'lucide-react';
+import { Menu, X, TrendingUp, Plus, Trophy, Sparkles, Home, Activity, Moon, Sun, Coins, Vote } from 'lucide-react';
 import { useUserProgression } from '@/hooks/useUserProgression';
 import UserStats from './UserStats';
 
@@ -18,6 +18,8 @@ const Navigation = () => {
     { path: '/feed', label: 'Feed', icon: <TrendingUp className="w-4 h-4" /> },
     { path: '/submit', label: 'Submit', icon: <Plus className="w-4 h-4" /> },
     { path: '/campaigns', label: 'Leaderboard', icon: <Trophy className="w-4 h-4" /> },
+    { path: '/token', label: 'Token', icon: <Coins className="w-4 h-4" /> },
+    { path: '/governance', label: 'Governance', icon: <Vote className="w-4 h-4" /> },
     { path: '/about', label: 'About', icon: <Sparkles className="w-4 h-4" /> }
   ];
 

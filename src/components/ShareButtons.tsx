@@ -15,7 +15,7 @@ import {
   Users
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { trackShareAction } from '@/lib/analytics';
+import { trackSocialShare } from '@/lib/analytics';
 
 interface ShareButtonsProps {
   url?: string;
@@ -53,7 +53,7 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
 
   const handleShare = async (platform: string) => {
     try {
-      trackShareAction(platform);
+      trackSocialShare(platform);
 
       switch (platform) {
         case 'twitter':
