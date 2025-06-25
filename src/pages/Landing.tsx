@@ -1,8 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { CheckCircle, Crown, User } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { CheckCircle, Crown } from 'lucide-react';
 import Footer from '@/components/Footer';
 import Modal from '@/components/Modal';
 import TippingModal from '@/components/TippingModal';
@@ -12,6 +11,7 @@ import HeroSection from '@/components/landing/HeroSection';
 import LeaderboardPreview from '@/components/landing/LeaderboardPreview';
 import SocialProofSection from '@/components/landing/SocialProofSection';
 import AboutSection from '@/components/landing/AboutSection';
+import LandingHeader from '@/components/landing/LandingHeader';
 import { useAuth } from '@/hooks/useAuth';
 
 const Landing = () => {
@@ -50,41 +50,11 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black">
-      {/* Simplified Authentication Bar */}
-      <div className="bg-ctea-dark/95 backdrop-blur-lg border-b border-ctea-teal/20 px-4 py-3">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="text-ctea-teal text-sm font-medium">
-            ☕ The Ultimate Crypto Gossip Platform
-          </div>
-          <div className="flex items-center space-x-3">
-            {user ? (
-              <div className="flex items-center space-x-3">
-                <span className="text-white text-sm">Welcome back!</span>
-                {(isAdmin || isModerator) && (
-                  <Link to="/admin">
-                    <Button size="sm" variant="outline" className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-black">
-                      Admin Panel
-                    </Button>
-                  </Link>
-                )}
-                <Link to="/feed">
-                  <Button size="sm" className="bg-ctea-teal hover:bg-ctea-teal/80 text-black font-bold">
-                    Enter App
-                  </Button>
-                </Link>
-              </div>
-            ) : (
-              <Link to="/auth">
-                <Button size="sm" variant="outline" className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-black">
-                  <User className="w-4 h-4 mr-2" />
-                  Sign In
-                </Button>
-              </Link>
-            )}
-          </div>
-        </div>
-      </div>
-
+      <LandingHeader 
+        user={user}
+        isAdmin={isAdmin}
+        isModerator={isModerator}
+      />
       <LandingNavigation />
       <TrendingTicker />
       <HeroSection 

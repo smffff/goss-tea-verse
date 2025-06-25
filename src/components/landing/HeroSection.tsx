@@ -1,11 +1,12 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Sparkles, TrendingUp, Users, Zap } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ShareButtons from '@/components/ShareButtons';
 import BetaDisclaimer from '@/components/BetaDisclaimer';
+import LiveStats from './LiveStats';
 
 interface HeroSectionProps {
   onSpillFormOpen?: () => void;
@@ -17,35 +18,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   onTippingModalOpen
 }) => {
   const navigate = useNavigate();
-  const [animatedStats, setAnimatedStats] = useState({
-    posts: 0,
-    users: 0,
-    points: 0
-  });
-
-  useEffect(() => {
-    // Animate numbers on component mount
-    const targets = { posts: 15742, users: 2420, points: 420000 };
-    const duration = 2000;
-    const steps = 60;
-    const stepTime = duration / steps;
-
-    let step = 0;
-    const timer = setInterval(() => {
-      step++;
-      const progress = step / steps;
-      
-      setAnimatedStats({
-        posts: Math.floor(targets.posts * progress),
-        users: Math.floor(targets.users * progress),
-        points: Math.floor(targets.points * progress)
-      });
-
-      if (step >= steps) clearInterval(timer);
-    }, stepTime);
-
-    return () => clearInterval(timer);
-  }, []);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
@@ -72,34 +44,34 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             The Ultimate Crypto Gossip Platform
           </Badge>
           
-          <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight animate-glow">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white mb-6 leading-tight animate-glow">
             Spill the{' '}
             <span className="bg-gradient-to-r from-ctea-teal via-ctea-purple to-ctea-pink bg-clip-text text-transparent">
               TEA
             </span>
           </h1>
           
-          <p className="text-xl sm:text-2xl md:text-3xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed px-4">
             The hottest takes, verified rumors, and community-driven truth in crypto. 
             <span className="text-ctea-teal font-semibold"> Earn rewards</span> for spilling the tea.
           </p>
         </div>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 px-4">
           <Button 
             size="lg"
-            className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white font-bold py-4 px-8 text-lg hover:scale-105 transition-transform duration-200 shadow-lg"
+            className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white font-bold py-3 sm:py-4 px-6 sm:px-8 text-base sm:text-lg hover:scale-105 transition-transform duration-200 shadow-lg"
             onClick={() => navigate('/feed')}
           >
             Start Spilling Tea ☕
-            <ArrowRight className="ml-2 w-5 h-5" />
+            <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
           
           <Button 
             size="lg"
             variant="outline"
-            className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-white py-4 px-8 text-lg hover:scale-105 transition-transform duration-200"
+            className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-white py-3 sm:py-4 px-6 sm:px-8 text-base sm:text-lg hover:scale-105 transition-transform duration-200"
             onClick={() => navigate('/submit')}
           >
             Share Your Alpha 🚀
@@ -107,8 +79,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
 
         {/* Social Sharing */}
-        <div className="mb-12">
-          <p className="text-gray-400 mb-4">Share the revolution:</p>
+        <div className="mb-12 px-4">
+          <p className="text-gray-400 mb-4 text-sm sm:text-base">Share the revolution:</p>
           <ShareButtons
             url={window.location.origin}
             title="CTEA NEWS - The Ultimate Crypto Gossip Platform"
@@ -117,32 +89,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           />
         </div>
 
-        {/* Consolidated Live Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
-          <div className="bg-ctea-dark/30 backdrop-blur-lg border border-ctea-teal/30 rounded-xl p-6 hover:border-ctea-teal/50 transition-all duration-300 hover:scale-105">
-            <div className="flex items-center justify-center mb-3">
-              <TrendingUp className="w-8 h-8 text-ctea-teal mr-3" />
-            </div>
-            <div className="text-3xl font-bold text-ctea-teal mb-1">{animatedStats.posts.toLocaleString()}</div>
-            <p className="text-gray-400 text-sm">Hot Takes Shared</p>
-          </div>
-          
-          <div className="bg-ctea-dark/30 backdrop-blur-lg border border-ctea-purple/30 rounded-xl p-6 hover:border-ctea-purple/50 transition-all duration-300 hover:scale-105">
-            <div className="flex items-center justify-center mb-3">
-              <Users className="w-8 h-8 text-ctea-purple mr-3" />
-            </div>
-            <div className="text-3xl font-bold text-ctea-purple mb-1">{animatedStats.users.toLocaleString()}</div>
-            <p className="text-gray-400 text-sm">Active Tea Sippers</p>
-          </div>
-          
-          <div className="bg-ctea-dark/30 backdrop-blur-lg border border-ctea-pink/30 rounded-xl p-6 hover:border-ctea-pink/50 transition-all duration-300 hover:scale-105">
-            <div className="flex items-center justify-center mb-3">
-              <Zap className="w-8 h-8 text-ctea-pink mr-3" />
-            </div>
-            <div className="text-3xl font-bold text-ctea-pink mb-1">{animatedStats.points.toLocaleString()}</div>
-            <p className="text-gray-400 text-sm">$TEA Points Earned</p>
-          </div>
-        </div>
+        {/* Live Stats */}
+        <LiveStats />
       </div>
     </section>
   );
