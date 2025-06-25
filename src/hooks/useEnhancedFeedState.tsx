@@ -108,17 +108,17 @@ export const useEnhancedFeedState = () => {
         await incrementReaction('given');
       }
 
-      // Update local state with new reaction count
-      setSubmissions(currentSubmissions => 
-        currentSubmissions.map(submission => {
-          if (submission.id === submissionId) {
-            const updatedReactions = { ...submission.reactions };
-            updatedReactions[reactionType] = (updatedReactions[reactionType] || 0) + 1;
-            return { ...submission, reactions: updatedReactions };
+      // Update local state with optimistic update
+      setSubmissions(currentList => {
+        return currentList.map(item => {
+          if (item.id === submissionId) {
+            const newReactions = { ...item.reactions };
+            newReactions[reactionType] = (newReactions[reactionType] || 0) + 1;
+            return { ...item, reactions: newReactions };
           }
-          return submission;
-        })
-      );
+          return item;
+        });
+      });
 
       toast({
         title: `Reaction Added! ${reactionType === 'hot' ? '🔥' : reactionType === 'cold' ? '❄️' : '🌶️'}`,
@@ -136,19 +136,19 @@ export const useEnhancedFeedState = () => {
   };
 
   const handleBoostUpdated = (submissionId: string, newBoost: number) => {
-    setSubmissions(currentSubmissions => 
-      currentSubmissions.map(submission => {
-        if (submission.id === submissionId) {
-          return { ...submission, boost_score: newBoost };
+    setSubmissions(currentList => {
+      return currentList.map(item => {
+        if (item.id === submissionId) {
+          return { ...item, boost_score: newBoost };
         }
-        return submission;
-      })
-    );
+        return item;
+      });
+    });
   };
 
   const toggleComments = (submissionId: string) => {
-    setExpandedSubmissions(currentExpanded => {
-      const newSet = new Set(currentExpanded);
+    setExpandedSubmissions(currentSet => {
+      const newSet = new Set(currentSet);
       if (newSet.has(submissionId)) {
         newSet.delete(submissionId);
       } else {
