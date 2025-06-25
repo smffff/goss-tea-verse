@@ -21,26 +21,35 @@ const SubmitTea = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  console.log('SubmitTea - Component rendered, isSubmitting:', isSubmitting);
+
   const handleSubmit = async (data: SubmissionData) => {
+    console.log('SubmitTea - handleSubmit called with data:', data);
+    
     if (isSubmitting) {
-      console.log('Already submitting, preventing duplicate submission');
+      console.log('SubmitTea - Already submitting, preventing duplicate submission');
       return;
     }
     
     setIsSubmitting(true);
+    console.log('SubmitTea - Set isSubmitting to true');
     
     try {
       // Generate or get anonymous token
       let anonymousToken = localStorage.getItem('ctea_anonymous_token');
+      console.log('SubmitTea - Existing anonymous token:', anonymousToken ? 'exists' : 'not found');
+      
       if (!anonymousToken) {
         anonymousToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
           .map(b => b.toString(16).padStart(2, '0'))
           .join('');
         localStorage.setItem('ctea_anonymous_token', anonymousToken);
+        console.log('SubmitTea - Generated new anonymous token');
       }
 
       // Validate token format
       if (!anonymousToken || anonymousToken.length < 32) {
+        console.error('SubmitTea - Invalid anonymous token generated');
         throw new Error('Invalid anonymous token generated');
       }
 
@@ -53,15 +62,20 @@ const SubmitTea = () => {
         status: 'pending'
       };
 
+      console.log('SubmitTea - Prepared submission data:', submissionData);
+
       // Validate content
       if (!submissionData.content || submissionData.content.length < 3) {
+        console.error('SubmitTea - Content validation failed: too short');
         throw new Error('Content must be at least 3 characters long');
       }
 
       if (submissionData.content.length > 2000) {
+        console.error('SubmitTea - Content validation failed: too long');
         throw new Error('Content must be less than 2000 characters');
       }
 
+      console.log('SubmitTea - Inserting into Supabase...');
       // Insert into Supabase
       const { data: result, error } = await supabase
         .from('tea_submissions')
@@ -69,26 +83,31 @@ const SubmitTea = () => {
         .select();
 
       if (error) {
-        console.error('Supabase insertion error:', error);
+        console.error('SubmitTea - Supabase insertion error:', error);
         throw new Error(`Submission failed: ${error.message}`);
       }
 
       if (!result || result.length === 0) {
+        console.error('SubmitTea - No data returned from Supabase');
         throw new Error('Submission failed: No data returned');
       }
+
+      console.log('SubmitTea - Submission successful:', result);
 
       toast({
         title: "Tea Submitted! ☕",
         description: "Your submission has been received. Check back soon to see it in the feed!",
       });
 
+      console.log('SubmitTea - Navigating to feed in 2 seconds...');
       // Navigate to feed after successful submission
       setTimeout(() => {
+        console.log('SubmitTea - Navigating to /feed');
         navigate('/feed');
       }, 2000);
 
     } catch (error) {
-      console.error('Submission error:', error);
+      console.error('SubmitTea - Submission error:', error);
       
       toast({
         title: "Submission Failed",
@@ -96,13 +115,17 @@ const SubmitTea = () => {
         variant: "destructive"
       });
     } finally {
+      console.log('SubmitTea - Setting isSubmitting to false');
       setIsSubmitting(false);
     }
   };
 
   const handleClose = () => {
+    console.log('SubmitTea - handleClose called, navigating to /');
     navigate('/');
   };
+
+  console.log('SubmitTea - Rendering component');
 
   return (
     <Layout>
