@@ -7,12 +7,23 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Filter } from 'lucide-react';
 import { useWallet } from '@/components/WalletProvider';
 
-const FeedCTA = () => {
+interface FeedCTAProps {
+  variant?: 'default' | 'enhanced';
+  className?: string;
+}
+
+const FeedCTA = ({ variant = 'default', className = '' }: FeedCTAProps) => {
   const navigate = useNavigate();
   const { wallet } = useWallet();
 
+  const spillButtonText = variant === 'enhanced' ? 'Spill Now' : 'Spill Tea';
+  const campaignButtonText = variant === 'enhanced' ? 'View Campaigns' : 'View Campaigns';
+  const buttonClass = variant === 'enhanced' 
+    ? 'bg-gradient-ctea text-white font-bold'
+    : 'bg-gradient-to-r from-ctea-teal to-ctea-purple text-white font-bold';
+
   return (
-    <Card className="bg-gradient-to-br from-ctea-pink/20 to-ctea-purple/20 border-ctea-pink/30 mb-8">
+    <Card className={`bg-gradient-to-br from-ctea-pink/20 to-ctea-purple/20 border-ctea-pink/30 mb-8 ${className}`}>
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6">
         <div className="text-center sm:text-left">
           <h3 className="text-xl font-bold text-white mb-2">Got Some Tea to Spill? ☕</h3>
@@ -30,11 +41,11 @@ const FeedCTA = () => {
         </div>
         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
           <Button 
-            className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white font-bold w-full sm:w-auto"
+            className={`w-full sm:w-auto ${buttonClass}`}
             onClick={() => navigate('/submit')}
           >
             <Plus className="w-4 h-4 mr-2" />
-            Spill Tea
+            {spillButtonText}
           </Button>
           <Button 
             variant="outline"
@@ -42,7 +53,7 @@ const FeedCTA = () => {
             onClick={() => navigate('/campaigns')}
           >
             <Filter className="w-4 h-4 mr-2" />
-            View Campaigns
+            {campaignButtonText}
           </Button>
         </div>
       </div>

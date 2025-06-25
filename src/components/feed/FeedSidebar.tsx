@@ -33,13 +33,13 @@ const FeedSidebar = () => {
       />
 
       {/* Trending Topics */}
-      <TrendingTopics />
+      <TrendingTopics variant="default" />
 
       {/* Quick Actions */}
-      <QuickActions />
+      <QuickActions variant="default" />
 
       {/* Community Stats */}
-      <CommunityStats />
+      <CommunityStats variant="default" />
     </div>
   );
 };

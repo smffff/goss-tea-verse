@@ -2,9 +2,9 @@
 import React from 'react';
 import TokenGatedContent from '@/components/TokenGatedContent';
 import Leaderboard from '@/components/Leaderboard';
-import EnhancedTrendingTopics from './EnhancedTrendingTopics';
-import EnhancedQuickActions from './EnhancedQuickActions';
-import EnhancedCommunityStats from './EnhancedCommunityStats';
+import TrendingTopics from './TrendingTopics';
+import QuickActions from './QuickActions';
+import CommunityStats from './CommunityStats';
 import { Card } from '@/components/ui/card';
 import { Crown } from 'lucide-react';
 
@@ -34,7 +34,7 @@ const EnhancedSidebar = () => {
       />
 
       {/* Trending Topics with Credibility */}
-      <EnhancedTrendingTopics />
+      <TrendingTopics variant="enhanced" />
 
       {/* Legendary Content Access */}
       <TokenGatedContent
@@ -53,10 +53,10 @@ const EnhancedSidebar = () => {
       </TokenGatedContent>
 
       {/* Enhanced Quick Actions */}
-      <EnhancedQuickActions />
+      <QuickActions variant="enhanced" />
 
       {/* Enhanced Community Stats */}
-      <EnhancedCommunityStats />
+      <CommunityStats variant="enhanced" />
     </div>
   );
 };

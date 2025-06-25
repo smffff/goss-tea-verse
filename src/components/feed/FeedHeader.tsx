@@ -26,14 +26,14 @@ const FeedHeader = () => {
           <WalletStatus />
 
           {/* Live Stats */}
-          <FeedStats />
+          <FeedStats variant="default" />
 
           {/* Live Feed Notice */}
           <LiveFeedNotice />
         </div>
 
         {/* Enhanced CTA */}
-        <FeedCTA />
+        <FeedCTA variant="default" />
       </div>
     </section>
   );
