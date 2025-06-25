@@ -148,6 +148,48 @@ export type Database = {
           },
         ]
       }
+      feedback_submissions: {
+        Row: {
+          created_at: string
+          description: string
+          email: string | null
+          id: string
+          priority: string
+          status: string
+          title: string
+          type: string
+          updated_at: string
+          url: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          email?: string | null
+          id?: string
+          priority?: string
+          status?: string
+          title: string
+          type: string
+          updated_at?: string
+          url?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          email?: string | null
+          id?: string
+          priority?: string
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          url?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           anonymous_token: string
