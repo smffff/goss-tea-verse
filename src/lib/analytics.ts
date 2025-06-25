@@ -1,94 +1,76 @@
-// Analytics utility for CTea Newsroom
-// Tracks page views, CTA clicks, form completions, and tea spills
 
-export const trackPageView = (pageName: string) => {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('event', 'page_view', {
-      page_title: pageName,
-      page_location: window.location.href,
-      event_category: 'navigation'
-    });
+import { track } from '@vercel/analytics';
+
+interface AnalyticsEvent {
+  page_title?: string;
+  page_location?: string;
+  custom_map?: Record<string, string>;
+  event_category?: string;
+  event_label?: string;
+  custom_parameter_1?: string;
+  custom_parameter_2?: string;
+  custom_parameter_3?: string;
+  value?: number;
+}
+
+export const trackEvent = (eventName: string, properties?: AnalyticsEvent) => {
+  try {
+    // Use Vercel Analytics track function
+    track(eventName, properties);
+    
+    // Also log to console in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Analytics Event:', eventName, properties);
+    }
+  } catch (error) {
+    console.error('Analytics tracking error:', error);
   }
 };
 
-export const trackCTAClick = (ctaName: string) => {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('event', 'cta_click', {
-      event_category: 'engagement',
-      event_label: ctaName,
-      custom_parameter_1: 'cta_clicks'
-    });
-  }
+export const trackPageView = (pageName: string, properties?: AnalyticsEvent) => {
+  trackEvent('page_view', {
+    page_title: pageName,
+    page_location: window.location.href,
+    ...properties
+  });
 };
 
-export const trackFormCompletion = (formName: string) => {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('event', 'form_completion', {
-      event_category: 'engagement',
-      event_label: formName,
-      custom_parameter_2: 'form_completions'
-    });
-  }
+export const trackUserAction = (action: string, properties?: AnalyticsEvent) => {
+  trackEvent('user_action', {
+    event_category: 'engagement',
+    event_label: action,
+    ...properties
+  });
 };
 
-export const trackTeaSpill = () => {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('event', 'tea_spilled', {
-      event_category: 'engagement',
-      event_label: 'successful_submission',
-      custom_parameter_3: 'tea_spills',
-      value: 1
-    });
-  }
+export const trackTeaSubmission = (category: string, hasEvidence: boolean) => {
+  trackEvent('tea_submission', {
+    event_category: 'content',
+    event_label: category,
+    custom_parameter_1: hasEvidence ? 'with_evidence' : 'no_evidence'
+  });
 };
 
-export const trackFeedbackSubmission = (source: string) => {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('event', 'feedback_submitted', {
-      event_category: 'engagement',
-      event_label: source
-    });
-  }
+export const trackReaction = (reactionType: string, submissionCategory: string) => {
+  trackEvent('reaction_given', {
+    event_category: 'engagement',
+    event_label: reactionType,
+    custom_parameter_1: submissionCategory
+  });
 };
 
-export const trackFeedbackButtonClick = (source: string) => {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('event', 'feedback_button_clicked', {
-      event_category: 'engagement',
-      event_label: source
-    });
-  }
+export const trackShare = (platform: string, contentType: string) => {
+  trackEvent('content_shared', {
+    event_category: 'sharing',
+    event_label: platform,
+    custom_parameter_1: contentType
+  });
 };
 
-// Track user progression events
-export const trackUserProgression = (action: string, value?: number) => {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('event', 'user_progression', {
-      event_category: 'engagement',
-      event_label: action,
-      value: value || 1
-    });
-  }
-};
-
-// Track social sharing
-export const trackSocialShare = (platform: string, content: string) => {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('event', 'social_share', {
-      event_category: 'engagement',
-      event_label: platform,
-      content_type: content
-    });
-  }
-};
-
-// Track error events
 export const trackError = (errorType: string, errorMessage: string) => {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('event', 'error', {
-      event_category: 'error',
-      event_label: errorType,
-      error_message: errorMessage
-    });
-  }
-}; 
+  trackEvent('error_occurred', {
+    event_category: 'error',
+    event_label: errorType,
+    custom_parameter_1: errorMessage.substring(0, 100) // Truncate long error messages
+  });
+};

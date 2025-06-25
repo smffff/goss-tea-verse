@@ -1,294 +1,243 @@
-import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import React from 'react';
 import Layout from '@/components/Layout';
-import AICommentary from '@/components/AICommentary';
-import BribeBoostSystem from '@/components/BribeBoostSystem';
-import MemeRemixer from '@/components/MemeRemixer';
-import SOAPCredibilitySystem from '@/components/SOAPCredibilitySystem';
 import ModQueue from '@/components/ModQueue';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { 
-  Sparkles, Bot, Coins, Users, Shield, Crown, Plus, TrendingUp, 
-  Zap, Palette, Flag, Award 
+  Zap, 
+  Shield, 
+  Users, 
+  TrendingUp, 
+  Award, 
+  MessageCircle, 
+  Share2, 
+  Bot, 
+  Coins, 
+  Star,
+  CheckCircle,
+  Lock,
+  Globe,
+  Smartphone
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 const Features = () => {
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('all');
-
-  // TODO: Replace demo feature content with live data if available
   const features = [
     {
-      id: 'ai-commentary',
-      title: 'AI Commentary System',
-      description: 'CTeaBot provides spicy, smart, memy, and savage takes on all submissions',
-      icon: <Bot className="w-5 h-5" />,
-      status: '✅ Implemented',
-      demo: true,
-      category: 'ai'
+      icon: Zap,
+      title: "Real-time Tea Spilling",
+      description: "Share crypto gossip, rumors, and hot takes instantly with our lightning-fast platform.",
+      color: "text-ctea-yellow",
+      bgColor: "bg-ctea-yellow/10",
+      borderColor: "border-ctea-yellow/30"
     },
     {
-      id: 'bribe-boost',
-      title: 'Bribe-to-Boost System',
-      description: 'Spend $TEA points to boost your submissions for maximum visibility',
-      icon: <Zap className="w-5 h-5" />,
-      status: '✅ Implemented',
-      demo: true,
-      category: 'economy'
+      icon: Shield,
+      title: "SOAP Credibility System",
+      description: "Our advanced verification system ensures quality content and builds community trust.",
+      color: "text-ctea-teal",
+      bgColor: "bg-ctea-teal/10",
+      borderColor: "border-ctea-teal/30"
     },
     {
-      id: 'meme-remixer',
-      title: 'Meme Remixer',
-      description: 'Generate viral meme templates from your submissions with AI assistance',
-      icon: <Palette className="w-5 h-5" />,
-      status: '✅ Implemented',
-      demo: true,
-      category: 'ai'
+      icon: Bot,
+      title: "AI Commentary",
+      description: "Get spicy, smart, memy, or savage AI takes on every submission to enhance discussions.",
+      color: "text-ctea-purple",
+      bgColor: "bg-ctea-purple/10",
+      borderColor: "border-ctea-purple/30"
     },
     {
-      id: 'soap-credibility',
-      title: '$SOAP Credibility System',
-      description: 'Dual reputation system with truth verification and community trust scores',
-      icon: <Shield className="w-5 h-5" />,
-      status: '✅ Implemented',
-      demo: true,
-      category: 'economy'
+      icon: Coins,
+      title: "$TEA Token Rewards",
+      description: "Earn tokens for quality submissions, accurate verifications, and community engagement.",
+      color: "text-ctea-pink",
+      bgColor: "bg-ctea-pink/10",
+      borderColor: "border-ctea-pink/30"
     },
     {
-      id: 'mod-queue',
-      title: 'Mod Queue & AI Filtering',
-      description: 'AI-powered content moderation with risk assessment and recommendations',
-      icon: <Flag className="w-5 h-5" />,
-      status: '✅ Implemented',
-      demo: true,
-      category: 'moderation'
+      icon: Users,
+      title: "Community Governance",
+      description: "Vote on platform decisions, moderate content, and shape the future of CTea.",
+      color: "text-ctea-orange",
+      bgColor: "bg-ctea-orange/10",
+      borderColor: "border-ctea-orange/30"
     },
     {
-      id: 'tea-points',
-      title: '$TEA Points System',
-      description: 'Earn points for posting, reactions, and community engagement',
-      icon: <Coins className="w-5 h-5" />,
-      status: '✅ Implemented',
-      demo: false,
-      category: 'economy'
-    },
-    {
-      id: 'weekly-campaigns',
-      title: 'Weekly Campaigns',
-      description: 'Themed challenges with rewards and leaderboards',
-      icon: <Award className="w-5 h-5" />,
-      status: '✅ Implemented',
-      demo: false,
-      category: 'community'
-    },
-    {
-      id: 'anonymous-submissions',
-      title: 'Anonymous Submissions',
-      description: 'Submit tea anonymously with evidence and image support',
-      icon: <Users className="w-5 h-5" />,
-      status: '✅ Implemented',
-      demo: false,
-      category: 'core'
+      icon: TrendingUp,
+      title: "Viral Content Tracking",
+      description: "Advanced algorithms identify trending topics and viral potential in real-time.",
+      color: "text-green-400",
+      bgColor: "bg-green-400/10",
+      borderColor: "border-green-400/30"
     }
   ];
 
-  const categories = [
-    { id: 'all', label: 'All Features', icon: Sparkles },
-    { id: 'ai', label: 'AI Features', icon: Bot },
-    { id: 'economy', label: 'Token Economy', icon: Coins },
-    { id: 'community', label: 'Community', icon: Users },
-    { id: 'moderation', label: 'Moderation', icon: Shield },
-    { id: 'core', label: 'Core Features', icon: Crown }
-  ];
-
-  const filteredFeatures = activeTab === 'all' 
-    ? features 
-    : features.filter(feature => feature.category === activeTab);
-
-  const renderDemo = (featureId: string) => {
-    switch (featureId) {
-      case 'ai-commentary':
-        return (
-          <div className="space-y-4">
-            <AICommentary
-              content="🌶️ OKAY this is absolutely UNHINGED behavior and honestly? We're here for it. The audacity, the drama, the sheer chaos energy... *chef's kiss* 💀 This is why we can't have nice things in crypto, and that's exactly what makes it spicy!"
-              type="spicy"
-            />
-            <AICommentary
-              content="🧠 If we analyze this objectively, what we're witnessing is a fascinating intersection of game theory and social capital dynamics that perfectly encapsulates the volatile nature of crypto communities."
-              type="smart"
-            />
-            <AICommentary
-              content="😂 *whispers* 'and then they rug pulled anyway' 💀 Nobody: Absolutely nobody: CT: 'Let's create ANOTHER pointless drama that somehow makes perfect sense in this timeline'"
-              type="memy"
-            />
-          </div>
-        );
-
-      case 'bribe-boost':
-        return (
-          <div className="p-4 bg-ctea-dark/50 rounded-lg border border-ctea-teal/20">
-            <BribeBoostSystem
-              submissionId="demo-submission"
-              currentBoost={0}
-              onBoostUpdated={() => {}}
-            />
-            <div className="mt-4 text-sm text-gray-400 space-y-1">
-              <p>• Small Boost: 25 points for 10 $TEA</p>
-              <p>• Medium Boost: 50 points for 25 $TEA</p>
-              <p>• Large Boost: 100 points for 50 $TEA</p>
-              <p>• Viral Boost: 200 points for 100 $TEA</p>
-            </div>
-          </div>
-        );
-
-      case 'meme-remixer':
-        return (
-          <div className="p-4 bg-ctea-dark/50 rounded-lg border border-ctea-teal/20">
-            <MemeRemixer
-              submissionId="demo-submission"
-              content="This is a demo submission for meme generation"
-              category="gossip"
-            />
-            <div className="mt-4 text-sm text-gray-400 space-y-1">
-              <p>• 6 popular meme templates</p>
-              <p>• AI-generated text suggestions</p>
-              <p>• Download and share functionality</p>
-              <p>• Integration with submissions</p>
-            </div>
-          </div>
-        );
-
-      case 'soap-credibility':
-        return (
-          <div className="p-4 bg-ctea-dark/50 rounded-lg border border-ctea-teal/20">
-            <SOAPCredibilitySystem />
-          </div>
-        );
-
-      case 'mod-queue':
-        return (
-          <div className="p-4 bg-ctea-dark/50 rounded-lg border border-ctea-teal/20">
-            <ModQueue isModerator={true} />
-          </div>
-        );
-
-      default:
-        return (
-          <div className="p-4 bg-ctea-dark/50 rounded-lg border border-ctea-teal/20">
-            <p className="text-gray-400">Demo available in the main application</p>
-          </div>
-        );
+  const premiumFeatures = [
+    {
+      icon: Award,
+      title: "Premium Verification",
+      description: "Enhanced credibility badges and priority content review for verified users.",
+      tier: "Premium"
+    },
+    {
+      icon: MessageCircle,
+      title: "Advanced Analytics",
+      description: "Detailed insights into your content performance and audience engagement.",
+      tier: "Pro"
+    },
+    {
+      icon: Share2,
+      title: "Cross-Platform Sharing",
+      description: "Seamlessly share content across all major social media platforms.",
+      tier: "Premium"
+    },
+    {
+      icon: Lock,
+      title: "Private Tea Rooms",
+      description: "Create exclusive discussion spaces for your closest crypto community.",
+      tier: "Elite"
     }
-  };
+  ];
 
   return (
     <Layout>
-      {/* Header Section */}
-      <section className="py-16 sm:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 animate-glow">
-              Beta Features 🚀
-            </h1>
-            <p className="text-lg sm:text-xl text-gray-300 mb-8">
-              Explore all the cutting-edge features that make CTea the ultimate crypto gossip platform.
-            </p>
-
-            {/* Category Filter */}
-            <div className="flex flex-wrap justify-center gap-2 mb-8">
-              {categories.map(({ id, label, icon: Icon }) => (
-                <Button
-                  key={id}
-                  variant={activeTab === id ? 'default' : 'outline'}
-                  className={activeTab === id ? 'bg-ctea-teal text-white' : 'border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10'}
-                  onClick={() => setActiveTab(id)}
-                >
-                  <Icon className="w-4 h-4 mr-2" />
-                  {label}
-                </Button>
-              ))}
-            </div>
-          </div>
+      <div className="container mx-auto px-4 py-8">
+        {/* Header Section */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            Platform Features
+          </h1>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            Discover the powerful tools and features that make CTea the ultimate platform 
+            for crypto gossip, community engagement, and decentralized truth-seeking.
+          </p>
         </div>
-      </section>
 
-      {/* Features Grid */}
-      <section className="py-16 sm:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {filteredFeatures.map((feature) => (
-              <Card key={feature.id} className="bg-ctea-dark/30 border border-ctea-teal/20">
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-ctea-teal/20 rounded-lg">
-                        {feature.icon}
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-white">{feature.title}</h3>
-                        <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
-                          {feature.status}
-                        </Badge>
-                      </div>
-                    </div>
+        {/* Core Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+          {features.map((feature, index) => (
+            <Card 
+              key={index}
+              className={`p-6 bg-ctea-dark/30 border ${feature.borderColor} hover:border-opacity-60 transition-all duration-300 hover:scale-105`}
+            >
+              <div className={`w-12 h-12 ${feature.bgColor} rounded-lg flex items-center justify-center mb-4`}>
+                <feature.icon className={`w-6 h-6 ${feature.color}`} />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
+              <p className="text-gray-300 leading-relaxed">{feature.description}</p>
+            </Card>
+          ))}
+        </div>
+
+        {/* Premium Features Section */}
+        <div className="mb-16">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-white mb-4">Premium Features</h2>
+            <p className="text-lg text-gray-300">
+              Unlock advanced capabilities with our premium tiers
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {premiumFeatures.map((feature, index) => (
+              <Card 
+                key={index}
+                className="p-6 bg-gradient-to-br from-ctea-dark/50 to-ctea-darker/80 border border-ctea-teal/20 hover:border-ctea-teal/40 transition-all duration-300"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-10 h-10 bg-ctea-teal/20 rounded-lg flex items-center justify-center">
+                    <feature.icon className="w-5 h-5 text-ctea-teal" />
                   </div>
-                  
-                  <p className="text-gray-300 mb-6">{feature.description}</p>
-                  
-                  {feature.demo && (
-                    <div className="mb-4">
-                      <h4 className="text-sm font-semibold text-white mb-2">Live Demo:</h4>
-                      {renderDemo(feature.id)}
-                    </div>
-                  )}
-                  
-                  {!feature.demo && (
-                    <div className="p-4 bg-ctea-dark/50 rounded-lg border border-ctea-teal/20">
-                      <p className="text-gray-400 text-sm">Try this feature in the main application!</p>
-                    </div>
-                  )}
+                  <Badge className="bg-ctea-purple/20 text-ctea-purple border border-ctea-purple/30">
+                    {feature.tier}
+                  </Badge>
                 </div>
+                <h3 className="text-lg font-bold text-white mb-2">{feature.title}</h3>
+                <p className="text-gray-300 text-sm">{feature.description}</p>
               </Card>
             ))}
           </div>
+        </div>
 
-          {/* CTA Section */}
-          <div className="mt-12 text-center">
-            <Card className="bg-gradient-to-br from-ctea-purple/20 to-ctea-pink/20 border-ctea-purple/30 max-w-2xl mx-auto">
-              <div className="p-8">
-                <h3 className="text-2xl font-bold text-white mb-4">
-                  Ready to Experience These Features? 🚀
-                </h3>
-                <p className="text-gray-300 mb-6">
-                  Join the beta and start using all these features to spill the hottest tea in crypto!
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <Button 
-                    className="bg-gradient-ctea text-white font-bold w-full sm:w-auto"
-                    onClick={() => navigate('/submit')}
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Start Spilling Tea
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10 w-full sm:w-auto"
-                    onClick={() => navigate('/feed')}
-                  >
-                    <TrendingUp className="w-4 h-4 mr-2" />
-                    Browse Feed
-                  </Button>
-                </div>
+        {/* Platform Stats */}
+        <div className="mb-16">
+          <Card className="p-8 bg-gradient-to-r from-ctea-teal/10 to-ctea-purple/10 border border-ctea-teal/30">
+            <h2 className="text-2xl font-bold text-white mb-6 text-center">Platform Statistics</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-ctea-teal mb-2">15.7K+</div>
+                <div className="text-sm text-gray-400">Tea Submissions</div>
               </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-ctea-purple mb-2">2.4K+</div>
+                <div className="text-sm text-gray-400">Active Users</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-ctea-pink mb-2">420K</div>
+                <div className="text-sm text-gray-400">$TEA Distributed</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-ctea-yellow mb-2">99.9%</div>
+                <div className="text-sm text-gray-400">Uptime</div>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Technical Features */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold text-white mb-8 text-center">Technical Excellence</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="p-6 bg-ctea-dark/30 border border-ctea-teal/20">
+              <Globe className="w-8 h-8 text-ctea-teal mb-4" />
+              <h3 className="text-lg font-bold text-white mb-2">Decentralized</h3>
+              <p className="text-gray-300 text-sm">
+                Built on blockchain technology for transparency and censorship resistance.
+              </p>
+            </Card>
+            
+            <Card className="p-6 bg-ctea-dark/30 border border-ctea-purple/20">
+              <Smartphone className="w-8 h-8 text-ctea-purple mb-4" />
+              <h3 className="text-lg font-bold text-white mb-2">Mobile First</h3>
+              <p className="text-gray-300 text-sm">
+                Optimized for mobile devices with progressive web app capabilities.
+              </p>
+            </Card>
+            
+            <Card className="p-6 bg-ctea-dark/30 border border-ctea-pink/20">
+              <CheckCircle className="w-8 h-8 text-ctea-pink mb-4" />
+              <h3 className="text-lg font-bold text-white mb-2">Real-time</h3>
+              <p className="text-gray-300 text-sm">
+                Instant updates and notifications keep you connected to the latest tea.
+              </p>
             </Card>
           </div>
         </div>
-      </section>
+
+        {/* Call to Action */}
+        <div className="text-center mb-16">
+          <Card className="p-8 bg-gradient-to-br from-ctea-purple/20 to-ctea-pink/20 border border-ctea-purple/30">
+            <h2 className="text-2xl font-bold text-white mb-4">Ready to Start Spilling Tea?</h2>
+            <p className="text-gray-300 mb-6">
+              Join thousands of crypto enthusiasts sharing the hottest takes and earning rewards.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white font-bold">
+                Start Spilling Tea ☕
+              </Button>
+              <Button variant="outline" className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10">
+                Learn More
+              </Button>
+            </div>
+          </Card>
+        </div>
+
+        {/* Moderation Queue - only show for actual moderators */}
+        <ModQueue />
+      </div>
     </Layout>
   );
 };
 
-export default Features; 
+export default Features;

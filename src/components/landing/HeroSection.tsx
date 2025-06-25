@@ -1,154 +1,140 @@
 
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { trackCTAClick } from '@/lib/analytics';
+import { ArrowRight, Sparkles, TrendingUp, Users, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import ShareButtons from '@/components/ShareButtons';
-import { 
-  TrendingUp, 
-  Coffee, 
-  Gift, 
-  Zap, 
-  Sparkles, 
-  Plus, 
-  Trophy 
-} from 'lucide-react';
 
-interface HeroSectionProps {
-  onSpillFormOpen: () => void;
-  onTippingModalOpen: () => void;
-}
-
-const HeroSection: React.FC<HeroSectionProps> = ({ onSpillFormOpen, onTippingModalOpen }) => {
+const HeroSection = () => {
   const navigate = useNavigate();
+  const [animatedStats, setAnimatedStats] = useState({
+    posts: 0,
+    users: 0,
+    points: 0
+  });
+
+  useEffect(() => {
+    // Animate numbers on component mount
+    const targets = { posts: 15742, users: 2420, points: 420000 };
+    const duration = 2000;
+    const steps = 60;
+    const stepTime = duration / steps;
+
+    let step = 0;
+    const timer = setInterval(() => {
+      step++;
+      const progress = step / steps;
+      
+      setAnimatedStats({
+        posts: Math.floor(targets.posts * progress),
+        users: Math.floor(targets.users * progress),
+        points: Math.floor(targets.points * progress)
+      });
+
+      if (step >= steps) clearInterval(timer);
+    }, stepTime);
+
+    // Apply glow effect to elements
+    const elements = document.querySelectorAll('.animate-glow');
+    elements.forEach((element) => {
+      if (element instanceof HTMLElement) {
+        element.style.textShadow = '0 0 20px rgba(0, 209, 193, 0.5)';
+      }
+    });
+
+    return () => clearInterval(timer);
+  }, []);
 
   return (
-    <section className="relative py-20 sm:py-32 overflow-hidden">
-      {/* Enhanced Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-accent2/20 to-accent/20"></div>
+    <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute inset-0 bg-gradient-to-br from-ctea-dark via-ctea-darker to-black"></div>
       
-      <div className="container mx-auto px-4 md:px-8 relative z-10">
-        <div className="text-center max-w-4xl mx-auto">
-          {/* Logo */}
-          <div className="flex justify-center mb-8">
-            <div className="relative">
-              <img 
-                src="/ctea-logo-full.png" 
-                alt="CTea Newsroom Logo - Anonymous Crypto Gossip Platform" 
-                className="w-32 h-16 sm:w-40 sm:h-20 animate-float"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  e.currentTarget.nextElementSibling!.style.display = 'block';
-                }}
-              />
-              <img 
-                src="/ctea-logo-icon.svg" 
-                alt="CTea Newsroom Logo" 
-                className="w-20 h-20 sm:w-24 sm:h-24 text-accent animate-float hidden" 
-              />
-              <div className="absolute -top-2 -right-2">
-                <Zap className="w-6 h-6 text-accent2 animate-pulse" />
-              </div>
-              <div className="absolute -bottom-2 -left-2">
-                <Sparkles className="w-5 h-5 text-accent animate-pulse" />
-              </div>
-            </div>
-          </div>
+      {/* Animated Background Particles */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-ctea-teal rounded-full animate-ping"></div>
+        <div className="absolute top-3/4 right-1/4 w-1 h-1 bg-ctea-purple rounded-full animate-pulse"></div>
+        <div className="absolute top-1/2 left-3/4 w-3 h-3 bg-ctea-pink rounded-full animate-bounce"></div>
+      </div>
+
+      <div className="relative z-10 text-center max-w-5xl mx-auto">
+        {/* Main Heading */}
+        <div className="mb-8">
+          <Badge className="mb-4 bg-gradient-to-r from-ctea-teal to-ctea-purple text-white px-4 py-2 text-sm font-medium">
+            <Sparkles className="w-4 h-4 mr-2" />
+            The Ultimate Crypto Gossip Platform
+          </Badge>
           
-          {/* Main Heading */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-            Where Crypto Twitter
-            <br />
-            <span className="bg-gradient-to-r from-accent via-accent2 to-accent bg-clip-text text-transparent">
-              Comes to Spill.
+          <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight animate-glow">
+            Spill the{' '}
+            <span className="bg-gradient-to-r from-ctea-teal via-ctea-purple to-ctea-pink bg-clip-text text-transparent">
+              TEA
             </span>
           </h1>
           
-          {/* Enhanced Value Proposition */}
-          <div className="max-w-3xl mx-auto mb-12">
-            <p className="text-lg sm:text-xl md:text-2xl text-gray-700 mb-6 font-medium">
-              Beta access now open. Managed chaos, served hot.
-            </p>
-            <p className="text-base sm:text-lg text-gray-600">
-              Submit your story or tip the gatekeepers to join the beta.
-            </p>
+          <p className="text-xl sm:text-2xl md:text-3xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+            The hottest takes, verified rumors, and community-driven truth in crypto. 
+            <span className="text-ctea-teal font-semibold"> Earn rewards</span> for spilling the tea.
+          </p>
+        </div>
+
+        {/* CTA Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <Button 
+            size="lg"
+            className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white font-bold py-4 px-8 text-lg hover:scale-105 transition-transform duration-200 shadow-lg"
+            onClick={() => navigate('/feed')}
+          >
+            Start Spilling Tea ☕
+            <ArrowRight className="ml-2 w-5 h-5" />
+          </Button>
+          
+          <Button 
+            size="lg"
+            variant="outline"
+            className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-white py-4 px-8 text-lg hover:scale-105 transition-transform duration-200"
+            onClick={() => navigate('/submit')}
+          >
+            Share Your Alpha 🚀
+          </Button>
+        </div>
+
+        {/* Social Sharing */}
+        <div className="mb-12">
+          <p className="text-gray-400 mb-4">Share the revolution:</p>
+          <ShareButtons
+            url={window.location.origin}
+            title="CTea - The Ultimate Crypto Gossip Platform"
+            variant="expanded"
+            className="justify-center"
+          />
+        </div>
+
+        {/* Live Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-2xl mx-auto">
+          <div className="bg-ctea-dark/30 backdrop-blur-lg border border-ctea-teal/20 rounded-xl p-6 hover:border-ctea-teal/40 transition-colors duration-300">
+            <div className="flex items-center justify-center mb-2">
+              <TrendingUp className="w-6 h-6 text-ctea-teal mr-2" />
+              <span className="text-2xl font-bold text-white">{animatedStats.posts.toLocaleString()}</span>
+            </div>
+            <p className="text-gray-400 text-sm">Hot Takes Shared</p>
           </div>
           
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <Button 
-              className="bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent text-white font-bold px-8 py-4 text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 w-full sm:w-auto"
-              onClick={() => navigate('/feed')}
-            >
-              <TrendingUp className="w-5 h-5 mr-2" />
-              Enter App
-            </Button>
-            <Button 
-              className="bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent text-white font-bold px-8 py-4 text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 w-full sm:w-auto"
-              onClick={() => {
-                onSpillFormOpen();
-                trackCTAClick('spill_tea_beta');
-              }}
-            >
-              <Coffee className="w-5 h-5 mr-2" />
-              Spill Tea for Beta Access
-            </Button>
-            <Button 
-              variant="outline"
-              className="border-accent text-accent hover:bg-accent/10 px-8 py-4 text-lg w-full sm:w-auto font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
-              onClick={() => {
-                onTippingModalOpen();
-                trackCTAClick('tip_gatekeepers');
-              }}
-            >
-              <Gift className="w-5 h-5 mr-2" />
-              Tip the Gatekeepers
-            </Button>
+          <div className="bg-ctea-dark/30 backdrop-blur-lg border border-ctea-purple/20 rounded-xl p-6 hover:border-ctea-purple/40 transition-colors duration-300">
+            <div className="flex items-center justify-center mb-2">
+              <Users className="w-6 h-6 text-ctea-purple mr-2" />
+              <span className="text-2xl font-bold text-white">{animatedStats.users.toLocaleString()}</span>
+            </div>
+            <p className="text-gray-400 text-sm">Active Tea Sippers</p>
           </div>
-          <ShareButtons className="mb-8 justify-center" variant="expanded" />
-
-          {/* Quick Navigation to App Features */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
-            <Button
-              variant="outline"
-              className="flex flex-col items-center gap-2 p-4 h-auto hover:bg-accent/10 border-accent/30"
-              onClick={() => navigate('/feed')}
-            >
-              <TrendingUp className="w-6 h-6 text-accent" />
-              <span className="text-sm font-medium">Feed</span>
-            </Button>
-            <Button
-              variant="outline"
-              className="flex flex-col items-center gap-2 p-4 h-auto hover:bg-accent/10 border-accent/30"
-              onClick={() => navigate('/enhanced-feed')}
-            >
-              <Zap className="w-6 h-6 text-accent2" />
-              <span className="text-sm font-medium">Enhanced Feed</span>
-            </Button>
-            <Button
-              variant="outline"
-              className="flex flex-col items-center gap-2 p-4 h-auto hover:bg-accent/10 border-accent/30"
-              onClick={() => navigate('/submit')}
-            >
-              <Plus className="w-6 h-6 text-accent" />
-              <span className="text-sm font-medium">Submit</span>
-            </Button>
-            <Button
-              variant="outline"
-              className="flex flex-col items-center gap-2 p-4 h-auto hover:bg-accent/10 border-accent/30"
-              onClick={() => navigate('/campaigns')}
-            >
-              <Trophy className="w-6 h-6 text-accent2" />
-              <span className="text-sm font-medium">Leaderboard</span>
-            </Button>
-          </div>
-
-          {/* Beta Badge */}
-          <div className="flex justify-center mb-8">
-            <Badge className="bg-accent2 text-white font-bold px-4 py-2 text-sm animate-pulse">
-              🚀 BETA ACCESS OPEN
-            </Badge>
+          
+          <div className="bg-ctea-dark/30 backdrop-blur-lg border border-ctea-pink/20 rounded-xl p-6 hover:border-ctea-pink/40 transition-colors duration-300">
+            <div className="flex items-center justify-center mb-2">
+              <Zap className="w-6 h-6 text-ctea-pink mr-2" />
+              <span className="text-2xl font-bold text-white">{animatedStats.points.toLocaleString()}</span>
+            </div>
+            <p className="text-gray-400 text-sm">$TEA Points Earned</p>
           </div>
         </div>
       </div>

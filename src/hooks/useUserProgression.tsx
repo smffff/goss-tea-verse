@@ -1,224 +1,228 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface UserProgression {
-  id: string;
   current_xp: number;
   current_level: number;
   tea_points: number;
   total_posts: number;
   total_reactions_given: number;
   total_reactions_received: number;
-  anonymous_token: string;
 }
 
 interface UserLevel {
   level: number;
   name: string;
   min_xp: number;
-  max_xp?: number;
+  max_xp: number | null;
   badge_color: string;
   perks: Record<string, unknown>;
 }
 
 export const useUserProgression = () => {
-  const [userProgression, setUserProgression] = useState<UserProgression | null>(null);
-  const [userLevel, setUserLevel] = useState<UserLevel | null>(null);
+  const [progression, setProgression] = useState<UserProgression>({
+    current_xp: 0,
+    current_level: 1,
+    tea_points: 0,
+    total_posts: 0,
+    total_reactions_given: 0,
+    total_reactions_received: 0
+  });
+  
+  const [currentLevel, setCurrentLevel] = useState<UserLevel>({
+    level: 1,
+    name: 'New Sipper',
+    min_xp: 0,
+    max_xp: 100,
+    badge_color: '#gray',
+    perks: {}
+  });
+  
+  const [nextLevel, setNextLevel] = useState<UserLevel | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
-  const getAnonymousToken = () => {
-    let token = localStorage.getItem('ctea_anonymous_token');
-    if (!token) {
-      token = Array.from(crypto.getRandomValues(new Uint8Array(32)))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-      localStorage.setItem('ctea_anonymous_token', token);
-    }
-    return token;
-  };
+  useEffect(() => {
+    loadUserProgression();
+    loadUserLevels();
+  }, []);
 
-  const fetchUserProgression = async () => {
+  const loadUserProgression = async () => {
     try {
-      const anonymousToken = getAnonymousToken();
-      
-      // Get or create user progression
-      const { data: progression, error } = await supabase
+      const anonymousToken = localStorage.getItem('ctea_anonymous_token');
+      if (!anonymousToken) {
+        setIsLoading(false);
+        return;
+      }
+
+      const { data } = await supabase
         .from('user_progression')
         .select('*')
         .eq('anonymous_token', anonymousToken)
         .single();
 
-      if (error && error.code === 'PGRST116') {
-        // User doesn't exist, create new progression
-        const { data: newProgression, error: createError } = await supabase
-          .from('user_progression')
-          .insert({
-            anonymous_token: anonymousToken,
-            current_xp: 0,
-            current_level: 1,
-            tea_points: 0,
-            total_posts: 0,
-            total_reactions_given: 0,
-            total_reactions_received: 0
-          })
-          .select()
-          .single();
-
-        if (createError) throw createError;
-        setUserProgression(newProgression);
-      } else if (error) {
-        throw error;
+      if (data) {
+        setProgression(data);
       }
-
-      setUserProgression(progression);
-
-      // Fetch user level info
-      const { data: levelData, error: levelError } = await supabase
-        .from('user_levels')
-        .select('*')
-        .eq('level', progression.current_level)
-        .single();
-
-      if (levelError) {
-        console.error('Error fetching level data:', levelError);
-      } else {
-        setUserLevel(levelData);
-      }
-
     } catch (error) {
-      console.error('Error fetching user progression:', error);
+      console.error('Error loading user progression:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const awardPoints = async (points: number, reason: string) => {
+  const loadUserLevels = async () => {
     try {
-      const anonymousToken = getAnonymousToken();
-      
-      // Add tea points transaction
-      await supabase
-        .from('tea_points_transactions')
-        .insert({
-          anonymous_token: anonymousToken,
-          amount: points,
-          transaction_type: 'earned',
-          description: reason
+      const { data: levels } = await supabase
+        .from('user_levels')
+        .select('*')
+        .order('level', { ascending: true });
+
+      if (levels && levels.length > 0) {
+        const currentLevelData = levels.find(l => l.level === progression.current_level) || levels[0];
+        const nextLevelData = levels.find(l => l.level === progression.current_level + 1);
+        
+        setCurrentLevel({
+          ...currentLevelData,
+          perks: (currentLevelData.perks as Record<string, unknown>) || {}
         });
-
-      // Update user progression
-      const { data, error } = await supabase
-        .from('user_progression')
-        .update({
-          tea_points: (userProgression?.tea_points || 0) + points,
-          current_xp: (userProgression?.current_xp || 0) + points,
-          updated_at: new Date().toISOString()
-        })
-        .eq('anonymous_token', anonymousToken)
-        .select()
-        .single();
-
-      if (error) throw error;
-      
-      setUserProgression(data);
-      
-      // Check for level up
-      await checkLevelUp(data.current_xp);
-      
+        
+        if (nextLevelData) {
+          setNextLevel({
+            ...nextLevelData,
+            perks: (nextLevelData.perks as Record<string, unknown>) || {}
+          });
+        }
+      }
     } catch (error) {
-      console.error('Error awarding points:', error);
+      console.error('Error loading user levels:', error);
     }
   };
 
-  const checkLevelUp = async (currentXp: number) => {
+  const incrementReaction = async (type: 'given') => {
     try {
-      // Check if user should level up
-      const { data: nextLevel, error } = await supabase
-        .from('user_levels')
+      const anonymousToken = localStorage.getItem('ctea_anonymous_token');
+      if (!anonymousToken) return;
+
+      const { data: updatedProgression, error } = await supabase
+        .from('user_progression')
+        .update({ total_reactions_given: progression.total_reactions_given + 1, current_xp: progression.current_xp + 5 })
+        .eq('anonymous_token', anonymousToken)
         .select('*')
-        .gt('level', userProgression?.current_level || 1)
-        .lte('min_xp', currentXp)
-        .order('level', { ascending: true })
-        .limit(1)
         .single();
 
-      if (!error && nextLevel) {
-        const anonymousToken = getAnonymousToken();
-        
-        // Update user level
-        await supabase
+      if (error) throw error;
+
+      setProgression(updatedProgression);
+      addTeaPoints(2);
+      checkLevelUp();
+    } catch (error) {
+      console.error('Error incrementing reaction:', error);
+    }
+  };
+
+  const incrementPost = async () => {
+    try {
+      const anonymousToken = localStorage.getItem('ctea_anonymous_token');
+      if (!anonymousToken) return;
+
+      const { data: updatedProgression, error } = await supabase
+        .from('user_progression')
+        .update({ total_posts: progression.total_posts + 1, current_xp: progression.current_xp + 20 })
+        .eq('anonymous_token', anonymousToken)
+        .select('*')
+        .single();
+
+      if (error) throw error;
+
+      setProgression(updatedProgression);
+      addTeaPoints(10);
+      checkLevelUp();
+    } catch (error) {
+      console.error('Error incrementing post count:', error);
+    }
+  };
+
+  const addTeaPoints = async (points: number) => {
+    try {
+      const anonymousToken = localStorage.getItem('ctea_anonymous_token');
+      if (!anonymousToken) return;
+
+      const { data: updatedProgression, error } = await supabase
+        .from('user_progression')
+        .update({ tea_points: progression.tea_points + points, current_xp: progression.current_xp + points })
+        .eq('anonymous_token', anonymousToken)
+        .select('*')
+        .single();
+
+      if (error) throw error;
+
+      setProgression(updatedProgression);
+      checkLevelUp();
+    } catch (error) {
+      console.error('Error adding tea points:', error);
+    }
+  };
+
+  const checkLevelUp = async () => {
+    try {
+      const { data: levels } = await supabase
+        .from('user_levels')
+        .select('*')
+        .order('level', { ascending: true });
+
+      if (!levels || levels.length === 0) return;
+
+      let nextLevelData = levels.find(l => l.level === progression.current_level + 1);
+
+      if (nextLevelData && progression.current_xp >= nextLevelData.min_xp) {
+        // Level up!
+        const { data: leveledUpProgression, error } = await supabase
           .from('user_progression')
-          .update({ current_level: nextLevel.level })
-          .eq('anonymous_token', anonymousToken);
+          .update({ current_level: progression.current_level + 1 })
+          .eq('anonymous_token', localStorage.getItem('ctea_anonymous_token'))
+          .select('*')
+          .single();
 
-        setUserLevel(nextLevel);
-        setUserProgression(prev => prev ? { ...prev, current_level: nextLevel.level } : null);
+        if (error) throw error;
 
-        // Could trigger a notification or celebration here
-        console.log(`Level up! Now level ${nextLevel.level}: ${nextLevel.name}`);
+        setProgression(leveledUpProgression);
+
+        setCurrentLevel({
+          ...nextLevelData,
+          perks: (nextLevelData.perks as Record<string, unknown>) || {}
+        });
+
+        nextLevelData = levels.find(l => l.level === leveledUpProgression.current_level + 1);
+
+        if (nextLevelData) {
+          setNextLevel({
+            ...nextLevelData,
+            perks: (nextLevelData.perks as Record<string, unknown>) || {}
+          });
+        } else {
+          setNextLevel(null);
+        }
+
+        toast({
+          title: "Level Up! 🎉",
+          description: `You've reached level ${leveledUpProgression.current_level}!`,
+        });
       }
     } catch (error) {
       console.error('Error checking level up:', error);
     }
   };
 
-  const incrementPost = async () => {
-    try {
-      const anonymousToken = getAnonymousToken();
-      
-      await supabase
-        .from('user_progression')
-        .update({
-          total_posts: (userProgression?.total_posts || 0) + 1,
-          updated_at: new Date().toISOString()
-        })
-        .eq('anonymous_token', anonymousToken);
-
-      setUserProgression(prev => prev ? { ...prev, total_posts: prev.total_posts + 1 } : null);
-      
-      // Award points for posting
-      await awardPoints(10, 'Posted content');
-      
-    } catch (error) {
-      console.error('Error incrementing post count:', error);
-    }
-  };
-
-  const incrementReaction = async (type: 'given' | 'received') => {
-    try {
-      const anonymousToken = getAnonymousToken();
-      const field = type === 'given' ? 'total_reactions_given' : 'total_reactions_received';
-      
-      await supabase
-        .from('user_progression')
-        .update({
-          [field]: (userProgression?.[field] || 0) + 1,
-          updated_at: new Date().toISOString()
-        })
-        .eq('anonymous_token', anonymousToken);
-
-      setUserProgression(prev => prev ? { ...prev, [field]: prev[field] + 1 } : null);
-      
-      // Award points for reactions
-      const points = type === 'given' ? 2 : 5;
-      await awardPoints(points, type === 'given' ? 'Gave reaction' : 'Received reaction');
-      
-    } catch (error) {
-      console.error('Error incrementing reaction count:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchUserProgression();
-  }, []);
-
   return {
-    userProgression,
-    userLevel,
+    progression,
+    currentLevel,
+    nextLevel,
     isLoading,
-    awardPoints,
-    incrementPost,
     incrementReaction,
-    refreshProgression: fetchUserProgression
+    incrementPost,
+    addTeaPoints,
+    checkLevelUp
   };
 };

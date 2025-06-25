@@ -217,7 +217,7 @@ const TeaFeed = () => {
           .from('user_reactions')
           .insert({
             submission_id: submissionId,
-            anonymous_token,
+            anonymous_token: anonymousToken,
             reaction_type: reactionType
           });
       }
@@ -232,8 +232,8 @@ const TeaFeed = () => {
         return submission;
       }));
 
-      // Track user progression
-      incrementReaction(reactionType);
+      // Track user progression - use 'given' as the type
+      incrementReaction('given');
 
       toast({
         title: `Reaction Added! ${reactionType === 'hot' ? '🔥' : reactionType === 'cold' ? '❄️' : '🌶️'}`,
@@ -258,7 +258,7 @@ const TeaFeed = () => {
     ));
   };
 
-  const generateAICommentary = async (submission: TeaSubmission, type: 'spicy' | 'smart' | 'memy' | 'wise' = 'spicy') => {
+  const generateAICommentary = async (submission: TeaSubmission, type: 'spicy' | 'smart' | 'memy' | 'savage' = 'spicy') => {
     try {
       const response = await fetch('/api/generate-ai-commentary', {
         method: 'POST',
@@ -351,7 +351,7 @@ const TeaFeed = () => {
               submission={submission}
               onReaction={handleReaction}
               onBoostUpdated={handleBoostUpdated}
-              onGenerateAICommentary={generateAICommentary}
+              onGenerateAI={generateAICommentary}
               aiComments={aiComments[submission.id] || []}
               isExpanded={expandedSubmissions.has(submission.id)}
               onToggleComments={() => toggleComments(submission.id)}
@@ -412,7 +412,7 @@ const TeaFeed = () => {
           setShowReportModal(false);
           setReportingSubmission(null);
         }}
-        submissionId={reportingSubmission}
+        submissionId={reportingSubmission || ''}
       />
     </div>
   );

@@ -236,7 +236,6 @@ const TeaSubmissionCard = ({
         isOpen={showReportModal}
         onClose={() => setShowReportModal(false)}
         submissionId={submission.id}
-        submissionContent={submission.content}
       />
     </Card>
   );
