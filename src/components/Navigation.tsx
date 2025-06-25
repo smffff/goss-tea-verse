@@ -76,7 +76,7 @@ const Navigation = () => {
   }, [darkMode]);
 
   const handleLogoClick = () => {
-    navigate('/app');
+    navigate('/');
     setIsMenuOpen(false);
   };
 

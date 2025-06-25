@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Copy, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,7 @@ interface ModalProps {
   title: string;
   children?: React.ReactNode;
   showForm?: boolean;
+  showTipping?: boolean;
   onSubmit?: (data: { tea: string; email: string; wallet: string }) => void;
   submitButtonText?: string;
 }
@@ -21,6 +22,7 @@ const Modal: React.FC<ModalProps> = ({
   title,
   children,
   showForm = false,
+  showTipping = false,
   onSubmit,
   submitButtonText = "Submit"
 }) => {
@@ -29,6 +31,7 @@ const Modal: React.FC<ModalProps> = ({
     email: '',
     wallet: ''
   });
+  const [copiedAddress, setCopiedAddress] = React.useState<string | null>(null);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -67,6 +70,16 @@ const Modal: React.FC<ModalProps> = ({
       setFormData({ tea: '', email: '', wallet: '' });
     }
     onClose();
+  };
+
+  const copyToClipboard = async (text: string, type: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedAddress(type);
+      setTimeout(() => setCopiedAddress(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }
   };
 
   if (!isOpen) return null;
@@ -140,6 +153,105 @@ const Modal: React.FC<ModalProps> = ({
                   {submitButtonText}
                 </Button>
               </form>
+            ) : showTipping ? (
+              <div className="space-y-6">
+                <div className="text-center mb-6">
+                  <p className="text-gray-300 mb-4">
+                    Tip the gatekeepers to skip the queue and get instant VIP access.
+                  </p>
+                  <div className="bg-ctea-teal/10 border border-ctea-teal/30 rounded-lg p-4">
+                    <p className="text-ctea-teal text-sm font-medium">
+                      💡 Any amount gets you VIP status. Higher tips = more exclusive perks.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Wallet Addresses */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-white mb-4">Send Tips To:</h3>
+                  
+                  {/* ETH Address */}
+                  <div className="bg-ctea-dark/30 border border-ctea-teal/20 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-ctea-teal font-medium">Ethereum (ETH)</span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10"
+                        onClick={() => copyToClipboard("0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6", "ETH")}
+                      >
+                        Copy
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="bg-white p-2 rounded">
+                        <div className="w-16 h-16 bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+                          QR Code
+                        </div>
+                      </div>
+                      <code className="text-xs text-gray-300 bg-ctea-dark/50 p-2 rounded flex-1 break-all">
+                        0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6
+                      </code>
+                    </div>
+                  </div>
+
+                  {/* SOL Address */}
+                  <div className="bg-ctea-dark/30 border border-ctea-teal/20 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-ctea-teal font-medium">Solana (SOL)</span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10"
+                        onClick={() => copyToClipboard("9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM", "SOL")}
+                      >
+                        Copy
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="bg-white p-2 rounded">
+                        <div className="w-16 h-16 bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+                          QR Code
+                        </div>
+                      </div>
+                      <code className="text-xs text-gray-300 bg-ctea-dark/50 p-2 rounded flex-1 break-all">
+                        9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
+                      </code>
+                    </div>
+                  </div>
+
+                  {/* Phantom Handle */}
+                  <div className="bg-ctea-dark/30 border border-ctea-teal/20 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-ctea-teal font-medium">Phantom Handle</span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10"
+                        onClick={() => copyToClipboard("@ctea_newsroom", "Phantom")}
+                      >
+                        Copy
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="bg-white p-2 rounded">
+                        <div className="w-16 h-16 bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+                          QR Code
+                        </div>
+                      </div>
+                      <code className="text-xs text-gray-300 bg-ctea-dark/50 p-2 rounded flex-1">
+                        @ctea_newsroom
+                      </code>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-ctea-pink/10 border border-ctea-pink/30 rounded-lg p-4">
+                  <p className="text-ctea-pink text-sm">
+                    🚀 After sending, DM us your transaction hash on Twitter for instant VIP access!
+                  </p>
+                </div>
+              </div>
             ) : (
               children
             )}

@@ -91,7 +91,12 @@ const Footer = () => {
             
             {/* Footer Links */}
             <div className="flex flex-wrap justify-center gap-6 mb-8">
-              <a href="https://cteanews.com" className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-all duration-300 hover:scale-110 group">
+              <a 
+                href="https://cteanews.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-all duration-300 hover:scale-110 group hover:bg-purple-400/10 px-2 py-1 rounded"
+              >
                 <ExternalLink className="w-4 h-4 group-hover:animate-pulse" />
                 <span className="font-medium">cteanews.com</span>
               </a>
@@ -103,7 +108,7 @@ const Footer = () => {
                   href={link.href} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-all duration-300 hover:scale-110 group"
+                  className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-all duration-300 hover:scale-110 group hover:bg-purple-400/10 px-2 py-1 rounded"
                 >
                   {link.icon}
                   <span className="font-medium">{link.label}</span>
@@ -117,7 +122,7 @@ const Footer = () => {
                 <Link
                   key={index}
                   to={link.path}
-                  className="text-purple-400 hover:text-purple-300 transition-all duration-300 hover:scale-110 font-medium"
+                  className="text-purple-400 hover:text-purple-300 transition-all duration-300 hover:scale-110 font-medium hover:bg-purple-400/10 px-2 py-1 rounded"
                 >
                   {link.label}
                 </Link>

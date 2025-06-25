@@ -187,7 +187,7 @@ const Landing = () => {
             {/* Enhanced Value Proposition */}
             <div className="max-w-3xl mx-auto mb-12">
               <p className="text-lg sm:text-xl md:text-2xl text-gray-700 mb-6 font-medium">
-                CTea Newsroom is where Crypto Twitter's hottest gossip, alpha leaks, and meme-fueled market takes get dropped, tracked, and scored—anonymously and algorithmically spicy.
+                Beta access now open. Managed chaos, served hot.
               </p>
               <p className="text-base sm:text-lg text-gray-600">
                 Submit your story or tip the gatekeepers to join the beta.
@@ -202,9 +202,9 @@ const Landing = () => {
                     trackCTAClick('spill_tea_cta');
                     setShowSpillForm(true);
                   }}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold uppercase tracking-wide px-8 py-4 text-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group"
+                  className="uppercase font-semibold px-6 py-3 rounded-lg bg-accent hover:bg-accent2 transition-all shadow-md text-white w-full sm:w-auto"
                 >
-                  <Coffee className="w-5 h-5 mr-2 group-hover:animate-bounce" />
+                  <Coffee className="w-5 h-5 mr-2" />
                   Spill Tea for Beta Access
                 </Button>
                 <p className="text-sm text-gray-600 mt-2 max-w-xs">
@@ -220,10 +220,10 @@ const Landing = () => {
                         trackCTAClick('tip_gatekeepers_cta');
                       }}
                       variant="outline"
-                      className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white font-bold uppercase tracking-wide px-8 py-4 text-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group"
+                      className="uppercase font-semibold px-6 py-3 rounded-lg bg-accent hover:bg-accent2 transition-all shadow-md text-white w-full sm:w-auto"
                     >
-                      <Gift className="w-5 h-5 mr-2 group-hover:animate-pulse" />
-                      VIP Access
+                      <Gift className="w-5 h-5 mr-2" />
+                      Tip the Gatekeepers
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-md">
