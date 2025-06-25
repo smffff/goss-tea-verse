@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import Footer from '@/components/Footer';
+import Modal from '@/components/Modal';
 import { 
   Coffee, 
   TrendingUp, 
@@ -28,14 +27,24 @@ import {
 
 const Landing = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [showSpillForm, setShowSpillForm] = useState(false);
   const [showVipModal, setShowVipModal] = useState(false);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    tea: '',
-    email: '',
-    wallet: ''
-  });
+
+  // Check for ?ref= parameter on component mount
+  useEffect(() => {
+    const refParam = searchParams.get('ref');
+    if (refParam) {
+      // Automatically trigger the spill modal
+      setShowSpillForm(true);
+      // Clean up the URL without the ref parameter
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete('ref');
+      const newUrl = newSearchParams.toString() ? `?${newSearchParams.toString()}` : '';
+      navigate(`/${newUrl}`, { replace: true });
+    }
+  }, [searchParams, navigate]);
 
   // Mock data
   const leaderboardData = [
@@ -78,12 +87,9 @@ const Landing = () => {
     }
   };
 
-  const handleSpillSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSpillSubmit = (data: { tea: string; email: string; wallet: string }) => {
     // TODO: Implement submission logic
-    console.log('Tea spilled:', formData);
-    setShowSpillForm(false);
-    setFormData({ tea: '', email: '', wallet: '' });
+    console.log('Tea spilled:', data);
   };
 
   return (
@@ -161,106 +167,47 @@ const Landing = () => {
             
             {/* Enhanced CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-              <Dialog open={showSpillForm} onOpenChange={setShowSpillForm}>
-                <DialogTrigger asChild>
-                  <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold uppercase tracking-wide px-8 py-4 text-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group">
-                    <Coffee className="w-5 h-5 mr-2 group-hover:animate-bounce" />
-                    Spill Tea for Beta Access
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle className="text-center">Spill Your Tea ☕</DialogTitle>
-                  </DialogHeader>
-                  <form onSubmit={handleSpillSubmit} className="space-y-4">
-                    <div>
-                      <Label htmlFor="tea">Your Tea (Anonymous)</Label>
-                      <Textarea
-                        id="tea"
-                        placeholder="Share the hottest crypto gossip, alpha, or meme-fueled take..."
-                        value={formData.tea}
-                        onChange={(e) => setFormData({...formData, tea: e.target.value})}
-                        className="min-h-[100px]"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email (for beta access)</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="your@email.com"
-                        value={formData.email}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="wallet">Wallet Address (optional)</Label>
-                      <Input
-                        id="wallet"
-                        placeholder="0x..."
-                        value={formData.wallet}
-                        onChange={(e) => setFormData({...formData, wallet: e.target.value})}
-                      />
-                    </div>
-                    <Button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 font-bold uppercase tracking-wide">
-                      Submit & Get Beta Access
-                    </Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
-
+              <Button 
+                onClick={() => setShowSpillForm(true)}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold uppercase tracking-wide px-8 py-4 text-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group"
+              >
+                <Coffee className="w-5 h-5 mr-2 group-hover:animate-bounce" />
+                Spill Tea for Beta Access
+              </Button>
+              
               <Dialog open={showVipModal} onOpenChange={setShowVipModal}>
                 <DialogTrigger asChild>
-                  <Button 
-                    variant="outline"
-                    className="border-2 border-cyan-500 text-cyan-600 hover:bg-cyan-50 px-8 py-4 text-lg w-full sm:w-auto font-bold uppercase tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group"
-                  >
+                  <Button variant="outline" className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white font-bold uppercase tracking-wide px-8 py-4 text-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group">
                     <Crown className="w-5 h-5 mr-2 group-hover:animate-pulse" />
-                    Tip the Gatekeepers for VIP
+                    VIP Access
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
-                    <DialogTitle className="text-center">VIP Access - Skip the Line 👑</DialogTitle>
+                    <DialogTitle className="text-center">VIP Benefits</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
-                    <p className="text-sm text-gray-600 text-center">
-                      Support the newsroom and get instant VIP access with early features & recognition.
-                    </p>
-                    
-                    {/* QR Code Placeholder */}
-                    <div className="flex justify-center mb-4">
-                      <div className="w-32 h-32 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-                        <div className="text-center">
-                          <div className="w-16 h-16 bg-gray-200 rounded-lg mx-auto mb-2"></div>
-                          <p className="text-xs text-gray-500">QR Code</p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      {Object.entries(walletAddresses).map(([chain, address]) => (
-                        <div key={chain} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <div>
-                            <div className="font-medium text-sm">{chain}</div>
-                            <div className="text-xs text-gray-500 font-mono">{address}</div>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => copyToClipboard(address, chain)}
-                            className="ml-2"
-                          >
-                            {copiedAddress === chain ? (
-                              <CheckCircle className="w-4 h-4 text-green-600" />
-                            ) : (
-                              <Copy className="w-4 h-4" />
-                            )}
-                          </Button>
-                        </div>
-                      ))}
+                    <div className="text-center">
+                      <Crown className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+                      <h3 className="text-lg font-bold mb-2">Exclusive VIP Features</h3>
+                      <ul className="text-sm space-y-2 text-left">
+                        <li className="flex items-center gap-2">
+                          <Star className="w-4 h-4 text-yellow-500" />
+                          Early access to new features
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Star className="w-4 h-4 text-yellow-500" />
+                          Priority submission queue
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Star className="w-4 h-4 text-yellow-500" />
+                          Exclusive community access
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Star className="w-4 h-4 text-yellow-500" />
+                          Higher $TEA point multipliers
+                        </li>
+                      </ul>
                     </div>
                     <div className="text-center">
                       <Badge variant="secondary" className="bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800">
@@ -281,6 +228,16 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+      {/* Spill Tea Modal */}
+      <Modal
+        isOpen={showSpillForm}
+        onClose={() => setShowSpillForm(false)}
+        title="Spill Your Tea ☕"
+        showForm={true}
+        onSubmit={handleSpillSubmit}
+        submitButtonText="Spill Tea"
+      />
 
       {/* Leaderboard Preview */}
       <section className="py-16 bg-white">
@@ -400,64 +357,8 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Enhanced Footer */}
-      <footer className="py-16 bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto">
-            <div className="mb-8">
-              <div className="flex justify-center mb-6">
-                <div className="relative">
-                  <Coffee className="w-12 h-12 text-purple-400 animate-float" />
-                  <div className="absolute -top-1 -right-1">
-                    <Sparkles className="w-4 h-4 text-pink-400 animate-pulse" />
-                  </div>
-                </div>
-              </div>
-              <p className="text-lg text-gray-300 leading-relaxed mb-4">
-                Now accepting early users, contributors, and meme whisperers. 
-                Because Web3 doesn't need another whitepaper—it needs a gossip column.
-              </p>
-              <p className="text-sm text-gray-400 italic">
-                Spill responsibly, but spill often. 🫖
-              </p>
-            </div>
-            
-            {/* Get Started Button */}
-            <div className="mb-8">
-              <Button 
-                onClick={() => navigate('/app')}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold uppercase tracking-wide px-8 py-4 text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
-              >
-                <ArrowRight className="w-5 h-5 mr-2" />
-                Get Started - Enter the Newsroom
-              </Button>
-            </div>
-            
-            <div className="flex flex-wrap justify-center gap-6 mb-8">
-              <a href="#" className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-all duration-300 hover:scale-110 group">
-                <ExternalLink className="w-4 h-4 group-hover:animate-pulse" />
-                <span className="font-medium">cteanews.com</span>
-              </a>
-              <a href="#" className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-all duration-300 hover:scale-110 group">
-                <Twitter className="w-4 h-4 group-hover:animate-pulse" />
-                <span className="font-medium">Twitter</span>
-              </a>
-              <a href="#" className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-all duration-300 hover:scale-110 group">
-                <MessageCircle className="w-4 h-4 group-hover:animate-pulse" />
-                <span className="font-medium">Arena</span>
-              </a>
-              <a href="#" className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-all duration-300 hover:scale-110 group">
-                <Users className="w-4 h-4 group-hover:animate-pulse" />
-                <span className="font-medium">Discord</span>
-              </a>
-            </div>
-            
-            <div className="text-sm text-gray-500 border-t border-gray-700 pt-6">
-              © 2024 CTea Newsroom. Spill responsibly. 🫖
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

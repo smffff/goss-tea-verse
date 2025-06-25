@@ -265,7 +265,7 @@ const MemeRemixer: React.FC<MemeRemixerProps> = ({
                 <Card className="p-4 bg-ctea-dark/50 border-ctea-purple/30">
                   <img 
                     src={generatedMemeUrl} 
-                    alt="Generated meme" 
+                    alt="Generated meme from CTea Meme Remixer" 
                     className="w-full rounded-lg mb-3"
                   />
                   <div className="flex gap-2">

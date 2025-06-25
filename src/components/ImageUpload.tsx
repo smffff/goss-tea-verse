@@ -113,7 +113,7 @@ const ImageUpload = ({ onImageUploaded, onImageRemoved, currentImage }: ImageUpl
           <div className="relative">
             <img 
               src={currentImage} 
-              alt="Uploaded content" 
+              alt="Uploaded image for tea submission" 
               className="w-full max-h-64 object-cover rounded-lg"
             />
             <Button

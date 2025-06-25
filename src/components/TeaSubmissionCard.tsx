@@ -107,7 +107,7 @@ const TeaSubmissionCard = ({
               <img
                 key={index}
                 src={url}
-                alt={`Evidence ${index + 1}`}
+                alt={`Evidence image ${index + 1} for tea submission`}
                 className="w-full rounded-lg border border-ctea-teal/20"
               />
             ))}
