@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Coffee, TrendingUp, Users, Plus, Award } from 'lucide-react';
+import { Coffee, TrendingUp, Users, Plus, Award, Home } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useUserProgression } from '@/hooks/useUserProgression';
 
@@ -12,10 +11,10 @@ const MobileLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
   const navItems = [
     { path: '/feed', label: 'Feed', icon: TrendingUp },
-    { path: '/submit', label: 'Submit', icon: Plus },
-    { path: '/', label: 'Home', icon: Coffee },
-    { path: '/governance', label: 'Vote', icon: Users },
-    { path: '/token', label: 'Token', icon: Award },
+    { path: '/spill', label: 'Spill', icon: Plus },
+    { path: '/', label: 'Home', icon: Home },
+    { path: '/leaderboard', label: 'Top', icon: Award },
+    { path: '/about', label: 'About', icon: Users },
   ];
 
   const isActivePath = (path: string) => {
@@ -54,25 +53,25 @@ const MobileLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-ctea-dark/95 backdrop-blur-lg border-t border-ctea-teal/20 p-2">
+      <div className="fixed bottom-0 left-0 right-0 bg-ctea-dark/95 backdrop-blur-lg border-t border-ctea-teal/20 p-2 z-50">
         <div className="flex items-center justify-around">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = isActivePath(item.path);
             
             return (
-              <Link key={item.path} to={item.path}>
+              <Link key={item.path} to={item.path} aria-label={`Navigate to ${item.label}`}>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`flex flex-col items-center space-y-1 h-auto py-2 px-3 ${
+                  className={`flex flex-col items-center space-y-1 h-auto py-2 px-3 transition-all duration-200 ${
                     isActive 
-                      ? 'text-ctea-teal bg-ctea-teal/10' 
-                      : 'text-gray-400 hover:text-white'
+                      ? 'text-ctea-teal bg-ctea-teal/10 scale-110' 
+                      : 'text-gray-400 hover:text-white hover:scale-105'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
-                  <span className="text-xs">{item.label}</span>
+                  <span className="text-xs font-medium">{item.label}</span>
                 </Button>
               </Link>
             );
