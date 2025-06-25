@@ -19,9 +19,9 @@ const Feed = () => {
   const [showTippingModal, setShowTippingModal] = useState(false);
   
   const stats = [
-    { label: 'Hot Takes Today', value: '1,247', icon: TrendingUp, color: 'text-ctea-teal' },
-    { label: 'Active Users', value: '2,420', icon: Users, color: 'text-ctea-purple' },
-    { label: 'Viral Posts', value: '69', icon: Zap, color: 'text-ctea-yellow' }
+    { label: 'Hot Takes Today', value: '1,247', icon: TrendingUp, color: 'text-[#00d1c1]' },
+    { label: 'Active Users', value: '2,420', icon: Users, color: 'text-[#9b59b6]' },
+    { label: 'Viral Posts', value: '69', icon: Zap, color: 'text-[#f1c40f]' }
   ];
 
   const handleSpillTea = async (data: { tea: string; email: string; wallet: string }) => {
@@ -63,7 +63,7 @@ const Feed = () => {
             {/* Live Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-lg mx-auto mb-8">
               {stats.map(({ label, value, icon: Icon, color }) => (
-                <Card key={label} className="bg-ctea-darker/50 border-ctea-teal/30 text-center p-4">
+                <Card key={label} className="bg-ctea-darker/50 border-[#00d1c1]/30 text-center p-4">
                   <Icon className={`w-6 h-6 mx-auto mb-2 ${color}`} />
                   <div className={`text-xl font-bold ${color}`}>{value}</div>
                   <div className="text-sm text-gray-400">{label}</div>
@@ -73,7 +73,7 @@ const Feed = () => {
           </div>
 
           {/* CTA for new users */}
-          <Card className="bg-gradient-to-br from-ctea-pink/20 to-ctea-purple/20 border-ctea-pink/30 mb-8">
+          <Card className="bg-gradient-to-br from-[#ff61a6]/20 to-[#9b59b6]/20 border-[#ff61a6]/30 mb-8">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6">
               <div className="text-center sm:text-left">
                 <h3 className="text-xl font-bold text-white mb-2">Got Some Tea to Spill? ☕</h3>
@@ -81,7 +81,7 @@ const Feed = () => {
               </div>
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                 <Button 
-                  className="bg-gradient-ctea text-white font-bold w-full sm:w-auto py-3 px-6 text-base hover:scale-105 transition-transform duration-200"
+                  className="bg-gradient-to-r from-[#00d1c1] to-[#ff61a6] text-white font-bold w-full sm:w-auto py-3 px-6 text-base hover:scale-105 transition-transform duration-200"
                   onClick={() => setShowSpillModal(true)}
                   data-cta="spill-tea"
                 >
@@ -90,7 +90,7 @@ const Feed = () => {
                 </Button>
                 <Button 
                   variant="outline"
-                  className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10 w-full sm:w-auto py-3 px-6 text-base hover:scale-105 transition-transform duration-200"
+                  className="border-[#00d1c1] text-[#00d1c1] hover:bg-[#00d1c1]/10 w-full sm:w-auto py-3 px-6 text-base hover:scale-105 transition-transform duration-200"
                   onClick={() => setShowTippingModal(true)}
                   data-cta="tip-gatekeepers"
                 >
@@ -109,16 +109,16 @@ const Feed = () => {
           {/* Quick Filters */}
           <div className="mb-8">
             <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
-              <Badge className="bg-ctea-teal/20 text-ctea-teal border border-ctea-teal/30 cursor-pointer hover:bg-ctea-teal/30 transition-colors duration-200">
+              <Badge className="bg-[#00d1c1]/20 text-[#00d1c1] border border-[#00d1c1]/30 cursor-pointer hover:bg-[#00d1c1]/30 transition-colors duration-200">
                 🔥 All Hot Takes
               </Badge>
-              <Badge className="bg-ctea-dark/50 text-gray-300 border border-ctea-teal/20 cursor-pointer hover:bg-ctea-dark/70 transition-colors duration-200">
+              <Badge className="bg-ctea-dark/50 text-gray-300 border border-[#00d1c1]/20 cursor-pointer hover:bg-ctea-dark/70 transition-colors duration-200">
                 🌶️ Spicy Drama
               </Badge>
-              <Badge className="bg-ctea-dark/50 text-gray-300 border border-ctea-teal/20 cursor-pointer hover:bg-ctea-dark/70 transition-colors duration-200">
+              <Badge className="bg-ctea-dark/50 text-gray-300 border border-[#00d1c1]/20 cursor-pointer hover:bg-ctea-dark/70 transition-colors duration-200">
                 📈 Trending
               </Badge>
-              <Badge className="bg-ctea-dark/50 text-gray-300 border border-ctea-teal/20 cursor-pointer hover:bg-ctea-dark/70 transition-colors duration-200">
+              <Badge className="bg-ctea-dark/50 text-gray-300 border border-[#00d1c1]/20 cursor-pointer hover:bg-ctea-dark/70 transition-colors duration-200">
                 ⚡ Latest
               </Badge>
             </div>
@@ -152,43 +152,43 @@ const Feed = () => {
               />
 
               {/* Trending Topics */}
-              <Card className="bg-ctea-dark/30 border border-ctea-teal/20">
+              <Card className="bg-ctea-dark/30 border border-[#00d1c1]/20">
                 <div className="p-6">
                   <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-ctea-teal" />
+                    <TrendingUp className="w-5 h-5 text-[#00d1c1]" />
                     Trending Topics
                   </h3>
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 bg-ctea-dark/20 border border-ctea-teal/10 rounded-lg">
+                    <div className="flex items-center justify-between p-3 bg-ctea-dark/20 border border-[#00d1c1]/10 rounded-lg">
                       <span className="text-white font-medium text-sm">#SolanaSzn</span>
-                      <Badge className="bg-ctea-pink text-white text-xs">🔥 Hot</Badge>
+                      <Badge className="bg-[#ff61a6] text-white text-xs">🔥 Hot</Badge>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-ctea-dark/20 border border-ctea-teal/10 rounded-lg">
+                    <div className="flex items-center justify-between p-3 bg-ctea-dark/20 border border-[#00d1c1]/10 rounded-lg">
                       <span className="text-white font-medium text-sm">#EthereumETF</span>
-                      <Badge className="bg-ctea-yellow text-ctea-dark text-xs">📈 Rising</Badge>
+                      <Badge className="bg-[#f1c40f] text-ctea-dark text-xs">📈 Rising</Badge>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-ctea-dark/20 border border-ctea-teal/10 rounded-lg">
+                    <div className="flex items-center justify-between p-3 bg-ctea-dark/20 border border-[#00d1c1]/10 rounded-lg">
                       <span className="text-white font-medium text-sm">#MemeCoins</span>
-                      <Badge className="bg-ctea-purple text-white text-xs">💎 Viral</Badge>
+                      <Badge className="bg-[#9b59b6] text-white text-xs">💎 Viral</Badge>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-ctea-dark/20 border border-ctea-teal/10 rounded-lg">
+                    <div className="flex items-center justify-between p-3 bg-ctea-dark/20 border border-[#00d1c1]/10 rounded-lg">
                       <span className="text-white font-medium text-sm">#DeFiSummer</span>
-                      <Badge className="bg-ctea-orange text-white text-xs">🚀 New</Badge>
+                      <Badge className="bg-[#ff6b35] text-white text-xs">🚀 New</Badge>
                     </div>
                   </div>
                 </div>
               </Card>
 
               {/* Quick Actions */}
-              <Card className="bg-gradient-to-br from-ctea-purple/20 to-ctea-pink/20 border-ctea-purple/30">
+              <Card className="bg-gradient-to-br from-[#9b59b6]/20 to-[#ff61a6]/20 border-[#9b59b6]/30">
                 <div className="p-6">
                   <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-ctea-yellow" />
+                    <Zap className="w-5 h-5 text-[#f1c40f]" />
                     Quick Actions
                   </h3>
                   <div className="space-y-3">
                     <Button 
-                      className="w-full bg-gradient-ctea text-white font-bold py-3 hover:scale-105 transition-transform duration-200"
+                      className="w-full bg-gradient-to-r from-[#00d1c1] to-[#ff61a6] text-white font-bold py-3 hover:scale-105 transition-transform duration-200"
                       onClick={() => setShowSpillModal(true)}
                       data-cta="spill-tea-sidebar"
                     >
@@ -197,7 +197,7 @@ const Feed = () => {
                     </Button>
                     <Button 
                       variant="outline"
-                      className="w-full border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10 py-3 hover:scale-105 transition-transform duration-200"
+                      className="w-full border-[#00d1c1] text-[#00d1c1] hover:bg-[#00d1c1]/10 py-3 hover:scale-105 transition-transform duration-200"
                       onClick={() => setShowTippingModal(true)}
                       data-cta="tip-gatekeepers-sidebar"
                     >
@@ -209,10 +209,10 @@ const Feed = () => {
               </Card>
 
               {/* Community Stats */}
-              <Card className="bg-ctea-dark/30 border border-ctea-teal/20">
+              <Card className="bg-ctea-dark/30 border border-[#00d1c1]/20">
                 <div className="p-6">
                   <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                    <Users className="w-5 h-5 text-ctea-pink" />
+                    <Users className="w-5 h-5 text-[#ff61a6]" />
                     Community Stats
                   </h3>
                   <div className="space-y-3">
@@ -226,11 +226,11 @@ const Feed = () => {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-300 text-sm">$TEA Distributed</span>
-                      <span className="text-ctea-yellow font-bold">420K</span>
+                      <span className="text-[#f1c40f] font-bold">420K</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-300 text-sm">Viral Posts</span>
-                      <span className="text-ctea-pink font-bold">69</span>
+                      <span className="text-[#ff61a6] font-bold">69</span>
                     </div>
                   </div>
                 </div>

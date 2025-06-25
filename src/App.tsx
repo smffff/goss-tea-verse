@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { WalletProvider } from "./components/WalletProvider";
@@ -55,8 +54,8 @@ const App = () => (
       
       {/* Additional Meta Tags */}
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-      <meta name="theme-color" content="#6366f1" />
-      <meta name="msapplication-TileColor" content="#6366f1" />
+      <meta name="theme-color" content="#00d1c1" />
+      <meta name="msapplication-TileColor" content="#00d1c1" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       <meta name="apple-mobile-web-app-title" content="CTea Newsroom" />
@@ -148,6 +147,13 @@ const App = () => (
               </Layout>
             </MobileLayout>
           } />
+          <Route path="/leaderboard" element={
+            <MobileLayout>
+              <Layout>
+                <Campaigns />
+              </Layout>
+            </MobileLayout>
+          } />
           <Route path="/features" element={
             <MobileLayout>
               <Layout>
@@ -207,7 +213,7 @@ const App = () => (
             </MobileLayout>
           } />
           
-          {/* 404 page */}
+          {/* 404 page - no Layout wrapper */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

@@ -17,7 +17,7 @@ const Navigation = () => {
   const navigationItems = [
     { path: '/', label: 'Home', icon: <Home className="w-4 h-4" /> },
     { path: '/feed', label: 'Feed', icon: <TrendingUp className="w-4 h-4" /> },
-    { path: '/campaigns', label: 'Leaderboard', icon: <Trophy className="w-4 h-4" /> },
+    { path: '/leaderboard', label: 'Leaderboard', icon: <Trophy className="w-4 h-4" /> },
     { path: '/submit', label: 'Submit', icon: <Plus className="w-4 h-4" /> },
     { path: '/about', label: 'About', icon: <Sparkles className="w-4 h-4" /> }
   ];
@@ -29,7 +29,12 @@ const Navigation = () => {
     return true;
   });
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    if (path === '/') {
+      return location.pathname === '/';
+    }
+    return location.pathname.startsWith(path);
+  };
 
   // Handle scroll effect for sticky behavior
   useEffect(() => {
@@ -74,19 +79,29 @@ const Navigation = () => {
     setIsMenuOpen(false);
   };
 
+  const handleMobileMenuToggle = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      setIsMenuOpen(false);
+    }
+  };
+
   return (
     <>
       {/* Sticky Header */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
-          ? 'bg-white/95 dark:bg-ctea-darker/95 backdrop-blur-md border-b border-accent/30 dark:border-ctea-teal/30' 
+          ? 'bg-white/95 dark:bg-ctea-darker/95 backdrop-blur-md border-b border-[#00d1c1]/30 dark:border-[#00d1c1]/30' 
           : 'bg-transparent'
       }`}>
         <div className="container mx-auto px-4 md:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20">
             {/* Logo and Brand - Left */}
             <div 
-              className="flex items-center gap-2 sm:gap-4 cursor-pointer transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg p-1" 
+              className="flex items-center gap-2 sm:gap-4 cursor-pointer transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#00d1c1]/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg p-1" 
               onClick={handleLogoClick}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -107,7 +122,7 @@ const Navigation = () => {
                 <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white animate-glow font-montserrat">
                   CTea Newsroom
                 </h1>
-                <p className="text-xs text-accent dark:text-ctea-teal font-montserrat">
+                <p className="text-xs text-[#00d1c1] dark:text-[#00d1c1] font-montserrat">
                   Beta • Managed Chaos, Served Hot
                 </p>
               </div>
@@ -124,10 +139,10 @@ const Navigation = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 uppercase font-semibold focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 uppercase font-semibold focus:outline-none focus:ring-2 focus:ring-[#00d1c1]/50 focus:ring-offset-2 focus:ring-offset-transparent ${
                     isActive(item.path)
-                      ? 'bg-accent/20 text-accent dark:bg-ctea-teal/20 dark:text-ctea-teal border border-accent/30 dark:border-ctea-teal/30 shadow-lg'
-                      : 'text-gray-600 dark:text-gray-300 hover:text-accent dark:hover:text-white hover:bg-accent/10 dark:hover:bg-ctea-dark/50 hover:shadow-md active:scale-95'
+                      ? 'bg-[#00d1c1]/20 text-[#00d1c1] dark:bg-[#00d1c1]/20 dark:text-[#00d1c1] border border-[#00d1c1]/30 dark:border-[#00d1c1]/30 shadow-lg'
+                      : 'text-gray-600 dark:text-gray-300 hover:text-[#00d1c1] dark:hover:text-white hover:bg-[#00d1c1]/10 dark:hover:bg-ctea-dark/50 hover:shadow-md active:scale-95'
                   }`}
                 >
                   {item.icon}
@@ -140,7 +155,7 @@ const Navigation = () => {
             <div className="hidden lg:flex items-center gap-4">
               {userProgression && (
                 <div className="flex items-center gap-2">
-                  <Badge className="bg-accent2 text-white font-bold">
+                  <Badge className="bg-[#ff61a6] text-white font-bold">
                     {userProgression.tea_points} $TEA
                   </Badge>
                   <UserStats />
@@ -155,7 +170,7 @@ const Navigation = () => {
                 <Switch
                   checked={darkMode}
                   onCheckedChange={setDarkMode}
-                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-accent data-[state=checked]:to-accent2 border-accent focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent"
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-[#00d1c1] data-[state=checked]:to-[#ff61a6] border-[#00d1c1] focus:ring-2 focus:ring-[#00d1c1]/50 focus:ring-offset-2 focus:ring-offset-transparent"
                 />
                 <span className="text-xs text-gray-400 hidden sm:inline flex items-center gap-1">
                   {darkMode ? <Moon className="w-3 h-3" /> : <Sun className="w-3 h-3" />}
@@ -167,8 +182,8 @@ const Navigation = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="lg:hidden text-gray-900 dark:text-white hover:bg-accent/10 dark:hover:bg-ctea-dark/50 p-2 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95 transition-transform duration-150"
+                onClick={handleMobileMenuToggle}
+                className="lg:hidden text-gray-900 dark:text-white hover:bg-[#00d1c1]/10 dark:hover:bg-ctea-dark/50 p-2 focus:outline-none focus:ring-2 focus:ring-[#00d1c1]/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95 transition-transform duration-150"
                 aria-label="Toggle mobile menu"
                 aria-expanded={isMenuOpen}
                 aria-controls="mobile-menu"
@@ -186,13 +201,14 @@ const Navigation = () => {
           {/* Backdrop */}
           <div 
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setIsMenuOpen(false)}
+            onClick={handleBackdropClick}
+            aria-hidden="true"
           />
           
           {/* Mobile Menu Panel */}
           <div 
             id="mobile-menu"
-            className="absolute top-16 left-0 right-0 bg-white/95 dark:bg-ctea-darker/95 backdrop-blur-md border-b border-accent/30 dark:border-ctea-teal/30 animate-slide-down"
+            className="absolute top-16 left-0 right-0 bg-white/95 dark:bg-ctea-darker/95 backdrop-blur-md border-b border-[#00d1c1]/30 dark:border-[#00d1c1]/30 animate-slide-down"
             role="dialog"
             aria-modal="true"
             aria-label="Mobile navigation menu"
@@ -204,10 +220,10 @@ const Navigation = () => {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 font-semibold focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent ${
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 font-semibold focus:outline-none focus:ring-2 focus:ring-[#00d1c1]/50 focus:ring-offset-2 focus:ring-offset-transparent ${
                       isActive(item.path)
-                        ? 'bg-accent/20 text-accent dark:bg-ctea-teal/20 dark:text-ctea-teal border border-accent/30 dark:border-ctea-teal/30'
-                        : 'text-gray-600 dark:text-gray-300 hover:text-accent dark:hover:text-white hover:bg-accent/10 dark:hover:bg-ctea-dark/50'
+                        ? 'bg-[#00d1c1]/20 text-[#00d1c1] dark:bg-[#00d1c1]/20 dark:text-[#00d1c1] border border-[#00d1c1]/30 dark:border-[#00d1c1]/30'
+                        : 'text-gray-600 dark:text-gray-300 hover:text-[#00d1c1] dark:hover:text-white hover:bg-[#00d1c1]/10 dark:hover:bg-ctea-dark/50'
                     }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -219,10 +235,10 @@ const Navigation = () => {
 
               {/* Mobile User Stats */}
               {userProgression && (
-                <div className="mt-6 pt-6 border-t border-accent/20 dark:border-ctea-teal/20">
+                <div className="mt-6 pt-6 border-t border-[#00d1c1]/20 dark:border-[#00d1c1]/20">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Badge className="bg-accent2 text-white font-bold">
+                      <Badge className="bg-[#ff61a6] text-white font-bold">
                         {userProgression.tea_points} $TEA
                       </Badge>
                     </div>
@@ -232,10 +248,10 @@ const Navigation = () => {
               )}
 
               {/* Mobile Quick Actions */}
-              <div className="mt-6 pt-6 border-t border-accent/20 dark:border-ctea-teal/20">
+              <div className="mt-6 pt-6 border-t border-[#00d1c1]/20 dark:border-[#00d1c1]/20">
                 <div className="grid grid-cols-2 gap-3">
                   <Button 
-                    className="bg-gradient-to-r from-accent to-accent2 text-white font-bold py-3"
+                    className="bg-gradient-to-r from-[#00d1c1] to-[#ff61a6] text-white font-bold py-3 hover:scale-105 transition-transform duration-200"
                     onClick={() => {
                       setIsMenuOpen(false);
                       navigate('/submit');
@@ -246,10 +262,10 @@ const Navigation = () => {
                   </Button>
                   <Button 
                     variant="outline"
-                    className="border-accent text-accent hover:bg-accent/10 py-3"
+                    className="border-[#00d1c1] text-[#00d1c1] hover:bg-[#00d1c1]/10 py-3 hover:scale-105 transition-transform duration-200"
                     onClick={() => {
                       setIsMenuOpen(false);
-                      navigate('/campaigns');
+                      navigate('/leaderboard');
                     }}
                   >
                     <Trophy className="w-4 h-4 mr-2" />

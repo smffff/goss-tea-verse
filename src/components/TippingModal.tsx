@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Copy, CheckCircle, ExternalLink, QrCode } from 'lucide-react';
+import { X, Copy, CheckCircle, ExternalLink, QrCode, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -74,6 +74,12 @@ const TippingModal: React.FC<TippingModalProps> = ({ isOpen, onClose }) => {
     return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(text)}`;
   };
 
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -81,23 +87,38 @@ const TippingModal: React.FC<TippingModalProps> = ({ isOpen, onClose }) => {
       {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-        onClick={onClose}
+        onClick={handleBackdropClick}
+        aria-hidden="true"
       />
       
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-ctea-dark/95 backdrop-blur-md border border-ctea-teal/30 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div 
+          className="bg-ctea-dark/95 backdrop-blur-md border border-[#00d1c1]/30 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="tipping-modal-title"
+          aria-describedby="tipping-modal-description"
+        >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-ctea-teal/20">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <QrCode className="w-5 h-5 text-accent" />
-              Tip the Gatekeepers
-            </h2>
+          <div className="flex items-center justify-between p-6 border-b border-[#00d1c1]/20">
+            <div className="flex items-center gap-3">
+              <Gift className="w-6 h-6 text-[#ff61a6]" />
+              <div>
+                <h2 id="tipping-modal-title" className="text-xl font-bold text-white">
+                  Tip the Gatekeepers
+                </h2>
+                <p id="tipping-modal-description" className="text-sm text-gray-400">
+                  Skip the queue with VIP access
+                </p>
+              </div>
+            </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
               className="text-gray-400 hover:text-white hover:bg-ctea-dark/50"
+              aria-label="Close tipping modal"
             >
               <X className="w-5 h-5" />
             </Button>
@@ -109,8 +130,8 @@ const TippingModal: React.FC<TippingModalProps> = ({ isOpen, onClose }) => {
               <p className="text-gray-300 mb-4">
                 Tip the gatekeepers to skip the queue and get instant VIP access.
               </p>
-              <div className="bg-ctea-teal/10 border border-ctea-teal/30 rounded-lg p-4">
-                <p className="text-ctea-teal text-sm font-medium">
+              <div className="bg-[#00d1c1]/10 border border-[#00d1c1]/30 rounded-lg p-4">
+                <p className="text-[#00d1c1] text-sm font-medium">
                   💡 Any amount gets you VIP status. Higher tips = more exclusive perks.
                 </p>
               </div>
@@ -121,14 +142,14 @@ const TippingModal: React.FC<TippingModalProps> = ({ isOpen, onClose }) => {
               <h3 className="text-lg font-bold text-white mb-4">Send Tips To:</h3>
               
               {/* ETH Address */}
-              <Card className="bg-ctea-dark/30 border border-ctea-teal/20">
+              <Card className="bg-ctea-dark/30 border border-[#00d1c1]/20">
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-ctea-teal font-medium">Ethereum (ETH)</span>
+                    <span className="text-[#00d1c1] font-medium">Ethereum (ETH)</span>
                     <Button
                       size="sm"
                       variant="outline"
-                      className="text-xs border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10 transition-colors duration-200"
+                      className="text-xs border-[#00d1c1] text-[#00d1c1] hover:bg-[#00d1c1]/10 transition-colors duration-200"
                       onClick={() => copyToClipboard(walletAddresses.ETH, "ETH")}
                     >
                       {copiedAddress === "ETH" ? (
@@ -160,14 +181,14 @@ const TippingModal: React.FC<TippingModalProps> = ({ isOpen, onClose }) => {
               </Card>
 
               {/* SOL Address */}
-              <Card className="bg-ctea-dark/30 border border-ctea-teal/20">
+              <Card className="bg-ctea-dark/30 border border-[#00d1c1]/20">
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-ctea-teal font-medium">Solana (SOL)</span>
+                    <span className="text-[#00d1c1] font-medium">Solana (SOL)</span>
                     <Button
                       size="sm"
                       variant="outline"
-                      className="text-xs border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10 transition-colors duration-200"
+                      className="text-xs border-[#00d1c1] text-[#00d1c1] hover:bg-[#00d1c1]/10 transition-colors duration-200"
                       onClick={() => copyToClipboard(walletAddresses.SOL, "SOL")}
                     >
                       {copiedAddress === "SOL" ? (
@@ -199,14 +220,14 @@ const TippingModal: React.FC<TippingModalProps> = ({ isOpen, onClose }) => {
               </Card>
 
               {/* BTC Address */}
-              <Card className="bg-ctea-dark/30 border border-ctea-teal/20">
+              <Card className="bg-ctea-dark/30 border border-[#00d1c1]/20">
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-ctea-teal font-medium">Bitcoin (BTC)</span>
+                    <span className="text-[#00d1c1] font-medium">Bitcoin (BTC)</span>
                     <Button
                       size="sm"
                       variant="outline"
-                      className="text-xs border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10 transition-colors duration-200"
+                      className="text-xs border-[#00d1c1] text-[#00d1c1] hover:bg-[#00d1c1]/10 transition-colors duration-200"
                       onClick={() => copyToClipboard(walletAddresses.BTC, "BTC")}
                     >
                       {copiedAddress === "BTC" ? (
@@ -238,14 +259,14 @@ const TippingModal: React.FC<TippingModalProps> = ({ isOpen, onClose }) => {
               </Card>
 
               {/* Phantom Handle */}
-              <Card className="bg-ctea-dark/30 border border-ctea-teal/20">
+              <Card className="bg-ctea-dark/30 border border-[#00d1c1]/20">
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-ctea-teal font-medium">Phantom Handle</span>
+                    <span className="text-[#00d1c1] font-medium">Phantom Handle</span>
                     <Button
                       size="sm"
                       variant="outline"
-                      className="text-xs border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10 transition-colors duration-200"
+                      className="text-xs border-[#00d1c1] text-[#00d1c1] hover:bg-[#00d1c1]/10 transition-colors duration-200"
                       onClick={() => copyToClipboard(walletAddresses.Phantom, "Phantom")}
                     >
                       {copiedAddress === "Phantom" ? (
@@ -263,9 +284,7 @@ const TippingModal: React.FC<TippingModalProps> = ({ isOpen, onClose }) => {
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="bg-white p-2 rounded">
-                      <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs">
-                        PH
-                      </div>
+                      <QrCode className="w-16 h-16 text-gray-400" />
                     </div>
                     <code className="text-xs text-gray-300 bg-ctea-dark/50 p-2 rounded flex-1 break-all">
                       {walletAddresses.Phantom}
@@ -276,32 +295,24 @@ const TippingModal: React.FC<TippingModalProps> = ({ isOpen, onClose }) => {
             </div>
 
             {/* Instructions */}
-            <div className="mt-6 p-4 bg-gradient-to-r from-accent/10 to-accent2/10 border border-accent/20 rounded-lg">
-              <h4 className="text-white font-semibold mb-2">How to get VIP access:</h4>
+            <div className="bg-[#f1c40f]/10 border border-[#f1c40f]/30 rounded-lg p-4 mt-6">
+              <h4 className="text-[#f1c40f] font-bold mb-2">After Sending:</h4>
               <ol className="text-sm text-gray-300 space-y-1">
-                <li>1. Send any amount to one of the addresses above</li>
-                <li>2. Take a screenshot of your transaction</li>
-                <li>3. DM us on Twitter with the screenshot</li>
-                <li>4. Get instant VIP access to exclusive features!</li>
+                <li>1. Copy your transaction hash</li>
+                <li>2. Email it to <span className="text-[#00d1c1]">tips@ctea.news</span></li>
+                <li>3. Get instant VIP access within 24 hours</li>
               </ol>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 mt-6">
-              <Button
-                onClick={() => window.open('https://twitter.com/ctea_newsroom', '_blank')}
-                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 transition-colors duration-200"
-              >
-                <ExternalLink className="w-4 h-4 mr-2" />
-                DM on Twitter
-              </Button>
-              <Button
-                variant="outline"
-                onClick={onClose}
-                className="flex-1 border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10 py-3 transition-colors duration-200"
-              >
-                Close
-              </Button>
+            {/* VIP Benefits */}
+            <div className="bg-[#ff61a6]/10 border border-[#ff61a6]/30 rounded-lg p-4 mt-4">
+              <h4 className="text-[#ff61a6] font-bold mb-2">VIP Benefits:</h4>
+              <ul className="text-sm text-gray-300 space-y-1">
+                <li>• Priority access to new features</li>
+                <li>• Exclusive community channels</li>
+                <li>• Early access to alpha drops</li>
+                <li>• Custom profile badges</li>
+              </ul>
             </div>
           </div>
         </div>

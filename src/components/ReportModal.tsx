@@ -1,26 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { X, AlertTriangle, Flag, Send, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { 
-  Flag, 
-  AlertTriangle, 
-  Shield, 
-  CheckCircle, 
-  X,
-  MessageSquare,
-  Eye,
-  Heart,
-  Zap,
-  Users,
-  AlertCircle
-} from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
-import { trackFeedbackSubmission } from '@/lib/analytics';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -28,26 +12,24 @@ interface ReportModalProps {
   submissionId: string | null;
 }
 
-interface ReportData {
-  category: string;
-  reason: string;
-  details: string;
-  severity: 'low' | 'medium' | 'high';
-}
-
-const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, submissionId }) => {
-  const [reportReason, setReportReason] = useState('');
-  const [reportComment, setReportComment] = useState('');
+const ReportModal: React.FC<ReportModalProps> = ({
+  isOpen,
+  onClose,
+  submissionId
+}) => {
+  const [reportReason, setReportReason] = useState<string>('');
+  const [reportDetails, setReportDetails] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
   const { toast } = useToast();
 
   const reportReasons = [
-    { value: 'spam', label: 'Spam or misleading content', icon: '🚫' },
-    { value: 'harassment', label: 'Harassment or bullying', icon: '⚠️' },
-    { value: 'fake_news', label: 'Fake news or misinformation', icon: '📰' },
-    { value: 'personal_info', label: 'Personal information exposure', icon: '🔒' },
-    { value: 'illegal', label: 'Illegal content or activities', icon: '⚖️' },
-    { value: 'other', label: 'Other (please specify)', icon: '❓' }
+    { value: 'spam', label: 'Spam or Misleading Content', description: 'Promotional content, fake news, or misleading information' },
+    { value: 'harassment', label: 'Harassment or Abuse', description: 'Bullying, threats, or targeted harassment' },
+    { value: 'inappropriate', label: 'Inappropriate Content', description: 'NSFW content, violence, or graphic material' },
+    { value: 'fake', label: 'Fake Information', description: 'False claims, fabricated evidence, or misinformation' },
+    { value: 'duplicate', label: 'Duplicate Content', description: 'Already posted or reposted content' },
+    { value: 'other', label: 'Other', description: 'Other violations not listed above' }
   ];
 
   // Prevent body scroll when modal is open
@@ -80,34 +62,49 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, submissionId
     };
   }, [isOpen, onClose]);
 
+  // Reset form when modal opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      setReportReason('');
+      setReportDetails('');
+      setValidationErrors({});
+    }
+  }, [isOpen]);
+
+  const validateForm = () => {
+    const errors: {[key: string]: string} = {};
+    
+    if (!reportReason) {
+      errors.reason = 'Please select a reason for reporting';
+    }
+    
+    if (!reportDetails.trim()) {
+      errors.details = 'Please provide details about the issue';
+    } else if (reportDetails.trim().length < 10) {
+      errors.details = 'Please provide at least 10 characters of detail';
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!reportReason) {
-      toast({
-        title: "Reason Required",
-        description: "Please select a reason for reporting this content.",
-        variant: "destructive"
-      });
+    if (!validateForm()) {
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // Track report submission
-      trackFeedbackSubmission();
-
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
       toast({
-        title: "Report Submitted! 🚨",
-        description: "Thank you for helping keep our community safe. We'll review this content.",
+        title: "Report Submitted! 🚩",
+        description: "Thank you for helping keep CTea Newsroom safe. We'll review your report within 24 hours.",
       });
-
-      // Reset form
-      setReportReason('');
-      setReportComment('');
+      
       onClose();
     } catch (error) {
       toast({
@@ -128,22 +125,39 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, submissionId
       <div 
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
         onClick={onClose}
+        aria-hidden="true"
       />
       
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-ctea-dark/95 backdrop-blur-md border border-red-400/30 rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div 
+          className="bg-ctea-dark/95 backdrop-blur-md border border-[#00d1c1]/30 rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="report-modal-title"
+          aria-describedby="report-modal-description"
+        >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-red-400/20">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Flag className="w-5 h-5 text-red-400" />
-              Report Content
-            </h2>
+          <div className="flex items-center justify-between p-6 border-b border-[#00d1c1]/20">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-red-500/20 rounded-lg">
+                <Flag className="w-5 h-5 text-red-400" />
+              </div>
+              <div>
+                <h2 id="report-modal-title" className="text-xl font-bold text-white">
+                  Report Content
+                </h2>
+                <p id="report-modal-description" className="text-sm text-gray-400">
+                  Help us maintain a safe community
+                </p>
+              </div>
+            </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
               className="text-gray-400 hover:text-white hover:bg-ctea-dark/50"
+              aria-label="Close report modal"
             >
               <X className="w-5 h-5" />
             </Button>
@@ -151,84 +165,113 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, submissionId
 
           {/* Content */}
           <div className="p-6">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Warning */}
-              <div className="bg-red-400/10 border border-red-400/30 rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <AlertTriangle className="w-4 h-4 text-red-400" />
-                  <span className="text-red-400 font-medium">Report Inappropriate Content</span>
-                </div>
-                <p className="text-sm text-gray-300">
-                  Help us maintain a safe and respectful community. False reports may result in account restrictions.
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Report Reason */}
+              <div>
+                <Label className="text-gray-300 font-medium mb-3 block">
+                  Reason for Report *
+                </Label>
+                <RadioGroup
+                  value={reportReason}
+                  onValueChange={(value) => {
+                    setReportReason(value);
+                    if (validationErrors.reason) {
+                      setValidationErrors({...validationErrors, reason: ''});
+                    }
+                  }}
+                  className="space-y-3"
+                >
+                  {reportReasons.map((reason) => (
+                    <div key={reason.value} className="flex items-start space-x-3">
+                      <RadioGroupItem
+                        value={reason.value}
+                        id={reason.value}
+                        className="mt-1"
+                      />
+                      <div className="flex-1">
+                        <Label
+                          htmlFor={reason.value}
+                          className="text-white font-medium cursor-pointer"
+                        >
+                          {reason.label}
+                        </Label>
+                        <p className="text-sm text-gray-400 mt-1">
+                          {reason.description}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </RadioGroup>
+                {validationErrors.reason && (
+                  <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3" />
+                    {validationErrors.reason}
+                  </p>
+                )}
+              </div>
+
+              {/* Report Details */}
+              <div>
+                <Label htmlFor="report-details" className="text-gray-300 font-medium mb-3 block">
+                  Additional Details *
+                </Label>
+                <Textarea
+                  id="report-details"
+                  placeholder="Please provide specific details about why you're reporting this content..."
+                  value={reportDetails}
+                  onChange={(e) => {
+                    setReportDetails(e.target.value);
+                    if (validationErrors.details) {
+                      setValidationErrors({...validationErrors, details: ''});
+                    }
+                  }}
+                  className={`min-h-[120px] bg-ctea-dark/50 border-[#00d1c1]/30 text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00d1c1]/50 focus:border-[#00d1c1] ${
+                    validationErrors.details ? 'border-red-400' : ''
+                  }`}
+                  required
+                />
+                {validationErrors.details && (
+                  <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3" />
+                    {validationErrors.details}
+                  </p>
+                )}
+                <p className="text-xs text-gray-400 mt-2">
+                  {reportDetails.length}/500 characters
                 </p>
               </div>
 
-              {/* Reason Selection */}
-              <div>
-                <Label htmlFor="reason" className="text-gray-300 flex items-center gap-2">
-                  Reason for Report
-                  <span className="text-red-400">*</span>
-                </Label>
-                <Select value={reportReason} onValueChange={setReportReason}>
-                  <SelectTrigger className="bg-ctea-dark/50 border-ctea-teal/30 text-white focus:ring-2 focus:ring-red-400/50 focus:border-red-400">
-                    <SelectValue placeholder="Select a reason..." />
-                  </SelectTrigger>
-                  <SelectContent className="bg-ctea-dark border-ctea-teal/30">
-                    {reportReasons.map((reason) => (
-                      <SelectItem key={reason.value} value={reason.value} className="text-white hover:bg-ctea-dark/50">
-                        <div className="flex items-center gap-2">
-                          <span>{reason.icon}</span>
-                          <span>{reason.label}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Additional Comments */}
-              <div>
-                <Label htmlFor="comment" className="text-gray-300">
-                  Additional Details (Optional)
-                </Label>
-                <Textarea
-                  id="comment"
-                  placeholder="Please provide any additional context or details about why you're reporting this content..."
-                  value={reportComment}
-                  onChange={(e) => setReportComment(e.target.value)}
-                  className="min-h-[100px] bg-ctea-dark/50 border-ctea-teal/30 text-white placeholder-gray-400 focus:ring-2 focus:ring-red-400/50 focus:border-red-400 resize-none"
-                  maxLength={500}
-                />
-                <div className="flex items-center justify-between mt-1">
-                  <p className="text-xs text-gray-400">
-                    Your report will be reviewed by our moderation team within 24 hours.
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    {reportComment.length}/500
+              {/* Submission Info */}
+              {submissionId && (
+                <div className="bg-ctea-dark/30 border border-[#00d1c1]/20 rounded-lg p-4">
+                  <p className="text-sm text-gray-300">
+                    <span className="font-medium">Reporting submission:</span> {submissionId}
                   </p>
                 </div>
-              </div>
+              )}
 
-              {/* Report Guidelines */}
-              <div className="bg-blue-400/10 border border-blue-400/30 rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Shield className="w-4 h-4 text-blue-400" />
-                  <span className="text-blue-400 font-medium">Report Guidelines</span>
+              {/* Privacy Notice */}
+              <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm text-blue-300 font-medium mb-1">
+                      Privacy & Safety
+                    </p>
+                    <p className="text-xs text-blue-200">
+                      Your report is anonymous and will be reviewed by our moderation team. 
+                      We take all reports seriously and will take appropriate action.
+                    </p>
+                  </div>
                 </div>
-                <ul className="text-xs text-gray-300 space-y-1">
-                  <li>• Only report content that violates our community guidelines</li>
-                  <li>• Provide specific details to help us understand the issue</li>
-                  <li>• False reports may result in account restrictions</li>
-                  <li>• We review all reports within 24 hours</li>
-                </ul>
               </div>
 
               {/* Action Buttons */}
               <div className="flex gap-3 pt-4">
                 <Button
                   type="submit"
-                  disabled={isSubmitting || !reportReason}
-                  className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isSubmitting}
+                  className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-3 hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:ring-offset-2 focus:ring-offset-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
                     <>
@@ -237,7 +280,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, submissionId
                     </>
                   ) : (
                     <>
-                      <Flag className="w-4 h-4 mr-2" />
+                      <Send className="w-4 h-4 mr-2" />
                       Submit Report
                     </>
                   )}
@@ -246,7 +289,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, submissionId
                   type="button"
                   variant="outline"
                   onClick={onClose}
-                  className="border-ctea-teal/30 text-ctea-teal hover:bg-ctea-teal/10 transition-colors duration-200"
+                  className="border-[#00d1c1]/30 text-[#00d1c1] hover:bg-[#00d1c1]/10 py-3 hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-[#00d1c1]/50 focus:ring-offset-2 focus:ring-offset-transparent"
                 >
                   Cancel
                 </Button>
