@@ -9,15 +9,10 @@ export default defineConfig(({ mode }) => {
   // Get the WS token and ensure it's safely handled
   const rawToken = process.env.VITE_WS_TOKEN;
   
-  // Sanitize the token to ensure it's safe for JavaScript injection
-  let wsToken = 'development-fallback';
-  if (rawToken && typeof rawToken === 'string') {
-    // Remove any potentially problematic characters and validate
-    const sanitized = rawToken.trim().replace(/[^\w\-]/g, '');
-    if (sanitized.length > 0) {
-      wsToken = sanitized;
-    }
-  }
+  // Use a safe fallback token for development
+  const wsToken = rawToken && typeof rawToken === 'string' && rawToken.trim() 
+    ? rawToken.trim() 
+    : 'development-fallback-token';
   
   console.log('Raw WS Token:', rawToken ? '[PRESENT]' : '[MISSING]');
   console.log('Final WS Token:', wsToken ? '[SET]' : '[EMPTY]');
@@ -41,7 +36,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     define: {
-      // Ensure safe string literal injection with validated token
+      // Properly stringify the token as a string literal
       '__WS_TOKEN__': JSON.stringify(wsToken),
     },
   };
