@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Eye, CheckCircle, X, Flag, AlertTriangle } from 'lucide-react';
+import { Eye, CheckCircle, X, Flag, AlertTriangle, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useSecureAuth } from '@/hooks/useSecureAuth';
-import SecurityMonitor from '@/components/security/SecurityMonitor';
 
 interface QueueItem {
   id: string;
@@ -144,9 +143,24 @@ const ModQueue = () => {
         </Badge>
       </div>
 
-      {/* Security Monitor for Admins */}
+      {/* Simple Security Status for Admins */}
       {isAdmin && (
-        <SecurityMonitor />
+        <Card className="p-4 bg-ctea-dark/30 border border-ctea-teal/20">
+          <div className="flex items-center gap-2 mb-2">
+            <Shield className="w-5 h-5 text-ctea-teal" />
+            <h3 className="text-white font-semibold">Security Status</h3>
+          </div>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="text-gray-400">Queue Size:</span>
+              <span className="text-white ml-2">{queueItems.length}</span>
+            </div>
+            <div>
+              <span className="text-gray-400">System Status:</span>
+              <span className="text-green-400 ml-2">Operational</span>
+            </div>
+          </div>
+        </Card>
       )}
 
       <div className="space-y-4">
