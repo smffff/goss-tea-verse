@@ -213,7 +213,7 @@ const RealTimeTrendMonitor = () => {
             key={platform.id}
             size="sm"
             variant={selectedPlatform === platform.id ? "default" : "outline"}
-            onClick={() => setSelectedPlatform(platform.id as any)}
+            onClick={() => setSelectedPlatform(platform.id as 'all' | 'twitter' | 'discord' | 'telegram' | 'reddit')}
             className={`flex items-center gap-2 ${
               selectedPlatform === platform.id
                 ? 'bg-gradient-ctea text-white'

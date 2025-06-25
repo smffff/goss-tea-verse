@@ -15,7 +15,6 @@ const Navigation = () => {
   const { userProgression } = useUserProgression();
 
   const navigationItems = [
-    { path: '/app', label: 'Home', icon: <Home className="w-4 h-4" /> },
     { path: '/feed', label: 'Feed', icon: <TrendingUp className="w-4 h-4" /> },
     { path: '/submit', label: 'Submit', icon: <Plus className="w-4 h-4" /> },
     { path: '/campaigns', label: 'Leaderboard', icon: <Trophy className="w-4 h-4" /> },
@@ -70,7 +69,7 @@ const Navigation = () => {
   }, [darkMode]);
 
   const handleLogoClick = () => {
-    navigate('/app');
+    navigate('/');
     setIsMenuOpen(false);
   };
 
@@ -202,14 +201,15 @@ const Navigation = () => {
 
               {/* Mobile User Stats */}
               {userProgression && (
-                <div className="mt-6 p-4 bg-accent/10 dark:bg-ctea-dark/30 rounded-lg border border-accent/20 dark:border-ctea-teal/20">
+                <div className="mt-6 pt-6 border-t border-accent/20 dark:border-ctea-teal/20">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-300">Your $TEA Points:</span>
-                    <Badge className="bg-accent2 text-white font-bold">
-                      {userProgression.tea_points}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-accent2 text-white font-bold">
+                        {userProgression.tea_points} $TEA
+                      </Badge>
+                    </div>
+                    <UserStats />
                   </div>
-                  <UserStats />
                 </div>
               )}
             </div>

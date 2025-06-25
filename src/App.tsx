@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Landing from "./pages/Landing";
-import Index from "./pages/Index";
 import Feed from "./pages/Feed";
 import SubmitTea from "./pages/SubmitTea";
 import Campaigns from "./pages/Campaigns";
@@ -22,11 +21,6 @@ const App = () => (
         <Route path="/" element={<Landing />} />
         
         {/* App pages with Layout wrapper */}
-        <Route path="/app" element={
-          <Layout>
-            <Index />
-          </Layout>
-        } />
         <Route path="/feed" element={
           <Layout>
             <Feed />

@@ -98,7 +98,13 @@ serve(async (req) => {
 });
 
 // Function to generate trend analysis
-function generateTrendAnalysis(content: string, category: string, sentimentData: any): TrendAnalysis {
+function generateTrendAnalysis(content: string, category: string, sentimentData: {
+  positive: number;
+  negative: number;
+  neutral: number;
+  volume: number;
+  change: number;
+}): TrendAnalysis {
   const words = content.toLowerCase().split(' ');
   const cryptoKeywords = ['crypto', 'bitcoin', 'ethereum', 'solana', 'defi', 'nft', 'web3', 'dao'];
   const dramaKeywords = ['hack', 'scam', 'rugpull', 'exposed', 'drama', 'chaos', 'controversy'];
