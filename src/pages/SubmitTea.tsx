@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import SubmissionForm from '@/components/SubmissionForm';
 import { useToast } from '@/hooks/use-toast';
+import BetaDisclaimer from '@/components/BetaDisclaimer';
 
 interface SubmissionData {
   tea: string;
@@ -46,9 +47,15 @@ const SubmitTea = () => {
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-3xl font-bold text-white mb-8 text-center">
-            Spill Your Tea ☕
-          </h1>
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-white mb-4">
+              Spill Your Tea ☕
+            </h1>
+            <BetaDisclaimer variant="inline" className="justify-center mb-4" />
+            <p className="text-gray-400">
+              Share the latest crypto gossip, rumors, and alpha with the community
+            </p>
+          </div>
           
           <SubmissionForm
             isOpen={true}

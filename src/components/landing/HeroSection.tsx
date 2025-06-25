@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Sparkles, TrendingUp, Users, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ShareButtons from '@/components/ShareButtons';
+import BetaDisclaimer from '@/components/BetaDisclaimer';
 
 interface HeroSectionProps {
   onSpillFormOpen?: () => void;
@@ -68,6 +69,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({
       </div>
 
       <div className="relative z-10 text-center max-w-5xl mx-auto">
+        {/* Beta Disclaimer */}
+        <div className="mb-6">
+          <BetaDisclaimer variant="banner" />
+        </div>
+
         {/* Main Heading */}
         <div className="mb-8">
           <Badge className="mb-4 bg-gradient-to-r from-ctea-teal to-ctea-purple text-white px-4 py-2 text-sm font-medium">

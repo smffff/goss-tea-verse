@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Menu, X, Coffee, TrendingUp, Users, Coins, Settings } from 'lucide-react';
 import { useUserProgression } from '@/hooks/useUserProgression';
+import BetaDisclaimer from '@/components/BetaDisclaimer';
 
 const Navigation = () => {
   const location = useLocation();
@@ -36,7 +37,10 @@ const Navigation = () => {
             <div className="w-8 h-8 bg-gradient-to-br from-ctea-teal to-ctea-purple rounded-lg flex items-center justify-center">
               <Coffee className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-xl text-white">CTEA NEWS</span>
+            <div className="flex flex-col">
+              <span className="font-bold text-xl text-white">CTEA NEWS</span>
+              <BetaDisclaimer variant="compact" className="text-xs" />
+            </div>
           </Link>
 
           {/* Desktop Navigation */}

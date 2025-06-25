@@ -1,260 +1,72 @@
+
 import React, { useState } from 'react';
+import Layout from '@/components/Layout';
 import TeaFeed from '@/components/TeaFeed';
-import Leaderboard from '@/components/Leaderboard';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import Layout from '@/components/Layout';
-import Modal from '@/components/Modal';
-import TippingModal from '@/components/TippingModal';
-import TestimonialCarousel from '@/components/TestimonialCarousel';
-import { TrendingUp, Zap, Users, Plus, Filter, Trophy, Coffee, Gift } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
+import { Coffee, Zap, TrendingUp, Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import BetaDisclaimer from '@/components/BetaDisclaimer';
 
 const Feed = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [showSpillModal, setShowSpillModal] = useState(false);
-  const [showTippingModal, setShowTippingModal] = useState(false);
-  
-  const stats = [
-    { label: 'Hot Takes Today', value: '1,247', icon: TrendingUp, color: 'text-[#00d1c1]' },
-    { label: 'Active Users', value: '2,420', icon: Users, color: 'text-[#9b59b6]' },
-    { label: 'Viral Posts', value: '69', icon: Zap, color: 'text-[#f1c40f]' }
-  ];
+  const [activeFilter, setActiveFilter] = useState('hot');
 
-  const handleSpillTea = async (data: { tea: string; email: string; wallet: string }) => {
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast({
-        title: "Tea Submitted! ☕",
-        description: "Your submission is being reviewed. Check back soon!",
-      });
-      
-      // In a real app, this would add to the feed
-      console.log('Tea submitted:', data);
-      setShowSpillModal(false);
-    } catch (error) {
-      toast({
-        title: "Submission Failed",
-        description: "Couldn't submit your tea. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
+  const filters = [
+    { id: 'hot', label: 'Hot Takes', icon: Zap, color: 'ctea-pink' },
+    { id: 'fresh', label: 'Fresh Tea', icon: Coffee, color: 'ctea-teal' },
+    { id: 'trending', label: 'Trending', icon: TrendingUp, color: 'ctea-purple' },
+  ];
 
   return (
     <Layout>
-      {/* Header Section */}
-      <section className="py-16 sm:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Page Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 animate-glow">
-              Hot Takes & Drama ☕
-            </h1>
-            <p className="text-lg sm:text-xl text-gray-300 mb-8">
-              The freshest tea from the crypto world. Upvote the spiciest takes and join the conversation.
-            </p>
-
-            {/* Live Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-lg mx-auto mb-8">
-              {stats.map(({ label, value, icon: Icon, color }) => (
-                <Card key={label} className="bg-ctea-darker/50 border-[#00d1c1]/30 text-center p-4">
-                  <Icon className={`w-6 h-6 mx-auto mb-2 ${color}`} />
-                  <div className={`text-xl font-bold ${color}`}>{value}</div>
-                  <div className="text-sm text-gray-400">{label}</div>
-                </Card>
-              ))}
+      <div className="container mx-auto px-4 py-8">
+        {/* Header with Beta Disclaimer */}
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2">
+                CTea Feed ☕
+              </h1>
+              <p className="text-gray-400">
+                The hottest crypto gossip, fresh from the blockchain
+              </p>
             </div>
+            <Link to="/submit">
+              <Button className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white">
+                <Plus className="w-4 h-4 mr-2" />
+                Spill Tea
+              </Button>
+            </Link>
           </div>
-
-          {/* CTA for new users */}
-          <Card className="bg-gradient-to-br from-[#ff61a6]/20 to-[#9b59b6]/20 border-[#ff61a6]/30 mb-8">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6">
-              <div className="text-center sm:text-left">
-                <h3 className="text-xl font-bold text-white mb-2">Got Some Tea to Spill? ☕</h3>
-                <p className="text-gray-300">Share your hottest takes and earn $TEA points for viral content!</p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                <Button 
-                  className="bg-gradient-to-r from-[#00d1c1] to-[#ff61a6] text-white font-bold w-full sm:w-auto py-3 px-6 text-base hover:scale-105 transition-transform duration-200"
-                  onClick={() => setShowSpillModal(true)}
-                  data-cta="spill-tea"
-                >
-                  <Coffee className="w-4 h-4 mr-2" />
-                  Spill Tea
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="border-[#00d1c1] text-[#00d1c1] hover:bg-[#00d1c1]/10 w-full sm:w-auto py-3 px-6 text-base hover:scale-105 transition-transform duration-200"
-                  onClick={() => setShowTippingModal(true)}
-                  data-cta="tip-gatekeepers"
-                >
-                  <Gift className="w-4 h-4 mr-2" />
-                  Tip Gatekeepers
-                </Button>
-              </div>
-            </div>
-          </Card>
-
-          {/* Testimonial Carousel */}
-          <div className="mb-8">
-            <TestimonialCarousel />
-          </div>
-
-          {/* Quick Filters */}
-          <div className="mb-8">
-            <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
-              <Badge className="bg-[#00d1c1]/20 text-[#00d1c1] border border-[#00d1c1]/30 cursor-pointer hover:bg-[#00d1c1]/30 transition-colors duration-200">
-                🔥 All Hot Takes
-              </Badge>
-              <Badge className="bg-ctea-dark/50 text-gray-300 border border-[#00d1c1]/20 cursor-pointer hover:bg-ctea-dark/70 transition-colors duration-200">
-                🌶️ Spicy Drama
-              </Badge>
-              <Badge className="bg-ctea-dark/50 text-gray-300 border border-[#00d1c1]/20 cursor-pointer hover:bg-ctea-dark/70 transition-colors duration-200">
-                📈 Trending
-              </Badge>
-              <Badge className="bg-ctea-dark/50 text-gray-300 border border-[#00d1c1]/20 cursor-pointer hover:bg-ctea-dark/70 transition-colors duration-200">
-                ⚡ Latest
-              </Badge>
-            </div>
-          </div>
+          
+          <BetaDisclaimer variant="inline" className="mb-6" />
         </div>
-      </section>
 
-      {/* Main Feed Section */}
-      <section className="py-16 sm:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Mobile: Single Column Feed */}
-          <div className="block lg:hidden">
-            <TeaFeed />
-          </div>
-
-          {/* Desktop: Two Column Layout */}
-          <div className="hidden lg:grid lg:grid-cols-4 gap-8">
-            {/* Main Feed - 3 columns */}
-            <div className="lg:col-span-3">
-              <TeaFeed />
-            </div>
-
-            {/* Sidebar - 1 column */}
-            <div className="space-y-6">
-              {/* Leaderboard */}
-              <Leaderboard 
-                title="Top Contributors" 
-                period="weekly" 
-                maxEntries={5}
-                showRefresh={true}
-              />
-
-              {/* Trending Topics */}
-              <Card className="bg-ctea-dark/30 border border-[#00d1c1]/20">
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-[#00d1c1]" />
-                    Trending Topics
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 bg-ctea-dark/20 border border-[#00d1c1]/10 rounded-lg">
-                      <span className="text-white font-medium text-sm">#SolanaSzn</span>
-                      <Badge className="bg-[#ff61a6] text-white text-xs">🔥 Hot</Badge>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-ctea-dark/20 border border-[#00d1c1]/10 rounded-lg">
-                      <span className="text-white font-medium text-sm">#EthereumETF</span>
-                      <Badge className="bg-[#f1c40f] text-ctea-dark text-xs">📈 Rising</Badge>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-ctea-dark/20 border border-[#00d1c1]/10 rounded-lg">
-                      <span className="text-white font-medium text-sm">#MemeCoins</span>
-                      <Badge className="bg-[#9b59b6] text-white text-xs">💎 Viral</Badge>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-ctea-dark/20 border border-[#00d1c1]/10 rounded-lg">
-                      <span className="text-white font-medium text-sm">#DeFiSummer</span>
-                      <Badge className="bg-[#ff6b35] text-white text-xs">🚀 New</Badge>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Quick Actions */}
-              <Card className="bg-gradient-to-br from-[#9b59b6]/20 to-[#ff61a6]/20 border-[#9b59b6]/30">
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-[#f1c40f]" />
-                    Quick Actions
-                  </h3>
-                  <div className="space-y-3">
-                    <Button 
-                      className="w-full bg-gradient-to-r from-[#00d1c1] to-[#ff61a6] text-white font-bold py-3 hover:scale-105 transition-transform duration-200"
-                      onClick={() => setShowSpillModal(true)}
-                      data-cta="spill-tea-sidebar"
-                    >
-                      <Coffee className="w-4 h-4 mr-2" />
-                      Spill New Tea
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      className="w-full border-[#00d1c1] text-[#00d1c1] hover:bg-[#00d1c1]/10 py-3 hover:scale-105 transition-transform duration-200"
-                      onClick={() => setShowTippingModal(true)}
-                      data-cta="tip-gatekeepers-sidebar"
-                    >
-                      <Gift className="w-4 h-4 mr-2" />
-                      Tip Gatekeepers
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Community Stats */}
-              <Card className="bg-ctea-dark/30 border border-[#00d1c1]/20">
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                    <Users className="w-5 h-5 text-[#ff61a6]" />
-                    Community Stats
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-300 text-sm">Total Posts</span>
-                      <span className="text-white font-bold">15,742</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-300 text-sm">Active Users</span>
-                      <span className="text-white font-bold">2,420</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-300 text-sm">$TEA Distributed</span>
-                      <span className="text-[#f1c40f] font-bold">420K</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-300 text-sm">Viral Posts</span>
-                      <span className="text-[#ff61a6] font-bold">69</span>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </div>
+        {/* Filter Tabs */}
+        <div className="flex gap-2 mb-6 overflow-x-auto">
+          {filters.map((filter) => {
+            const Icon = filter.icon;
+            return (
+              <Button
+                key={filter.id}
+                variant={activeFilter === filter.id ? "default" : "outline"}
+                className={`flex items-center gap-2 whitespace-nowrap ${
+                  activeFilter === filter.id
+                    ? `bg-${filter.color} text-white`
+                    : `border-${filter.color}/30 text-${filter.color} hover:bg-${filter.color}/10`
+                }`}
+                onClick={() => setActiveFilter(filter.id)}
+              >
+                <Icon className="w-4 h-4" />
+                {filter.label}
+              </Button>
+            );
+          })}
         </div>
-      </section>
 
-      {/* Spill Tea Modal */}
-      <Modal
-        isOpen={showSpillModal}
-        onClose={() => setShowSpillModal(false)}
-        title="Spill Your Tea ☕"
-        showForm={true}
-        onSubmit={handleSpillTea}
-        submitButtonText="Spill Tea"
-      />
-
-      {/* Tipping Modal */}
-      <TippingModal
-        isOpen={showTippingModal}
-        onClose={() => setShowTippingModal(false)}
-      />
+        {/* Feed */}
+        <TeaFeed filter={activeFilter} />
+      </div>
     </Layout>
   );
 };
