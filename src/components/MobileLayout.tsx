@@ -13,7 +13,8 @@ import {
   X,
   User,
   Settings,
-  Bell
+  Bell,
+  Zap
 } from 'lucide-react';
 import { useUserProgression } from '@/hooks/useUserProgression';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -33,10 +34,19 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
   const navigationItems = [
     { path: '/', label: 'Home', icon: <Home className="w-5 h-5" /> },
     { path: '/feed', label: 'Feed', icon: <TrendingUp className="w-5 h-5" /> },
+    { path: '/enhanced-feed', label: 'Enhanced', icon: <Zap className="w-5 h-5" /> },
     { path: '/submit', label: 'Submit', icon: <Plus className="w-5 h-5" /> },
     { path: '/campaigns', label: 'Leaderboard', icon: <Trophy className="w-5 h-5" /> },
     { path: '/token', label: 'Token', icon: <Coins className="w-5 h-5" /> },
     { path: '/governance', label: 'Governance', icon: <Vote className="w-5 h-5" /> }
+  ];
+
+  // Bottom navigation items (limited to 4 for mobile)
+  const bottomNavItems = [
+    { path: '/feed', label: 'Feed', icon: <TrendingUp className="w-5 h-5" /> },
+    { path: '/enhanced-feed', label: 'Enhanced', icon: <Zap className="w-5 h-5" /> },
+    { path: '/submit', label: 'Submit', icon: <Plus className="w-5 h-5" /> },
+    { path: '/campaigns', label: 'Leaderboard', icon: <Trophy className="w-5 h-5" /> }
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -201,7 +211,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
       {/* Mobile Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 bg-ctea-darker/95 backdrop-blur-md border-t border-ctea-teal/30">
         <div className="flex items-center justify-around h-16 px-2">
-          {navigationItems.slice(1, 5).map((item) => (
+          {bottomNavItems.map((item) => (
             <Button
               key={item.path}
               variant="ghost"
@@ -223,4 +233,4 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
   );
 };
 
-export default MobileLayout; 
+export default MobileLayout;
