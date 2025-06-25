@@ -1,3 +1,4 @@
+
 import React from 'react';
 import UnifiedNavigation from '@/components/UnifiedNavigation';
 import UnifiedFooter from '@/components/UnifiedFooter';
@@ -9,13 +10,17 @@ interface LayoutProps {
   className?: string;
   showNavigation?: boolean;
   showFooter?: boolean;
+  showFeedback?: boolean;
+  submissionId?: string;
 }
 
 const Layout: React.FC<LayoutProps> = ({ 
   children, 
   className = '',
   showNavigation = true,
-  showFooter = true
+  showFooter = true,
+  showFeedback = false,
+  submissionId = 'default'
 }) => {
   return (
     <ErrorBoundary>
@@ -25,7 +30,7 @@ const Layout: React.FC<LayoutProps> = ({
           {children}
         </main>
         {showFooter && <UnifiedFooter />}
-        <FeedbackWidget />
+        {showFeedback && <FeedbackWidget submissionId={submissionId} />}
       </div>
     </ErrorBoundary>
   );

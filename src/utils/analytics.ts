@@ -1,6 +1,13 @@
 
 import posthog from 'posthog-js';
 
+// Extend the Window interface to include our custom property
+declare global {
+  interface Window {
+    __posthog_initialized?: boolean;
+  }
+}
+
 // Initialize PostHog with proper configuration
 if (typeof window !== 'undefined' && !window.__posthog_initialized) {
   posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_API_KEY || 'phc_demo_key', {
