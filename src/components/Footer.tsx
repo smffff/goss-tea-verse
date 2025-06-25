@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Coffee, ExternalLink, Twitter, MessageCircle, Users, ArrowRight, Sparkles, MessageSquare } from 'lucide-react';
+import { Coffee, ExternalLink, Twitter, MessageCircle, Users, ArrowRight, Sparkles, MessageSquare, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { trackFeedbackSubmission, trackFeedbackButtonClick } from '@/lib/analytics';
 
@@ -16,7 +16,6 @@ const Footer = () => {
 
   const footerLinks = [
     { path: '/about', label: 'About' },
-    { path: '/contact', label: 'Contact' },
     { path: '/privacy', label: 'Privacy' },
     { path: '/terms', label: 'Terms' }
   ];
@@ -60,14 +59,18 @@ const Footer = () => {
   return (
     <>
       <footer className="py-16 bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4 md:px-8">
           <div className="text-center max-w-4xl mx-auto">
             <div className="mb-8">
               <div className="flex justify-center mb-6">
                 <div className="relative">
-                  <Coffee className="w-12 h-12 text-purple-400 animate-float" />
+                  <img 
+                    src="/ctea-logo-icon.svg" 
+                    alt="CTea Newsroom Logo" 
+                    className="w-12 h-12 text-accent animate-float" 
+                  />
                   <div className="absolute -top-1 -right-1">
-                    <Sparkles className="w-4 h-4 text-pink-400 animate-pulse" />
+                    <Sparkles className="w-4 h-4 text-accent2 animate-pulse" />
                   </div>
                 </div>
               </div>
@@ -82,7 +85,7 @@ const Footer = () => {
             {/* Get Started Button */}
             <div className="mb-8">
               <Link to="/app">
-                <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold uppercase tracking-wide px-8 py-4 text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+                <Button className="bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent text-white font-bold uppercase tracking-wide px-8 py-4 text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                   <ArrowRight className="w-5 h-5 mr-2" />
                   Enter the Newsroom
                 </Button>
@@ -95,7 +98,7 @@ const Footer = () => {
                 href="https://cteanews.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-all duration-300 hover:scale-110 group hover:bg-purple-400/10 px-2 py-1 rounded"
+                className="flex items-center gap-2 text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 group hover:bg-accent/10 px-2 py-1 rounded"
               >
                 <ExternalLink className="w-4 h-4 group-hover:animate-pulse" />
                 <span className="font-medium">cteanews.com</span>
@@ -108,7 +111,7 @@ const Footer = () => {
                   href={link.href} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-all duration-300 hover:scale-110 group hover:bg-purple-400/10 px-2 py-1 rounded"
+                  className="flex items-center gap-2 text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 group hover:bg-accent/10 px-2 py-1 rounded"
                 >
                   {link.icon}
                   <span className="font-medium">{link.label}</span>
@@ -122,20 +125,20 @@ const Footer = () => {
                 <Link
                   key={index}
                   to={link.path}
-                  className="text-purple-400 hover:text-purple-300 transition-all duration-300 hover:scale-110 font-medium hover:bg-purple-400/10 px-2 py-1 rounded"
+                  className="text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 font-medium hover:bg-accent/10 px-2 py-1 rounded"
                 >
                   {link.label}
                 </Link>
               ))}
             </div>
 
-            {/* Feedback Button */}
-            <div className="mb-8">
+            {/* Feedback and Contact Buttons */}
+            <div className="flex flex-wrap justify-center gap-4 mb-8">
               <Dialog open={showFeedback} onOpenChange={setShowFeedback}>
                 <DialogTrigger asChild>
                   <Button 
                     variant="outline" 
-                    className="border-purple-400 text-purple-400 hover:bg-purple-400/10 transition-all duration-300"
+                    className="border-accent text-accent hover:bg-accent/10 hover:text-accent2 transition-all duration-300 uppercase font-semibold px-6 py-3 rounded-lg shadow hover:scale-105"
                     onClick={() => {
                       trackFeedbackButtonClick();
                     }}
@@ -144,10 +147,10 @@ const Footer = () => {
                     Send Feedback
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="bg-gray-900 border-purple-400/30">
+                <DialogContent className="bg-gray-900 border-accent/30">
                   <DialogHeader>
                     <DialogTitle className="text-white flex items-center gap-2">
-                      <MessageSquare className="w-5 h-5 text-purple-400" />
+                      <MessageSquare className="w-5 h-5 text-accent" />
                       Help Us Improve CTea
                     </DialogTitle>
                   </DialogHeader>
@@ -161,7 +164,7 @@ const Footer = () => {
                         placeholder="Share your thoughts, suggestions, or report issues..."
                         value={feedbackText}
                         onChange={(e) => setFeedbackText(e.target.value)}
-                        className="min-h-[120px] bg-gray-800 border-purple-400/30 text-white placeholder-gray-400"
+                        className="min-h-[120px] bg-gray-800 border-accent/30 text-white placeholder-gray-400"
                         required
                       />
                     </div>
@@ -169,7 +172,7 @@ const Footer = () => {
                       <Button
                         type="submit"
                         disabled={isSubmitting || !feedbackText.trim()}
-                        className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold"
+                        className="flex-1 bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent text-white font-bold uppercase px-6 py-3 rounded-lg transition-all shadow hover:scale-105"
                       >
                         {isSubmitting ? (
                           <>
@@ -187,7 +190,7 @@ const Footer = () => {
                         type="button"
                         variant="outline"
                         onClick={() => setShowFeedback(false)}
-                        className="border-purple-400/30 text-purple-400 hover:bg-purple-400/10"
+                        className="border-accent/30 text-accent hover:bg-accent/10 uppercase font-semibold px-6 py-3 rounded-lg transition-all shadow hover:scale-105"
                       >
                         Cancel
                       </Button>
@@ -195,6 +198,15 @@ const Footer = () => {
                   </form>
                 </DialogContent>
               </Dialog>
+
+              {/* Email Contact */}
+              <a 
+                href="mailto:feedback@ctea.news?subject=CTea%20Newsroom%20Feedback"
+                className="inline-flex items-center gap-2 border border-accent2 text-accent2 hover:bg-accent2/10 hover:text-white transition-all duration-300 uppercase font-semibold px-6 py-3 rounded-lg shadow hover:scale-105"
+              >
+                <Mail className="w-4 h-4" />
+                Email Us
+              </a>
             </div>
             
             <div className="text-sm text-gray-500 border-t border-gray-700 pt-6">
