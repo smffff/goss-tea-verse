@@ -41,40 +41,75 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         <div className="mb-8">
           <Badge className="mb-4 bg-gradient-to-r from-ctea-teal to-ctea-purple text-white px-4 py-2 text-sm font-medium">
             <Sparkles className="w-4 h-4 mr-2" />
-            The Ultimate Crypto Gossip Platform
+            Where Memes, Gossip, and Crypto Collide
           </Badge>
           
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white mb-6 leading-tight animate-glow">
-            Spill the{' '}
+            Spill Tea.{' '}
             <span className="bg-gradient-to-r from-ctea-teal via-ctea-purple to-ctea-pink bg-clip-text text-transparent">
-              TEA
+              Get Paid.
             </span>
           </h1>
           
           <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed px-4">
-            The hottest takes, verified rumors, and community-driven truth in crypto. 
-            <span className="text-ctea-teal font-semibold"> Earn rewards</span> for spilling the tea.
+            Anonymous crypto gossip meets AI-powered reactions. Share alpha, earn credibility, and watch the community decide what's{' '}
+            <span className="text-ctea-teal font-semibold">hot or cold</span>.
           </p>
+        </div>
+
+        {/* How It Works - 4 Step Flow */}
+        <div className="mb-12 max-w-4xl mx-auto">
+          <h2 className="text-2xl font-bold text-white mb-8">How It Works</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-ctea-teal to-ctea-purple rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-white font-bold text-xl">1</span>
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2">Submit Tea</h3>
+              <p className="text-gray-400 text-sm">Anonymously share crypto gossip, alpha, or hot takes</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-ctea-purple to-ctea-pink rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-white font-bold text-xl">2</span>
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2">AI Reacts</h3>
+              <p className="text-gray-400 text-sm">Our AI bot generates witty commentary on your submission</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-ctea-pink to-ctea-yellow rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-white font-bold text-xl">3</span>
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2">Community Reacts</h3>
+              <p className="text-gray-400 text-sm">Users vote with 🔥 Hot, ❄️ Cold, or 🌶️ Spicy reactions</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-ctea-yellow to-ctea-teal rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-white font-bold text-xl">4</span>
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2">Earn Credibility</h3>
+              <p className="text-gray-400 text-sm">Build your anonymous reputation and climb the leaderboard</p>
+            </div>
+          </div>
         </div>
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 px-4">
           <Button 
             size="lg"
-            className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white font-bold py-3 sm:py-4 px-6 sm:px-8 text-base sm:text-lg hover:scale-105 transition-transform duration-200 shadow-lg"
-            onClick={() => navigate('/feed')}
+            className="bg-gradient-to-r from-[#FF4C7B] to-ctea-purple text-white font-bold py-3 sm:py-4 px-6 sm:px-8 text-base sm:text-lg hover:scale-105 transition-transform duration-200 shadow-lg"
+            onClick={() => navigate('/submit')}
           >
-            Start Spilling Tea ☕
+            Spill Tea ☕
             <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
           
           <Button 
             size="lg"
             variant="outline"
-            className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-white py-3 sm:py-4 px-6 sm:px-8 text-base sm:text-lg hover:scale-105 transition-transform duration-200"
-            onClick={() => navigate('/submit')}
+            className="border-[#FF4C7B] text-[#FF4C7B] hover:bg-[#FF4C7B] hover:text-white py-3 sm:py-4 px-6 sm:px-8 text-base sm:text-lg hover:scale-105 transition-transform duration-200"
+            onClick={() => navigate('/feed')}
           >
-            Share Your Alpha 🚀
+            View the Tea 🫖
           </Button>
         </div>
 
@@ -83,7 +118,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           <p className="text-gray-400 mb-4 text-sm sm:text-base">Share the revolution:</p>
           <ShareButtons
             url={window.location.origin}
-            title="CTEA NEWS - The Ultimate Crypto Gossip Platform"
+            title="CTea Newsroom - Where Memes, Gossip, and Crypto Collide"
             variant="expanded"
             className="justify-center"
           />

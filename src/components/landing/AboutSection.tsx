@@ -10,49 +10,49 @@ const AboutSection = () => {
             About CTea Newsroom
           </h2>
           <p className="text-lg text-gray-300 mb-12 max-w-3xl mx-auto">
-            Born from the mind of ladyinvsible, CTea Newsroom fills the void that crypto Twitter 
-            never knew it had—a place for anonymous gossip, verified rumors, and community-driven truth.
+            Where emotional intelligence meets memecoin culture. We're building the future where 
+            Crypto Twitter can spill tea smarter, with AI-powered reactions and community-driven truth.
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
-            <div className="space-y-4 bg-ctea-dark/30 backdrop-blur-lg border border-ctea-teal/20 rounded-xl p-6">
-              <h3 className="text-xl font-bold text-ctea-teal flex items-center gap-2">
+            <div className="space-y-4 bg-ctea-dark/30 backdrop-blur-lg border border-[#FF4C7B]/20 rounded-xl p-6">
+              <h3 className="text-xl font-bold text-[#FF4C7B] flex items-center gap-2">
                 🎯 Our Mission
               </h3>
               <p className="text-gray-300 leading-relaxed">
-                Crypto doesn't need another whitepaper—it needs a gossip column. We're building 
-                the platform where alpha leaks, market takes, and spicy rumors get the spotlight 
-                they deserve, all while keeping contributors anonymous and secure.
+                Emotional intelligence meets memecoin culture. CTea Newsroom is where crypto gossip 
+                gets the AI treatment it deserves. We're not just another social platform—we're 
+                building the future of how Crypto Twitter processes information, emotions, and truth.
               </p>
             </div>
             <div className="space-y-4 bg-ctea-dark/30 backdrop-blur-lg border border-ctea-purple/20 rounded-xl p-6">
               <h3 className="text-xl font-bold text-ctea-purple flex items-center gap-2">
-                🛡️ Privacy First
+                🧠 AI-Powered Insights
               </h3>
               <p className="text-gray-300 leading-relaxed">
-                Built by someone who understands the importance of anonymity in crypto. 
-                Advanced encryption protects your identity while our community curation 
-                ensures quality content rises to the top.
+                Every submission gets analyzed by our AI for emotional tone, credibility markers, 
+                and viral potential. No more wondering if your take is hot or cold—our AI will 
+                tell you exactly what temperature your tea is brewing at.
               </p>
             </div>
-            <div className="space-y-4 bg-ctea-dark/30 backdrop-blur-lg border border-ctea-pink/20 rounded-xl p-6">
-              <h3 className="text-xl font-bold text-ctea-pink flex items-center gap-2">
-                🚀 Community Driven
+            <div className="space-y-4 bg-ctea-dark/30 backdrop-blur-lg border border-ctea-teal/20 rounded-xl p-6">
+              <h3 className="text-xl font-bold text-ctea-teal flex items-center gap-2">
+                🚀 Anonymous & Rewarded
               </h3>
               <p className="text-gray-300 leading-relaxed">
-                Every feature, from the reaction system to the governance model, was designed 
-                with the crypto community in mind. This isn't just another platform—it's 
-                your platform, built by one of your own.
+                Share without fear, earn through engagement. Build your anonymous reputation 
+                through quality contributions. The best tea spillers rise to the top through 
+                community validation and AI scoring.
               </p>
             </div>
             <div className="space-y-4 bg-ctea-dark/30 backdrop-blur-lg border border-ctea-yellow/20 rounded-xl p-6">
               <h3 className="text-xl font-bold text-ctea-yellow flex items-center gap-2">
-                ☕ The ladyinvsible Touch
+                ☕ The Stephanie Vision
               </h3>
               <p className="text-gray-300 leading-relaxed">
-                From meme culture to market dynamics, ladyinvsible brought years of crypto 
-                experience into every aspect of CTea Newsroom. This is gossip with purpose, 
-                chaos with community.
+                Created by Lady Invisible (Stephanie), who saw the need for emotional intelligence 
+                in crypto discourse. This isn't just gossip—it's about processing the chaos of 
+                Web3 with the sophistication it deserves.
               </p>
             </div>
           </div>

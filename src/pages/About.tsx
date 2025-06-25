@@ -9,47 +9,47 @@ import { Coffee, Users, Shield, Zap, Heart, Sparkles, ExternalLink, Calendar, Ta
 const About = () => {
   // Set document title for SEO
   React.useEffect(() => {
-    document.title = 'About CTea Newsroom - Built by ladyinvsible';
+    document.title = 'About CTea Newsroom - Where Memes, Gossip, and Crypto Collide';
   }, []);
 
   const timeline = [
     {
       date: "Early 2024",
-      title: "The Idea",
-      description: "ladyinvsible recognized the need for anonymous gossip in crypto Twitter"
+      title: "The Vision",
+      description: "Stephanie recognized the need for emotional intelligence in crypto discourse"
     },
     {
       date: "Mid 2024",
       title: "Development Begins",
-      description: "Started building with modern web technologies and privacy-first design"
+      description: "Started building with AI-powered reactions and community-driven validation"
     },
     {
       date: "Late 2024",
       title: "Beta Launch",
-      description: "Released to select crypto community members for testing"
+      description: "Released to select crypto community members for testing and feedback"
     },
     {
       date: "2025",
       title: "Public Launch",
-      description: "Opening the tea house to the entire crypto community"
+      description: "Opening CTea Newsroom to the entire crypto community with full features"
     }
   ];
 
   const values = [
     {
-      title: "Anonymous",
-      description: "Spill tea without fear of doxxing",
-      icon: <Shield className="w-6 h-6" />
-    },
-    {
-      title: "Transparent",
-      description: "Open source, community-driven",
-      icon: <Zap className="w-6 h-6" />
-    },
-    {
-      title: "Fun",
-      description: "Because crypto should be entertaining",
+      title: "Emotionally Intelligent",
+      description: "AI-powered reactions that understand the temperature of your tea",
       icon: <Heart className="w-6 h-6" />
+    },
+    {
+      title: "Community Driven",
+      description: "Your reactions and engagement determine what rises to the top",
+      icon: <Users className="w-6 h-6" />
+    },
+    {
+      title: "Anonymous & Safe",
+      description: "Spill tea without fear while building credible reputation",
+      icon: <Shield className="w-6 h-6" />
     }
   ];
 
@@ -60,9 +60,9 @@ const About = () => {
         <div className="text-center mb-12">
           <div className="flex justify-center mb-6">
             <div className="relative">
-              <Coffee className="w-16 h-16 text-ctea-teal animate-float" />
+              <Coffee className="w-16 h-16 text-[#FF4C7B] animate-float" />
               <div className="absolute -top-2 -right-2">
-                <Sparkles className="w-5 h-5 text-ctea-pink animate-pulse" />
+                <Sparkles className="w-5 h-5 text-ctea-teal animate-pulse" />
               </div>
             </div>
           </div>
@@ -70,65 +70,42 @@ const About = () => {
             About CTea Newsroom
           </h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-6">
-            The anonymous dropbox for crypto gossip, alpha leaks, and meme-fueled market takes.
+            Where memes, gossip, and crypto collide. The platform where emotional intelligence 
+            meets memecoin culture, and Crypto Twitter gets the AI-powered discourse it deserves.
           </p>
-          <Badge className="bg-gradient-to-r from-ctea-pink to-ctea-purple text-white px-4 py-2">
-            Built by ladyinvsible
+          <Badge className="bg-gradient-to-r from-[#FF4C7B] to-ctea-purple text-white px-4 py-2">
+            Built by Stephanie (Lady Invisible)
           </Badge>
         </div>
 
-        {/* Origin Story */}
-        <Card className="bg-ctea-dark/30 border border-ctea-teal/20 p-8 mb-12">
+        {/* Mission Statement */}
+        <Card className="bg-ctea-dark/30 border border-[#FF4C7B]/20 p-8 mb-12">
           <div className="text-center mb-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
-              The Origin Story
+              Our Mission: Emotional Intelligence Meets Memecoin Culture
             </h2>
             <p className="text-lg text-gray-300 leading-relaxed max-w-4xl mx-auto">
-              CTea Newsroom was born from the brilliant mind of <span className="text-ctea-teal font-semibold">ladyinvsible</span>, 
-              a crypto enthusiast who spent years navigating the chaotic waters of crypto Twitter. 
-              After witnessing countless alpha leaks, market manipulations, and behind-the-scenes drama, 
-              she realized something was missing: a place where people could share the real tea anonymously.
+              CTea Newsroom was born from a simple realization: Crypto Twitter needed more than just 
+              another social platform. It needed a way to process the emotional chaos of Web3 with 
+              intelligence, reward quality discourse, and build meaningful anonymous reputations. 
+              Created by <span className="text-[#FF4C7B] font-semibold">Stephanie (Lady Invisible)</span>, 
+              who saw the potential for AI to transform how we handle crypto gossip, memes, and community truth.
             </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-4">
-              <h3 className="text-xl font-bold text-ctea-teal flex items-center gap-2">
-                <Target className="w-5 h-5" />
-                The Problem
-              </h3>
-              <p className="text-gray-300 leading-relaxed">
-                Crypto Twitter was full of posturing, fake alpha, and fear of speaking truth to power. 
-                People had hot takes and insider knowledge but nowhere safe to share it. The community 
-                needed a gossip column, not another technical whitepaper.
-              </p>
-            </div>
-            <div className="space-y-4">
-              <h3 className="text-xl font-bold text-ctea-purple flex items-center gap-2">
-                <Sparkles className="w-5 h-5" />
-                The Solution
-              </h3>
-              <p className="text-gray-300 leading-relaxed">
-                ladyinvsible envisioned a platform where anonymity meets accountability, where 
-                community curation ensures quality, and where every voice—from whale to pleb—
-                could contribute to the collective knowledge of crypto.
-              </p>
-            </div>
           </div>
         </Card>
 
         {/* Development Timeline */}
         <div className="mb-12">
-          <h2 className="text-3xl font-bold text-white text-center mb-8">Development Journey</h2>
+          <h2 className="text-3xl font-bold text-white text-center mb-8">The Journey</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {timeline.map((item, index) => (
-              <Card key={index} className="bg-ctea-dark/30 border border-ctea-teal/20 p-6 text-center hover:border-ctea-teal/40 transition-all duration-300">
+              <Card key={index} className="bg-ctea-dark/30 border border-[#FF4C7B]/20 p-6 text-center hover:border-[#FF4C7B]/40 transition-all duration-300">
                 <div className="flex justify-center mb-4">
-                  <div className="w-12 h-12 bg-ctea-teal/20 rounded-full flex items-center justify-center text-ctea-teal">
+                  <div className="w-12 h-12 bg-[#FF4C7B]/20 rounded-full flex items-center justify-center text-[#FF4C7B]">
                     <Calendar className="w-6 h-6" />
                   </div>
                 </div>
-                <Badge className="bg-ctea-teal/20 text-ctea-teal border border-ctea-teal/30 mb-2">
+                <Badge className="bg-[#FF4C7B]/20 text-[#FF4C7B] border border-[#FF4C7B]/30 mb-2">
                   {item.date}
                 </Badge>
                 <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
@@ -140,12 +117,12 @@ const About = () => {
 
         {/* Values */}
         <div className="mb-12">
-          <h2 className="text-3xl font-bold text-white text-center mb-8">Our Values</h2>
+          <h2 className="text-3xl font-bold text-white text-center mb-8">What Makes Us Different</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {values.map((value, index) => (
-              <Card key={index} className="bg-ctea-dark/30 border border-ctea-teal/20 p-6 text-center hover:border-ctea-teal/40 transition-all duration-300">
+              <Card key={index} className="bg-ctea-dark/30 border border-[#FF4C7B]/20 p-6 text-center hover:border-[#FF4C7B]/40 transition-all duration-300">
                 <div className="flex justify-center mb-4">
-                  <div className="w-12 h-12 bg-ctea-teal/20 rounded-full flex items-center justify-center text-ctea-teal">
+                  <div className="w-12 h-12 bg-[#FF4C7B]/20 rounded-full flex items-center justify-center text-[#FF4C7B]">
                     {value.icon}
                   </div>
                 </div>
@@ -156,23 +133,24 @@ const About = () => {
           </div>
         </div>
 
-        {/* Meet ladyinvsible */}
-        <Card className="bg-gradient-to-br from-ctea-teal/10 to-ctea-purple/10 border border-ctea-teal/30 p-8 mb-12">
+        {/* Meet Stephanie */}
+        <Card className="bg-gradient-to-br from-[#FF4C7B]/10 to-ctea-purple/10 border border-[#FF4C7B]/30 p-8 mb-12">
           <div className="text-center">
-            <div className="w-20 h-20 bg-gradient-to-br from-ctea-teal to-ctea-purple rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-white font-bold text-2xl">L</span>
+            <div className="w-20 h-20 bg-gradient-to-br from-[#FF4C7B] to-ctea-purple rounded-full flex items-center justify-center mx-auto mb-6">
+              <span className="text-white font-bold text-2xl">S</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">Meet ladyinvsible</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">Meet Stephanie (Lady Invisible)</h2>
             <p className="text-lg text-gray-300 leading-relaxed max-w-3xl mx-auto mb-6">
-              The visionary behind CTea Newsroom. A crypto native who understands both the power 
-              and the problems of decentralized communities. She built this platform not just as 
-              a developer, but as someone who lives and breathes crypto culture.
+              The visionary behind CTea Newsroom. A crypto native who understands that the future 
+              of Web3 discourse isn't just about technology—it's about emotional intelligence, 
+              community building, and rewarding quality contributions. Stephanie saw the chaos 
+              of Crypto Twitter and built the tools to process it smarter.
             </p>
             <div className="flex justify-center gap-4">
               <Button
                 variant="outline"
                 onClick={() => window.open('https://arena.social/?ref=LadyInvsible', '_blank')}
-                className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-black"
+                className="border-[#FF4C7B] text-[#FF4C7B] hover:bg-[#FF4C7B] hover:text-white"
               >
                 <ExternalLink className="w-4 h-4 mr-2" />
                 Connect on Arena
@@ -181,26 +159,26 @@ const About = () => {
           </div>
         </Card>
 
-        {/* Stats */}
-        <Card className="bg-ctea-dark/30 border border-ctea-teal/20 p-8">
+        {/* Live Stats */}
+        <Card className="bg-ctea-dark/30 border border-[#FF4C7B]/20 p-8">
           <div className="text-center">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-6">CTea by the Numbers</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
               <div className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-ctea-teal mb-2">2,420</div>
+                <div className="text-3xl sm:text-4xl font-bold text-[#FF4C7B] mb-2">2,420</div>
                 <div className="text-sm text-gray-400">Beta Users</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-ctea-pink mb-2">15.7K</div>
-                <div className="text-sm text-gray-400">Hot Takes</div>
+                <div className="text-3xl sm:text-4xl font-bold text-ctea-teal mb-2">15.7K</div>
+                <div className="text-sm text-gray-400">Tea Submissions</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl sm:text-4xl font-bold text-ctea-yellow mb-2">420K</div>
-                <div className="text-sm text-gray-400">$TEA Points</div>
+                <div className="text-sm text-gray-400">AI Reactions</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-ctea-cyan mb-2">69</div>
-                <div className="text-sm text-gray-400">Viral Memes</div>
+                <div className="text-3xl sm:text-4xl font-bold text-ctea-purple mb-2">69</div>
+                <div className="text-sm text-gray-400">Viral Threads</div>
               </div>
             </div>
           </div>

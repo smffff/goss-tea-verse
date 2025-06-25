@@ -3,7 +3,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Twitter, Github, Coffee, Sparkles } from 'lucide-react';
+import { ExternalLink, Coffee, Sparkles } from 'lucide-react';
 
 const MeetTheBuilder = () => {
   return (
@@ -11,71 +11,71 @@ const MeetTheBuilder = () => {
       <div className="container mx-auto px-4 md:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <Badge className="mb-4 bg-gradient-to-r from-ctea-pink to-ctea-purple text-white px-4 py-2">
+            <Badge className="mb-4 bg-gradient-to-r from-[#FF4C7B] to-ctea-purple text-white px-4 py-2">
               <Sparkles className="w-4 h-4 mr-2" />
               Meet the Builder
             </Badge>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
-              The Story Behind CTea Newsroom
+              The Vision Behind CTea Newsroom
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Built by ladyinvsible, a crypto enthusiast who saw the need for anonymous, 
-              community-driven gossip in the Web3 space.
+              Built by Stephanie (Lady Invisible), who envisioned a world where 
+              emotional intelligence meets memecoin culture in the wild west of Crypto Twitter.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             {/* Story Content */}
             <div className="space-y-6">
-              <Card className="bg-ctea-dark/30 border border-ctea-teal/20 p-6">
+              <Card className="bg-ctea-dark/30 border border-[#FF4C7B]/20 p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <Coffee className="w-6 h-6 text-ctea-teal" />
-                  <h3 className="text-xl font-bold text-white">The Vision</h3>
+                  <Coffee className="w-6 h-6 text-[#FF4C7B]" />
+                  <h3 className="text-xl font-bold text-white">The Mission</h3>
                 </div>
                 <p className="text-gray-300 leading-relaxed">
-                  After years in crypto Twitter, ladyinvsible noticed something missing: 
-                  a place where people could share alpha, gossip, and hot takes without 
-                  fear of doxxing or retaliation. The community needed a gossip column, 
-                  not another whitepaper.
+                  "Emotional intelligence meets memecoin culture." Stephanie saw the chaos 
+                  of Crypto Twitter and realized it needed more than just another social platform—
+                  it needed emotional processing, AI insights, and a way to reward quality discourse.
                 </p>
               </Card>
 
               <Card className="bg-ctea-dark/30 border border-ctea-purple/20 p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <Sparkles className="w-6 h-6 text-ctea-purple" />
-                  <h3 className="text-xl font-bold text-white">The Journey</h3>
+                  <h3 className="text-xl font-bold text-white">The Innovation</h3>
                 </div>
                 <p className="text-gray-300 leading-relaxed">
-                  What started as a simple idea evolved into a full-featured platform. 
-                  Built with modern web technologies, CTea Newsroom combines the best 
-                  of social media with the privacy and decentralization that Web3 promises.
+                  CTea Newsroom isn't just about gossip—it's about processing the emotional 
+                  temperature of crypto discourse. AI reactions, credibility scoring, and 
+                  anonymous reputation building create a new paradigm for Web3 social interaction.
                 </p>
               </Card>
 
-              <Card className="bg-ctea-dark/30 border border-ctea-pink/20 p-6">
+              <Card className="bg-ctea-dark/30 border border-ctea-teal/20 p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <ExternalLink className="w-6 h-6 text-ctea-pink" />
-                  <h3 className="text-xl font-bold text-white">The Community</h3>
+                  <ExternalLink className="w-6 h-6 text-ctea-teal" />
+                  <h3 className="text-xl font-bold text-white">The Future</h3>
                 </div>
                 <p className="text-gray-300 leading-relaxed">
-                  CTea Newsroom isn't just about the tech—it's about building a community 
-                  where every voice matters. From anonymous tea spillers to crypto whales, 
-                  everyone has a place in the conversation.
+                  This is just the beginning. Token integration, Web3 rewards, and expanded 
+                  AI capabilities are coming. CTea Newsroom is building the infrastructure 
+                  for how crypto communities will process information in the future.
                 </p>
               </Card>
             </div>
 
             {/* Developer Info */}
             <div className="space-y-6">
-              <Card className="bg-gradient-to-br from-ctea-teal/10 to-ctea-purple/10 border border-ctea-teal/30 p-8 text-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-ctea-teal to-ctea-purple rounded-full flex items-center justify-center mx-auto mb-6">
-                  <span className="text-white font-bold text-2xl">L</span>
+              <Card className="bg-gradient-to-br from-[#FF4C7B]/10 to-ctea-purple/10 border border-[#FF4C7B]/30 p-8 text-center">
+                <div className="w-20 h-20 bg-gradient-to-br from-[#FF4C7B] to-ctea-purple rounded-full flex items-center justify-center mx-auto mb-6">
+                  <span className="text-white font-bold text-2xl">S</span>
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2">ladyinvsible</h3>
-                <p className="text-ctea-teal font-medium mb-4">Founder & Developer</p>
+                <h3 className="text-2xl font-bold text-white mb-2">Stephanie</h3>
+                <p className="text-[#FF4C7B] font-medium mb-4">Lady Invisible • Founder & Visionary</p>
                 <p className="text-gray-300 leading-relaxed mb-6">
-                  Crypto enthusiast, meme connoisseur, and chaos agent. 
-                  Building the future of Web3 gossip, one spilled tea at a time.
+                  Crypto native, emotional intelligence advocate, and chaos interpreter. 
+                  Building the future where memes meet meaningful discourse and 
+                  gossip gets the AI treatment it deserves.
                 </p>
                 
                 <div className="flex justify-center gap-3">
@@ -83,32 +83,32 @@ const MeetTheBuilder = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => window.open('https://arena.social/?ref=LadyInvsible', '_blank')}
-                    className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-black"
+                    className="border-[#FF4C7B] text-[#FF4C7B] hover:bg-[#FF4C7B] hover:text-white"
                   >
                     <ExternalLink className="w-4 h-4 mr-2" />
-                    Arena Social
+                    Connect on Arena
                   </Button>
                 </div>
               </Card>
 
               <Card className="bg-ctea-dark/30 border border-ctea-yellow/20 p-6">
-                <h4 className="text-lg font-bold text-white mb-4">Why CTea Newsroom?</h4>
+                <h4 className="text-lg font-bold text-white mb-4">The CTea Philosophy</h4>
                 <ul className="space-y-2 text-gray-300">
                   <li className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-ctea-teal rounded-full"></div>
-                    Anonymous by design, secure by default
+                    <div className="w-2 h-2 bg-[#FF4C7B] rounded-full"></div>
+                    Emotional intelligence in crypto discourse
                   </li>
                   <li className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-ctea-purple rounded-full"></div>
-                    Community-driven content curation
+                    AI-powered reaction and credibility systems
                   </li>
                   <li className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-ctea-pink rounded-full"></div>
-                    Rewards for quality contributions
+                    <div className="w-2 h-2 bg-ctea-teal rounded-full"></div>
+                    Anonymous reputation building through quality
                   </li>
                   <li className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-ctea-yellow rounded-full"></div>
-                    Built for the crypto community
+                    Where memes meet meaningful community interaction
                   </li>
                 </ul>
               </Card>
