@@ -1,5 +1,7 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { WalletProvider } from "./components/WalletProvider";
 import Layout from "./components/Layout";
 import Landing from "./pages/Landing";
 import Feed from "./pages/Feed";
@@ -15,66 +17,28 @@ import NotFound from "./pages/NotFound";
 
 const App = () => (
   <BrowserRouter>
-    <div className="app">
-      <Routes>
-        {/* Landing page - no Layout wrapper */}
-        <Route path="/" element={<Landing />} />
-        
-        {/* App pages with Layout wrapper */}
-        <Route path="/feed" element={
-          <Layout>
-            <Feed />
-          </Layout>
-        } />
-        <Route path="/submit" element={
-          <Layout>
-            <SubmitTea />
-          </Layout>
-        } />
-        <Route path="/campaigns" element={
-          <Layout>
-            <Campaigns />
-          </Layout>
-        } />
-        <Route path="/features" element={
-          <Layout>
-            <Features />
-          </Layout>
-        } />
-        <Route path="/trends" element={
-          <Layout>
-            <Trends />
-          </Layout>
-        } />
-        <Route path="/about" element={
-          <Layout>
-            <About />
-          </Layout>
-        } />
-        <Route path="/contact" element={
-          <Layout>
-            <Contact />
-          </Layout>
-        } />
-        <Route path="/privacy" element={
-          <Layout>
-            <Privacy />
-          </Layout>
-        } />
-        <Route path="/terms" element={
-          <Layout>
-            <Terms />
-          </Layout>
-        } />
-        
-        {/* 404 page with Layout wrapper */}
-        <Route path="*" element={
-          <Layout>
-            <NotFound />
-          </Layout>
-        } />
-      </Routes>
-    </div>
+    <WalletProvider>
+      <div className="app">
+        <Routes>
+          {/* Landing page - no Layout wrapper */}
+          <Route path="/" element={<Landing />} />
+          
+          {/* App pages with Layout wrapper */}
+          <Route path="/feed" element={<Feed />} />
+          <Route path="/submit" element={<SubmitTea />} />
+          <Route path="/campaigns" element={<Campaigns />} />
+          <Route path="/features" element={<Features />} />
+          <Route path="/trends" element={<Trends />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          
+          {/* 404 page */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
+    </WalletProvider>
   </BrowserRouter>
 );
 
