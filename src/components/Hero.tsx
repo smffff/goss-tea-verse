@@ -2,12 +2,10 @@ import React from "react";
 import "../index.css";
 
 const HERO_TEXT = "Spill Tea. Stack Clout. Stay Shady.";
-
-const HERO_IMAGE = "/assets/banner.png"; // Replace this with your generated hero image
+const HERO_SUBHEAD = "Anonymous, viral, and a little bit dangerous.";
+const HERO_IMAGE = "/assets/banner.png";
 
 const Hero: React.FC = () => {
-  // Check if the image exists (basic fallback for dev/demo)
-  // In production, you may want a more robust check or always use the image
   const [imgLoaded, setImgLoaded] = React.useState(true);
 
   React.useEffect(() => {
@@ -46,6 +44,14 @@ const Hero: React.FC = () => {
             }
       }
     >
+      {/* Floating Beta Badge */}
+      <div
+        className="absolute top-4 right-4 bg-yellow-400 px-3 py-1 text-xs font-bold rounded-full animate-bounce-subtle shadow-lg z-20"
+        style={{ pointerEvents: "none" }}
+      >
+        Beta Brew 🍵
+      </div>
+      {/* Overlay */}
       <div
         style={{
           position: "absolute",
@@ -57,25 +63,54 @@ const Hero: React.FC = () => {
           zIndex: 1,
         }}
       />
-      <h1
-        style={{
-          position: "relative",
-          zIndex: 2,
-          fontFamily: "'Anton', 'Oswald', Arial, sans-serif",
-          fontSize: "3rem",
-          color: "#fff",
-          textShadow: "0 2px 16px #ff00cc, 0 4px 32px #00ffe7, 2px 2px 0 #000, 0 0 8px #fff",
-          letterSpacing: "0.05em",
-          padding: "0 2rem",
-          textAlign: "center",
-          background: "linear-gradient(90deg, #ff0055 0%, #00ffe7 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          filter: "drop-shadow(0 0 8px #fff) drop-shadow(0 0 16px #ff00cc)",
-        }}
+      {/* Content */}
+      <div
+        className="relative z-10 flex flex-col items-center justify-center w-full"
+        style={{ textAlign: "center" }}
       >
-        {HERO_TEXT}
-      </h1>
+        <h1
+          className="animate-fadeInUp"
+          style={{
+            fontFamily: "'Anton', 'Oswald', Arial, sans-serif",
+            fontSize: "3rem",
+            color: "#fff",
+            textShadow:
+              "0 2px 16px #ff00cc, 0 4px 32px #00ffe7, 2px 2px 0 #000, 0 0 8px #fff",
+            letterSpacing: "0.05em",
+            padding: "0 2rem",
+            background: "linear-gradient(90deg, #ff0055 0%, #00ffe7 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            filter:
+              "drop-shadow(0 0 8px #fff) drop-shadow(0 0 16px #ff00cc)",
+          }}
+        >
+          {HERO_TEXT}
+        </h1>
+        <p
+          className="mt-2 animate-fadeInUp animation-delay-200"
+          style={{
+            fontFamily: "'Oswald', Arial, sans-serif",
+            fontSize: "1.25rem",
+            color: "#fff",
+            textShadow: "0 1px 8px #ffb6ff, 0 2px 16px #00ffe7",
+            padding: "0 1.5rem",
+            maxWidth: 600,
+            margin: "0 auto",
+            opacity: 0.95,
+          }}
+        >
+          {HERO_SUBHEAD}
+        </p>
+        <a href="/spill-manual" className="mt-4">
+          <button
+            className="px-6 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition hover-lift animate-fadeInUp animation-delay-300 shadow-lg"
+            style={{ fontFamily: "'Oswald', Arial, sans-serif", fontSize: "1.1rem" }}
+          >
+            Submit Anonymous Tea
+          </button>
+        </a>
+      </div>
     </div>
   );
 };
