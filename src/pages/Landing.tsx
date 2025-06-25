@@ -35,34 +35,65 @@ const Landing = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successType, setSuccessType] = useState<'spill' | 'vip'>('spill');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user, isAdmin, isModerator } = useAuth();
+  const { user, isAdmin, isModerator, loading } = useAuth();
   const { toast } = useToast();
+
+  console.log('[Landing] Component rendered, auth state:', { 
+    user: user?.email, 
+    isAdmin, 
+    isModerator, 
+    loading,
+    showSpillForm,
+    isSubmitting 
+  });
 
   // Check for ?ref= parameter on component mount
   useEffect(() => {
-    const refParam = searchParams.get('ref');
-    if (refParam) {
-      setShowSpillForm(true);
-      const newSearchParams = new URLSearchParams(searchParams);
-      newSearchParams.delete('ref');
-      const newUrl = newSearchParams.toString() ? `?${newSearchParams.toString()}` : '';
-      navigate(`/${newUrl}`, { replace: true });
+    console.log('[Landing] Effect running, checking ref parameter');
+    
+    try {
+      const refParam = searchParams.get('ref');
+      if (refParam) {
+        console.log('[Landing] Found ref parameter:', refParam, 'opening spill form');
+        setShowSpillForm(true);
+        
+        // Clean up URL
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.delete('ref');
+        const newUrl = newSearchParams.toString() ? `?${newSearchParams.toString()}` : '';
+        navigate(`/${newUrl}`, { replace: true });
+      }
+    } catch (error) {
+      console.error('[Landing] Error processing ref parameter:', error);
     }
   }, [searchParams, navigate]);
 
   const handleSpillSubmit = async (data: SubmissionData) => {
-    console.log('Landing - handleSpillSubmit called with data:', data);
+    console.log('[Landing] handleSpillSubmit called with data:', data);
     
     if (isSubmitting) {
-      console.log('Landing - Already submitting, preventing duplicate submission');
+      console.log('[Landing] Already submitting, preventing duplicate submission');
+      return;
+    }
+    
+    if (!data || !data.tea) {
+      console.error('[Landing] Invalid submission data:', data);
+      toast({
+        title: "Submission Failed",
+        description: "Please provide valid tea content",
+        variant: "destructive"
+      });
       return;
     }
     
     setIsSubmitting(true);
     
     try {
+      console.log('[Landing] Starting submission process');
+      
       // Generate secure anonymous token
       const anonymousToken = getOrCreateSecureToken();
+      console.log('[Landing] Generated anonymous token');
 
       // Prepare submission data
       const submissionData = {
@@ -77,6 +108,8 @@ const Landing = () => {
         rating_count: 0
       };
 
+      console.log('[Landing] Prepared submission data:', submissionData);
+
       // Validate content
       if (!submissionData.content || submissionData.content.length < 3) {
         throw new Error('Content must be at least 3 characters long');
@@ -86,6 +119,8 @@ const Landing = () => {
         throw new Error('Content must be less than 2000 characters');
       }
 
+      console.log('[Landing] Content validation passed, inserting into Supabase');
+
       // Insert into Supabase
       const { data: result, error } = await supabase
         .from('tea_submissions')
@@ -93,44 +128,75 @@ const Landing = () => {
         .select();
 
       if (error) {
+        console.error('[Landing] Supabase insertion error:', error);
         throw new Error(`Submission failed: ${error.message}`);
       }
 
       if (!result || result.length === 0) {
+        console.error('[Landing] No data returned from Supabase');
         throw new Error('Submission failed: No data returned');
       }
 
-      console.log('Landing - Submission successful');
+      console.log('[Landing] Submission successful:', result);
       setShowSpillForm(false);
       setSuccessType('spill');
       setShowSuccessModal(true);
 
     } catch (error) {
-      console.error('Landing - Submission error:', error);
+      console.error('[Landing] Submission error:', error);
       toast({
         title: "Submission Failed",
         description: `Couldn't submit your tea: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
         variant: "destructive"
       });
     } finally {
+      console.log('[Landing] Setting isSubmitting to false');
       setIsSubmitting(false);
     }
   };
 
   const handleVipTip = () => {
+    console.log('[Landing] VIP tip action triggered');
     setShowTippingModal(false);
     setSuccessType('vip');
     setShowSuccessModal(true);
   };
 
   const handleSuccessClose = () => {
+    console.log('[Landing] Success modal closed');
     setShowSuccessModal(false);
   };
 
   const handleViewFeed = () => {
+    console.log('[Landing] Navigating to feed from success modal');
     setShowSuccessModal(false);
     navigate('/feed');
   };
+
+  const handleSpillFormOpen = () => {
+    console.log('[Landing] Spill form opened');
+    setShowSpillForm(true);
+  };
+
+  const handleTippingModalOpen = () => {
+    console.log('[Landing] Tipping modal opened');
+    setShowTippingModal(true);
+  };
+
+  // Show loading state while auth is initializing
+  if (loading) {
+    console.log('[Landing] Showing loading state');
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-ctea-teal border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  console.log('[Landing] Rendering main landing page');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black">
@@ -142,8 +208,8 @@ const Landing = () => {
       <LandingNavigation />
       <TrendingTicker />
       <HeroSection 
-        onSpillFormOpen={() => setShowSpillForm(true)}
-        onTippingModalOpen={() => setShowTippingModal(true)}
+        onSpillFormOpen={handleSpillFormOpen}
+        onTippingModalOpen={handleTippingModalOpen}
       />
       <LeaderboardPreview />
       <SocialProofSection />
@@ -152,14 +218,20 @@ const Landing = () => {
 
       <SubmissionModal
         isOpen={showSpillForm}
-        onClose={() => setShowSpillForm(false)}
+        onClose={() => {
+          console.log('[Landing] Spill form closed');
+          setShowSpillForm(false);
+        }}
         onSubmit={handleSpillSubmit}
         isLoading={isSubmitting}
       />
 
       <TippingModal
         isOpen={showTippingModal}
-        onClose={() => setShowTippingModal(false)}
+        onClose={() => {
+          console.log('[Landing] Tipping modal closed');
+          setShowTippingModal(false);
+        }}
       />
 
       <SubmissionSuccessModal
