@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Layout from '@/components/Layout';
 import Modal from '@/components/Modal';
+import TippingModal from '@/components/TippingModal';
 import TestimonialCarousel from '@/components/TestimonialCarousel';
 import { TrendingUp, Zap, Users, Plus, Filter, Trophy, Coffee, Gift } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -35,6 +36,7 @@ const Feed = () => {
       
       // In a real app, this would add to the feed
       console.log('Tea submitted:', data);
+      setShowSpillModal(false);
     } catch (error) {
       toast({
         title: "Submission Failed",
@@ -79,16 +81,18 @@ const Feed = () => {
               </div>
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                 <Button 
-                  className="bg-gradient-ctea text-white font-bold w-full sm:w-auto py-3 px-6 text-base"
+                  className="bg-gradient-ctea text-white font-bold w-full sm:w-auto py-3 px-6 text-base hover:scale-105 transition-transform duration-200"
                   onClick={() => setShowSpillModal(true)}
+                  data-cta="spill-tea"
                 >
                   <Coffee className="w-4 h-4 mr-2" />
                   Spill Tea
                 </Button>
                 <Button 
                   variant="outline"
-                  className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10 w-full sm:w-auto py-3 px-6 text-base"
+                  className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10 w-full sm:w-auto py-3 px-6 text-base hover:scale-105 transition-transform duration-200"
                   onClick={() => setShowTippingModal(true)}
+                  data-cta="tip-gatekeepers"
                 >
                   <Gift className="w-4 h-4 mr-2" />
                   Tip Gatekeepers
@@ -105,16 +109,16 @@ const Feed = () => {
           {/* Quick Filters */}
           <div className="mb-8">
             <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
-              <Badge className="bg-ctea-teal/20 text-ctea-teal border border-ctea-teal/30 cursor-pointer hover:bg-ctea-teal/30">
+              <Badge className="bg-ctea-teal/20 text-ctea-teal border border-ctea-teal/30 cursor-pointer hover:bg-ctea-teal/30 transition-colors duration-200">
                 🔥 All Hot Takes
               </Badge>
-              <Badge className="bg-ctea-dark/50 text-gray-300 border border-ctea-teal/20 cursor-pointer hover:bg-ctea-dark/70">
+              <Badge className="bg-ctea-dark/50 text-gray-300 border border-ctea-teal/20 cursor-pointer hover:bg-ctea-dark/70 transition-colors duration-200">
                 🌶️ Spicy Drama
               </Badge>
-              <Badge className="bg-ctea-dark/50 text-gray-300 border border-ctea-teal/20 cursor-pointer hover:bg-ctea-dark/70">
+              <Badge className="bg-ctea-dark/50 text-gray-300 border border-ctea-teal/20 cursor-pointer hover:bg-ctea-dark/70 transition-colors duration-200">
                 📈 Trending
               </Badge>
-              <Badge className="bg-ctea-dark/50 text-gray-300 border border-ctea-teal/20 cursor-pointer hover:bg-ctea-dark/70">
+              <Badge className="bg-ctea-dark/50 text-gray-300 border border-ctea-teal/20 cursor-pointer hover:bg-ctea-dark/70 transition-colors duration-200">
                 ⚡ Latest
               </Badge>
             </div>
@@ -184,16 +188,18 @@ const Feed = () => {
                   </h3>
                   <div className="space-y-3">
                     <Button 
-                      className="w-full bg-gradient-ctea text-white font-bold py-3"
+                      className="w-full bg-gradient-ctea text-white font-bold py-3 hover:scale-105 transition-transform duration-200"
                       onClick={() => setShowSpillModal(true)}
+                      data-cta="spill-tea-sidebar"
                     >
                       <Coffee className="w-4 h-4 mr-2" />
                       Spill New Tea
                     </Button>
                     <Button 
                       variant="outline"
-                      className="w-full border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10 py-3"
+                      className="w-full border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10 py-3 hover:scale-105 transition-transform duration-200"
                       onClick={() => setShowTippingModal(true)}
+                      data-cta="tip-gatekeepers-sidebar"
                     >
                       <Gift className="w-4 h-4 mr-2" />
                       Tip Gatekeepers
@@ -234,21 +240,20 @@ const Feed = () => {
         </div>
       </section>
 
-      {/* Modals */}
+      {/* Spill Tea Modal */}
       <Modal
         isOpen={showSpillModal}
         onClose={() => setShowSpillModal(false)}
-        title="Spill the Tea ☕"
+        title="Spill Your Tea ☕"
         showForm={true}
         onSubmit={handleSpillTea}
-        submitButtonText="Submit Tea"
+        submitButtonText="Spill Tea"
       />
 
-      <Modal
+      {/* Tipping Modal */}
+      <TippingModal
         isOpen={showTippingModal}
         onClose={() => setShowTippingModal(false)}
-        title="Tip Gatekeepers 💰"
-        showTipping={true}
       />
     </Layout>
   );

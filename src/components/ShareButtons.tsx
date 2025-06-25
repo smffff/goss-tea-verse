@@ -174,6 +174,7 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
           size="sm"
           variant="outline"
           className="border-accent/30 text-accent hover:bg-accent/10 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95 transition-transform duration-150"
+          data-cta="share-twitter"
         >
           <Twitter className="w-4 h-4" />
         </Button>
@@ -182,6 +183,7 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
           size="sm"
           variant="outline"
           className="border-accent/30 text-accent hover:bg-accent/10 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95 transition-transform duration-150"
+          data-cta="share-copy"
         >
           <Copy className="w-4 h-4" />
         </Button>
@@ -198,16 +200,17 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
             Share This Tea
           </h3>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Help spread the word about this spicy take!
+            Help spread the word about this hot take!
           </p>
         </div>
-
+        
         <div className="grid grid-cols-2 gap-3 mb-4">
           {shareOptions.map((option) => (
             <Button
               key={option.platform}
               onClick={() => handleShare(option.platform)}
-              className={`${option.color} font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95 ${getButtonSize()}`}
+              className={`${option.color} font-medium transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95`}
+              data-cta={`share-${option.platform}`}
             >
               {option.icon}
               <span className="ml-2">{option.label}</span>
@@ -216,24 +219,12 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
         </div>
 
         {showCounts && (
-          <div className="flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-            <div className="flex items-center gap-1">
-              <Share2 className="w-4 h-4" />
-              <span>{shareCount} shares</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Heart className="w-4 h-4" />
-              <span>🔥 Hot</span>
-            </div>
+          <div className="text-center">
+            <p className="text-sm text-gray-500">
+              {shareCount} shares • {hashtags.join(' ')}
+            </p>
           </div>
         )}
-
-        <div className="mt-4 p-3 bg-accent/10 rounded-lg border border-accent/20">
-          <div className="flex items-center gap-2 text-sm text-accent">
-            <Zap className="w-4 h-4" />
-            <span>Sharing helps the community discover great content!</span>
-          </div>
-        </div>
       </Card>
     );
   }
@@ -245,20 +236,15 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
         <Button
           key={option.platform}
           onClick={() => handleShare(option.platform)}
+          size="sm"
           variant="outline"
-          className={`${option.borderColor} hover:bg-accent/10 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95 transition-transform duration-150 ${getButtonSize()}`}
-          title={`Share on ${option.label}`}
+          className={`${option.borderColor} ${option.color} transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95`}
+          data-cta={`share-${option.platform}`}
         >
           {option.icon}
-          {size !== 'sm' && <span className="ml-2">{option.label}</span>}
+          <span className="ml-2 hidden sm:inline">{option.label}</span>
         </Button>
       ))}
-      
-      {showCounts && shareCount > 0 && (
-        <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30">
-          {shareCount} shares
-        </Badge>
-      )}
     </div>
   );
 };

@@ -205,7 +205,7 @@ const Footer = () => {
               </Dialog>
 
               <a 
-                href="mailto:hello@ctea.news" 
+                href="mailto:hello@ctea.news"
                 className="flex items-center gap-2 border-accent/30 text-accent hover:bg-accent/10 hover:text-accent2 transition-all duration-300 uppercase font-semibold px-6 py-3 rounded-lg shadow hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
               >
                 <Mail className="w-4 h-4" />
@@ -219,7 +219,7 @@ const Footer = () => {
                 © 2024 CTea Newsroom. All rights reserved. Built with ☕ and chaos.
               </p>
               <p className="text-xs text-gray-500 mt-2">
-                Beta v1.0.0 • Anonymous crypto gossip platform
+                Beta v1.0.0 • Managed Chaos, Served Hot
               </p>
             </div>
           </div>

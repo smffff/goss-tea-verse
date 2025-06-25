@@ -17,7 +17,6 @@ const Navigation = () => {
   const navigationItems = [
     { path: '/', label: 'Home', icon: <Home className="w-4 h-4" /> },
     { path: '/feed', label: 'Feed', icon: <TrendingUp className="w-4 h-4" /> },
-    { path: '/submit', label: 'Submit', icon: <Plus className="w-4 h-4" /> },
     { path: '/campaigns', label: 'Leaderboard', icon: <Trophy className="w-4 h-4" /> },
     { path: '/submit', label: 'Submit', icon: <Plus className="w-4 h-4" /> },
     { path: '/about', label: 'About', icon: <Sparkles className="w-4 h-4" /> }
@@ -198,17 +197,17 @@ const Navigation = () => {
             aria-modal="true"
             aria-label="Mobile navigation menu"
           >
-            <div className="p-4">
+            <div className="container mx-auto px-4 py-6">
               {/* Mobile Navigation Items */}
               <nav className="space-y-2">
                 {navigationItems.map((item) => (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 uppercase font-semibold focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent ${
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 font-semibold focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent ${
                       isActive(item.path)
-                        ? 'bg-accent/20 text-accent dark:bg-ctea-teal/20 dark:text-ctea-teal border border-accent/30 dark:border-ctea-teal/30 shadow-lg'
-                        : 'text-gray-600 dark:text-gray-300 hover:text-accent dark:hover:text-white hover:bg-accent/10 dark:hover:bg-ctea-dark/50 active:scale-95'
+                        ? 'bg-accent/20 text-accent dark:bg-ctea-teal/20 dark:text-ctea-teal border border-accent/30 dark:border-ctea-teal/30'
+                        : 'text-gray-600 dark:text-gray-300 hover:text-accent dark:hover:text-white hover:bg-accent/10 dark:hover:bg-ctea-dark/50'
                     }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -220,40 +219,43 @@ const Navigation = () => {
 
               {/* Mobile User Stats */}
               {userProgression && (
-                <div className="mt-6 p-4 bg-accent/10 dark:bg-ctea-dark/30 rounded-lg border border-accent/20 dark:border-ctea-teal/20">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Your Stats</span>
-                    <Badge className="bg-accent2 text-white font-bold text-xs">
-                      {userProgression.tea_points} $TEA
-                    </Badge>
+                <div className="mt-6 pt-6 border-t border-accent/20 dark:border-ctea-teal/20">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-accent2 text-white font-bold">
+                        {userProgression.tea_points} $TEA
+                      </Badge>
+                    </div>
+                    <UserStats />
                   </div>
-                  <UserStats />
                 </div>
               )}
 
               {/* Mobile Quick Actions */}
-              <div className="mt-6 space-y-3">
-                <Button 
-                  className="w-full bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent text-white font-bold uppercase tracking-wide py-3 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
-                  onClick={() => {
-                    navigate('/submit');
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Spill Tea
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="w-full border-accent text-accent hover:bg-accent/10 hover:text-accent2 transition-all duration-300 uppercase font-semibold py-3 rounded-lg shadow hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
-                  onClick={() => {
-                    navigate('/campaigns');
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  <Trophy className="w-4 h-4 mr-2" />
-                  View Leaderboard
-                </Button>
+              <div className="mt-6 pt-6 border-t border-accent/20 dark:border-ctea-teal/20">
+                <div className="grid grid-cols-2 gap-3">
+                  <Button 
+                    className="bg-gradient-to-r from-accent to-accent2 text-white font-bold py-3"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      navigate('/submit');
+                    }}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Spill Tea
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className="border-accent text-accent hover:bg-accent/10 py-3"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      navigate('/campaigns');
+                    }}
+                  >
+                    <Trophy className="w-4 h-4 mr-2" />
+                    Leaderboard
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

@@ -5,10 +5,11 @@ import TeaSubmissionCard from './TeaSubmissionCard';
 import HotTakesFilters from './HotTakesFilters';
 import LoadingSpinner from './LoadingSpinner';
 import FeedSkeleton from './FeedSkeleton';
-import { Share2, Flag, Copy, CheckCircle, Twitter } from 'lucide-react';
+import ShareButtons from './ShareButtons';
+import ReportModal from './ReportModal';
+import { Share2, Flag, Copy, CheckCircle, Twitter, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import ReportModal from './ReportModal';
 
 interface TeaSubmission {
   id: string;
@@ -198,78 +199,82 @@ const TeaFeed = () => {
       localStorage.setItem('ctea_anonymous_token', anonymousToken);
 
       const { data: existingReaction } = await supabase
-        .from('user_reactions')
+        .from('submission_reactions')
         .select('*')
         .eq('submission_id', submissionId)
         .eq('anonymous_token', anonymousToken)
         .single();
 
       if (existingReaction) {
+        // Update existing reaction
         await supabase
-          .from('user_reactions')
+          .from('submission_reactions')
           .update({ reaction_type: reactionType })
           .eq('id', existingReaction.id);
       } else {
+        // Create new reaction
         await supabase
-          .from('user_reactions')
+          .from('submission_reactions')
           .insert({
             submission_id: submissionId,
-            anonymous_token: anonymousToken,
+            anonymous_token,
             reaction_type: reactionType
           });
-
-        await incrementReaction('given');
       }
 
-      setSubmissions(prev => prev.map(sub => {
-        if (sub.id === submissionId) {
-          const newReactions = { ...sub.reactions };
-          newReactions[reactionType] = (newReactions[reactionType] || 0) + 1;
-          return { ...sub, reactions: newReactions };
+      // Update local state
+      setSubmissions(prev => prev.map(submission => {
+        if (submission.id === submissionId) {
+          const newReactions = { ...submission.reactions };
+          newReactions[reactionType]++;
+          return { ...submission, reactions: newReactions };
         }
-        return sub;
+        return submission;
       }));
 
+      // Track user progression
+      incrementReaction(reactionType);
+
+      toast({
+        title: `Reaction Added! ${reactionType === 'hot' ? '🔥' : reactionType === 'cold' ? '❄️' : '🌶️'}`,
+        description: `You ${reactionType === 'hot' ? 'heated up' : reactionType === 'cold' ? 'cooled down' : 'spiced up'} this tea!`,
+      });
+
     } catch (error) {
-      console.error('Error handling reaction:', error);
+      console.error('Error adding reaction:', error);
+      toast({
+        title: "Reaction Failed",
+        description: "Couldn't add your reaction. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
   const handleBoostUpdated = (submissionId: string, newBoost: number) => {
-    setSubmissions(prev => prev.map(sub => {
-      if (sub.id === submissionId) {
-        return { ...sub, boost_score: newBoost };
-      }
-      return sub;
-    }));
+    setSubmissions(prev => prev.map(submission => 
+      submission.id === submissionId 
+        ? { ...submission, boost_score: newBoost }
+        : submission
+    ));
   };
 
   const generateAICommentary = async (submission: TeaSubmission, type: 'spicy' | 'smart' | 'memy' | 'wise' = 'spicy') => {
     try {
-      const { data, error } = await supabase.functions.invoke('generate-ai-commentary', {
-        body: { 
+      const response = await fetch('/api/generate-ai-commentary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          submission_id: submission.id,
           content: submission.content,
-          category: submission.category,
-          submissionId: submission.id,
-          commentaryType: type
-        }
+          type
+        })
       });
 
-      if (error) throw error;
-      
-      if (data?.commentary) {
+      if (response.ok) {
+        const comment = await response.json();
         setAiComments(prev => ({
           ...prev,
-          [submission.id]: [
-            ...(prev[submission.id] || []),
-            {
-              id: Date.now().toString(),
-              content: data.commentary,
-              type: type,
-              submission_id: submission.id,
-              created_at: new Date().toISOString()
-            }
-          ]
+          [submission.id]: [...(prev[submission.id] || []), comment]
         }));
       }
     } catch (error) {
@@ -290,30 +295,32 @@ const TeaFeed = () => {
   };
 
   const handleShare = async (submissionId: string, platform: 'twitter' | 'copy') => {
-    const shareUrl = `${window.location.origin}/feed?submission=${submissionId}`;
     const submission = submissions.find(s => s.id === submissionId);
-    const shareText = submission ? `🔥 Hot take from CTea Newsroom: "${submission.content.substring(0, 100)}..."` : 'Check out this hot take!';
+    if (!submission) return;
 
-    if (platform === 'twitter') {
-      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}&hashtags=CTea,Crypto`;
-      window.open(twitterUrl, '_blank');
-    } else {
-      try {
-        await navigator.clipboard.writeText(`${shareText}\n\n${shareUrl}`);
+    const shareUrl = `${window.location.origin}/feed?submission=${submissionId}`;
+    const shareText = `🔥 Hot Tea Alert: ${submission.content.substring(0, 100)}... #CTea #CryptoGossip`;
+
+    try {
+      if (platform === 'twitter') {
+        const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+        window.open(twitterUrl, '_blank', 'width=600,height=400');
+      } else {
+        await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
         setCopiedLink(submissionId);
         toast({
           title: "Link Copied! 📋",
-          description: "Post link copied to clipboard",
+          description: "Share link copied to clipboard",
         });
         setTimeout(() => setCopiedLink(null), 2000);
-      } catch (err) {
-        console.error('Failed to copy:', err);
-        toast({
-          title: "Copy Failed",
-          description: "Couldn't copy link. Please try again.",
-          variant: "destructive"
-        });
       }
+    } catch (error) {
+      console.error('Share error:', error);
+      toast({
+        title: "Share Failed",
+        description: "Couldn't share content. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -339,33 +346,43 @@ const TeaFeed = () => {
       {/* Feed Items */}
       <div className="space-y-6">
         {submissions.map((submission) => (
-          <div key={submission.id} className="bg-ctea-dark/30 border border-ctea-teal/20 rounded-lg p-6 hover:bg-ctea-dark/40 transition-all duration-200">
-            {/* Submission Header */}
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-accent to-accent2 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                  {submission.author?.charAt(0) || 'A'}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-white">{submission.author || 'Anonymous'}</span>
-                    {submission.is_viral && (
-                      <span className="bg-ctea-pink text-white text-xs px-2 py-1 rounded-full">🔥 Viral</span>
-                    )}
-                  </div>
-                  <div className="text-sm text-gray-400">
-                    {new Date(submission.created_at).toLocaleString()}
-                  </div>
-                </div>
+          <div key={submission.id} className="relative">
+            <TeaSubmissionCard
+              submission={submission}
+              onReaction={handleReaction}
+              onBoostUpdated={handleBoostUpdated}
+              onGenerateAICommentary={generateAICommentary}
+              aiComments={aiComments[submission.id] || []}
+              isExpanded={expandedSubmissions.has(submission.id)}
+              onToggleComments={() => toggleComments(submission.id)}
+            />
+            
+            {/* Action Buttons */}
+            <div className="flex items-center justify-between mt-4 pt-4 border-t border-ctea-teal/20">
+              <div className="flex items-center gap-2">
+                <ShareButtons
+                  url={`${window.location.origin}/feed?submission=${submission.id}`}
+                  title={`Hot Tea: ${submission.content.substring(0, 50)}...`}
+                  variant="minimal"
+                  className="text-ctea-teal"
+                />
               </div>
               
-              {/* Action Buttons */}
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
                   size="sm"
+                  onClick={() => handleShare(submission.id, 'twitter')}
+                  className="text-ctea-teal hover:bg-ctea-teal/10 hover:text-white transition-colors duration-200"
+                >
+                  <Twitter className="w-4 h-4" />
+                </Button>
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => handleShare(submission.id, 'copy')}
-                  className="text-gray-400 hover:text-accent"
+                  className="text-ctea-teal hover:bg-ctea-teal/10 hover:text-white transition-colors duration-200"
                 >
                   {copiedLink === submission.id ? (
                     <CheckCircle className="w-4 h-4" />
@@ -373,124 +390,16 @@ const TeaFeed = () => {
                     <Copy className="w-4 h-4" />
                   )}
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleShare(submission.id, 'twitter')}
-                  className="text-gray-400 hover:text-blue-400"
-                >
-                  <Twitter className="w-4 h-4" />
-                </Button>
+                
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => handleReport(submission.id)}
-                  className="text-gray-400 hover:text-red-400"
+                  className="text-red-400 hover:bg-red-400/10 hover:text-red-300 transition-colors duration-200"
                 >
                   <Flag className="w-4 h-4" />
                 </Button>
               </div>
-            </div>
-
-            {/* Submission Content */}
-            <div className="mb-4">
-              <p className="text-white leading-relaxed">{submission.content}</p>
-            </div>
-
-            {/* Evidence Links */}
-            {submission.evidence_urls && submission.evidence_urls.length > 0 && (
-              <div className="mb-4">
-                <div className="flex items-center gap-2 text-sm text-ctea-teal mb-2">
-                  <span>📎 Evidence:</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {submission.evidence_urls.map((url, index) => (
-                    <a
-                      key={index}
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-accent hover:text-accent2 text-sm underline"
-                    >
-                      Link {index + 1}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Reaction Buttons */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleReaction(submission.id, 'hot')}
-                  className="text-gray-400 hover:text-red-400 hover:bg-red-400/10"
-                >
-                  🔥 Hot ({submission.reactions.hot})
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleReaction(submission.id, 'cold')}
-                  className="text-gray-400 hover:text-blue-400 hover:bg-blue-400/10"
-                >
-                  ❄️ Cold ({submission.reactions.cold})
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleReaction(submission.id, 'spicy')}
-                  className="text-gray-400 hover:text-orange-400 hover:bg-orange-400/10"
-                >
-                  🌶️ Spicy ({submission.reactions.spicy})
-                </Button>
-              </div>
-              
-              <div className="text-sm text-gray-400">
-                {submission.rating_count} reactions • {submission.average_rating.toFixed(1)} ⭐
-              </div>
-            </div>
-
-            {/* AI Commentary Section */}
-            <div className="border-t border-ctea-teal/20 pt-4">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-semibold text-ctea-teal">AI Commentary</h4>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => generateAICommentary(submission, 'spicy')}
-                    className="text-xs border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10"
-                  >
-                    🌶️ Spicy
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => generateAICommentary(submission, 'smart')}
-                    className="text-xs border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10"
-                  >
-                    🧠 Smart
-                  </Button>
-                </div>
-              </div>
-              
-              {aiComments[submission.id] && aiComments[submission.id].length > 0 && (
-                <div className="space-y-2">
-                  {aiComments[submission.id].map((comment) => (
-                    <div key={comment.id} className="bg-ctea-dark/20 border border-ctea-teal/10 rounded-lg p-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs text-ctea-teal font-medium">
-                          {comment.type === 'spicy' ? '🌶️ Spicy Take' : '🧠 Smart Analysis'}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-300">{comment.content}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
         ))}

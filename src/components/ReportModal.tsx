@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -42,13 +42,43 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, submissionId
   const { toast } = useToast();
 
   const reportReasons = [
-    { value: 'spam', label: 'Spam or misleading content' },
-    { value: 'harassment', label: 'Harassment or bullying' },
-    { value: 'fake_news', label: 'Fake news or misinformation' },
-    { value: 'personal_info', label: 'Personal information exposure' },
-    { value: 'illegal', label: 'Illegal content or activities' },
-    { value: 'other', label: 'Other (please specify)' }
+    { value: 'spam', label: 'Spam or misleading content', icon: '🚫' },
+    { value: 'harassment', label: 'Harassment or bullying', icon: '⚠️' },
+    { value: 'fake_news', label: 'Fake news or misinformation', icon: '📰' },
+    { value: 'personal_info', label: 'Personal information exposure', icon: '🔒' },
+    { value: 'illegal', label: 'Illegal content or activities', icon: '⚖️' },
+    { value: 'other', label: 'Other (please specify)', icon: '❓' }
   ];
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
+  // Close modal on escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen, onClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +94,9 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, submissionId
 
     setIsSubmitting(true);
     try {
+      // Track report submission
+      trackFeedbackSubmission();
+
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
@@ -143,7 +176,10 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, submissionId
                   <SelectContent className="bg-ctea-dark border-ctea-teal/30">
                     {reportReasons.map((reason) => (
                       <SelectItem key={reason.value} value={reason.value} className="text-white hover:bg-ctea-dark/50">
-                        {reason.label}
+                        <div className="flex items-center gap-2">
+                          <span>{reason.icon}</span>
+                          <span>{reason.label}</span>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -160,11 +196,31 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, submissionId
                   placeholder="Please provide any additional context or details about why you're reporting this content..."
                   value={reportComment}
                   onChange={(e) => setReportComment(e.target.value)}
-                  className="min-h-[100px] bg-ctea-dark/50 border-ctea-teal/30 text-white placeholder-gray-400 focus:ring-2 focus:ring-red-400/50 focus:border-red-400"
+                  className="min-h-[100px] bg-ctea-dark/50 border-ctea-teal/30 text-white placeholder-gray-400 focus:ring-2 focus:ring-red-400/50 focus:border-red-400 resize-none"
+                  maxLength={500}
                 />
-                <p className="text-xs text-gray-400 mt-1">
-                  Your report will be reviewed by our moderation team within 24 hours.
-                </p>
+                <div className="flex items-center justify-between mt-1">
+                  <p className="text-xs text-gray-400">
+                    Your report will be reviewed by our moderation team within 24 hours.
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {reportComment.length}/500
+                  </p>
+                </div>
+              </div>
+
+              {/* Report Guidelines */}
+              <div className="bg-blue-400/10 border border-blue-400/30 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Shield className="w-4 h-4 text-blue-400" />
+                  <span className="text-blue-400 font-medium">Report Guidelines</span>
+                </div>
+                <ul className="text-xs text-gray-300 space-y-1">
+                  <li>• Only report content that violates our community guidelines</li>
+                  <li>• Provide specific details to help us understand the issue</li>
+                  <li>• False reports may result in account restrictions</li>
+                  <li>• We review all reports within 24 hours</li>
+                </ul>
               </div>
 
               {/* Action Buttons */}
@@ -172,7 +228,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, submissionId
                 <Button
                   type="submit"
                   disabled={isSubmitting || !reportReason}
-                  className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold transition-all duration-300 disabled:opacity-50"
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
                     <>
@@ -190,7 +246,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, submissionId
                   type="button"
                   variant="outline"
                   onClick={onClose}
-                  className="border-ctea-teal/30 text-ctea-teal hover:bg-ctea-teal/10"
+                  className="border-ctea-teal/30 text-ctea-teal hover:bg-ctea-teal/10 transition-colors duration-200"
                 >
                   Cancel
                 </Button>

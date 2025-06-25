@@ -41,6 +41,22 @@ const TestimonialCarousel: React.FC = () => {
       role: "Crypto Analyst",
       rating: 5,
       badge: "Verified"
+    },
+    {
+      id: '4',
+      quote: "Been here since day one and the quality of tea has only gotten better. The leaderboard system keeps everyone honest and the rewards are real! 💎",
+      author: "DiamondHands",
+      role: "Long-term Holder",
+      rating: 5,
+      badge: "Diamond"
+    },
+    {
+      id: '5',
+      quote: "The tipping system is genius. I've made more from sharing alpha here than from any other platform. The community is incredibly supportive! 🌟",
+      author: "AlphaHunter",
+      role: "Content Creator",
+      rating: 5,
+      badge: "Creator"
     }
   ];
 
@@ -48,7 +64,7 @@ const TestimonialCarousel: React.FC = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
+    }, 6000); // Increased to 6 seconds for better readability
 
     return () => clearInterval(interval);
   }, [testimonials.length]);
@@ -132,7 +148,7 @@ const TestimonialCarousel: React.FC = () => {
           variant="ghost"
           size="sm"
           onClick={prevTestimonial}
-          className="absolute left-2 top-1/2 transform -translate-y-1/2 text-ctea-teal hover:bg-ctea-teal/10 hover:text-white"
+          className="absolute left-2 top-1/2 transform -translate-y-1/2 text-ctea-teal hover:bg-ctea-teal/10 hover:text-white transition-colors duration-200"
           aria-label="Previous testimonial"
         >
           <ChevronLeft className="w-5 h-5" />
@@ -142,7 +158,7 @@ const TestimonialCarousel: React.FC = () => {
           variant="ghost"
           size="sm"
           onClick={nextTestimonial}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-ctea-teal hover:bg-ctea-teal/10 hover:text-white"
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-ctea-teal hover:bg-ctea-teal/10 hover:text-white transition-colors duration-200"
           aria-label="Next testimonial"
         >
           <ChevronRight className="w-5 h-5" />
@@ -162,6 +178,22 @@ const TestimonialCarousel: React.FC = () => {
         <div className="text-center">
           <div className="text-2xl font-bold text-ctea-yellow">4.9★</div>
           <div className="text-sm text-gray-400">Community Rating</div>
+        </div>
+      </div>
+
+      {/* Additional Social Proof */}
+      <div className="mt-6 p-4 bg-gradient-to-r from-accent/10 to-accent2/10 border border-accent/20 rounded-lg">
+        <div className="text-center">
+          <p className="text-sm text-gray-300 mb-2">
+            <span className="text-accent font-semibold">Join thousands</span> of crypto enthusiasts who trust CTea for the hottest alpha
+          </p>
+          <div className="flex justify-center items-center gap-4 text-xs text-gray-400">
+            <span>🔥 24/7 Hot Takes</span>
+            <span>•</span>
+            <span>🛡️ Anonymous & Secure</span>
+            <span>•</span>
+            <span>💰 Real Rewards</span>
+          </div>
         </div>
       </div>
     </div>
