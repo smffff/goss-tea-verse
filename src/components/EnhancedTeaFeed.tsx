@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserProgression } from '@/hooks/useUserProgression';
@@ -152,7 +151,8 @@ const EnhancedTeaFeed = () => {
       let query = supabase
         .from('tea_submissions')
         .select('*')
-        .eq('status', 'approved'); // Only fetch approved submissions
+        .eq('status', 'approved')
+        .eq('visible', true); // Only fetch visible (AI-verified) submissions
 
       // Apply sorting
       switch (sortBy) {

@@ -47,14 +47,49 @@ export const useTeaFeed = (externalFilter?: string) => {
           console.log('useTeaFeed - New submission received via real-time:', payload);
           const newSubmission = payload.new as any;
           
-          // Only add if status is approved
-          if (newSubmission.status === 'approved') {
+          // Only add if status is approved AND visible
+          if (newSubmission.status === 'approved' && newSubmission.visible === true) {
             const transformedSubmission = transformSubmission(newSubmission);
             setSubmissions(prev => [transformedSubmission, ...prev]);
             
             toast({
               title: "New Tea Alert! ☕",
               description: "Fresh gossip just dropped!",
+            });
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'tea_submissions'
+        },
+        (payload) => {
+          console.log('useTeaFeed - Submission updated via real-time:', payload);
+          const updatedSubmission = payload.new as any;
+          
+          // Handle visibility updates (AI verification completed)
+          if (updatedSubmission.status === 'approved' && updatedSubmission.visible === true) {
+            const transformedSubmission = transformSubmission(updatedSubmission);
+            
+            setSubmissions(prev => {
+              const existingIndex = prev.findIndex(sub => sub.id === updatedSubmission.id);
+              if (existingIndex >= 0) {
+                // Update existing submission
+                const newSubmissions = [...prev];
+                newSubmissions[existingIndex] = transformedSubmission;
+                return newSubmissions;
+              } else {
+                // Add new visible submission
+                return [transformedSubmission, ...prev];
+              }
+            });
+            
+            toast({
+              title: "Tea Verified! ☕",
+              description: "New verified tea just appeared in the feed!",
             });
           }
         }
@@ -75,7 +110,8 @@ export const useTeaFeed = (externalFilter?: string) => {
       let query = supabase
         .from('tea_submissions')
         .select('*')
-        .eq('status', 'approved');
+        .eq('status', 'approved')
+        .eq('visible', true); // Only fetch visible submissions
 
       // Apply sorting
       switch (sortBy) {

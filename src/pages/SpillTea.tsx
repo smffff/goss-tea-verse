@@ -36,13 +36,14 @@ const SpillTea = () => {
       const anonymousToken = getOrCreateSecureToken();
       console.log('SpillTea - Generated secure anonymous token');
 
-      // Prepare submission data
+      // Prepare submission data with visibility false by default for AI verification
       const submissionData = {
         content: data.teaText.trim(),
         category: data.topic || 'general',
         evidence_urls: data.mediaUrl ? [data.mediaUrl] : null,
         anonymous_token: anonymousToken,
         status: 'approved',
+        visible: false, // Start as invisible until AI verification
         has_evidence: !!data.mediaUrl,
         reactions: { hot: 0, cold: 0, spicy: 0 },
         average_rating: 0,
@@ -79,10 +80,35 @@ const SpillTea = () => {
       }
 
       console.log('SpillTea - Submission successful:', result);
+      const submissionId = result[0].id;
+
+      // Trigger AI verification workflow
+      try {
+        console.log('SpillTea - Triggering AI verification for submission:', submissionId);
+        
+        const { data: aiResult, error: aiError } = await supabase.functions.invoke('generate-ai-commentary-enhanced', {
+          body: { 
+            content: submissionData.content,
+            category: submissionData.category,
+            submissionId: submissionId,
+            commentaryType: 'spicy'
+          }
+        });
+
+        if (aiError) {
+          console.error('SpillTea - AI verification failed:', aiError);
+          // Don't throw error here - submission is still valid, just needs manual review
+        } else {
+          console.log('SpillTea - AI verification completed:', aiResult);
+        }
+      } catch (aiError) {
+        console.error('SpillTea - AI verification error:', aiError);
+        // Continue - submission is still valid
+      }
 
       toast({
         title: "✅ Your tea has been spilled!",
-        description: "Your submission is now live in the feed! Check it out and see the community reactions.",
+        description: "Your submission is being processed and will appear in the feed once verified.",
       });
 
       console.log('SpillTea - Navigating to feed...');

@@ -17,28 +17,38 @@ export const transformSubmission = (submission: any): TeaSubmission => {
     ...submission,
     reactions: parsedReactions,
     boost_score: submission.boost_score || 0,
-    is_viral: (parsedReactions.hot + parsedReactions.cold + parsedReactions.spicy) > 50
+    // Include AI reaction if available
+    ai_reaction: submission.ai_reaction || null,
+    // Ensure visibility field is included
+    visible: submission.visible || false,
+    // Include Twitter integration fields
+    tweeted: submission.tweeted || false,
+    tweet_id: submission.tweet_id || null
   };
 };
 
-export const filterSubmissions = (submissions: TeaSubmission[], activeFilter: string): TeaSubmission[] => {
-  if (activeFilter === 'all') return submissions;
-
+export const filterSubmissions = (submissions: TeaSubmission[], filter: string): TeaSubmission[] => {
+  if (filter === 'all') return submissions;
+  
   return submissions.filter(submission => {
     const reactions = submission.reactions;
     const totalReactions = reactions.hot + reactions.cold + reactions.spicy;
     
-    switch (activeFilter) {
+    switch (filter) {
       case 'hot':
-        return reactions.hot > reactions.cold;
+        return reactions.hot > Math.max(reactions.cold, reactions.spicy);
+      case 'cold':
+        return reactions.cold > Math.max(reactions.hot, reactions.spicy);
       case 'spicy':
-        return reactions.spicy > 5;
+        return reactions.spicy > Math.max(reactions.hot, reactions.cold);
+      case 'controversial':
+        return totalReactions > 10 && Math.abs(reactions.hot - reactions.cold) < 3;
       case 'trending':
-        return totalReactions > 10;
-      case 'boosted':
-        return (submission.boost_score || 0) > 0;
-      case 'viral':
-        return submission.is_viral;
+        return totalReactions > 15;
+      case 'verified':
+        return submission.has_evidence;
+      case 'ai-commented':
+        return !!submission.ai_reaction;
       default:
         return true;
     }
