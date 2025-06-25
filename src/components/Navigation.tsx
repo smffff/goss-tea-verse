@@ -14,18 +14,12 @@ const Navigation = () => {
   const navigate = useNavigate();
   const { userProgression } = useUserProgression();
 
-  // Hide navigation on landing page
-  if (location.pathname === '/') {
-    return null;
-  }
-
   const navigationItems = [
-    { path: '/app', label: 'Home', icon: <Home className="w-4 h-4" /> },
+    { path: '/', label: 'Home', icon: <Home className="w-4 h-4" /> },
     { path: '/feed', label: 'Feed', icon: <TrendingUp className="w-4 h-4" /> },
-    { path: '/trends', label: 'Trends', icon: <Activity className="w-4 h-4" /> },
     { path: '/submit', label: 'Submit', icon: <Plus className="w-4 h-4" /> },
-    { path: '/campaigns', label: 'Campaigns', icon: <Trophy className="w-4 h-4" /> },
-    { path: '/features', label: 'Features', icon: <Sparkles className="w-4 h-4" /> }
+    { path: '/campaigns', label: 'Leaderboard', icon: <Trophy className="w-4 h-4" /> },
+    { path: '/about', label: 'About', icon: <Sparkles className="w-4 h-4" /> }
   ];
 
   const [darkMode, setDarkMode] = React.useState(() => {
@@ -37,7 +31,7 @@ const Navigation = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Handle scroll effect
+  // Handle scroll effect for sticky behavior
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -82,7 +76,7 @@ const Navigation = () => {
 
   return (
     <>
-      {/* Header */}
+      {/* Sticky Header */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
           ? 'bg-white/95 dark:bg-ctea-darker/95 backdrop-blur-md border-b border-accent/30 dark:border-ctea-teal/30' 
@@ -90,7 +84,7 @@ const Navigation = () => {
       }`}>
         <div className="container mx-auto px-4 md:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20">
-            {/* Logo and Brand */}
+            {/* Logo and Brand - Left */}
             <div 
               className="flex items-center gap-2 sm:gap-4 cursor-pointer" 
               onClick={handleLogoClick}
@@ -115,7 +109,7 @@ const Navigation = () => {
               </div>
             </div>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation - Center */}
             <nav className="hidden lg:flex items-center gap-4 xl:gap-6">
               {navigationItems.map((item) => (
                 <Link
@@ -145,7 +139,7 @@ const Navigation = () => {
               )}
             </div>
 
-            {/* Controls */}
+            {/* Controls - Right */}
             <div className="flex items-center gap-2 sm:gap-4">
               {/* Dark Mode Toggle */}
               <div className="flex items-center gap-1 sm:gap-2">
@@ -201,59 +195,27 @@ const Navigation = () => {
                     }`}
                   >
                     {item.icon}
-                    <span className="text-base">{item.label}</span>
+                    <span>{item.label}</span>
                   </Link>
                 ))}
               </nav>
-              
+
               {/* Mobile User Stats */}
               {userProgression && (
-                <div className="mt-6 pt-4 border-t border-accent/30 dark:border-ctea-teal/30">
+                <div className="mt-6 p-4 bg-accent/10 dark:bg-ctea-dark/30 rounded-lg border border-accent/20 dark:border-ctea-teal/20">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-300 text-sm">$TEA Points:</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-300">Your $TEA Points:</span>
                     <Badge className="bg-accent2 text-white font-bold">
                       {userProgression.tea_points}
                     </Badge>
                   </div>
-                  <div className="mt-2">
-                    <UserStats />
-                  </div>
+                  <UserStats />
                 </div>
               )}
-
-              {/* Mobile Quick Actions */}
-              <div className="mt-6 pt-4 border-t border-accent/30 dark:border-ctea-teal/30">
-                <div className="grid grid-cols-2 gap-3">
-                  <Button 
-                    className="bg-gradient-to-r from-accent to-accent2 text-white font-bold uppercase px-6 py-3 rounded-lg transition-all shadow hover:scale-105"
-                    onClick={() => {
-                      navigate('/submit');
-                      setIsMenuOpen(false);
-                    }}
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Spill Tea
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    className="border-accent text-accent hover:bg-accent/10 uppercase font-semibold px-6 py-3 rounded-lg transition-all shadow hover:scale-105"
-                    onClick={() => {
-                      navigate('/feed');
-                      setIsMenuOpen(false);
-                    }}
-                  >
-                    <TrendingUp className="w-4 h-4 mr-2" />
-                    Browse
-                  </Button>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       )}
-
-      {/* Spacer for fixed header */}
-      <div className="h-16 sm:h-20" />
     </>
   );
 };

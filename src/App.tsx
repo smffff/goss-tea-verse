@@ -18,7 +18,10 @@ const App = () => (
   <BrowserRouter>
     <div className="app">
       <Routes>
+        {/* Landing page - no Layout wrapper */}
         <Route path="/" element={<Landing />} />
+        
+        {/* App pages with Layout wrapper */}
         <Route path="/app" element={
           <Layout>
             <Index />
@@ -69,6 +72,8 @@ const App = () => (
             <Terms />
           </Layout>
         } />
+        
+        {/* 404 page with Layout wrapper */}
         <Route path="*" element={
           <Layout>
             <NotFound />

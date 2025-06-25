@@ -92,19 +92,8 @@ const Footer = () => {
               </Link>
             </div>
             
-            {/* Footer Links */}
+            {/* Social Links */}
             <div className="flex flex-wrap justify-center gap-6 mb-8">
-              <a 
-                href="https://cteanews.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 group hover:bg-accent/10 px-2 py-1 rounded"
-              >
-                <ExternalLink className="w-4 h-4 group-hover:animate-pulse" />
-                <span className="font-medium">cteanews.com</span>
-              </a>
-              
-              {/* Social Links */}
               {socialLinks.map((link, index) => (
                 <a 
                   key={index}
@@ -199,20 +188,22 @@ const Footer = () => {
                 </DialogContent>
               </Dialog>
 
-              {/* Email Contact */}
               <a 
-                href="mailto:feedback@ctea.news?subject=CTea%20Newsroom%20Feedback"
-                className="inline-flex items-center gap-2 border border-accent2 text-accent2 hover:bg-accent2/10 hover:text-white transition-all duration-300 uppercase font-semibold px-6 py-3 rounded-lg shadow hover:scale-105"
+                href="mailto:hello@cteanews.com"
+                className="flex items-center gap-2 border-accent text-accent hover:bg-accent/10 hover:text-accent2 transition-all duration-300 uppercase font-semibold px-6 py-3 rounded-lg shadow hover:scale-105"
               >
                 <Mail className="w-4 h-4" />
-                Email Us
+                Contact
               </a>
             </div>
-            
-            <div className="text-sm text-gray-500 border-t border-gray-700 pt-6">
-              <p>© 2024 CTea Newsroom. Powered by CTea Newsroom. Spill responsibly. 🫖</p>
-              <p className="mt-2 text-xs">
-                Where Crypto Twitter Comes to Spill • Submit, track, and score the latest gossip & alpha—anonymous, algorithmic, and spicy
+
+            {/* Copyright */}
+            <div className="border-t border-gray-700 pt-8">
+              <p className="text-sm text-gray-400">
+                © 2024 CTea Newsroom. All rights reserved. Built with ☕️ and chaos.
+              </p>
+              <p className="text-xs text-gray-500 mt-2">
+                Beta v0.1.0 • Managed Chaos, Served Hot
               </p>
             </div>
           </div>

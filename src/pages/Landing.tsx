@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import Modal from '@/components/Modal';
 import TippingModal from '@/components/TippingModal';
@@ -111,26 +112,8 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-cyan-50">
-      {/* Simple Navigation Bar */}
-      <nav className="bg-white/80 backdrop-blur-sm border-b border-accent/30 sticky top-0 z-40">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-2">
-              <img 
-                src="/ctea-logo-icon.svg" 
-                alt="CTea Newsroom Logo" 
-                className="w-8 h-8"
-              />
-              <span className="font-bold text-gray-900">CTea Newsroom</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <a href="#leaderboard" className="text-gray-600 hover:text-accent font-medium transition-colors">Leaderboard</a>
-              <a href="#about" className="text-gray-600 hover:text-accent font-medium transition-colors">About</a>
-              <a href="#submit" className="text-gray-600 hover:text-accent font-medium transition-colors">Submit</a>
-            </div>
-          </div>
-        </div>
-      </nav>
+      {/* Navigation */}
+      <Navigation />
 
       {/* Trending Ticker */}
       <div className="bg-gradient-to-r from-accent via-accent2 to-accent text-white py-2 overflow-hidden">
@@ -198,46 +181,36 @@ const Landing = () => {
               </p>
             </div>
             
-            {/* Enhanced CTA Buttons with Microcopy */}
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8">
-              <div className="text-center">
-                <Button 
-                  onClick={() => {
-                    trackCTAClick('spill_tea_cta');
-                    setShowSpillForm(true);
-                  }}
-                  className="uppercase font-semibold px-6 py-3 rounded-lg bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent transition-all shadow hover:scale-105 text-white w-full sm:w-auto"
-                >
-                  <Coffee className="w-5 h-5 mr-2" />
-                  Spill Tea for Beta Access
-                </Button>
-                <p className="text-sm text-gray-600 mt-2 max-w-xs">
-                  Submit your first rumor or alpha to unlock the beta.
-                </p>
-              </div>
-              
-              <div className="text-center">
-                <Button 
-                  onClick={() => {
-                    trackCTAClick('tip_gatekeepers_cta');
-                    setShowTippingModal(true);
-                  }}
-                  variant="outline"
-                  className="uppercase font-semibold px-6 py-3 rounded-lg border-accent text-accent hover:bg-accent hover:text-white transition-all shadow hover:scale-105 w-full sm:w-auto"
-                >
-                  <Gift className="w-5 h-5 mr-2" />
-                  Tip the Gatekeepers
-                </Button>
-                <p className="text-sm text-gray-600 mt-2 max-w-xs">
-                  Tip the gatekeepers and skip the line—instant VIP entry.
-                </p>
-              </div>
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+              <Button 
+                className="bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent text-white font-bold px-8 py-4 text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 w-full sm:w-auto"
+                onClick={() => {
+                  setShowSpillForm(true);
+                  trackCTAClick('spill_tea_beta');
+                }}
+              >
+                <Coffee className="w-5 h-5 mr-2" />
+                Spill Tea for Beta Access
+              </Button>
+              <Button 
+                variant="outline"
+                className="border-accent text-accent hover:bg-accent/10 px-8 py-4 text-lg w-full sm:w-auto font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+                onClick={() => {
+                  setShowTippingModal(true);
+                  trackCTAClick('tip_gatekeepers');
+                }}
+              >
+                <Gift className="w-5 h-5 mr-2" />
+                Tip the Gatekeepers
+              </Button>
             </div>
 
-            {/* Enhanced Urgency Badge */}
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-100 to-orange-100 text-red-800 px-6 py-3 rounded-full text-sm font-bold uppercase tracking-wide animate-pulse border border-red-200">
-              <Clock className="w-4 h-4" />
-              This queue is boiling 🫖 - Limited beta slots!
+            {/* Beta Badge */}
+            <div className="flex justify-center mb-8">
+              <Badge className="bg-accent2 text-white font-bold px-4 py-2 text-sm animate-pulse">
+                🚀 BETA ACCESS OPEN
+              </Badge>
             </div>
           </div>
         </div>
