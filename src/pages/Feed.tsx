@@ -4,7 +4,7 @@ import Layout from '@/components/Layout';
 import TeaFeed from '@/components/TeaFeed';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Coffee, Zap, TrendingUp, Plus } from 'lucide-react';
+import { Coffee, Zap, TrendingUp, Plus, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import BetaDisclaimer from '@/components/BetaDisclaimer';
 
@@ -31,15 +31,37 @@ const Feed = () => {
                 The hottest crypto gossip, fresh from the blockchain
               </p>
             </div>
-            <Link to="/submit">
-              <Button className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white">
-                <Plus className="w-4 h-4 mr-2" />
-                Spill Tea
-              </Button>
-            </Link>
+            <div className="flex gap-3">
+              <Link to="/submit">
+                <Button className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Spill Tea
+                </Button>
+              </Link>
+              <Link to="/enhanced-feed">
+                <Button variant="outline" className="border-ctea-yellow text-ctea-yellow hover:bg-ctea-yellow/10">
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Enhanced Feed
+                </Button>
+              </Link>
+            </div>
           </div>
           
           <BetaDisclaimer variant="inline" className="mb-6" />
+          
+          {/* Live Feed Notice */}
+          <div className="bg-gradient-to-r from-green-500/20 to-ctea-teal/20 border border-green-500/30 rounded-lg p-4 mb-6">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-green-400 font-medium">Live Feed</span>
+              <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                Real-time updates
+              </Badge>
+            </div>
+            <p className="text-gray-300 text-sm mt-2">
+              New submissions appear instantly! Your tea will be visible to the community immediately after posting.
+            </p>
+          </div>
         </div>
 
         {/* Filter Tabs */}

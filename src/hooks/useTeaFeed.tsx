@@ -4,7 +4,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useUserProgression } from '@/hooks/useUserProgression';
 import { useToast } from '@/hooks/use-toast';
 import { TeaSubmission, AIComment } from '@/types/teaFeed';
-import { mockSubmissions } from '@/data/mockTeaSubmissions';
 
 export const useTeaFeed = (externalFilter?: string) => {
   const [submissions, setSubmissions] = useState<TeaSubmission[]>([]);
@@ -27,33 +26,113 @@ export const useTeaFeed = (externalFilter?: string) => {
   }, [externalFilter]);
 
   useEffect(() => {
+    console.log('useTeaFeed - Initial load or filter change, fetching submissions...');
     fetchSubmissions();
-    fetchAIComments();
+
+    // Set up real-time subscription for new submissions
+    const channel = supabase
+      .channel('tea_feed_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'tea_submissions'
+        },
+        (payload) => {
+          console.log('useTeaFeed - New submission received via real-time:', payload);
+          const newSubmission = payload.new as any;
+          
+          // Only add if status is approved
+          if (newSubmission.status === 'approved') {
+            const transformedSubmission = transformSubmission(newSubmission);
+            setSubmissions(prev => [transformedSubmission, ...prev]);
+            
+            toast({
+              title: "New Tea Alert! ☕",
+              description: "Fresh gossip just dropped!",
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('useTeaFeed - Cleaning up real-time subscription');
+      supabase.removeChannel(channel);
+    };
   }, [activeFilter, sortBy]);
+
+  const transformSubmission = (submission: any): TeaSubmission => {
+    // Safely parse reactions
+    let parsedReactions = { hot: 0, cold: 0, spicy: 0 };
+    if (submission.reactions && typeof submission.reactions === 'object') {
+      const reactions = submission.reactions as any;
+      parsedReactions = {
+        hot: reactions.hot || 0,
+        cold: reactions.cold || 0,
+        spicy: reactions.spicy || 0
+      };
+    }
+
+    return {
+      ...submission,
+      reactions: parsedReactions,
+      boost_score: submission.boost_score || 0,
+      is_viral: (parsedReactions.hot + parsedReactions.cold + parsedReactions.spicy) > 50
+    };
+  };
 
   const fetchSubmissions = async () => {
     try {
       setIsLoading(true);
+      console.log('useTeaFeed - Fetching submissions from Supabase...');
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      let query = supabase
+        .from('tea_submissions')
+        .select('*')
+        .eq('status', 'approved'); // Only fetch approved submissions
+
+      // Apply sorting
+      switch (sortBy) {
+        case 'reactions':
+          query = query.order('rating_count', { ascending: false });
+          break;
+        case 'boosted':
+          query = query.order('created_at', { ascending: false });
+          break;
+        case 'controversial':
+          query = query.order('created_at', { ascending: false });
+          break;
+        default:
+          query = query.order('created_at', { ascending: false });
+      }
+
+      const { data, error } = await query.limit(30);
+
+      if (error) {
+        console.error('useTeaFeed - Error fetching submissions:', error);
+        throw error;
+      }
       
-      // Use mock data for now
-      let filteredData = [...mockSubmissions];
+      console.log('useTeaFeed - Fetched submissions:', data?.length || 0);
       
+      const transformedData = (data || []).map(transformSubmission);
+
       // Apply client-side filtering
+      let filteredData = transformedData;
       if (activeFilter !== 'all') {
-        filteredData = filteredData.filter(submission => {
+        filteredData = transformedData.filter(submission => {
           const reactions = submission.reactions;
           switch (activeFilter) {
             case 'hot':
               return reactions.hot > reactions.cold;
             case 'spicy':
-              return reactions.spicy > 50;
+              return reactions.spicy > 5;
             case 'trending':
-              return (reactions.hot + reactions.cold + reactions.spicy) > 200;
+              return (reactions.hot + reactions.cold + reactions.spicy) > 10;
             case 'boosted':
-              return (submission.boost_score || 0) > 100;
+              return (submission.boost_score || 0) > 0;
             case 'viral':
               return submission.is_viral;
             default:
@@ -61,41 +140,27 @@ export const useTeaFeed = (externalFilter?: string) => {
           }
         });
       }
-
-      // Apply sorting
-      filteredData.sort((a, b) => {
-        switch (sortBy) {
-          case 'reactions':
-            return (b.reactions.hot + b.reactions.cold + b.reactions.spicy) - (a.reactions.hot + a.reactions.cold + a.reactions.spicy);
-          case 'boosted':
-            return (b.boost_score || 0) - (a.boost_score || 0);
-          case 'controversial':
-            return Math.abs(b.reactions.hot - b.reactions.cold) - Math.abs(a.reactions.hot - a.reactions.cold);
-          default:
-            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        }
-      });
       
+      console.log('useTeaFeed - Filtered submissions:', filteredData.length);
       setSubmissions(filteredData);
     } catch (error) {
-      console.error('Error fetching submissions:', error);
-      // Fallback to mock data
-      setSubmissions(mockSubmissions);
+      console.error('useTeaFeed - Error in fetchSubmissions:', error);
+      toast({
+        title: "Failed to Load Feed",
+        description: "Couldn't fetch the latest tea. Please try refreshing.",
+        variant: "destructive"
+      });
+      // Set empty array on error instead of using mock data
+      setSubmissions([]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const fetchAIComments = async () => {
-    try {
-      console.log('AI comments would be fetched here');
-    } catch (error) {
-      console.error('Error fetching AI comments:', error);
-    }
-  };
-
   const handleReaction = async (submissionId: string, reactionType: 'hot' | 'cold' | 'spicy') => {
     try {
+      console.log('useTeaFeed - Adding reaction:', { submissionId, reactionType });
+      
       const anonymousToken = localStorage.getItem('ctea_anonymous_token') || 
         Array.from(crypto.getRandomValues(new Uint8Array(32)))
           .map(b => b.toString(16).padStart(2, '0'))
@@ -127,7 +192,7 @@ export const useTeaFeed = (externalFilter?: string) => {
           });
       }
 
-      // Update local state
+      // Update local state optimistically
       setSubmissions(prev => prev.map(submission => {
         if (submission.id === submissionId) {
           const newReactions = { ...submission.reactions };
@@ -137,7 +202,7 @@ export const useTeaFeed = (externalFilter?: string) => {
         return submission;
       }));
 
-      // Track user progression - use 'given' as the type
+      // Track user progression
       incrementReaction('given');
 
       toast({
@@ -146,7 +211,7 @@ export const useTeaFeed = (externalFilter?: string) => {
       });
 
     } catch (error) {
-      console.error('Error adding reaction:', error);
+      console.error('useTeaFeed - Error adding reaction:', error);
       toast({
         title: "Reaction Failed",
         description: "Couldn't add your reaction. Please try again.",
@@ -183,7 +248,7 @@ export const useTeaFeed = (externalFilter?: string) => {
         }));
       }
     } catch (error) {
-      console.error('Error generating AI commentary:', error);
+      console.error('useTeaFeed - Error generating AI commentary:', error);
     }
   };
 
@@ -220,7 +285,7 @@ export const useTeaFeed = (externalFilter?: string) => {
         setTimeout(() => setCopiedLink(null), 2000);
       }
     } catch (error) {
-      console.error('Share error:', error);
+      console.error('useTeaFeed - Share error:', error);
       toast({
         title: "Share Failed",
         description: "Couldn't share content. Please try again.",

@@ -9,6 +9,7 @@ import FeedSkeleton from './FeedSkeleton';
 import ContentModeSelector from './ContentModeSelector';
 import WalletConnectOnboarding from './WalletConnectOnboarding';
 import { useWallet } from './WalletProvider';
+import { useToast } from '@/hooks/use-toast';
 
 interface TeaSubmission {
   id: string;
@@ -48,24 +49,110 @@ const EnhancedTeaFeed = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const { incrementReaction } = useUserProgression();
   const { wallet } = useWallet();
+  const { toast } = useToast();
 
   useEffect(() => {
+    console.log('EnhancedTeaFeed - Initial load, fetching submissions...');
     fetchSubmissions();
-    fetchAIComments();
     
     // Check if user needs onboarding
     const hasSeenOnboarding = localStorage.getItem('ctea_onboarding_complete');
     if (!hasSeenOnboarding && !wallet.isConnected) {
       setShowOnboarding(true);
     }
-  }, [activeFilter, sortBy, wallet.isConnected]);
+
+    // Set up real-time subscription for new submissions
+    const channel = supabase
+      .channel('tea_submissions_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'tea_submissions'
+        },
+        (payload) => {
+          console.log('EnhancedTeaFeed - New submission received via real-time:', payload);
+          const newSubmission = payload.new as any;
+          
+          // Only add if status is approved
+          if (newSubmission.status === 'approved') {
+            const transformedSubmission = transformSubmission(newSubmission);
+            setSubmissions(prev => [transformedSubmission, ...prev]);
+            
+            toast({
+              title: "New Tea Alert! ☕",
+              description: "Fresh gossip just dropped in the feed!",
+            });
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'tea_submissions'
+        },
+        (payload) => {
+          console.log('EnhancedTeaFeed - Submission updated via real-time:', payload);
+          const updatedSubmission = payload.new as any;
+          
+          setSubmissions(prev => prev.map(sub => 
+            sub.id === updatedSubmission.id 
+              ? transformSubmission(updatedSubmission)
+              : sub
+          ));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('EnhancedTeaFeed - Cleaning up real-time subscription');
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  useEffect(() => {
+    console.log('EnhancedTeaFeed - Filter or sort changed, refetching...');
+    fetchSubmissions();
+  }, [activeFilter, sortBy]);
+
+  const transformSubmission = (submission: any): TeaSubmission => {
+    // Safely parse reactions
+    let parsedReactions = { hot: 0, cold: 0, spicy: 0 };
+    if (submission.reactions && typeof submission.reactions === 'object') {
+      const reactions = submission.reactions as any;
+      parsedReactions = {
+        hot: reactions.hot || 0,
+        cold: reactions.cold || 0,
+        spicy: reactions.spicy || 0
+      };
+    }
+
+    return {
+      ...submission,
+      reactions: parsedReactions,
+      boost_score: submission.boost_score || 0,
+      // Add synthetic enhanced metrics for demo
+      credibility_score: Math.floor(Math.random() * 100),
+      verification_level: ['none', 'basic', 'verified', 'trusted', 'legendary'][Math.floor(Math.random() * 5)] as 'none' | 'basic' | 'verified' | 'trusted' | 'legendary',
+      memeability_score: Math.floor(Math.random() * 100),
+      viral_potential: Math.floor(Math.random() * 100),
+      engagement_rate: Math.min(100, parsedReactions.hot + parsedReactions.cold + parsedReactions.spicy),
+      is_trending: Math.random() > 0.8
+    };
+  };
 
   const fetchSubmissions = async () => {
     try {
+      setIsLoading(true);
+      console.log('EnhancedTeaFeed - Fetching submissions from Supabase...');
+      
       let query = supabase
         .from('tea_submissions')
         .select('*')
-        .eq('status', 'approved');
+        .eq('status', 'approved'); // Only fetch approved submissions
 
       // Apply sorting
       switch (sortBy) {
@@ -76,7 +163,7 @@ const EnhancedTeaFeed = () => {
           query = query.order('created_at', { ascending: false });
           break;
         case 'boosted':
-          query = query.order('created_at', { ascending: false }); // Changed from boost_score since it doesn't exist
+          query = query.order('created_at', { ascending: false });
           break;
         case 'credibility':
           query = query.order('created_at', { ascending: false });
@@ -88,35 +175,16 @@ const EnhancedTeaFeed = () => {
           query = query.order('created_at', { ascending: false });
       }
 
-      const { data, error } = await query.limit(20);
+      const { data, error } = await query.limit(50);
 
-      if (error) throw error;
+      if (error) {
+        console.error('EnhancedTeaFeed - Error fetching submissions:', error);
+        throw error;
+      }
       
-      const transformedData = (data || []).map(submission => {
-        // Safely parse reactions
-        let parsedReactions = { hot: 0, cold: 0, spicy: 0 };
-        if (submission.reactions && typeof submission.reactions === 'object') {
-          const reactions = submission.reactions as any;
-          parsedReactions = {
-            hot: reactions.hot || 0,
-            cold: reactions.cold || 0,
-            spicy: reactions.spicy || 0
-          };
-        }
-
-        return {
-          ...submission,
-          reactions: parsedReactions,
-          boost_score: 0, // Default value since field doesn't exist
-          // Add synthetic enhanced metrics for demo
-          credibility_score: Math.floor(Math.random() * 100),
-          verification_level: ['none', 'basic', 'verified', 'trusted', 'legendary'][Math.floor(Math.random() * 5)] as 'none' | 'basic' | 'verified' | 'trusted' | 'legendary',
-          memeability_score: Math.floor(Math.random() * 100),
-          viral_potential: Math.floor(Math.random() * 100),
-          engagement_rate: Math.min(100, parsedReactions.hot + parsedReactions.cold + parsedReactions.spicy),
-          is_trending: Math.random() > 0.8
-        };
-      });
+      console.log('EnhancedTeaFeed - Fetched submissions:', data?.length || 0);
+      
+      const transformedData = (data || []).map(transformSubmission);
 
       // Apply client-side filtering with enhanced options
       let filteredData = transformedData;
@@ -144,24 +212,24 @@ const EnhancedTeaFeed = () => {
         });
       }
       
+      console.log('EnhancedTeaFeed - Filtered submissions:', filteredData.length);
       setSubmissions(filteredData);
     } catch (error) {
-      console.error('Error fetching submissions:', error);
+      console.error('EnhancedTeaFeed - Error in fetchSubmissions:', error);
+      toast({
+        title: "Failed to Load Feed",
+        description: "Couldn't fetch the latest tea. Please try refreshing the page.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const fetchAIComments = async () => {
-    try {
-      console.log('AI comments would be fetched here');
-    } catch (error) {
-      console.error('Error fetching AI comments:', error);
-    }
-  };
-
   const handleReaction = async (submissionId: string, reactionType: 'hot' | 'cold' | 'spicy') => {
     try {
+      console.log('EnhancedTeaFeed - Adding reaction:', { submissionId, reactionType });
+      
       const anonymousToken = localStorage.getItem('ctea_anonymous_token') || 
         Array.from(crypto.getRandomValues(new Uint8Array(32)))
           .map(b => b.toString(16).padStart(2, '0'))
@@ -193,6 +261,7 @@ const EnhancedTeaFeed = () => {
         await incrementReaction('given');
       }
 
+      // Update local state optimistically
       setSubmissions(prev => prev.map(sub => {
         if (sub.id === submissionId) {
           const newReactions = { ...sub.reactions };
@@ -202,8 +271,18 @@ const EnhancedTeaFeed = () => {
         return sub;
       }));
 
+      toast({
+        title: `Reaction Added! ${reactionType === 'hot' ? '🔥' : reactionType === 'cold' ? '❄️' : '🌶️'}`,
+        description: `You ${reactionType === 'hot' ? 'heated up' : reactionType === 'cold' ? 'cooled down' : 'spiced up'} this tea!`,
+      });
+
     } catch (error) {
-      console.error('Error handling reaction:', error);
+      console.error('EnhancedTeaFeed - Error handling reaction:', error);
+      toast({
+        title: "Reaction Failed",
+        description: "Couldn't add your reaction. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -245,7 +324,7 @@ const EnhancedTeaFeed = () => {
         }));
       }
     } catch (error) {
-      console.error('Error generating AI commentary:', error);
+      console.error('EnhancedTeaFeed - Error generating AI commentary:', error);
     }
   };
 

@@ -53,13 +53,17 @@ const SubmitTea = () => {
         throw new Error('Invalid anonymous token generated');
       }
 
-      // Prepare submission data
+      // Prepare submission data - Set status to 'approved' for immediate visibility
       const submissionData = {
         content: data.tea.trim(),
         category: data.category || 'general',
         evidence_urls: data.evidence_urls && data.evidence_urls.length > 0 ? data.evidence_urls : null,
         anonymous_token: anonymousToken,
-        status: 'pending'
+        status: 'approved', // Changed from 'pending' to 'approved' for immediate visibility
+        has_evidence: data.evidence_urls && data.evidence_urls.length > 0,
+        reactions: { hot: 0, cold: 0, spicy: 0 },
+        average_rating: 0,
+        rating_count: 0
       };
 
       console.log('SubmitTea - Prepared submission data:', submissionData);
@@ -96,15 +100,12 @@ const SubmitTea = () => {
 
       toast({
         title: "Tea Submitted! ☕",
-        description: "Your submission has been received. Check back soon to see it in the feed!",
+        description: "Your submission is now live in the feed! Check it out and see the community reactions.",
       });
 
-      console.log('SubmitTea - Navigating to feed in 2 seconds...');
-      // Navigate to feed after successful submission
-      setTimeout(() => {
-        console.log('SubmitTea - Navigating to /feed');
-        navigate('/feed');
-      }, 2000);
+      console.log('SubmitTea - Navigating to enhanced feed immediately...');
+      // Navigate to enhanced feed immediately to see the new submission
+      navigate('/enhanced-feed');
 
     } catch (error) {
       console.error('SubmitTea - Submission error:', error);
@@ -137,7 +138,7 @@ const SubmitTea = () => {
             </h1>
             <BetaDisclaimer variant="inline" className="justify-center mb-4" />
             <p className="text-gray-400">
-              Share the latest crypto gossip, rumors, and alpha with the community
+              Share the latest crypto gossip, rumors, and alpha with the community. Your submission will appear in the feed immediately!
             </p>
           </div>
           
