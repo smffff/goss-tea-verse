@@ -6,17 +6,6 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  // Get the WS token and ensure it's safely handled
-  const rawToken = process.env.VITE_WS_TOKEN;
-  
-  // Use a safe fallback token for development
-  const wsToken = rawToken && typeof rawToken === 'string' && rawToken.trim() 
-    ? rawToken.trim() 
-    : 'development-fallback-token';
-  
-  console.log('Raw WS Token:', rawToken ? '[PRESENT]' : '[MISSING]');
-  console.log('Final WS Token:', wsToken ? '[SET]' : '[EMPTY]');
-  
   return {
     server: {
       host: "::",
@@ -35,10 +24,7 @@ export default defineConfig(({ mode }) => {
         "@": path.resolve(__dirname, "./src"),
       },
     },
-    define: {
-      // Ensure the token is properly stringified as a JavaScript string literal
-      // Use template literal to avoid any parsing issues with token content
-      '__WS_TOKEN__': `"${wsToken.replace(/"/g, '\\"')}"`,
-    },
+    // Removed the problematic __WS_TOKEN__ definition
+    // as it's not being used in the application code
   };
 });
