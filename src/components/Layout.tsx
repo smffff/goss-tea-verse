@@ -16,9 +16,9 @@ const Layout: React.FC<LayoutProps> = ({
   showFooter = true
 }) => {
   return (
-    <div className={`min-h-screen bg-gradient-dark retro-grid ${className}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-cyan-50 dark:bg-gradient-dark retro-grid ${className}`}>
       {showNavigation && <Navigation />}
-      <main className={`${showNavigation ? 'pt-16 sm:pt-20' : ''} ${showFooter ? 'pb-16' : ''}`}>
+      <main className={`${showNavigation ? 'pt-16 sm:pt-20' : ''} ${showFooter ? 'pb-16' : ''} px-4 md:px-8 py-6`}>
         {children}
       </main>
       {showFooter && <Footer />}
