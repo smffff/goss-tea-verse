@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Coffee, Menu, X, Plus, Sparkles, TrendingUp, Heart } from 'lucide-react';
+import { Coffee, Menu, X, Plus, Sparkles, TrendingUp, Heart, Users } from 'lucide-react';
 import TipButton from './TipButton';
 
 const Navigation = () => {
@@ -52,8 +52,17 @@ const Navigation = () => {
                 </Link>
               );
             })}
-            <div className="border-l border-ctea-teal/20 pl-4">
+            <div className="border-l border-ctea-teal/20 pl-4 flex items-center gap-2">
               <TipButton variant="minimal" />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => window.open('https://arena.social/?ref=LadyInvsible', '_blank')}
+                className="text-gray-400 hover:text-blue-400 transition-colors"
+                title="Connect on Arena"
+              >
+                <Users className="w-4 h-4" />
+              </Button>
             </div>
           </div>
 
@@ -92,7 +101,7 @@ const Navigation = () => {
               })}
               <div className="border-t border-ctea-teal/20 pt-4 mt-2">
                 <div className="px-3">
-                  <TipButton variant="inline" />
+                  <TipButton variant="connect" />
                 </div>
               </div>
             </div>
