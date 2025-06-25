@@ -89,6 +89,25 @@ const App = () => {
                           </ErrorBoundary>
                         } />
 
+                        {/* Legal Pages */}
+                        <Route path="/privacy" element={
+                          <ErrorBoundary componentName="Privacy">
+                            <Privacy />
+                          </ErrorBoundary>
+                        } />
+                        
+                        <Route path="/terms" element={
+                          <ErrorBoundary componentName="Terms">
+                            <Terms />
+                          </ErrorBoundary>
+                        } />
+                        
+                        <Route path="/contact" element={
+                          <ErrorBoundary componentName="Contact">
+                            <Contact />
+                          </ErrorBoundary>
+                        } />
+
                         {/* Legacy Redirects */}
                         <Route path="/submit" element={<Navigate to="/spill" replace />} />
                         <Route path="/trends" element={<Navigate to="/feed" replace />} />
@@ -97,22 +116,6 @@ const App = () => {
                         <Route path="/campaigns" element={<Navigate to="/feed" replace />} />
                         <Route path="/features" element={<Navigate to="/about" replace />} />
 
-                        {/* Support Pages */}
-                        <Route path="/contact" element={
-                          <ErrorBoundary componentName="Contact">
-                            <Contact />
-                          </ErrorBoundary>
-                        } />
-                        <Route path="/privacy" element={
-                          <ErrorBoundary componentName="Privacy">
-                            <Privacy />
-                          </ErrorBoundary>
-                        } />
-                        <Route path="/terms" element={
-                          <ErrorBoundary componentName="Terms">
-                            <Terms />
-                          </ErrorBoundary>
-                        } />
                         <Route path="/auth" element={
                           <ErrorBoundary componentName="Auth">
                             <Auth />

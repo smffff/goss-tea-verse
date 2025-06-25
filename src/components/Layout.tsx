@@ -1,7 +1,7 @@
 
 import React from 'react';
-import Navigation from './Navigation';
-import Footer from './Footer';
+import UnifiedNavigation from './UnifiedNavigation';
+import UnifiedFooter from './UnifiedFooter';
 import FeedbackWidget from './FeedbackWidget';
 import ErrorBoundary from './ErrorBoundary';
 
@@ -20,12 +20,12 @@ const Layout: React.FC<LayoutProps> = ({
 }) => {
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gradient-to-br from-ctea-dark via-purple-900/20 to-ctea-dark">
-        {showNavigation && <Navigation />}
-        <main className="container mx-auto px-4 py-8">
+      <div className="min-h-screen bg-gradient-hero">
+        {showNavigation && <UnifiedNavigation />}
+        <main className={`container mx-auto px-4 py-8 ${className}`}>
           {children}
         </main>
-        {showFooter && <Footer />}
+        {showFooter && <UnifiedFooter />}
         <FeedbackWidget />
       </div>
     </ErrorBoundary>
