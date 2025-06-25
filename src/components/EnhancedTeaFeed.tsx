@@ -55,7 +55,7 @@ const EnhancedTeaFeed = () => {
         variant: "destructive"
       });
     });
-  }, []);
+  }, [fetchSubmissions, wallet.isConnected, toast]);
 
   useEffect(() => {
     if (!showOnboarding) {
@@ -63,7 +63,7 @@ const EnhancedTeaFeed = () => {
         console.error('EnhancedTeaFeed - Failed to refetch submissions:', error);
       });
     }
-  }, [activeFilter, sortBy, showOnboarding]);
+  }, [activeFilter, sortBy, showOnboarding, fetchSubmissions]);
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
