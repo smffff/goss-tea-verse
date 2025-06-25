@@ -1,7 +1,6 @@
-
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { trackFormCompletion, trackTeaSpill } from '@/lib/analytics';
+import { track } from '@/utils/analytics';
 import { sanitizeContent, sanitizeUrls } from '@/utils/securityUtils';
 
 interface SubmissionData {
@@ -78,9 +77,9 @@ export const useSubmissionForm = (
         isAnonymous: formData.isAnonymous
       };
       
-      trackFormCompletion('tea_submission');
+      track('entered_join_flow');
       await onSubmit(sanitizedData);
-      trackTeaSpill(sanitizedData.category);
+      track('tea_spilled', { identity_mode: sanitizedData.isAnonymous ? 'anon' : 'named' });
       
       // Reset form on successful submission
       setFormData({

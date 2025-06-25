@@ -1,4 +1,4 @@
-
+// DEPRECATED: Use src/utils/analytics.ts (PostHog) for all analytics tracking going forward.
 import { track } from '@vercel/analytics';
 
 interface AnalyticsEvent {
