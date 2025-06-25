@@ -11,6 +11,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 
 import Landing from "./pages/Landing";
 import Feed from "./pages/Feed";
+import EnhancedFeed from "./pages/EnhancedFeed";
 import SubmitTea from "./pages/SubmitTea";
 import GovernancePage from "./pages/GovernancePage";
 import TokenPage from "./pages/TokenPage";
@@ -39,6 +40,7 @@ const App = () => (
               {/* Public Routes */}
               <Route path="/" element={<Landing />} />
               <Route path="/feed" element={<Feed />} />
+              <Route path="/enhanced-feed" element={<EnhancedFeed />} />
               <Route path="/submit" element={<SubmitTea />} />
               <Route path="/governance" element={<GovernancePage />} />
               <Route path="/token" element={<TokenPage />} />

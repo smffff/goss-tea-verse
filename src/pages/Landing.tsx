@@ -11,6 +11,7 @@ import HeroSection from '@/components/landing/HeroSection';
 import LeaderboardPreview from '@/components/landing/LeaderboardPreview';
 import SocialProofSection from '@/components/landing/SocialProofSection';
 import AboutSection from '@/components/landing/AboutSection';
+import MeetTheBuilder from '@/components/landing/MeetTheBuilder';
 import LandingHeader from '@/components/landing/LandingHeader';
 import LiveStats from '@/components/landing/LiveStats';
 import { useAuth } from '@/hooks/useAuth';
@@ -65,6 +66,7 @@ const Landing = () => {
       <LeaderboardPreview />
       <SocialProofSection />
       <AboutSection />
+      <MeetTheBuilder />
 
       {/* Spill Tea Modal */}
       <Modal
