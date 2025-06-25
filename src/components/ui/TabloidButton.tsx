@@ -3,7 +3,7 @@ import React from 'react';
 import { Button, ButtonProps } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-interface TabloidButtonProps extends ButtonProps {
+interface TabloidButtonProps extends Omit<ButtonProps, 'variant'> {
   variant?: 'spill' | 'read' | 'connect' | 'secondary';
   tabloidStyle?: boolean;
   shake?: boolean;
@@ -38,6 +38,7 @@ const TabloidButton: React.FC<TabloidButtonProps> = ({
   
   return (
     <Button
+      variant="ghost"
       className={cn(
         tabloidClasses,
         getVariantStyles(),
