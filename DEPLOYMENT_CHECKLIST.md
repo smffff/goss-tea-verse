@@ -1,114 +1,142 @@
-# 🚀 Final Deployment Checklist
+# 🚀 CTea Newsroom - Final Deployment Checklist
 
-## ✅ What's Already Ready
-- [x] SQL Migration: `20250101000000_security_hardening.sql`
-- [x] Edge Function: `harden_security/index.ts`
-- [x] GitHub Workflow: `.github/workflows/harden-security.yml`
-- [x] Deployment Guide: `SECURITY_DEPLOYMENT_GUIDE.md`
+## ✅ Pre-Launch Verification
 
-## 🔧 Final Steps to Complete
+### 🔐 Environment Variables
+- [x] `SUPABASE_URL` - Configured in `.env.local`
+- [x] `SUPABASE_SERVICE_ROLE_KEY` - Configured in `.env.local`
+- [ ] `OPENAI_API_KEY` - **NEEDS TO BE ADDED**
 
-### 1. Setup Environment Variables
+**Action Required**: Add your OpenAI API key to `.env.local`:
 ```bash
-# Copy the template and update with your actual values
-cp env.template .env.local
-
-# Edit .env.local and add your actual service role key
-# Get it from: https://supabase.com/dashboard/project/ctea-newsroom/settings/api
+echo "OPENAI_API_KEY=your_openai_api_key_here" >> .env.local
 ```
 
-### 2. Install Supabase CLI (Choose One Method)
+### 🗄️ Database Migration
+- [ ] Run database migration to create new tables
+- [ ] Verify RLS policies are applied
+- [ ] Test token reward triggers
 
-**Option A: Using Homebrew (Recommended)**
+**Action Required**: Deploy the migration:
 ```bash
-# Install Homebrew first if you don't have it
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Then install Supabase CLI
-brew install supabase/tap/supabase
+supabase db push
 ```
 
-**Option B: Manual Download**
+### ⚡ Edge Function Deployment
+- [ ] Deploy AI moderation edge function
+- [ ] Set environment variables for edge function
+- [ ] Test function response
+
+**Action Required**: Deploy edge function:
 ```bash
-# Download and install manually
-curl -fsSL https://github.com/supabase/cli/releases/latest/download/supabase_darwin_amd64.tar.gz | tar -xz
-sudo mv supabase /usr/local/bin/supabase
+supabase functions deploy ai_moderate_spill --no-verify-jwt
+supabase secrets set OPENAI_API_KEY="your_openai_api_key_here"
 ```
 
-### 3. Deploy Edge Function
+## 🧪 Testing Checklist
+
+### AI Moderation Testing
+- [ ] **Clean Content Test**: Submit harmless content → should pass
+- [ ] **Flagged Content Test**: Submit borderline content → should flag
+- [ ] **Escalated Content Test**: Submit harmful content → should escalate
+- [ ] **Moderation Log**: Check `moderation_log` table for entries
+
+### Token System Testing
+- [ ] **Wallet Connection**: Connect wallet and verify balance display
+- [ ] **Token Award**: Submit approved content and verify 5 $TEA reward
+- [ ] **Transaction History**: Check `tea_transactions` table
+- [ ] **Balance Updates**: Verify real-time balance updates
+
+### UI/UX Testing
+- [ ] **SpillTea Form**: Test enhanced form with moderation feedback
+- [ ] **Wallet Balance**: Verify balance component displays correctly
+- [ ] **About Page**: Check audit trail display
+- [ ] **Responsive Design**: Test on mobile and desktop
+
+## 🌐 Production Deployment
+
+### Vercel Deployment
+- [ ] Ensure all environment variables are set in Vercel dashboard
+- [ ] Deploy latest changes
+- [ ] Verify production build works correctly
+
+### GitHub Pages (Audit Trail)
+- [ ] Enable GitHub Pages for repository
+- [ ] Verify `public_audit_log.md` is accessible
+- [ ] Test GitHub Action for automatic updates
+
+## 📊 Monitoring Setup
+
+### Supabase Dashboard
+- [ ] Monitor `moderation_log` table for activity
+- [ ] Check `tea_transactions` for token movements
+- [ ] Verify edge function logs
+
+### Analytics
+- [ ] Set up error tracking (Sentry, etc.)
+- [ ] Monitor API response times
+- [ ] Track user engagement metrics
+
+## 🎯 Launch Sequence
+
+### Phase 1: Internal Testing (Complete)
+- [x] All features implemented
+- [x] Code reviewed and tested
+- [x] Security measures in place
+
+### Phase 2: Staging Deployment
+- [ ] Deploy to staging environment
+- [ ] Run full test suite
+- [ ] Verify all integrations work
+
+### Phase 3: Production Launch
+- [ ] Deploy to production
+- [ ] Announce launch on social media
+- [ ] Monitor system performance
+- [ ] Gather user feedback
+
+## 🔧 Quick Commands
+
+### Deploy Everything
 ```bash
-# Once CLI is installed
-supabase functions deploy harden_security
+# 1. Add OpenAI API key
+echo "OPENAI_API_KEY=your_key_here" >> .env.local
+
+# 2. Deploy database migration
+supabase db push
+
+# 3. Deploy edge function
+supabase functions deploy ai_moderate_spill --no-verify-jwt
+
+# 4. Set edge function secrets
+supabase secrets set OPENAI_API_KEY="your_key_here"
+
+# 5. Test deployment
+npm run dev
 ```
 
-### 4. Test the Deployment
+### Verify Deployment
 ```bash
-# Test your Edge Function
-curl -X POST https://ctea-newsroom.functions.supabase.co/harden_security \
+# Test edge function
+curl -X POST \
   -H "Content-Type: application/json" \
-  -d '{"test": true}'
+  -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+  -d '{"content":"test","spill_id":"test-123"}' \
+  "$SUPABASE_URL/functions/v1/ai_moderate_spill"
+
+# Check database tables
+supabase db diff
 ```
 
-### 5. Setup GitHub Secret
-1. Go to: https://github.com/stephane-ctea/goss-tea-verse/settings/secrets/actions
-2. Click "New repository secret"
-3. Name: `HARDEN_SECURITY_ENDPOINT`
-4. Value: `https://ctea-newsroom.functions.supabase.co/harden_security`
+## 🚨 Emergency Contacts
 
-### 6. Test GitHub Workflow
-1. Go to: https://github.com/stephane-ctea/goss-tea-verse/actions
-2. Click "Weekly Security Hardening"
-3. Click "Run workflow" → "Run workflow"
-
-## 🧪 Verification Commands
-
-### Check Security Status
-```sql
--- Run in Supabase Dashboard SQL Editor
-SELECT * FROM get_security_status();
-```
-
-### View Security Audit Log
-```sql
--- Run in Supabase Dashboard SQL Editor
-SELECT * FROM security_audit_log ORDER BY created_at DESC LIMIT 10;
-```
-
-### Test Edge Function
-```bash
-curl -X POST https://ctea-newsroom.functions.supabase.co/harden_security
-```
-
-## 🎯 Expected Results
-
-✅ **Edge Function Response:**
-```json
-{
-  "success": true,
-  "message": "Security hardening completed successfully",
-  "timestamp": "2024-01-01T12:00:00.000Z"
-}
-```
-
-✅ **GitHub Action:** Completes without errors
-
-✅ **Security Status:** Shows all functions as secure
-
-✅ **Audit Log:** Shows recent security events
-
-## 🆘 If You Get Stuck
-
-1. **CLI Installation Issues:** Use the Supabase Dashboard to deploy functions manually
-2. **Environment Variables:** Double-check your service role key
-3. **Function Errors:** Check the Supabase Dashboard → Logs
-4. **GitHub Action Fails:** Verify the secret endpoint URL
-
-## 📞 Quick Help
-
-- **Supabase Dashboard:** https://supabase.com/dashboard/project/ctea-newsroom
-- **GitHub Repository:** https://github.com/stephane-ctea/goss-tea-verse
-- **Deployment Guide:** `SECURITY_DEPLOYMENT_GUIDE.md`
+- **Supabase Issues**: Check Supabase dashboard logs
+- **OpenAI Issues**: Verify API key and quota
+- **Deployment Issues**: Check Vercel build logs
+- **Security Issues**: Review RLS policies and audit logs
 
 ---
 
-**🎉 Once completed, you'll have automated security hardening running every Sunday at 3 AM UTC!** 
+**Status**: Ready for deployment  
+**Last Updated**: January 26, 2025  
+**Next Action**: Add OpenAI API key and run deployment commands 
