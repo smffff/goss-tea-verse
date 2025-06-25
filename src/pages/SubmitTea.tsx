@@ -22,84 +22,57 @@ const SubmitTea = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  console.log('SubmitTea - Component rendered, isSubmitting:', isSubmitting);
-
   const handleSubmit = async (data: SubmissionData) => {
-    console.log('SubmitTea - handleSubmit called with data:', data);
-    
-    if (isSubmitting) {
-      console.log('SubmitTea - Already submitting, preventing duplicate submission');
-      return;
-    }
+    if (isSubmitting) return;
     
     setIsSubmitting(true);
-    console.log('SubmitTea - Set isSubmitting to true');
     
     try {
-      console.log('SubmitTea - Starting submission process...');
-      
-      // Generate secure anonymous token with proper validation
       const anonymousToken = getOrCreateSecureToken();
-      console.log('SubmitTea - Generated secure anonymous token:', anonymousToken?.substring(0, 8) + '...');
 
-      // Prepare submission data with enhanced security
       const submissionData = {
         content: data.tea.trim(),
         category: data.category || 'general',
         evidence_urls: data.evidence_urls && data.evidence_urls.length > 0 ? data.evidence_urls : null,
         anonymous_token: anonymousToken,
-        status: 'approved', // Set to approved for immediate visibility
+        status: 'approved',
         has_evidence: data.evidence_urls && data.evidence_urls.length > 0,
         reactions: { hot: 0, cold: 0, spicy: 0 },
         average_rating: 0,
         rating_count: 0
       };
 
-      console.log('SubmitTea - Prepared submission data:', submissionData);
-
-      // Enhanced content validation
+      // Content validation
       if (!submissionData.content || submissionData.content.length < 3) {
-        console.error('SubmitTea - Content validation failed: too short');
         throw new Error('Content must be at least 3 characters long');
       }
 
       if (submissionData.content.length > 2000) {
-        console.error('SubmitTea - Content validation failed: too long');
         throw new Error('Content must be less than 2000 characters');
       }
 
-      console.log('SubmitTea - About to insert into Supabase...');
-      console.log('SubmitTea - Insertion data:', JSON.stringify(submissionData, null, 2));
-      
       const { data: result, error } = await supabase
         .from('tea_submissions')
         .insert(submissionData)
         .select();
 
-      console.log('SubmitTea - Supabase response:', { result, error });
-
       if (error) {
-        console.error('SubmitTea - Supabase insertion error:', error);
         throw new Error(`Submission failed: ${error.message}`);
       }
 
       if (!result || result.length === 0) {
-        console.error('SubmitTea - No data returned from Supabase');
         throw new Error('Submission failed: No data returned');
       }
 
-      console.log('SubmitTea - Submission successful:', result);
-
       toast({
         title: "Tea Submitted! ☕",
-        description: "Your submission is now live in the feed! Check it out and see the community reactions.",
+        description: "Your submission is now live in the feed!",
       });
 
-      console.log('SubmitTea - Navigating to feed...');
       navigate('/feed');
 
     } catch (error) {
-      console.error('SubmitTea - Submission error:', error);
+      console.error('Submission error:', error);
       
       toast({
         title: "Submission Failed",
@@ -107,17 +80,13 @@ const SubmitTea = () => {
         variant: "destructive"
       });
     } finally {
-      console.log('SubmitTea - Setting isSubmitting to false');
       setIsSubmitting(false);
     }
   };
 
   const handleClose = () => {
-    console.log('SubmitTea - handleClose called, navigating to /');
     navigate('/');
   };
-
-  console.log('SubmitTea - Rendering component');
 
   return (
     <Layout>
@@ -129,7 +98,7 @@ const SubmitTea = () => {
             </h1>
             <BetaDisclaimer variant="inline" className="justify-center mb-4" />
             <p className="text-gray-400">
-              Share the latest crypto gossip, rumors, and alpha with the community. Your submission will appear in the feed immediately!
+              Share the latest crypto gossip, rumors, and alpha with the community.
             </p>
           </div>
           

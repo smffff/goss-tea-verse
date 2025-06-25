@@ -7,26 +7,22 @@ import { transformSubmission } from '@/utils/submissionUtils';
 
 interface UseEnhancedRealTimeProps {
   setSubmissions: React.Dispatch<React.SetStateAction<TeaSubmission[]>>;
-  activeFilter: string;
-  sortBy: string;
 }
 
-export const useEnhancedRealTime = ({ setSubmissions, activeFilter, sortBy }: UseEnhancedRealTimeProps) => {
+export const useEnhancedRealTime = ({ setSubmissions }: UseEnhancedRealTimeProps) => {
   const { toast } = useToast();
   const channelRef = useRef<any>(null);
 
   useEffect(() => {
-    console.log('useEnhancedRealTime - Setting up real-time subscription');
+    console.log('useEnhancedRealTime - Setting up subscription');
     
-    // Clean up any existing channel first
+    // Clean up existing channel
     if (channelRef.current) {
-      console.log('useEnhancedRealTime - Cleaning up existing channel');
       supabase.removeChannel(channelRef.current);
-      channelRef.current = null;
     }
     
     const channel = supabase
-      .channel(`tea_submissions_changes_${Date.now()}`) // Unique channel name
+      .channel(`tea_submissions_${Date.now()}`)
       .on(
         'postgres_changes',
         {
@@ -35,7 +31,7 @@ export const useEnhancedRealTime = ({ setSubmissions, activeFilter, sortBy }: Us
           table: 'tea_submissions'
         },
         (payload) => {
-          console.log('useEnhancedRealTime - New submission received:', payload);
+          console.log('useEnhancedRealTime - New submission:', payload);
           const newSubmission = payload.new as any;
           
           if (newSubmission.status === 'approved') {
@@ -44,7 +40,7 @@ export const useEnhancedRealTime = ({ setSubmissions, activeFilter, sortBy }: Us
             
             toast({
               title: "New Tea Alert! ☕",
-              description: "Fresh gossip just dropped in the feed!",
+              description: "Fresh gossip just dropped!",
             });
           }
         }
@@ -73,26 +69,17 @@ export const useEnhancedRealTime = ({ setSubmissions, activeFilter, sortBy }: Us
                 return [transformedSubmission, ...prev];
               }
             });
-            
-            toast({
-              title: "Tea Updated! ☕",
-              description: "Tea has been updated and is now live!",
-            });
           }
         }
       )
-      .subscribe((status) => {
-        console.log('useEnhancedRealTime - Subscription status:', status);
-      });
+      .subscribe();
 
     channelRef.current = channel;
 
     return () => {
-      console.log('useEnhancedRealTime - Cleaning up real-time subscription');
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
       }
     };
-  }, [setSubmissions, toast]); // Removed activeFilter and sortBy to prevent unnecessary re-subscriptions
+  }, [setSubmissions, toast]);
 };

@@ -29,71 +29,46 @@ export const useSubmissionForm = (
   const [errors, setErrors] = useState<Partial<SubmissionData>>({});
   const { toast } = useToast();
 
-  console.log('useSubmissionForm - Current form data:', formData);
-  console.log('useSubmissionForm - Current errors:', errors);
-  console.log('useSubmissionForm - isLoading:', isLoading);
-
   const validateForm = (): boolean => {
-    console.log('validateForm - Starting validation');
     const newErrors: Partial<SubmissionData> = {};
 
     const trimmedTea = formData.tea.trim();
-    console.log('validateForm - Trimmed tea content:', trimmedTea);
     
     if (!trimmedTea) {
       newErrors.tea = 'Please share some tea!';
-      console.log('validateForm - Error: Empty tea content');
     } else if (trimmedTea.length < 3) {
       newErrors.tea = 'Tea must be at least 3 characters long';
-      console.log('validateForm - Error: Tea too short');
     } else if (trimmedTea.length > 2000) {
       newErrors.tea = 'Tea must be less than 2000 characters';
-      console.log('validateForm - Error: Tea too long');
     }
 
-    // Enhanced email validation
     if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
-      console.log('validateForm - Error: Invalid email');
     }
 
-    // Enhanced wallet validation
     if (formData.wallet.trim() && formData.wallet.trim().length < 10) {
       newErrors.wallet = 'Please enter a valid wallet address';
-      console.log('validateForm - Error: Invalid wallet');
     }
 
-    console.log('validateForm - New errors:', newErrors);
     setErrors(newErrors);
-    const isValid = Object.keys(newErrors).length === 0;
-    console.log('validateForm - Form is valid:', isValid);
-    return isValid;
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log('handleSubmit - Form submission started');
     e.preventDefault();
     
-    if (isLoading) {
-      console.log('handleSubmit - Already loading, preventing duplicate submission');
-      return;
-    }
-    
-    if (!validateForm()) {
-      console.log('handleSubmit - Validation failed');
-      toast({
-        title: "Validation Error",
-        description: "Please fix the errors above before submitting.",
-        variant: "destructive"
-      });
+    if (isLoading || !validateForm()) {
+      if (!validateForm()) {
+        toast({
+          title: "Validation Error",
+          description: "Please fix the errors above before submitting.",
+          variant: "destructive"
+        });
+      }
       return;
     }
 
     try {
-      console.log('handleSubmit - About to call onSubmit with form data');
-      console.log('handleSubmit - Form data being submitted:', formData);
-      
-      // Sanitize all user inputs before submission
       const sanitizedData: SubmissionData = {
         tea: sanitizeContent(formData.tea),
         email: formData.email.trim().toLowerCase(),
@@ -103,12 +78,10 @@ export const useSubmissionForm = (
         isAnonymous: formData.isAnonymous
       };
       
-      console.log('handleSubmit - Calling onSubmit with sanitized data:', sanitizedData);
       trackFormCompletion('tea_submission');
       await onSubmit(sanitizedData);
       trackTeaSpill(sanitizedData.category);
       
-      console.log('handleSubmit - onSubmit completed successfully, resetting form');
       // Reset form on successful submission
       setFormData({
         tea: '',
@@ -121,9 +94,7 @@ export const useSubmissionForm = (
       setErrors({});
       
     } catch (error) {
-      console.error('handleSubmit - Form submission error:', error);
-      
-      // Show error toast here since parent might not handle it
+      console.error('Form submission error:', error);
       toast({
         title: "Submission Failed",
         description: error instanceof Error ? error.message : 'An unexpected error occurred',
@@ -134,22 +105,15 @@ export const useSubmissionForm = (
 
   const clearError = (field: keyof SubmissionData) => {
     if (errors[field]) {
-      console.log('clearError - Clearing error for field:', field);
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
   };
 
   const updateFormData = (updates: Partial<SubmissionData>) => {
-    console.log('updateFormData - Updating with:', updates);
-    setFormData(prev => {
-      const newData = { ...prev, ...updates };
-      console.log('updateFormData - New form data:', newData);
-      return newData;
-    });
+    setFormData(prev => ({ ...prev, ...updates }));
   };
 
   const isFormValid = formData.tea.trim().length >= 3;
-  console.log('useSubmissionForm - isFormValid:', isFormValid);
 
   return {
     formData,

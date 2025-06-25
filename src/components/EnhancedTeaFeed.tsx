@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import EnhancedTeaSubmissionCard from './EnhancedTeaSubmissionCard';
 import HotTakesFilters from './HotTakesFilters';
 import FeedSkeleton from './FeedSkeleton';
@@ -35,19 +35,18 @@ const EnhancedTeaFeed = () => {
   const { aiComments, generateAICommentary } = useEnhancedAIComments();
 
   // Set up real-time subscriptions
-  useEnhancedRealTime({ setSubmissions, activeFilter, sortBy });
+  useEnhancedRealTime({ setSubmissions });
 
   useEffect(() => {
-    console.log('EnhancedTeaFeed - Initial load, fetching submissions...');
+    console.log('EnhancedTeaFeed - Initial load');
     
     // Check for onboarding
     const hasSeenOnboarding = localStorage.getItem('ctea_onboarding_complete');
     if (!hasSeenOnboarding && !wallet.isConnected) {
       setShowOnboarding(true);
-      return; // Don't fetch submissions if showing onboarding
+      return;
     }
     
-    // Fetch submissions with error handling
     fetchSubmissions().catch((error) => {
       console.error('EnhancedTeaFeed - Failed to fetch submissions:', error);
       toast({
@@ -60,7 +59,6 @@ const EnhancedTeaFeed = () => {
 
   useEffect(() => {
     if (!showOnboarding) {
-      console.log('EnhancedTeaFeed - Filter or sort changed, refetching...');
       fetchSubmissions().catch((error) => {
         console.error('EnhancedTeaFeed - Failed to refetch submissions:', error);
       });
@@ -70,7 +68,6 @@ const EnhancedTeaFeed = () => {
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
     localStorage.setItem('ctea_onboarding_complete', 'true');
-    // Fetch submissions after onboarding is complete
     fetchSubmissions().catch((error) => {
       console.error('EnhancedTeaFeed - Failed to fetch submissions after onboarding:', error);
     });
