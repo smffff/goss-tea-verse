@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserProgression } from '@/hooks/useUserProgression';
@@ -13,18 +12,21 @@ import { useToast } from '@/hooks/use-toast';
 import { TeaSubmission } from '@/types/teaFeed';
 import { transformSubmission, filterSubmissions } from '@/utils/submissionUtils';
 
-// Simple local type definition to avoid circular reference
-type LocalAIComment = {
+// Simplified type to avoid deep instantiation issues
+interface SimpleAIComment {
   id: string;
   content: string;
   type: 'spicy' | 'smart' | 'memy' | 'savage';
   submission_id: string;
   created_at: string;
-};
+}
+
+// Simple type for the comments map
+type CommentsMap = { [submissionId: string]: SimpleAIComment[] };
 
 const EnhancedTeaFeed = () => {
   const [submissions, setSubmissions] = useState<TeaSubmission[]>([]);
-  const [aiComments, setAiComments] = useState<Record<string, LocalAIComment[]>>({});
+  const [aiComments, setAiComments] = useState<CommentsMap>({});
   const [isLoading, setIsLoading] = useState(true);
   const [expandedSubmissions, setExpandedSubmissions] = useState<Set<string>>(new Set());
   const [activeFilter, setActiveFilter] = useState('all');
@@ -259,7 +261,7 @@ const EnhancedTeaFeed = () => {
       if (error) throw error;
       
       if (data?.commentary) {
-        const newComment: LocalAIComment = {
+        const newComment: SimpleAIComment = {
           id: Date.now().toString(),
           content: data.commentary,
           type: type,
@@ -267,11 +269,14 @@ const EnhancedTeaFeed = () => {
           created_at: new Date().toISOString()
         };
 
+        // Simplified state update to avoid type inference issues
         setAiComments(prevComments => {
-          const existingComments = prevComments[submission.id] || [];
+          const currentComments = prevComments[submission.id] || [];
+          const updatedComments = [...currentComments, newComment];
+          
           return {
             ...prevComments,
-            [submission.id]: [...existingComments, newComment]
+            [submission.id]: updatedComments
           };
         });
       }
