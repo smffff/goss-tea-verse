@@ -3,10 +3,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import SubmissionForm from '@/components/SubmissionForm';
+import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 import { useToast } from '@/hooks/use-toast';
-import BetaDisclaimer from '@/components/BetaDisclaimer';
 import { supabase } from '@/integrations/supabase/client';
-import { getOrCreateSecureToken } from '@/utils/securityUtils';
+import { performSubmissionSecurityCheck } from '@/utils/security';
 
 interface SubmissionData {
   tea: string;
@@ -28,28 +28,38 @@ const SubmitTea = () => {
     setIsSubmitting(true);
     
     try {
-      const anonymousToken = getOrCreateSecureToken();
+      // Perform comprehensive security check
+      const securityCheck = performSubmissionSecurityCheck(
+        data.tea,
+        data.evidence_urls,
+        'tea_submission'
+      );
+
+      // Check rate limiting
+      if (!securityCheck.rateLimitOk) {
+        throw new Error('Rate limit exceeded. Please wait before submitting again.');
+      }
+
+      // Validate content security
+      if (!securityCheck.content.isValid) {
+        throw new Error(`Content validation failed: ${securityCheck.content.threats.join(', ')}`);
+      }
 
       const submissionData = {
-        content: data.tea.trim(),
+        content: securityCheck.content.sanitized,
         category: data.category || 'general',
-        evidence_urls: data.evidence_urls && data.evidence_urls.length > 0 ? data.evidence_urls : null,
-        anonymous_token: anonymousToken,
+        evidence_urls: securityCheck.urls.length > 0 ? securityCheck.urls : null,
+        anonymous_token: securityCheck.token,
         status: 'approved',
-        has_evidence: data.evidence_urls && data.evidence_urls.length > 0,
+        has_evidence: securityCheck.urls.length > 0,
         reactions: { hot: 0, cold: 0, spicy: 0 },
         average_rating: 0,
-        rating_count: 0
+        rating_count: 0,
+        ...(data.isAnonymous ? {} : {
+          contact_email: data.email?.trim() || null,
+          contact_wallet: data.wallet?.trim() || null
+        })
       };
-
-      // Content validation
-      if (!submissionData.content || submissionData.content.length < 3) {
-        throw new Error('Content must be at least 3 characters long');
-      }
-
-      if (submissionData.content.length > 2000) {
-        throw new Error('Content must be less than 2000 characters');
-      }
 
       const { data: result, error } = await supabase
         .from('tea_submissions')
@@ -65,8 +75,8 @@ const SubmitTea = () => {
       }
 
       toast({
-        title: "Tea Submitted! ☕",
-        description: "Your submission is now live in the feed!",
+        title: "Tea Spilled Successfully! 🫖",
+        description: "Your gossip is brewing and will appear in the feed shortly!",
       });
 
       navigate('/feed');
@@ -76,7 +86,7 @@ const SubmitTea = () => {
       
       toast({
         title: "Submission Failed",
-        description: `Couldn't submit your tea: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
+        description: `${error instanceof Error ? error.message : 'Unknown error occurred'}`,
         variant: "destructive"
       });
     } finally {
@@ -90,25 +100,26 @@ const SubmitTea = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-4">
-              Spill Your Tea ☕
-            </h1>
-            <BetaDisclaimer variant="inline" className="justify-center mb-4" />
-            <p className="text-gray-400">
-              Share the latest crypto gossip, rumors, and alpha with the community.
-            </p>
+      <ErrorBoundaryWrapper componentName="SubmitTea">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl md:text-4xl font-display font-bold text-tabloid-black mb-4">
+                Spill Your Tea ☕
+              </h1>
+              <p className="text-tabloid-black/70 text-lg">
+                Share the latest crypto gossip, rumors, and alpha with the community.
+              </p>
+            </div>
+            
+            <SubmissionForm
+              onClose={handleClose}
+              onSubmit={handleSubmit}
+              isLoading={isSubmitting}
+            />
           </div>
-          
-          <SubmissionForm
-            onClose={handleClose}
-            onSubmit={handleSubmit}
-            isLoading={isSubmitting}
-          />
         </div>
-      </div>
+      </ErrorBoundaryWrapper>
     </Layout>
   );
 };

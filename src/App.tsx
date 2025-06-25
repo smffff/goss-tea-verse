@@ -64,8 +64,9 @@ const App = () => {
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/settings" element={<Settings />} />
 
-                  {/* Legacy Redirects */}
+                  {/* Legacy Redirects - Fixed */}
                   <Route path="/submit" element={<Navigate to="/spill" replace />} />
+                  <Route path="/submit-tea" element={<Navigate to="/spill" replace />} />
                   <Route path="/trends" element={<Navigate to="/feed" replace />} />
                   <Route path="/governance" element={<Navigate to="/about" replace />} />
                   <Route path="/token" element={<Navigate to="/about" replace />} />
@@ -81,6 +82,7 @@ const App = () => {
                     <Route index element={<AdminDashboard />} />
                   </Route>
                   
+                  {/* Catch all - redirect to landing */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>

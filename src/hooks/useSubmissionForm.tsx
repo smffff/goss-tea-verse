@@ -1,7 +1,8 @@
+
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { track } from '@/utils/analytics';
-import { sanitizeContent, sanitizeUrls } from '@/utils/securityUtils';
+import { performSubmissionSecurityCheck } from '@/utils/security';
 
 interface SubmissionData {
   tea: string;
@@ -21,7 +22,7 @@ export const useSubmissionForm = (
     email: '',
     wallet: '',
     category: 'general',
-    evidence_urls: [],
+    evidence_urls: [''],
     isAnonymous: true
   });
   
@@ -41,12 +42,14 @@ export const useSubmissionForm = (
       newErrors.tea = 'Tea must be less than 2000 characters';
     }
 
-    if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
+    if (!formData.isAnonymous) {
+      if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        newErrors.email = 'Please enter a valid email address';
+      }
 
-    if (formData.wallet.trim() && formData.wallet.trim().length < 10) {
-      newErrors.wallet = 'Please enter a valid wallet address';
+      if (formData.wallet.trim() && formData.wallet.trim().length < 10) {
+        newErrors.wallet = 'Please enter a valid wallet address';
+      }
     }
 
     setErrors(newErrors);
@@ -68,12 +71,37 @@ export const useSubmissionForm = (
     }
 
     try {
+      // Perform security validation before submission
+      const securityCheck = performSubmissionSecurityCheck(
+        formData.tea,
+        formData.evidence_urls.filter(url => url.trim()),
+        'tea_submission'
+      );
+
+      if (!securityCheck.rateLimitOk) {
+        toast({
+          title: "Rate Limit Exceeded",
+          description: "Please wait before submitting again.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!securityCheck.content.isValid) {
+        toast({
+          title: "Content Validation Failed",
+          description: `Issues detected: ${securityCheck.content.threats.join(', ')}`,
+          variant: "destructive"
+        });
+        return;
+      }
+
       const sanitizedData: SubmissionData = {
-        tea: sanitizeContent(formData.tea),
+        tea: securityCheck.content.sanitized,
         email: formData.email.trim().toLowerCase(),
         wallet: formData.wallet.trim(),
         category: formData.category,
-        evidence_urls: sanitizeUrls(formData.evidence_urls),
+        evidence_urls: securityCheck.urls,
         isAnonymous: formData.isAnonymous
       };
       
@@ -87,7 +115,7 @@ export const useSubmissionForm = (
         email: '',
         wallet: '',
         category: 'general',
-        evidence_urls: [],
+        evidence_urls: [''],
         isAnonymous: true
       });
       setErrors({});
