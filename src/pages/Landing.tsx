@@ -112,8 +112,8 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-cyan-50">
       {/* Simple Navigation Bar */}
-      <nav className="bg-white/80 backdrop-blur-sm border-b border-purple-200/50 sticky top-0 z-40">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="bg-white/80 backdrop-blur-sm border-b border-accent/30 sticky top-0 z-40">
+        <div className="container mx-auto px-4 md:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2">
               <img 
@@ -124,16 +124,16 @@ const Landing = () => {
               <span className="font-bold text-gray-900">CTea Newsroom</span>
             </div>
             <div className="flex items-center gap-4">
-              <a href="#leaderboard" className="text-gray-600 hover:text-purple-600 font-medium">Leaderboard</a>
-              <a href="#about" className="text-gray-600 hover:text-purple-600 font-medium">About</a>
-              <a href="#submit" className="text-gray-600 hover:text-purple-600 font-medium">Submit</a>
+              <a href="#leaderboard" className="text-gray-600 hover:text-accent font-medium transition-colors">Leaderboard</a>
+              <a href="#about" className="text-gray-600 hover:text-accent font-medium transition-colors">About</a>
+              <a href="#submit" className="text-gray-600 hover:text-accent font-medium transition-colors">Submit</a>
             </div>
           </div>
         </div>
       </nav>
 
       {/* Trending Ticker */}
-      <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 text-white py-2 overflow-hidden">
+      <div className="bg-gradient-to-r from-accent via-accent2 to-accent text-white py-2 overflow-hidden">
         <div className="flex items-center justify-center space-x-8 animate-marquee">
           <div className="flex items-center gap-2">
             <Flame className="w-4 h-4 text-yellow-300" />
@@ -148,30 +148,33 @@ const Landing = () => {
       {/* Hero Section */}
       <section className="relative py-20 sm:py-32 overflow-hidden">
         {/* Enhanced Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-pink-200/30 via-orange-200/20 to-teal-200/30"></div>
-        <div className="absolute inset-0 bg-gradient-ctea-pastel opacity-20"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-accent2/20 to-accent/20"></div>
         
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="container mx-auto px-4 md:px-8 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
             {/* Logo */}
             <div className="flex justify-center mb-8">
               <div className="relative">
                 <img 
-                  src="/ctea-logo-icon.svg" 
+                  src="/ctea-logo-full.png" 
                   alt="CTea Newsroom Logo - Anonymous Crypto Gossip Platform" 
-                  className="w-20 h-20 sm:w-24 sm:h-24 animate-float"
+                  className="w-32 h-16 sm:w-40 sm:h-20 animate-float"
                   onError={(e) => {
-                    // Fallback to Coffee icon if image fails to load
+                    // Fallback to icon if image fails to load
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling!.style.display = 'block';
                   }}
                 />
-                <Coffee className="w-20 h-20 sm:w-24 sm:h-24 text-purple-600 animate-float hidden" />
+                <img 
+                  src="/ctea-logo-icon.svg" 
+                  alt="CTea Newsroom Logo" 
+                  className="w-20 h-20 sm:w-24 sm:h-24 text-accent animate-float hidden" 
+                />
                 <div className="absolute -top-2 -right-2">
-                  <Zap className="w-6 h-6 text-yellow-500 animate-pulse" />
+                  <Zap className="w-6 h-6 text-accent2 animate-pulse" />
                 </div>
                 <div className="absolute -bottom-2 -left-2">
-                  <Sparkles className="w-5 h-5 text-pink-500 animate-pulse" />
+                  <Sparkles className="w-5 h-5 text-accent animate-pulse" />
                 </div>
               </div>
             </div>
@@ -180,7 +183,7 @@ const Landing = () => {
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
               Where Crypto Twitter
               <br />
-              <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-accent via-accent2 to-accent bg-clip-text text-transparent">
                 Comes to Spill.
               </span>
             </h1>
@@ -203,7 +206,7 @@ const Landing = () => {
                     trackCTAClick('spill_tea_cta');
                     setShowSpillForm(true);
                   }}
-                  className="uppercase font-semibold px-6 py-3 rounded-lg bg-accent hover:bg-accent2 transition-all shadow-md text-white w-full sm:w-auto"
+                  className="uppercase font-semibold px-6 py-3 rounded-lg bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent transition-all shadow hover:scale-105 text-white w-full sm:w-auto"
                 >
                   <Coffee className="w-5 h-5 mr-2" />
                   Spill Tea for Beta Access
@@ -220,7 +223,7 @@ const Landing = () => {
                     setShowTippingModal(true);
                   }}
                   variant="outline"
-                  className="uppercase font-semibold px-6 py-3 rounded-lg bg-accent hover:bg-accent2 transition-all shadow-md text-white w-full sm:w-auto"
+                  className="uppercase font-semibold px-6 py-3 rounded-lg border-accent text-accent hover:bg-accent hover:text-white transition-all shadow hover:scale-105 w-full sm:w-auto"
                 >
                   <Gift className="w-5 h-5 mr-2" />
                   Tip the Gatekeepers
@@ -295,7 +298,7 @@ const Landing = () => {
 
       {/* Leaderboard Preview */}
       <section id="leaderboard" className="py-16 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4 md:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               CTea Hall of Fame
@@ -305,9 +308,9 @@ const Landing = () => {
             </p>
             
             {/* Live Activity Ticker */}
-            <div className="inline-flex items-center gap-3 bg-gradient-to-r from-purple-100 to-pink-100 px-6 py-3 rounded-full border border-purple-200 mb-8">
-              <Flame className="w-5 h-5 text-orange-500 animate-pulse" />
-              <span className="text-sm font-bold text-purple-800">
+            <div className="inline-flex items-center gap-3 bg-gradient-to-r from-accent/10 to-accent2/10 px-6 py-3 rounded-full border border-accent/20 mb-8">
+              <Flame className="w-5 h-5 text-accent2 animate-pulse" />
+              <span className="text-sm font-bold text-accent">
                 🔥 14 spills in the last hour
               </span>
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -315,16 +318,16 @@ const Landing = () => {
           </div>
           
           <div className="max-w-2xl mx-auto">
-            <Card className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 shadow-xl">
+            <Card className="p-6 bg-gradient-to-br from-accent/5 to-accent2/5 border-2 border-accent/20 shadow-xl">
               <div className="space-y-3">
                 {leaderboardData.map((entry, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] border border-purple-100">
+                  <div key={index} className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] border border-accent/10">
                     <div className="flex items-center gap-4">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shadow-lg ${
-                        index === 0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white' :
+                        index === 0 ? 'bg-gradient-to-br from-accent to-accent2 text-white' :
                         index === 1 ? 'bg-gradient-to-br from-gray-400 to-gray-600 text-white' :
                         index === 2 ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white' :
-                        'bg-gradient-to-br from-purple-400 to-purple-600 text-white'
+                        'bg-gradient-to-br from-accent/80 to-accent2/80 text-white'
                       }`}>
                         {index + 1}
                       </div>
@@ -349,8 +352,8 @@ const Landing = () => {
       </section>
 
       {/* Enhanced Social Proof */}
-      <section className="py-16 bg-gradient-to-r from-purple-50 to-pink-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-16 bg-gradient-to-r from-accent/5 to-accent2/5">
+        <div className="container mx-auto px-4 md:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               What the Community Says
@@ -362,9 +365,9 @@ const Landing = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="p-6 bg-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transform border border-purple-100">
+              <Card key={index} className="p-6 bg-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transform border border-accent/10">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                  <div className="w-10 h-10 bg-gradient-to-br from-accent to-accent2 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
                     <MessageCircle className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -380,7 +383,7 @@ const Landing = () => {
 
       {/* Enhanced Live Stats */}
       <section className="py-16 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4 md:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               CTea by the Numbers
@@ -391,20 +394,20 @@ const Landing = () => {
           </div>
           
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-4xl mx-auto">
-            <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200">
-              <div className="text-3xl sm:text-4xl font-bold text-purple-600 mb-2">2,420</div>
+            <div className="text-center p-6 bg-gradient-to-br from-accent/10 to-accent/5 rounded-xl border border-accent/20">
+              <div className="text-3xl sm:text-4xl font-bold text-accent mb-2">2,420</div>
               <div className="text-sm text-gray-600 font-medium">Beta Users</div>
             </div>
-            <div className="text-center p-6 bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl border border-pink-200">
-              <div className="text-3xl sm:text-4xl font-bold text-pink-600 mb-2">15.7K</div>
+            <div className="text-center p-6 bg-gradient-to-br from-accent2/10 to-accent2/5 rounded-xl border border-accent2/20">
+              <div className="text-3xl sm:text-4xl font-bold text-accent2 mb-2">15.7K</div>
               <div className="text-sm text-gray-600 font-medium">Hot Takes</div>
             </div>
-            <div className="text-center p-6 bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl border border-cyan-200">
-              <div className="text-3xl sm:text-4xl font-bold text-cyan-600 mb-2">420K</div>
+            <div className="text-center p-6 bg-gradient-to-br from-accent/10 to-accent2/10 rounded-xl border border-accent/20">
+              <div className="text-3xl sm:text-4xl font-bold text-accent mb-2">420K</div>
               <div className="text-sm text-gray-600 font-medium">$TEA Points</div>
             </div>
-            <div className="text-center p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl border border-yellow-200">
-              <div className="text-3xl sm:text-4xl font-bold text-yellow-600 mb-2">69</div>
+            <div className="text-center p-6 bg-gradient-to-br from-accent2/10 to-accent/10 rounded-xl border border-accent2/20">
+              <div className="text-3xl sm:text-4xl font-bold text-accent2 mb-2">69</div>
               <div className="text-sm text-gray-600 font-medium">Viral Memes</div>
             </div>
           </div>
@@ -412,8 +415,8 @@ const Landing = () => {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-16 bg-gradient-to-r from-purple-50 to-pink-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="about" className="py-16 bg-gradient-to-r from-accent/5 to-accent2/5">
+        <div className="container mx-auto px-4 md:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
               About CTea Newsroom
