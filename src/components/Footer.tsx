@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Coffee, ExternalLink, Twitter, MessageCircle, Users, ArrowRight, Sparkles, MessageSquare, Mail } from 'lucide-react';
+import { Coffee, ExternalLink, Twitter, MessageCircle, Users, ArrowRight, Sparkles, MessageSquare, Mail, Github, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { trackFeedbackSubmission, trackFeedbackButtonClick } from '@/lib/analytics';
 
@@ -15,15 +15,16 @@ const Footer = () => {
   const { toast } = useToast();
 
   const footerLinks = [
-    { path: '/about', label: 'About' },
-    { path: '/privacy', label: 'Privacy' },
-    { path: '/terms', label: 'Terms' }
+    { path: '/about', label: 'About', external: false },
+    { path: '/privacy', label: 'Privacy', external: false },
+    { path: '/terms', label: 'Terms', external: false }
   ];
 
   const socialLinks = [
-    { href: 'https://twitter.com/ctea_newsroom', label: 'Twitter', icon: <Twitter className="w-4 h-4" /> },
-    { href: 'https://arena.ctea.news', label: 'Arena', icon: <MessageCircle className="w-4 h-4" /> },
-    { href: 'https://discord.gg/ctea', label: 'Discord', icon: <Users className="w-4 h-4" /> }
+    { href: 'https://twitter.com/ctea_newsroom', label: 'Twitter', icon: <Twitter className="w-4 h-4" />, external: true },
+    { href: 'https://arena.ctea.news', label: 'Arena', icon: <MessageCircle className="w-4 h-4" />, external: true },
+    { href: 'https://discord.gg/ctea', label: 'Discord', icon: <Users className="w-4 h-4" />, external: true },
+    { href: 'https://github.com/ctea-newsroom', label: 'GitHub', icon: <Github className="w-4 h-4" />, external: true }
   ];
 
   const handleFeedbackSubmit = async (e: React.FormEvent) => {
@@ -98,11 +99,12 @@ const Footer = () => {
                 href="https://cteanews.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 group hover:bg-accent/10 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
+                className="flex items-center gap-2 text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 group hover:bg-accent/10 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
                 aria-label="Visit cteanews.com (opens in new tab)"
               >
-                <ExternalLink className="w-4 h-4 group-hover:animate-pulse" />
+                <Globe className="w-4 h-4 group-hover:animate-pulse" />
                 <span className="font-medium">cteanews.com</span>
+                <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity" />
               </a>
               
               {/* Social Links */}
@@ -112,11 +114,12 @@ const Footer = () => {
                   href={link.href} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 group hover:bg-accent/10 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
+                  className="flex items-center gap-2 text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 group hover:bg-accent/10 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
                   aria-label={`Visit ${link.label} (opens in new tab)`}
                 >
                   {link.icon}
                   <span className="font-medium">{link.label}</span>
+                  <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity" />
                 </a>
               ))}
             </div>
@@ -127,7 +130,7 @@ const Footer = () => {
                 <Link
                   key={index}
                   to={link.path}
-                  className="text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 font-medium hover:bg-accent/10 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
+                  className="text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 font-medium hover:bg-accent/10 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
                 >
                   {link.label}
                 </Link>
@@ -202,9 +205,8 @@ const Footer = () => {
               </Dialog>
 
               <a 
-                href="mailto:hello@cteanews.com"
-                className="flex items-center gap-2 border-accent text-accent hover:bg-accent/10 hover:text-accent2 transition-all duration-300 uppercase font-semibold px-6 py-3 rounded-lg shadow hover:scale-105 border focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
-                aria-label="Send email to hello@cteanews.com"
+                href="mailto:hello@ctea.news" 
+                className="flex items-center gap-2 border-accent/30 text-accent hover:bg-accent/10 hover:text-accent2 transition-all duration-300 uppercase font-semibold px-6 py-3 rounded-lg shadow hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
               >
                 <Mail className="w-4 h-4" />
                 Contact
@@ -212,12 +214,12 @@ const Footer = () => {
             </div>
 
             {/* Copyright */}
-            <div className="border-t border-gray-700 pt-8">
+            <div className="border-t border-accent/20 pt-8">
               <p className="text-sm text-gray-400">
                 © 2024 CTea Newsroom. All rights reserved. Built with ☕ and chaos.
               </p>
               <p className="text-xs text-gray-500 mt-2">
-                Beta v1.0 • Managed Chaos, Served Hot
+                Beta v1.0.0 • Anonymous crypto gossip platform
               </p>
             </div>
           </div>

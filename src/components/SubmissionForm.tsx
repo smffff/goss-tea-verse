@@ -73,7 +73,7 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
     // Validate tea content
     if (!formData.tea.trim()) {
       newErrors.tea = 'Please share some tea!';
-    } else if (formData.tea.length < 20) {
+    } else if (formData.tea.trim().length < 20) {
       newErrors.tea = 'Tea must be at least 20 characters long';
     } else if (formData.tea.length > 2000) {
       newErrors.tea = 'Tea must be less than 2000 characters';
@@ -173,6 +173,12 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
     return 'text-gray-400';
   };
 
+  const clearError = (field: keyof SubmissionData) => {
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-ctea-dark/95 backdrop-blur-md border-ctea-teal/30 max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -199,8 +205,10 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
                       : 'bg-ctea-dark/50 border-ctea-teal/20 text-gray-300 hover:bg-ctea-dark/70 hover:border-ctea-teal/30'
                   }`}
                 >
-                  <div className="text-lg mb-1">{category.icon}</div>
-                  <div className="text-xs font-medium">{category.label}</div>
+                  <div className="text-center">
+                    <div className="text-lg mb-1">{category.icon}</div>
+                    <div className="text-xs font-medium">{category.label}</div>
+                  </div>
                 </button>
               ))}
             </div>
@@ -210,64 +218,133 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
           <div>
             <Label htmlFor="tea" className="text-gray-300 flex items-center gap-2">
               Your Tea (Anonymous)
-              <Badge variant="outline" className="text-xs border-accent/30 text-accent">
-                Required
-              </Badge>
+              <span className="text-red-400">*</span>
             </Label>
             <Textarea
               id="tea"
-              placeholder="Share the hottest crypto gossip, alpha, or meme-fueled take... Be specific, be spicy! 🔥"
+              placeholder="Share the hottest crypto gossip, alpha, or meme-fueled take... (min 20 characters)"
               value={formData.tea}
-              onChange={(e) => setFormData({...formData, tea: e.target.value})}
+              onChange={(e) => {
+                setFormData({...formData, tea: e.target.value});
+                clearError('tea');
+              }}
               className={`min-h-[120px] bg-ctea-dark/50 border-ctea-teal/30 text-white placeholder-gray-400 focus:ring-2 focus:ring-accent/50 focus:border-accent ${
-                errors.tea ? 'border-red-500' : ''
+                errors.tea ? 'border-red-400' : ''
               }`}
+              maxLength={2000}
               required
             />
-            <div className="flex justify-between items-center mt-2">
-              <div className="flex items-center gap-2">
-                {errors.tea && (
-                  <div className="flex items-center gap-1 text-red-400 text-sm">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.tea}
-                  </div>
-                )}
+            {errors.tea && (
+              <div className="flex items-center gap-1 text-red-400 text-sm mt-1">
+                <AlertCircle className="w-4 h-4" />
+                {errors.tea}
               </div>
-              <span className={`text-sm ${getCharacterCount()}`}>
-                {formData.tea.length}/2000
+            )}
+            <div className="flex justify-between items-center mt-2">
+              <span className={`text-xs ${getCharacterCount()}`}>
+                {formData.tea.length}/2000 characters
               </span>
+              {formData.tea.length >= 20 && (
+                <div className="flex items-center gap-1 text-green-400 text-xs">
+                  <CheckCircle className="w-3 h-3" />
+                  Minimum length met
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Evidence URLs */}
+          {/* Email */}
           <div>
-            <Label className="text-gray-300 flex items-center gap-2">
-              Evidence Links (Optional)
-              <LinkIcon className="w-4 h-4" />
+            <Label htmlFor="email" className="text-gray-300 flex items-center gap-2">
+              Email (for beta access)
+              <span className="text-red-400">*</span>
             </Label>
-            <div className="space-y-2">
+            <Input
+              id="email"
+              type="email"
+              placeholder="your@email.com"
+              value={formData.email}
+              onChange={(e) => {
+                setFormData({...formData, email: e.target.value});
+                clearError('email');
+              }}
+              className={`bg-ctea-dark/50 border-ctea-teal/30 text-white placeholder-gray-400 focus:ring-2 focus:ring-accent/50 focus:border-accent ${
+                errors.email ? 'border-red-400' : ''
+              }`}
+              required
+            />
+            {errors.email && (
+              <div className="flex items-center gap-1 text-red-400 text-sm mt-1">
+                <AlertCircle className="w-4 h-4" />
+                {errors.email}
+              </div>
+            )}
+          </div>
+
+          {/* Wallet Address */}
+          <div>
+            <Label htmlFor="wallet" className="text-gray-300">
+              Wallet Address (optional)
+            </Label>
+            <Input
+              id="wallet"
+              type="text"
+              placeholder="0x... or Solana address"
+              value={formData.wallet}
+              onChange={(e) => {
+                setFormData({...formData, wallet: e.target.value});
+                clearError('wallet');
+              }}
+              className={`bg-ctea-dark/50 border-ctea-teal/30 text-white placeholder-gray-400 focus:ring-2 focus:ring-accent/50 focus:border-accent ${
+                errors.wallet ? 'border-red-400' : ''
+              }`}
+            />
+            {errors.wallet && (
+              <div className="flex items-center gap-1 text-red-400 text-sm mt-1">
+                <AlertCircle className="w-4 h-4" />
+                {errors.wallet}
+              </div>
+            )}
+            <p className="text-xs text-gray-400 mt-1">
+              Connect your wallet to earn $TEA rewards for viral content
+            </p>
+          </div>
+
+          {/* Evidence Links */}
+          <div>
+            <Label className="text-gray-300 mb-3 block">Evidence Links (Optional)</Label>
+            <div className="space-y-3">
               {formData.evidence_urls.map((url, index) => (
-                <div key={index} className="flex items-center gap-2 p-2 bg-ctea-dark/30 rounded border border-ctea-teal/20">
-                  <span className="text-xs text-gray-400 flex-1 truncate">{url}</span>
+                <div key={index} className="flex items-center gap-2">
+                  <LinkIcon className="w-4 h-4 text-ctea-teal" />
+                  <a 
+                    href={url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex-1 text-accent hover:text-accent2 text-sm truncate"
+                  >
+                    {url}
+                  </a>
                   <Button
                     type="button"
-                    size="sm"
                     variant="ghost"
+                    size="sm"
                     onClick={() => removeEvidenceUrl(index)}
                     className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
                   >
-                    <X className="w-3 h-3" />
+                    <X className="w-4 h-4" />
                   </Button>
                 </div>
               ))}
+              
               <div className="flex gap-2">
                 <Input
                   type="url"
                   placeholder="https://..."
                   value={newEvidenceUrl}
                   onChange={(e) => setNewEvidenceUrl(e.target.value)}
-                  className="flex-1 bg-ctea-dark/50 border-ctea-teal/30 text-white placeholder-gray-400 focus:ring-2 focus:ring-accent/50 focus:border-accent"
-                  onKeyDown={(e) => {
+                  className="flex-1 bg-ctea-dark/50 border-ctea-teal/30 text-white placeholder-gray-400"
+                  onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       addEvidenceUrl();
@@ -276,64 +353,14 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
                 />
                 <Button
                   type="button"
+                  variant="outline"
                   onClick={addEvidenceUrl}
                   disabled={!newEvidenceUrl.trim()}
-                  className="bg-accent/20 text-accent border border-accent/30 hover:bg-accent/30 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent"
+                  className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10"
                 >
-                  <Upload className="w-4 h-4" />
+                  Add
                 </Button>
               </div>
-            </div>
-          </div>
-
-          {/* Contact Information */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="email" className="text-gray-300 flex items-center gap-2">
-                Email
-                <Badge variant="outline" className="text-xs border-accent/30 text-accent">
-                  Required
-                </Badge>
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="your@email.com"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className={`bg-ctea-dark/50 border-ctea-teal/30 text-white placeholder-gray-400 focus:ring-2 focus:ring-accent/50 focus:border-accent ${
-                  errors.email ? 'border-red-500' : ''
-                }`}
-                required
-              />
-              {errors.email && (
-                <div className="flex items-center gap-1 text-red-400 text-sm mt-1">
-                  <AlertCircle className="w-4 h-4" />
-                  {errors.email}
-                </div>
-              )}
-            </div>
-            
-            <div>
-              <Label htmlFor="wallet" className="text-gray-300">
-                Wallet Address (Optional)
-              </Label>
-              <Input
-                id="wallet"
-                type="text"
-                placeholder="0x... or Solana address"
-                value={formData.wallet}
-                onChange={(e) => setFormData({...formData, wallet: e.target.value})}
-                className={`bg-ctea-dark/50 border-ctea-teal/30 text-white placeholder-gray-400 focus:ring-2 focus:ring-accent/50 focus:border-accent ${
-                  errors.wallet ? 'border-red-500' : ''
-                }`}
-              />
-              {errors.wallet && (
-                <div className="flex items-center gap-1 text-red-400 text-sm mt-1">
-                  <AlertCircle className="w-4 h-4" />
-                  {errors.wallet}
-                </div>
-              )}
             </div>
           </div>
 
@@ -342,13 +369,13 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
             <div className="flex items-start gap-3">
               <Sparkles className="w-5 h-5 text-accent mt-0.5" />
               <div className="text-sm text-gray-300">
-                <p className="font-medium mb-1">🔒 Your privacy is protected</p>
-                <p>All submissions are anonymous by default. Your email is only used for beta access notifications.</p>
+                <p className="font-medium mb-1">🛡️ Your submission is anonymous</p>
+                <p>Your identity will not be shared. We take privacy seriously and review all submissions for quality.</p>
               </div>
             </div>
           </Card>
 
-          {/* Submission Buttons */}
+          {/* Action Buttons */}
           <div className="flex gap-3">
             <Button
               type="submit"
@@ -358,12 +385,12 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
               {isSubmitting ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Spilling Tea...
+                  Submitting...
                 </>
               ) : (
                 <>
                   <Coffee className="w-4 h-4 mr-2" />
-                  Spill Tea
+                  Spill the Tea
                 </>
               )}
             </Button>

@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
-import { X, Copy, CheckCircle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { X, Copy, CheckCircle, Coffee, QrCode, ExternalLink, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 interface ModalProps {
   isOpen: boolean;
@@ -26,12 +27,15 @@ const Modal: React.FC<ModalProps> = ({
   onSubmit,
   submitButtonText = "Submit"
 }) => {
-  const [formData, setFormData] = React.useState({
+  const [formData, setFormData] = useState({
     tea: '',
     email: '',
     wallet: ''
   });
-  const [copiedAddress, setCopiedAddress] = React.useState<string | null>(null);
+  const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
+  const { toast } = useToast();
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -63,22 +67,77 @@ const Modal: React.FC<ModalProps> = ({
     };
   }, [isOpen, onClose]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (onSubmit) {
-      onSubmit(formData);
-      setFormData({ tea: '', email: '', wallet: '' });
+  const validateForm = () => {
+    const errors: {[key: string]: string} = {};
+    
+    if (!formData.tea.trim()) {
+      errors.tea = 'Please share some tea!';
+    } else if (formData.tea.trim().length < 20) {
+      errors.tea = 'Tea must be at least 20 characters long';
     }
-    onClose();
+    
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required for beta access';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    
+    if (formData.wallet.trim() && !/^0x[a-fA-F0-9]{40}$/.test(formData.wallet.trim())) {
+      errors.wallet = 'Please enter a valid Ethereum wallet address';
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      if (onSubmit) {
+        await onSubmit(formData);
+      }
+      
+      toast({
+        title: "Tea Submitted! ☕",
+        description: "Your submission is being reviewed. Check back soon!",
+      });
+      
+      setFormData({ tea: '', email: '', wallet: '' });
+      setValidationErrors({});
+      onClose();
+    } catch (error) {
+      toast({
+        title: "Submission Failed",
+        description: "Couldn't submit your tea. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const copyToClipboard = async (text: string, type: string) => {
     try {
       await navigator.clipboard.writeText(text);
       setCopiedAddress(type);
+      toast({
+        title: "Address Copied! 📋",
+        description: `${type} address copied to clipboard`,
+      });
       setTimeout(() => setCopiedAddress(null), 2000);
     } catch (err) {
       console.error('Failed to copy: ', err);
+      toast({
+        title: "Copy Failed",
+        description: "Couldn't copy address. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -97,7 +156,10 @@ const Modal: React.FC<ModalProps> = ({
         <div className="bg-ctea-dark/95 backdrop-blur-md border border-ctea-teal/30 rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-ctea-teal/20">
-            <h2 className="text-xl font-bold text-white">{title}</h2>
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              {showForm && <Coffee className="w-5 h-5 text-accent" />}
+              {title}
+            </h2>
             <Button
               variant="ghost"
               size="sm"
@@ -113,44 +175,108 @@ const Modal: React.FC<ModalProps> = ({
             {showForm ? (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="tea" className="text-gray-300">Your Tea (Anonymous)</Label>
+                  <Label htmlFor="tea" className="text-gray-300 flex items-center gap-2">
+                    Your Tea (Anonymous) ☕
+                    <span className="text-red-400">*</span>
+                  </Label>
                   <Textarea
                     id="tea"
-                    placeholder="Share the hottest crypto gossip, alpha, or meme-fueled take..."
+                    placeholder="Share the hottest crypto gossip, alpha, or meme-fueled take... (min 20 characters)"
                     value={formData.tea}
-                    onChange={(e) => setFormData({...formData, tea: e.target.value})}
-                    className="min-h-[100px] bg-ctea-dark/50 border-ctea-teal/30 text-white placeholder-gray-400"
+                    onChange={(e) => {
+                      setFormData({...formData, tea: e.target.value});
+                      if (validationErrors.tea) {
+                        setValidationErrors({...validationErrors, tea: ''});
+                      }
+                    }}
+                    className={`min-h-[120px] bg-ctea-dark/50 border-ctea-teal/30 text-white placeholder-gray-400 focus:ring-2 focus:ring-accent/50 focus:border-accent ${
+                      validationErrors.tea ? 'border-red-400' : ''
+                    }`}
                     required
                   />
+                  {validationErrors.tea && (
+                    <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {validationErrors.tea}
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-400 mt-1">
+                    {formData.tea.length}/500 characters
+                  </p>
                 </div>
+                
                 <div>
-                  <Label htmlFor="email" className="text-gray-300">Email (for beta access)</Label>
+                  <Label htmlFor="email" className="text-gray-300 flex items-center gap-2">
+                    Email (for beta access)
+                    <span className="text-red-400">*</span>
+                  </Label>
                   <Input
                     id="email"
                     type="email"
                     placeholder="your@email.com"
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="bg-ctea-dark/50 border-ctea-teal/30 text-white placeholder-gray-400"
+                    onChange={(e) => {
+                      setFormData({...formData, email: e.target.value});
+                      if (validationErrors.email) {
+                        setValidationErrors({...validationErrors, email: ''});
+                      }
+                    }}
+                    className={`bg-ctea-dark/50 border-ctea-teal/30 text-white placeholder-gray-400 focus:ring-2 focus:ring-accent/50 focus:border-accent ${
+                      validationErrors.email ? 'border-red-400' : ''
+                    }`}
                     required
                   />
+                  {validationErrors.email && (
+                    <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {validationErrors.email}
+                    </p>
+                  )}
                 </div>
+                
                 <div>
-                  <Label htmlFor="wallet" className="text-gray-300">Wallet Address (optional)</Label>
+                  <Label htmlFor="wallet" className="text-gray-300">
+                    Wallet Address (optional)
+                  </Label>
                   <Input
                     id="wallet"
                     type="text"
                     placeholder="0x..."
                     value={formData.wallet}
-                    onChange={(e) => setFormData({...formData, wallet: e.target.value})}
-                    className="bg-ctea-dark/50 border-ctea-teal/30 text-white placeholder-gray-400"
+                    onChange={(e) => {
+                      setFormData({...formData, wallet: e.target.value});
+                      if (validationErrors.wallet) {
+                        setValidationErrors({...validationErrors, wallet: ''});
+                      }
+                    }}
+                    className={`bg-ctea-dark/50 border-ctea-teal/30 text-white placeholder-gray-400 focus:ring-2 focus:ring-accent/50 focus:border-accent ${
+                      validationErrors.wallet ? 'border-red-400' : ''
+                    }`}
                   />
+                  {validationErrors.wallet && (
+                    <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {validationErrors.wallet}
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-400 mt-1">
+                    Connect your wallet to earn $TEA rewards
+                  </p>
                 </div>
+                
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-ctea text-white font-bold hover:opacity-90 transition-all duration-300"
+                  disabled={isSubmitting}
+                  className="w-full bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent text-white font-bold hover:opacity-90 transition-all duration-300 disabled:opacity-50"
                 >
-                  {submitButtonText}
+                  {isSubmitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Submitting...
+                    </>
+                  ) : (
+                    submitButtonText
+                  )}
                 </Button>
               </form>
             ) : showTipping ? (
@@ -172,7 +298,7 @@ const Modal: React.FC<ModalProps> = ({
                   
                   {/* ETH Address */}
                   <div className="bg-ctea-dark/30 border border-ctea-teal/20 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-3">
                       <span className="text-ctea-teal font-medium">Ethereum (ETH)</span>
                       <Button
                         size="sm"
@@ -180,13 +306,23 @@ const Modal: React.FC<ModalProps> = ({
                         className="text-xs border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10"
                         onClick={() => copyToClipboard("0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6", "ETH")}
                       >
-                        Copy
+                        {copiedAddress === "ETH" ? (
+                          <>
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3 h-3 mr-1" />
+                            Copy
+                          </>
+                        )}
                       </Button>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="bg-white p-2 rounded">
+                      <div className="bg-white p-2 rounded flex-shrink-0">
                         <div className="w-16 h-16 bg-gray-200 flex items-center justify-center text-xs text-gray-500">
-                          QR Code
+                          <QrCode className="w-8 h-8" />
                         </div>
                       </div>
                       <code className="text-xs text-gray-300 bg-ctea-dark/50 p-2 rounded flex-1 break-all">
@@ -197,7 +333,7 @@ const Modal: React.FC<ModalProps> = ({
 
                   {/* SOL Address */}
                   <div className="bg-ctea-dark/30 border border-ctea-teal/20 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-3">
                       <span className="text-ctea-teal font-medium">Solana (SOL)</span>
                       <Button
                         size="sm"
@@ -205,13 +341,23 @@ const Modal: React.FC<ModalProps> = ({
                         className="text-xs border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10"
                         onClick={() => copyToClipboard("9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM", "SOL")}
                       >
-                        Copy
+                        {copiedAddress === "SOL" ? (
+                          <>
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3 h-3 mr-1" />
+                            Copy
+                          </>
+                        )}
                       </Button>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="bg-white p-2 rounded">
+                      <div className="bg-white p-2 rounded flex-shrink-0">
                         <div className="w-16 h-16 bg-gray-200 flex items-center justify-center text-xs text-gray-500">
-                          QR Code
+                          <QrCode className="w-8 h-8" />
                         </div>
                       </div>
                       <code className="text-xs text-gray-300 bg-ctea-dark/50 p-2 rounded flex-1 break-all">
@@ -220,36 +366,50 @@ const Modal: React.FC<ModalProps> = ({
                     </div>
                   </div>
 
-                  {/* Phantom Handle */}
+                  {/* BTC Address */}
                   <div className="bg-ctea-dark/30 border border-ctea-teal/20 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-ctea-teal font-medium">Phantom Handle</span>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-ctea-teal font-medium">Bitcoin (BTC)</span>
                       <Button
                         size="sm"
                         variant="outline"
                         className="text-xs border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10"
-                        onClick={() => copyToClipboard("@ctea_newsroom", "Phantom")}
+                        onClick={() => copyToClipboard("bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", "BTC")}
                       >
-                        Copy
+                        {copiedAddress === "BTC" ? (
+                          <>
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3 h-3 mr-1" />
+                            Copy
+                          </>
+                        )}
                       </Button>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="bg-white p-2 rounded">
+                      <div className="bg-white p-2 rounded flex-shrink-0">
                         <div className="w-16 h-16 bg-gray-200 flex items-center justify-center text-xs text-gray-500">
-                          QR Code
+                          <QrCode className="w-8 h-8" />
                         </div>
                       </div>
-                      <code className="text-xs text-gray-300 bg-ctea-dark/50 p-2 rounded flex-1">
-                        @ctea_newsroom
+                      <code className="text-xs text-gray-300 bg-ctea-dark/50 p-2 rounded flex-1 break-all">
+                        bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh
                       </code>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-ctea-pink/10 border border-ctea-pink/30 rounded-lg p-4">
-                  <p className="text-ctea-pink text-sm">
-                    🚀 After sending, DM us your transaction hash on Twitter for instant VIP access!
-                  </p>
+                {/* Instructions */}
+                <div className="bg-ctea-yellow/10 border border-ctea-yellow/30 rounded-lg p-4">
+                  <h4 className="text-ctea-yellow font-bold mb-2">After Sending:</h4>
+                  <ol className="text-sm text-gray-300 space-y-1">
+                    <li>1. Copy your transaction hash</li>
+                    <li>2. Email it to <span className="text-accent">tips@ctea.news</span></li>
+                    <li>3. Get instant VIP access within 24 hours</li>
+                  </ol>
                 </div>
               </div>
             ) : (

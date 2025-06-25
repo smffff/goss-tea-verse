@@ -1,21 +1,48 @@
-import React from 'react';
+import React, { useState } from 'react';
 import TeaFeed from '@/components/TeaFeed';
 import Leaderboard from '@/components/Leaderboard';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Layout from '@/components/Layout';
-import { TrendingUp, Zap, Users, Plus, Filter, Trophy } from 'lucide-react';
+import Modal from '@/components/Modal';
+import TestimonialCarousel from '@/components/TestimonialCarousel';
+import { TrendingUp, Zap, Users, Plus, Filter, Trophy, Coffee, Gift } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 const Feed = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [showSpillModal, setShowSpillModal] = useState(false);
+  const [showTippingModal, setShowTippingModal] = useState(false);
   
   const stats = [
     { label: 'Hot Takes Today', value: '1,247', icon: TrendingUp, color: 'text-ctea-teal' },
     { label: 'Active Users', value: '2,420', icon: Users, color: 'text-ctea-purple' },
     { label: 'Viral Posts', value: '69', icon: Zap, color: 'text-ctea-yellow' }
   ];
+
+  const handleSpillTea = async (data: { tea: string; email: string; wallet: string }) => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast({
+        title: "Tea Submitted! ☕",
+        description: "Your submission is being reviewed. Check back soon!",
+      });
+      
+      // In a real app, this would add to the feed
+      console.log('Tea submitted:', data);
+    } catch (error) {
+      toast({
+        title: "Submission Failed",
+        description: "Couldn't submit your tea. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
     <Layout>
@@ -52,23 +79,28 @@ const Feed = () => {
               </div>
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                 <Button 
-                  className="bg-gradient-ctea text-white font-bold w-full sm:w-auto"
-                  onClick={() => navigate('/submit')}
+                  className="bg-gradient-ctea text-white font-bold w-full sm:w-auto py-3 px-6 text-base"
+                  onClick={() => setShowSpillModal(true)}
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Spill Now
+                  <Coffee className="w-4 h-4 mr-2" />
+                  Spill Tea
                 </Button>
                 <Button 
                   variant="outline"
-                  className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10 w-full sm:w-auto"
-                  onClick={() => navigate('/campaigns')}
+                  className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10 w-full sm:w-auto py-3 px-6 text-base"
+                  onClick={() => setShowTippingModal(true)}
                 >
-                  <Filter className="w-4 h-4 mr-2" />
-                  View Campaigns
+                  <Gift className="w-4 h-4 mr-2" />
+                  Tip Gatekeepers
                 </Button>
               </div>
             </div>
           </Card>
+
+          {/* Testimonial Carousel */}
+          <div className="mb-8">
+            <TestimonialCarousel />
+          </div>
 
           {/* Quick Filters */}
           <div className="mb-8">
@@ -152,19 +184,19 @@ const Feed = () => {
                   </h3>
                   <div className="space-y-3">
                     <Button 
-                      className="w-full bg-gradient-ctea text-white font-bold"
-                      onClick={() => navigate('/submit')}
+                      className="w-full bg-gradient-ctea text-white font-bold py-3"
+                      onClick={() => setShowSpillModal(true)}
                     >
-                      <Plus className="w-4 h-4 mr-2" />
+                      <Coffee className="w-4 h-4 mr-2" />
                       Spill New Tea
                     </Button>
                     <Button 
                       variant="outline"
-                      className="w-full border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10"
-                      onClick={() => navigate('/campaigns')}
+                      className="w-full border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10 py-3"
+                      onClick={() => setShowTippingModal(true)}
                     >
-                      <Trophy className="w-4 h-4 mr-2" />
-                      Join Campaign
+                      <Gift className="w-4 h-4 mr-2" />
+                      Tip Gatekeepers
                     </Button>
                   </div>
                 </div>
@@ -201,6 +233,23 @@ const Feed = () => {
           </div>
         </div>
       </section>
+
+      {/* Modals */}
+      <Modal
+        isOpen={showSpillModal}
+        onClose={() => setShowSpillModal(false)}
+        title="Spill the Tea ☕"
+        showForm={true}
+        onSubmit={handleSpillTea}
+        submitButtonText="Submit Tea"
+      />
+
+      <Modal
+        isOpen={showTippingModal}
+        onClose={() => setShowTippingModal(false)}
+        title="Tip Gatekeepers 💰"
+        showTipping={true}
+      />
     </Layout>
   );
 };
