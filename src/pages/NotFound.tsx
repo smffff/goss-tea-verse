@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const NotFound404 = () => {
+const NotFound = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,4 +26,4 @@ const NotFound404 = () => {
   );
 };
 
-export default NotFound404; 
+export default NotFound; 
