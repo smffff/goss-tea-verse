@@ -26,13 +26,15 @@ export const filterSubmissions = (submissions: TeaSubmission[], activeFilter: st
 
   return submissions.filter(submission => {
     const reactions = submission.reactions;
+    const totalReactions = reactions.hot + reactions.cold + reactions.spicy;
+    
     switch (activeFilter) {
       case 'hot':
         return reactions.hot > reactions.cold;
       case 'spicy':
         return reactions.spicy > 5;
       case 'trending':
-        return (reactions.hot + reactions.cold + reactions.spicy) > 10;
+        return totalReactions > 10;
       case 'boosted':
         return (submission.boost_score || 0) > 0;
       case 'viral':
@@ -41,4 +43,11 @@ export const filterSubmissions = (submissions: TeaSubmission[], activeFilter: st
         return true;
     }
   });
+};
+
+export const calculateViralityScore = (reactions: { hot: number; cold: number; spicy: number }): number => {
+  const total = reactions.hot + reactions.cold + reactions.spicy;
+  const hotWeight = reactions.hot * 1.5;
+  const spicyWeight = reactions.spicy * 2;
+  return Math.round(hotWeight + reactions.cold + spicyWeight);
 };

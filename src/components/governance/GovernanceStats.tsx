@@ -51,7 +51,7 @@ const GovernanceStats: React.FC<GovernanceStatsProps> = ({
       <Card className="p-6 bg-gradient-to-br from-ctea-yellow/20 to-ctea-orange/20 border-ctea-yellow/30">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-ctea-yellow text-sm font-medium">Proposals Created</p>
+            <p className="text-ctea-yellow text-sm font-medium">Total Proposals</p>
             <p className="text-white text-2xl font-bold">{totalProposalsCount}</p>
           </div>
           <Target className="w-8 h-8 text-ctea-yellow" />

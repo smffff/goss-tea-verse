@@ -16,7 +16,7 @@ const LiveStatsSection = () => {
         
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-4xl mx-auto">
           <div className="text-center p-6 bg-gradient-to-br from-accent/10 to-accent/5 rounded-xl border border-accent/20">
-            <div className="text-3xl sm:text-4xl font-bold text-accent mb-2">2,420</div>
+            <div className="text-3xl sm:text-4xl font-bold text-accent mb-2">2.4K</div>
             <div className="text-sm text-gray-600 font-medium">Beta Users</div>
           </div>
           <div className="text-center p-6 bg-gradient-to-br from-accent2/10 to-accent2/5 rounded-xl border border-accent2/20">

@@ -47,7 +47,7 @@ const UserStats: React.FC = () => {
               <Coffee className="w-4 h-4 text-ctea-yellow" />
               <span className="text-sm text-gray-400">Tea Points</span>
             </div>
-            <p className="text-lg font-bold text-white">{progression.tea_points}</p>
+            <p className="text-lg font-bold text-white">{progression.tea_points.toLocaleString()}</p>
           </div>
           
           <div className="space-y-2">
@@ -80,7 +80,7 @@ const UserStats: React.FC = () => {
           <div className="p-3 bg-ctea-darker/50 rounded-lg border border-ctea-teal/20">
             <h4 className="text-sm font-medium text-white mb-2">Next Level: {nextLevel.name}</h4>
             <p className="text-xs text-gray-400">
-              {nextLevel.min_xp - progression.current_xp} XP needed to level up
+              {(nextLevel.min_xp - progression.current_xp).toLocaleString()} XP needed to level up
             </p>
           </div>
         )}

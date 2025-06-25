@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -35,7 +36,7 @@ export const useUserProgression = () => {
     name: 'New Sipper',
     min_xp: 0,
     max_xp: 100,
-    badge_color: '#gray',
+    badge_color: '#6b7280',
     perks: {}
   });
   
@@ -107,7 +108,10 @@ export const useUserProgression = () => {
 
       const { data: updatedProgression, error } = await supabase
         .from('user_progression')
-        .update({ total_reactions_given: progression.total_reactions_given + 1, current_xp: progression.current_xp + 5 })
+        .update({ 
+          total_reactions_given: progression.total_reactions_given + 1, 
+          current_xp: progression.current_xp + 5 
+        })
         .eq('anonymous_token', anonymousToken)
         .select('*')
         .single();
@@ -129,7 +133,10 @@ export const useUserProgression = () => {
 
       const { data: updatedProgression, error } = await supabase
         .from('user_progression')
-        .update({ total_posts: progression.total_posts + 1, current_xp: progression.current_xp + 20 })
+        .update({ 
+          total_posts: progression.total_posts + 1, 
+          current_xp: progression.current_xp + 20 
+        })
         .eq('anonymous_token', anonymousToken)
         .select('*')
         .single();
@@ -151,7 +158,10 @@ export const useUserProgression = () => {
 
       const { data: updatedProgression, error } = await supabase
         .from('user_progression')
-        .update({ tea_points: progression.tea_points + points, current_xp: progression.current_xp + points })
+        .update({ 
+          tea_points: progression.tea_points + points, 
+          current_xp: progression.current_xp + points 
+        })
         .eq('anonymous_token', anonymousToken)
         .select('*')
         .single();
