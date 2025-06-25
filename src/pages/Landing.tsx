@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from '@/components/ui/badge';
 import Footer from '@/components/Footer';
 import Modal from '@/components/Modal';
+import { trackCTAClick } from '@/lib/analytics';
 import { 
   Coffee, 
   TrendingUp, 
@@ -168,7 +169,11 @@ const Landing = () => {
             {/* Enhanced CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
               <Button 
-                onClick={() => setShowSpillForm(true)}
+                onClick={() => {
+                  // Track CTA click
+                  trackCTAClick('spill_tea_cta');
+                  setShowSpillForm(true);
+                }}
                 className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold uppercase tracking-wide px-8 py-4 text-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group"
               >
                 <Coffee className="w-5 h-5 mr-2 group-hover:animate-bounce" />
@@ -177,9 +182,16 @@ const Landing = () => {
               
               <Dialog open={showVipModal} onOpenChange={setShowVipModal}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white font-bold uppercase tracking-wide px-8 py-4 text-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group">
-                    <Crown className="w-5 h-5 mr-2 group-hover:animate-pulse" />
-                    VIP Access
+                  <Button 
+                    onClick={() => {
+                      // Track CTA click
+                      trackCTAClick('tip_gatekeepers_cta');
+                    }}
+                    variant="outline"
+                    className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white font-bold uppercase tracking-wide px-8 py-4 text-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group"
+                  >
+                    <Gift className="w-5 h-5 mr-2 group-hover:animate-pulse" />
+                    Tip Gatekeepers
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">

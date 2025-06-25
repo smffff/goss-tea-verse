@@ -6,6 +6,7 @@ import { Send, Sparkles, Upload, Link as LinkIcon, Image as ImageIcon } from 'lu
 import { useToast } from '@/hooks/use-toast';
 import { useUserProgression } from '@/hooks/useUserProgression';
 import { supabase } from '@/integrations/supabase/client';
+import { trackFormCompletion, trackTeaSpill } from '@/lib/analytics';
 import CategorySelector from './CategorySelector';
 import ContentTextarea from './ContentTextarea';
 import EvidenceUrlManager from './EvidenceUrlManager';
@@ -52,6 +53,9 @@ const SubmissionForm = () => {
         allEvidenceUrls.push(imageUrl);
       }
 
+      // Track form completion
+      trackFormCompletion();
+
       // Insert submission
       const { data: submission, error: submissionError } = await supabase
         .from('tea_submissions')
@@ -67,6 +71,9 @@ const SubmissionForm = () => {
         .single();
 
       if (submissionError) throw submissionError;
+
+      // Track successful tea spill
+      trackTeaSpill();
 
       // Increment user progression for posting
       await incrementPost();
