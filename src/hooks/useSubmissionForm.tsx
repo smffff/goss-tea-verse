@@ -122,11 +122,8 @@ export const useSubmissionForm = (
     } catch (error) {
       console.error('handleSubmit - Form submission error:', error);
       
-      toast({
-        title: "Submission Failed",
-        description: `Couldn't submit your tea: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
-        variant: "destructive"
-      });
+      // Don't show error toast here as it's handled by the parent component
+      // This prevents duplicate error messages
     }
   };
 

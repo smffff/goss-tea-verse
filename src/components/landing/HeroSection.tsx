@@ -17,20 +17,22 @@ const HeroSection: React.FC<HeroSectionProps> = ({
     const feedSection = document.getElementById('tea-feed');
     if (feedSection) {
       feedSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // If no feed section on page, navigate to feed page
+      window.location.href = '/feed';
     }
   };
 
-  const openSubmissionModal = () => {
+  const handleSpillTea = () => {
     if (onSpillFormOpen) {
       onSpillFormOpen();
     } else {
-      // Fallback to custom event for backward compatibility
-      const event = new CustomEvent('openSubmissionModal');
-      window.dispatchEvent(event);
+      // Fallback: navigate to submit page
+      window.location.href = '/submit';
     }
   };
 
-  const openTippingModal = () => {
+  const handleTipping = () => {
     if (onTippingModalOpen) {
       onTippingModalOpen();
     }
@@ -77,7 +79,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
           <Button
             size="lg"
-            onClick={openSubmissionModal}
+            onClick={handleSpillTea}
             className="bg-gradient-to-r from-ctea-pink to-purple-500 hover:from-ctea-pink/80 hover:to-purple-500/80 text-white font-bold px-8 py-4 text-lg border-0"
           >
             <Coffee className="w-5 h-5 mr-2" />

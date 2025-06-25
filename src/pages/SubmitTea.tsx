@@ -104,9 +104,9 @@ const SubmitTea = () => {
         description: "Your submission is now live in the feed! Check it out and see the community reactions.",
       });
 
-      console.log('SubmitTea - Navigating to enhanced feed immediately...');
-      // Navigate to enhanced feed immediately to see the new submission
-      navigate('/enhanced-feed');
+      console.log('SubmitTea - Navigating to main feed...');
+      // Navigate to main feed (not enhanced-feed) after successful submission
+      navigate('/feed');
 
     } catch (error) {
       console.error('SubmitTea - Submission error:', error);
