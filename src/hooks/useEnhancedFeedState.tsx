@@ -108,19 +108,17 @@ export const useEnhancedFeedState = () => {
         await incrementReaction('given');
       }
 
-      // Simple optimistic update
-      setSubmissions(prev => prev.map(item => {
-        if (item.id === submissionId) {
-          return {
-            ...item,
-            reactions: {
-              ...item.reactions,
-              [reactionType]: (item.reactions[reactionType] || 0) + 1
-            }
-          };
-        }
-        return item;
-      }));
+      // Optimistic update with explicit typing
+      setSubmissions((currentSubmissions: TeaSubmission[]) => {
+        return currentSubmissions.map((item: TeaSubmission) => {
+          if (item.id === submissionId) {
+            const updatedReactions = { ...item.reactions };
+            updatedReactions[reactionType] = (updatedReactions[reactionType] || 0) + 1;
+            return { ...item, reactions: updatedReactions };
+          }
+          return item;
+        });
+      });
 
       toast({
         title: `Reaction Added! ${reactionType === 'hot' ? '🔥' : reactionType === 'cold' ? '❄️' : '🌶️'}`,
@@ -138,14 +136,16 @@ export const useEnhancedFeedState = () => {
   };
 
   const handleBoostUpdated = (submissionId: string, newBoost: number) => {
-    setSubmissions(prev => prev.map(item => 
-      item.id === submissionId ? { ...item, boost_score: newBoost } : item
-    ));
+    setSubmissions((currentSubmissions: TeaSubmission[]) => {
+      return currentSubmissions.map((item: TeaSubmission) => 
+        item.id === submissionId ? { ...item, boost_score: newBoost } : item
+      );
+    });
   };
 
   const toggleComments = (submissionId: string) => {
-    setExpandedSubmissions(prev => {
-      const newSet = new Set(prev);
+    setExpandedSubmissions((currentSet: Set<string>) => {
+      const newSet = new Set(currentSet);
       if (newSet.has(submissionId)) {
         newSet.delete(submissionId);
       } else {
