@@ -6,14 +6,45 @@ import { useUserProgression } from '@/hooks/useUserProgression';
 import { TeaSubmission } from '@/types/teaFeed';
 import { transformSubmission, filterSubmissions } from '@/utils/submissionUtils';
 
+interface FeedState {
+  submissions: TeaSubmission[];
+  isLoading: boolean;
+  expandedSubmissions: Set<string>;
+  activeFilter: string;
+  sortBy: string;
+}
+
 export const useEnhancedFeedState = () => {
-  const [submissions, setSubmissions] = useState<TeaSubmission[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [expandedSubmissions, setExpandedSubmissions] = useState<Set<string>>(new Set());
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('latest');
+  const [feedState, setFeedState] = useState<FeedState>({
+    submissions: [],
+    isLoading: true,
+    expandedSubmissions: new Set<string>(),
+    activeFilter: 'all',
+    sortBy: 'latest'
+  });
+
   const { incrementReaction } = useUserProgression();
   const { toast } = useToast();
+
+  const setSubmissions = (submissions: TeaSubmission[]) => {
+    setFeedState(prev => ({ ...prev, submissions }));
+  };
+
+  const setIsLoading = (isLoading: boolean) => {
+    setFeedState(prev => ({ ...prev, isLoading }));
+  };
+
+  const setExpandedSubmissions = (expandedSubmissions: Set<string>) => {
+    setFeedState(prev => ({ ...prev, expandedSubmissions }));
+  };
+
+  const setActiveFilter = (activeFilter: string) => {
+    setFeedState(prev => ({ ...prev, activeFilter }));
+  };
+
+  const setSortBy = (sortBy: string) => {
+    setFeedState(prev => ({ ...prev, sortBy }));
+  };
 
   const fetchSubmissions = async () => {
     try {
@@ -27,7 +58,7 @@ export const useEnhancedFeedState = () => {
         .eq('visible', true)
         .eq('ai_rated', true);
 
-      switch (sortBy) {
+      switch (feedState.sortBy) {
         case 'reactions':
           query = query.order('rating_count', { ascending: false });
           break;
@@ -57,7 +88,7 @@ export const useEnhancedFeedState = () => {
       console.log('useEnhancedFeedState - Fetched submissions:', data?.length || 0);
       
       const transformedData = (data || []).map(transformSubmission);
-      const filteredData = filterSubmissions(transformedData, activeFilter);
+      const filteredData = filterSubmissions(transformedData, feedState.activeFilter);
       
       console.log('useEnhancedFeedState - Filtered submissions:', filteredData.length);
       setSubmissions(filteredData);
@@ -108,17 +139,17 @@ export const useEnhancedFeedState = () => {
         await incrementReaction('given');
       }
 
-      // Optimistic update with explicit typing
-      setSubmissions((currentSubmissions: TeaSubmission[]) => {
-        return currentSubmissions.map((item: TeaSubmission) => {
-          if (item.id === submissionId) {
-            const updatedReactions = { ...item.reactions };
-            updatedReactions[reactionType] = (updatedReactions[reactionType] || 0) + 1;
-            return { ...item, reactions: updatedReactions };
-          }
-          return item;
-        });
+      // Update submissions with new reaction count
+      const updatedSubmissions = feedState.submissions.map(item => {
+        if (item.id === submissionId) {
+          const newReactions = { ...item.reactions };
+          newReactions[reactionType] = (newReactions[reactionType] || 0) + 1;
+          return { ...item, reactions: newReactions };
+        }
+        return item;
       });
+      
+      setSubmissions(updatedSubmissions);
 
       toast({
         title: `Reaction Added! ${reactionType === 'hot' ? '🔥' : reactionType === 'cold' ? '❄️' : '🌶️'}`,
@@ -136,33 +167,30 @@ export const useEnhancedFeedState = () => {
   };
 
   const handleBoostUpdated = (submissionId: string, newBoost: number) => {
-    setSubmissions((currentSubmissions: TeaSubmission[]) => {
-      return currentSubmissions.map((item: TeaSubmission) => 
-        item.id === submissionId ? { ...item, boost_score: newBoost } : item
-      );
-    });
+    const updatedSubmissions = feedState.submissions.map(item => 
+      item.id === submissionId ? { ...item, boost_score: newBoost } : item
+    );
+    setSubmissions(updatedSubmissions);
   };
 
   const toggleComments = (submissionId: string) => {
-    setExpandedSubmissions((currentSet: Set<string>) => {
-      const newSet = new Set(currentSet);
-      if (newSet.has(submissionId)) {
-        newSet.delete(submissionId);
-      } else {
-        newSet.add(submissionId);
-      }
-      return newSet;
-    });
+    const newSet = new Set(feedState.expandedSubmissions);
+    if (newSet.has(submissionId)) {
+      newSet.delete(submissionId);
+    } else {
+      newSet.add(submissionId);
+    }
+    setExpandedSubmissions(newSet);
   };
 
   return {
-    submissions,
+    submissions: feedState.submissions,
     setSubmissions,
-    isLoading,
-    expandedSubmissions,
-    activeFilter,
+    isLoading: feedState.isLoading,
+    expandedSubmissions: feedState.expandedSubmissions,
+    activeFilter: feedState.activeFilter,
     setActiveFilter,
-    sortBy,
+    sortBy: feedState.sortBy,
     setSortBy,
     fetchSubmissions,
     handleReaction,
