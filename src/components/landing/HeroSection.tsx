@@ -4,7 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Sparkles, Coffee } from 'lucide-react';
 
-const HeroSection = () => {
+interface HeroSectionProps {
+  onSpillFormOpen?: () => void;
+  onTippingModalOpen?: () => void;
+}
+
+const HeroSection: React.FC<HeroSectionProps> = ({ 
+  onSpillFormOpen, 
+  onTippingModalOpen 
+}) => {
   const scrollToFeed = () => {
     const feedSection = document.getElementById('tea-feed');
     if (feedSection) {
@@ -13,9 +21,19 @@ const HeroSection = () => {
   };
 
   const openSubmissionModal = () => {
-    // Trigger submission modal - this will be handled by parent component
-    const event = new CustomEvent('openSubmissionModal');
-    window.dispatchEvent(event);
+    if (onSpillFormOpen) {
+      onSpillFormOpen();
+    } else {
+      // Fallback to custom event for backward compatibility
+      const event = new CustomEvent('openSubmissionModal');
+      window.dispatchEvent(event);
+    }
+  };
+
+  const openTippingModal = () => {
+    if (onTippingModalOpen) {
+      onTippingModalOpen();
+    }
   };
 
   return (
