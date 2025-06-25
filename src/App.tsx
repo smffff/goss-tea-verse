@@ -19,9 +19,10 @@ import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
-import NotFound from "pages/NotFound";
+import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -135,6 +136,12 @@ const App = () => {
                             </ErrorBoundary>
                           } />
                         </Route>
+                        
+                        <Route path="/settings" element={
+                          <ErrorBoundary componentName="Settings">
+                            <Settings />
+                          </ErrorBoundary>
+                        } />
                         
                         <Route path="*" element={
                           <ErrorBoundary componentName="NotFound">
