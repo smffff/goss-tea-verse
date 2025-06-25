@@ -280,3 +280,66 @@
     padding: 0 0.5rem !important;
   }
 }
+
+/* Vaporwave Gradient */
+.bg-vaporwave-gradient {
+  background: linear-gradient(135deg, #ffb6ff 0%, #e0c3fc 40%, #b5ffd9 100%);
+}
+
+/* Neon Glow Effect */
+.neon-glow {
+  text-shadow: 0 0 8px #fff, 0 0 16px #ff4c7b, 2px 2px 0 #000;
+  filter: drop-shadow(0 0 8px #fff) drop-shadow(0 0 16px #ff4c7b);
+}
+
+/* BREAKING Banner Animation */
+@keyframes breaking-scroll {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+.animate-breaking-scroll {
+  animation: breaking-scroll 12s linear infinite;
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 2.5s infinite;
+}
+
+/* Teacup Wiggle Animation */
+@keyframes teacup-wiggle {
+  0% { transform: scale(0.8) rotate(-8deg); }
+  20% { transform: scale(1.1) rotate(8deg); }
+  40% { transform: scale(1) rotate(-4deg); }
+  60% { transform: scale(1.05) rotate(4deg); }
+  80% { transform: scale(1) rotate(0deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.animate-teacup-wiggle {
+  animation: teacup-wiggle 1.2s cubic-bezier(0.4,0,0.2,1) 1;
+}
+
+/* Sticky Banner Animation */
+@keyframes sticky-banner {
+  0%, 100% { box-shadow: 0 0 24px 4px #ffb6ff88; }
+  50% { box-shadow: 0 0 48px 12px #ff4c7b88; }
+}
+.animate-sticky-banner {
+  animation: sticky-banner 2.5s infinite;
+}
+
+/* Shake on Hover */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+.animate-shake-on-hover:hover {
+  animation: shake 0.5s;
+}
