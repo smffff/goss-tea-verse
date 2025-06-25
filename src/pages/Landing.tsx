@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import Modal from '@/components/Modal';
 import TippingModal from '@/components/TippingModal';
@@ -112,8 +111,26 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-cyan-50">
-      {/* Navigation */}
-      <Navigation />
+      {/* Simple Navigation Bar */}
+      <nav className="bg-white/80 backdrop-blur-sm border-b border-accent/30 sticky top-0 z-40">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-2">
+              <img 
+                src="/ctea-logo-icon.svg" 
+                alt="CTea Newsroom Logo" 
+                className="w-8 h-8"
+              />
+              <span className="font-bold text-gray-900">CTea Newsroom</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <a href="#leaderboard" className="text-gray-600 hover:text-accent font-medium transition-colors">Leaderboard</a>
+              <a href="#about" className="text-gray-600 hover:text-accent font-medium transition-colors">About</a>
+              <a href="#submit" className="text-gray-600 hover:text-accent font-medium transition-colors">Submit</a>
+            </div>
+          </div>
+        </div>
+      </nav>
 
       {/* Trending Ticker */}
       <div className="bg-gradient-to-r from-accent via-accent2 to-accent text-white py-2 overflow-hidden">

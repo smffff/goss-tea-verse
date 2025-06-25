@@ -15,7 +15,7 @@ const Navigation = () => {
   const { userProgression } = useUserProgression();
 
   const navigationItems = [
-    { path: '/', label: 'Home', icon: <Home className="w-4 h-4" /> },
+    { path: '/app', label: 'Home', icon: <Home className="w-4 h-4" /> },
     { path: '/feed', label: 'Feed', icon: <TrendingUp className="w-4 h-4" /> },
     { path: '/submit', label: 'Submit', icon: <Plus className="w-4 h-4" /> },
     { path: '/campaigns', label: 'Leaderboard', icon: <Trophy className="w-4 h-4" /> },
@@ -70,7 +70,7 @@ const Navigation = () => {
   }, [darkMode]);
 
   const handleLogoClick = () => {
-    navigate('/');
+    navigate('/app');
     setIsMenuOpen(false);
   };
 
