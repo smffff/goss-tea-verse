@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TrendingUp, Flame, Snowflake, Zap, Eye, Bot, ChefHat, Chaos, Target } from 'lucide-react';
+import { TrendingUp, Flame, Snowflake, Zap, Eye, Bot, ChefHat, Target } from 'lucide-react';
 
 interface HotTakesFiltersProps {
   activeFilter: string;
@@ -28,7 +28,7 @@ const HotTakesFilters: React.FC<HotTakesFiltersProps> = ({
     { id: 'ai-commented', label: 'AI Rated', icon: Bot, color: 'text-purple-400' },
     // New AI rating filters
     { id: 'spiciest', label: 'Spiciest (8+)', icon: Flame, color: 'text-red-500' },
-    { id: 'chaotic', label: 'Chaotic (8+)', icon: Chaos, color: 'text-orange-500' },
+    { id: 'chaotic', label: 'Chaotic (8+)', icon: Zap, color: 'text-orange-500' },
     { id: 'relevant', label: 'Relevant (8+)', icon: Target, color: 'text-green-500' },
   ];
 

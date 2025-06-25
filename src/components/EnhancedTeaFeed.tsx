@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserProgression } from '@/hooks/useUserProgression';
@@ -13,17 +12,18 @@ import { useToast } from '@/hooks/use-toast';
 import { TeaSubmission } from '@/types/teaFeed';
 import { transformSubmission, filterSubmissions } from '@/utils/submissionUtils';
 
-interface AIComment {
+// Simple local type definition to avoid circular reference
+type LocalAIComment = {
   id: string;
   content: string;
   type: 'spicy' | 'smart' | 'memy' | 'savage';
   submission_id: string;
   created_at: string;
-}
+};
 
 const EnhancedTeaFeed = () => {
   const [submissions, setSubmissions] = useState<TeaSubmission[]>([]);
-  const [aiComments, setAiComments] = useState<{ [key: string]: AIComment[] }>({});
+  const [aiComments, setAiComments] = useState<{ [key: string]: LocalAIComment[] }>({});
   const [isLoading, setIsLoading] = useState(true);
   const [expandedSubmissions, setExpandedSubmissions] = useState<Set<string>>(new Set());
   const [activeFilter, setActiveFilter] = useState('all');
