@@ -43,33 +43,5 @@ export const mockSubmissions: TeaSubmission[] = [
     boost_score: 234,
     author: 'RugDetector',
     is_viral: true
-  },
-  {
-    id: '4',
-    content: "DeFi summer 2.0 is coming. The signs are everywhere - TVL increasing, new protocols launching, and the yield farming opportunities are insane. This time it's different because of the institutional adoption. 🌞",
-    category: 'alpha',
-    evidence_urls: null,
-    reactions: { hot: 98, cold: 34, spicy: 45 },
-    created_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
-    average_rating: 3.9,
-    rating_count: 177,
-    has_evidence: false,
-    boost_score: 67,
-    author: 'DeFiMaxi',
-    is_viral: false
-  },
-  {
-    id: '5',
-    content: "Major exchange hack incoming. Multiple sources confirming a large CEX is about to get rekt. The amount is in the hundreds of millions. This is going to be the biggest crypto story of the year. 🔥",
-    category: 'breaking',
-    evidence_urls: ['https://example.com/evidence3'],
-    reactions: { hot: 312, cold: 67, spicy: 156 },
-    created_at: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(),
-    average_rating: 4.7,
-    rating_count: 535,
-    has_evidence: true,
-    boost_score: 445,
-    author: 'WhaleAlert',
-    is_viral: true
   }
 ];
