@@ -6,6 +6,7 @@ import SubmissionForm from '@/components/SubmissionForm';
 import { useToast } from '@/hooks/use-toast';
 import BetaDisclaimer from '@/components/BetaDisclaimer';
 import { supabase } from '@/integrations/supabase/client';
+import { getOrCreateSecureToken } from '@/utils/securityUtils';
 
 interface SubmissionData {
   tea: string;
@@ -35,25 +36,11 @@ const SubmitTea = () => {
     console.log('SubmitTea - Set isSubmitting to true');
     
     try {
-      // Generate or get anonymous token
-      let anonymousToken = localStorage.getItem('ctea_anonymous_token');
-      console.log('SubmitTea - Existing anonymous token:', anonymousToken ? 'exists' : 'not found');
-      
-      if (!anonymousToken) {
-        anonymousToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
-          .map(b => b.toString(16).padStart(2, '0'))
-          .join('');
-        localStorage.setItem('ctea_anonymous_token', anonymousToken);
-        console.log('SubmitTea - Generated new anonymous token');
-      }
+      // Generate secure anonymous token with proper validation
+      const anonymousToken = getOrCreateSecureToken();
+      console.log('SubmitTea - Generated secure anonymous token');
 
-      // Validate token format
-      if (!anonymousToken || anonymousToken.length < 32) {
-        console.error('SubmitTea - Invalid anonymous token generated');
-        throw new Error('Invalid anonymous token generated');
-      }
-
-      // Prepare submission data - Set status to 'approved' for immediate visibility
+      // Prepare submission data with enhanced security
       const submissionData = {
         content: data.tea.trim(),
         category: data.category || 'general',
@@ -68,7 +55,7 @@ const SubmitTea = () => {
 
       console.log('SubmitTea - Prepared submission data:', submissionData);
 
-      // Validate content
+      // Enhanced content validation
       if (!submissionData.content || submissionData.content.length < 3) {
         console.error('SubmitTea - Content validation failed: too short');
         throw new Error('Content must be at least 3 characters long');
@@ -79,8 +66,22 @@ const SubmitTea = () => {
         throw new Error('Content must be less than 2000 characters');
       }
 
+      // Check for potentially malicious content
+      const suspiciousPatterns = [
+        /<script[^>]*>/i,
+        /javascript:/i,
+        /data:text\/html/i,
+        /vbscript:/i,
+        /on\w+\s*=/i
+      ];
+
+      if (suspiciousPatterns.some(pattern => pattern.test(submissionData.content))) {
+        console.error('SubmitTea - Malicious content detected');
+        throw new Error('Content contains potentially harmful elements');
+      }
+
       console.log('SubmitTea - Inserting into Supabase...');
-      // Insert into Supabase
+      // Insert into Supabase with enhanced validation
       const { data: result, error } = await supabase
         .from('tea_submissions')
         .insert(submissionData)

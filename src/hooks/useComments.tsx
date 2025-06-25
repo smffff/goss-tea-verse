@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { getOrCreateSecureToken } from '@/utils/securityUtils';
 
 interface Comment {
   id: string;
@@ -59,16 +60,33 @@ export const useComments = (submissionId: string) => {
 
   const addComment = async (content: string, parentId?: string) => {
     try {
-      const anonymousToken = localStorage.getItem('ctea_anonymous_token') || 
-        Array.from(crypto.getRandomValues(new Uint8Array(32)))
-          .map(b => b.toString(16).padStart(2, '0'))
-          .join('');
+      // Use secure token generation and content sanitization
+      const anonymousToken = getOrCreateSecureToken();
       
-      localStorage.setItem('ctea_anonymous_token', anonymousToken);
+      // Basic content validation and sanitization
+      const sanitizedContent = content.trim();
+      if (!sanitizedContent || sanitizedContent.length < 1) {
+        throw new Error('Comment cannot be empty');
+      }
+      
+      if (sanitizedContent.length > 500) {
+        throw new Error('Comment is too long (max 500 characters)');
+      }
+
+      // Check for potentially harmful content
+      const suspiciousPatterns = [
+        /<script[^>]*>/i,
+        /javascript:/i,
+        /on\w+\s*=/i
+      ];
+
+      if (suspiciousPatterns.some(pattern => pattern.test(sanitizedContent))) {
+        throw new Error('Comment contains invalid content');
+      }
 
       const newComment: Comment = {
         id: Date.now().toString(),
-        content,
+        content: sanitizedContent,
         anonymous_token: anonymousToken,
         created_at: new Date().toISOString(),
         likes: 0,
@@ -94,7 +112,7 @@ export const useComments = (submissionId: string) => {
       console.error('Error adding comment:', error);
       toast({
         title: "Error",
-        description: "Failed to post comment",
+        description: error instanceof Error ? error.message : "Failed to post comment",
         variant: "destructive"
       });
     }

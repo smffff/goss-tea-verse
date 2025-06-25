@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserProgression } from '@/hooks/useUserProgression';
 import { useToast } from '@/hooks/use-toast';
+import { getOrCreateSecureToken } from '@/utils/securityUtils';
 
 export const useReactions = () => {
   const { incrementReaction } = useUserProgression();
@@ -12,12 +13,9 @@ export const useReactions = () => {
     try {
       console.log('useReactions - Adding reaction:', { submissionId, reactionType });
       
-      const anonymousToken = localStorage.getItem('ctea_anonymous_token') || 
-        Array.from(crypto.getRandomValues(new Uint8Array(32)))
-          .map(b => b.toString(16).padStart(2, '0'))
-          .join('');
-      
-      localStorage.setItem('ctea_anonymous_token', anonymousToken);
+      // Use secure token generation
+      const anonymousToken = getOrCreateSecureToken();
+      console.log('useReactions - Using secure anonymous token');
 
       const { data: existingReaction } = await supabase
         .from('user_reactions')

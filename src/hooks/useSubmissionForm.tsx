@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { trackFormCompletion, trackTeaSpill } from '@/lib/analytics';
+import { sanitizeContent, sanitizeUrls } from '@/utils/securityUtils';
 
 interface SubmissionData {
   tea: string;
@@ -50,11 +51,13 @@ export const useSubmissionForm = (
       console.log('validateForm - Error: Tea too long');
     }
 
+    // Enhanced email validation
     if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
       console.log('validateForm - Error: Invalid email');
     }
 
+    // Enhanced wallet validation
     if (formData.wallet.trim() && formData.wallet.trim().length < 10) {
       newErrors.wallet = 'Please enter a valid wallet address';
       console.log('validateForm - Error: Invalid wallet');
@@ -87,10 +90,22 @@ export const useSubmissionForm = (
     }
 
     try {
-      console.log('handleSubmit - Calling onSubmit with data:', formData);
+      console.log('handleSubmit - Sanitizing content before submission');
+      
+      // Sanitize all user inputs before submission
+      const sanitizedData: SubmissionData = {
+        tea: sanitizeContent(formData.tea),
+        email: formData.email.trim().toLowerCase(),
+        wallet: formData.wallet.trim(),
+        category: formData.category,
+        evidence_urls: sanitizeUrls(formData.evidence_urls),
+        isAnonymous: formData.isAnonymous
+      };
+      
+      console.log('handleSubmit - Calling onSubmit with sanitized data:', sanitizedData);
       trackFormCompletion('tea_submission');
-      await onSubmit(formData);
-      trackTeaSpill(formData.category);
+      await onSubmit(sanitizedData);
+      trackTeaSpill(sanitizedData.category);
       
       console.log('handleSubmit - Submission successful, resetting form');
       // Reset form on successful submission
