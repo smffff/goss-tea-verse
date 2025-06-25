@@ -1,57 +1,14 @@
+
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Twitter, Github, MessageCircle, Heart, ExternalLink, Code, LinkIcon, Users } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import TipButton from './TipButton';
+import { Heart } from 'lucide-react';
+import FooterBrand from './footer/FooterBrand';
+import FooterSocialLinks from './footer/FooterSocialLinks';
+import FooterLinkSection from './footer/FooterLinkSection';
+import FooterStats from './footer/FooterStats';
+import DeveloperAttribution from './footer/DeveloperAttribution';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-
-  const openLink = (url: string) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
-
-  const socialLinks = [
-    {
-      name: 'Twitter',
-      icon: Twitter,
-      url: 'https://twitter.com/cteaplatform',
-      color: 'hover:text-blue-400'
-    },
-    {
-      name: 'Discord',
-      icon: MessageCircle,
-      url: 'https://discord.gg/ctea',
-      color: 'hover:text-purple-400'
-    },
-    {
-      name: 'GitHub',
-      icon: Github,
-      url: 'https://github.com/ctea-platform',
-      color: 'hover:text-gray-300'
-    }
-  ];
-
-  const developerSocialLinks = [
-    {
-      name: 'Arena Social',
-      icon: Users,
-      url: 'https://arena.social/?ref=LadyInvsible',
-      color: 'hover:text-blue-400'
-    },
-    {
-      name: 'X/Twitter',
-      icon: Twitter,
-      url: 'https://x.com/ladyinvsible',
-      color: 'hover:text-blue-400'
-    },
-    {
-      name: 'Linktree',
-      icon: LinkIcon,
-      url: 'https://linktr.ee/ladyinvsible',
-      color: 'hover:text-green-400'
-    }
-  ];
 
   const footerLinks = [
     {
@@ -99,115 +56,25 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-8">
           {/* Brand Section */}
           <div className="lg:col-span-2">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-br from-ctea-teal to-ctea-purple rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">C</span>
-              </div>
-              <span className="text-xl font-bold text-white">CTea</span>
-            </Link>
-            <p className="text-gray-400 mb-4 text-sm leading-relaxed">
-              The ultimate platform for crypto gossip, verified rumors, and community-driven truth. 
-              Spill the tea, earn rewards, and stay ahead of the crypto narrative.
-            </p>
-            <div className="flex items-center gap-3">
-              {socialLinks.map((social) => (
-                <Button
-                  key={social.name}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => openLink(social.url)}
-                  className={`text-gray-400 ${social.color} transition-colors duration-200`}
-                  aria-label={social.name}
-                >
-                  <social.icon className="w-4 h-4" />
-                </Button>
-              ))}
-            </div>
+            <FooterBrand />
+            <FooterSocialLinks />
           </div>
 
           {/* Footer Links */}
           {footerLinks.map((section) => (
-            <div key={section.title}>
-              <h3 className="text-white font-semibold mb-3 text-sm">{section.title}</h3>
-              <ul className="space-y-2">
-                {section.links.map((link) => (
-                  <li key={link.name}>
-                    {link.external ? (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => openLink(link.href)}
-                        className="text-gray-400 hover:text-ctea-teal text-sm justify-start p-0 h-auto font-normal"
-                      >
-                        {link.name}
-                        <ExternalLink className="w-3 h-3 ml-1" />
-                      </Button>
-                    ) : (
-                      <Link
-                        to={link.href}
-                        className="text-gray-400 hover:text-ctea-teal text-sm transition-colors duration-200 block"
-                      >
-                        {link.name}
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <FooterLinkSection
+              key={section.title}
+              title={section.title}
+              links={section.links}
+            />
           ))}
         </div>
 
         {/* Stats Bar */}
-        <div className="border-t border-ctea-teal/20 pt-8 mb-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-bold text-ctea-teal">1.2M+</div>
-              <div className="text-sm text-gray-400">Tea Spilled</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-ctea-purple">420K+</div>
-              <div className="text-sm text-gray-400">Active Sippers</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-ctea-yellow">$2.1M</div>
-              <div className="text-sm text-gray-400">Rewards Distributed</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-ctea-pink">99.9%</div>
-              <div className="text-sm text-gray-400">Uptime</div>
-            </div>
-          </div>
-        </div>
+        <FooterStats />
 
         {/* Developer Attribution Section */}
-        <div className="border-t border-ctea-teal/20 pt-8 mb-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="flex items-center gap-2">
-                <Code className="w-5 h-5 text-ctea-purple" />
-                <span className="text-gray-300">Built with</span>
-                <Heart className="w-4 h-4 text-red-400" />
-                <span className="text-gray-300">by</span>
-                <span className="text-ctea-teal font-semibold">ladyinvsible</span>
-              </div>
-              <div className="flex items-center gap-3">
-                {developerSocialLinks.map((social) => (
-                  <Button
-                    key={social.name}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => openLink(social.url)}
-                    className={`text-gray-400 ${social.color} transition-colors duration-200`}
-                    aria-label={social.name}
-                  >
-                    <social.icon className="w-4 h-4" />
-                  </Button>
-                ))}
-              </div>
-            </div>
-            <TipButton variant="default" />
-          </div>
-        </div>
+        <DeveloperAttribution />
 
         {/* Bottom Section */}
         <div className="border-t border-ctea-teal/20 pt-8">

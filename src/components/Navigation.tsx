@@ -1,24 +1,16 @@
 
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Coffee, Menu, X, Plus, Sparkles, TrendingUp, Heart, Users } from 'lucide-react';
+import { Menu, X, Users } from 'lucide-react';
+import { navigationItems } from '@/data/navigationItems';
 import TipButton from './TipButton';
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-
-  const navigationItems = [
-    { path: '/feed', label: 'Feed', icon: Coffee },
-    { path: '/enhanced-feed', label: 'Enhanced', icon: Sparkles },
-    { path: '/trends', label: 'Trends', icon: TrendingUp },
-    { path: '/submit', label: 'Submit', icon: Plus },
-  ];
-
   const isActive = (path: string) => location.pathname === path;
 
   return (
