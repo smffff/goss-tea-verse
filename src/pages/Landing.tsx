@@ -129,6 +129,12 @@ const Landing = () => {
               <a href="#leaderboard" className="text-gray-600 hover:text-accent font-medium transition-colors">Leaderboard</a>
               <a href="#about" className="text-gray-600 hover:text-accent font-medium transition-colors">About</a>
               <a href="#submit" className="text-gray-600 hover:text-accent font-medium transition-colors">Submit</a>
+              <Button 
+                onClick={() => navigate('/feed')}
+                className="bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent text-white font-bold px-4 py-2 text-sm"
+              >
+                Enter App
+              </Button>
             </div>
           </div>
         </div>
@@ -204,6 +210,13 @@ const Landing = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <Button 
                 className="bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent text-white font-bold px-8 py-4 text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 w-full sm:w-auto"
+                onClick={() => navigate('/feed')}
+              >
+                <TrendingUp className="w-5 h-5 mr-2" />
+                Enter App
+              </Button>
+              <Button 
+                className="bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent text-white font-bold px-8 py-4 text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 w-full sm:w-auto"
                 onClick={() => {
                   setShowSpillForm(true);
                   trackCTAClick('spill_tea_beta');
@@ -225,6 +238,42 @@ const Landing = () => {
               </Button>
             </div>
             <ShareButtons className="mb-8 justify-center" variant="expanded" />
+
+            {/* Quick Navigation to App Features */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
+              <Button
+                variant="outline"
+                className="flex flex-col items-center gap-2 p-4 h-auto hover:bg-accent/10 border-accent/30"
+                onClick={() => navigate('/feed')}
+              >
+                <TrendingUp className="w-6 h-6 text-accent" />
+                <span className="text-sm font-medium">Feed</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="flex flex-col items-center gap-2 p-4 h-auto hover:bg-accent/10 border-accent/30"
+                onClick={() => navigate('/enhanced-feed')}
+              >
+                <Zap className="w-6 h-6 text-accent2" />
+                <span className="text-sm font-medium">Enhanced Feed</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="flex flex-col items-center gap-2 p-4 h-auto hover:bg-accent/10 border-accent/30"
+                onClick={() => navigate('/submit')}
+              >
+                <Plus className="w-6 h-6 text-accent" />
+                <span className="text-sm font-medium">Submit</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="flex flex-col items-center gap-2 p-4 h-auto hover:bg-accent/10 border-accent/30"
+                onClick={() => navigate('/campaigns')}
+              >
+                <Trophy className="w-6 h-6 text-accent2" />
+                <span className="text-sm font-medium">Leaderboard</span>
+              </Button>
+            </div>
 
             {/* Beta Badge */}
             <div className="flex justify-center mb-8">
@@ -453,4 +502,4 @@ const Landing = () => {
   );
 };
 
-export default Landing; 
+export default Landing;

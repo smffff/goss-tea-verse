@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { WalletProvider } from "./components/WalletProvider";
@@ -5,6 +6,7 @@ import Layout from "./components/Layout";
 import MobileLayout from "./components/MobileLayout";
 import Landing from "./pages/Landing";
 import Feed from "./pages/Feed";
+import EnhancedFeed from "./pages/EnhancedFeed";
 import SubmitTea from "./pages/SubmitTea";
 import Campaigns from "./pages/Campaigns";
 import Features from "./pages/Features";
@@ -32,6 +34,13 @@ const App = () => (
             <MobileLayout>
               <Layout>
                 <Feed />
+              </Layout>
+            </MobileLayout>
+          } />
+          <Route path="/enhanced-feed" element={
+            <MobileLayout>
+              <Layout>
+                <EnhancedFeed />
               </Layout>
             </MobileLayout>
           } />
