@@ -1,5 +1,6 @@
 import React from 'react';
 import TeaFeed from '@/components/TeaFeed';
+import Leaderboard from '@/components/Leaderboard';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -106,6 +107,14 @@ const Feed = () => {
 
             {/* Sidebar - 1 column */}
             <div className="space-y-6">
+              {/* Leaderboard */}
+              <Leaderboard 
+                title="Top Contributors" 
+                period="weekly" 
+                maxEntries={5}
+                showRefresh={true}
+              />
+
               {/* Trending Topics */}
               <Card className="bg-ctea-dark/30 border border-ctea-teal/20">
                 <div className="p-6">

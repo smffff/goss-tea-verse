@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from '@/components/ui/badge';
 import Footer from '@/components/Footer';
 import Modal from '@/components/Modal';
+import TippingModal from '@/components/TippingModal';
 import { trackCTAClick } from '@/lib/analytics';
 import { 
   Coffee, 
@@ -34,7 +35,7 @@ const Landing = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [showSpillForm, setShowSpillForm] = useState(false);
-  const [showVipModal, setShowVipModal] = useState(false);
+  const [showTippingModal, setShowTippingModal] = useState(false);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successType, setSuccessType] = useState<'spill' | 'vip'>('spill');
@@ -103,7 +104,7 @@ const Landing = () => {
   };
 
   const handleVipTip = () => {
-    setShowVipModal(false);
+    setShowTippingModal(false);
     setSuccessType('vip');
     setShowSuccessModal(true);
   };
@@ -213,55 +214,17 @@ const Landing = () => {
               </div>
               
               <div className="text-center">
-                <Dialog open={showVipModal} onOpenChange={setShowVipModal}>
-                  <DialogTrigger asChild>
-                    <Button 
-                      onClick={() => {
-                        trackCTAClick('tip_gatekeepers_cta');
-                      }}
-                      variant="outline"
-                      className="uppercase font-semibold px-6 py-3 rounded-lg bg-accent hover:bg-accent2 transition-all shadow-md text-white w-full sm:w-auto"
-                    >
-                      <Gift className="w-5 h-5 mr-2" />
-                      Tip the Gatekeepers
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                      <DialogTitle className="text-center">VIP Benefits</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div className="text-center">
-                        <Crown className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-                        <h3 className="text-lg font-bold mb-2">Exclusive VIP Features</h3>
-                        <ul className="text-sm space-y-2 text-left">
-                          <li className="flex items-center gap-2">
-                            <Star className="w-4 h-4 text-yellow-500" />
-                            Early access to new features
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <Star className="w-4 h-4 text-yellow-500" />
-                            Priority submission queue
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <Star className="w-4 h-4 text-yellow-500" />
-                            Exclusive community access
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <Star className="w-4 h-4 text-yellow-500" />
-                            Higher $TEA point multipliers
-                          </li>
-                        </ul>
-                      </div>
-                      <div className="text-center">
-                        <Badge variant="secondary" className="bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800">
-                          <Gift className="w-3 h-3 mr-1" />
-                          VIP Benefits: Early Access, Recognition, Premium Features
-                        </Badge>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <Button 
+                  onClick={() => {
+                    trackCTAClick('tip_gatekeepers_cta');
+                    setShowTippingModal(true);
+                  }}
+                  variant="outline"
+                  className="uppercase font-semibold px-6 py-3 rounded-lg bg-accent hover:bg-accent2 transition-all shadow-md text-white w-full sm:w-auto"
+                >
+                  <Gift className="w-5 h-5 mr-2" />
+                  Tip the Gatekeepers
+                </Button>
                 <p className="text-sm text-gray-600 mt-2 max-w-xs">
                   Tip the gatekeepers and skip the line—instant VIP entry.
                 </p>
@@ -285,6 +248,12 @@ const Landing = () => {
         showForm={true}
         onSubmit={handleSpillSubmit}
         submitButtonText="Spill Tea"
+      />
+
+      {/* Tipping Modal */}
+      <TippingModal
+        isOpen={showTippingModal}
+        onClose={() => setShowTippingModal(false)}
       />
 
       {/* Success Modal */}

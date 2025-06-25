@@ -4,6 +4,7 @@ import { useUserProgression } from '@/hooks/useUserProgression';
 import TeaSubmissionCard from './TeaSubmissionCard';
 import HotTakesFilters from './HotTakesFilters';
 import LoadingSpinner from './LoadingSpinner';
+import FeedSkeleton from './FeedSkeleton';
 
 interface TeaSubmission {
   id: string;
@@ -214,7 +215,7 @@ const TeaFeed = () => {
   };
 
   if (isLoading) {
-    return <LoadingSpinner count={3} message="Brewing the hottest takes..." />;
+    return <FeedSkeleton />;
   }
 
   return (

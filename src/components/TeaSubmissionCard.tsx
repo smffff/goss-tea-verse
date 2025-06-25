@@ -12,6 +12,7 @@ import AICommentarySelector from './AICommentarySelector';
 import CommentSection from './CommentSection';
 import BribeBoostSystem from './BribeBoostSystem';
 import MemeRemixer from './MemeRemixer';
+import ReportModal from './ReportModal';
 
 interface TeaSubmission {
   id: string;
@@ -56,6 +57,7 @@ const TeaSubmissionCard = ({
 }: TeaSubmissionCardProps) => {
   const [showAISelector, setShowAISelector] = useState(false);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   const handleAIGeneration = async (type: 'spicy' | 'smart' | 'memy' | 'savage') => {
     setIsGeneratingAI(true);
@@ -158,7 +160,12 @@ const TeaSubmissionCard = ({
           <Button size="sm" variant="ghost" className="text-gray-400 hover:text-ctea-teal">
             <Share2 className="w-4 h-4" />
           </Button>
-          <Button size="sm" variant="ghost" className="text-gray-400 hover:text-ctea-pink">
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            className="text-gray-400 hover:text-ctea-pink"
+            onClick={() => setShowReportModal(true)}
+          >
             <Flag className="w-4 h-4" />
           </Button>
         </div>
@@ -202,6 +209,14 @@ const TeaSubmissionCard = ({
           <CommentSection submissionId={submission.id} />
         </div>
       )}
+
+      {/* Report Modal */}
+      <ReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        submissionId={submission.id}
+        submissionContent={submission.content}
+      />
     </Card>
   );
 };
