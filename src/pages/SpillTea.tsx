@@ -1,55 +1,53 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Coffee, Send, UserX, Sparkles } from 'lucide-react';
+import { Coffee, Sparkles, Wallet, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { track } from '@/utils/analytics';
+import SpillTeaForm from '@/components/SpillTeaForm';
+import WalletBalance from '@/components/WalletBalance';
+import { useAuth } from '@/hooks/useAuth';
 
 const SpillTea = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [teaText, setTeaText] = useState('');
-  const [isAnonymous, setIsAnonymous] = useState(true);
-  const [username, setUsername] = useState('');
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!teaText.trim()) {
-      toast({
-        title: "Empty Cup!",
-        description: "Please spill some tea before submitting.",
-        variant: "destructive"
-      });
-      return;
-    }
-
+  const handleSubmit = async (data: any) => {
     setIsSubmitting(true);
     
-    // Simulate submission delay
-    setTimeout(() => {
+    try {
+      // Simulate submission delay with AI moderation
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
       toast({
         title: "Tea Spilled Successfully! 🫖",
         description: "Your gossip is brewing and will appear in the feed shortly!",
       });
       
-      track('tea_spilled_fallback', {
-        anonymous: isAnonymous,
-        content_length: teaText.length
+      track('tea_spilled_enhanced', {
+        anonymous: !user,
+        content_length: data.teaText.length,
+        has_media: !!data.mediaUrl,
+        topic: data.topic,
+        wallet_connected: !!user?.wallet_address
       });
-      
-      setTeaText('');
-      setUsername('');
-      setIsSubmitting(false);
       
       // Navigate to feed after submission
       navigate('/feed');
-    }, 2000);
+    } catch (error) {
+      console.error('Submission error:', error);
+      toast({
+        title: "Submission Failed",
+        description: "There was an error submitting your tea. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -63,146 +61,139 @@ const SpillTea = () => {
             className="w-16 h-16 mx-auto mb-4"
           />
           <h1 className="text-3xl md:text-5xl font-display font-bold text-tabloid-black mb-4">
-            Quick Spill Station
+            Spill Your Tea
           </h1>
-          <Badge className="bg-vintage-red text-white font-bold px-4 py-2 mb-4">
-            <Sparkles className="w-4 h-4 mr-2" />
-            MAINTENANCE MODE: DROP YOUR TEA ANYWAY
-          </Badge>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Badge className="bg-vintage-red text-white font-bold px-4 py-2">
+              <Shield className="w-4 h-4 mr-2" />
+              AI MODERATED
+            </Badge>
+            <Badge className="bg-green-600 text-white font-bold px-4 py-2">
+              <Wallet className="w-4 h-4 mr-2" />
+              $TEA REWARDS
+            </Badge>
+          </div>
           <p className="text-lg text-tabloid-black/80 max-w-2xl mx-auto">
-            The main newsroom is on a tea break, but we're always listening. 
-            Drop your gossip here and we'll serve it up when we're back online.
+            Share your crypto gossip, industry intel, or hot takes. 
+            Earn $TEA tokens for quality submissions while maintaining your privacy.
           </p>
         </div>
 
-        {/* Submission Form */}
-        <div className="max-w-2xl mx-auto">
-          <Card className="bg-pale-pink border-vintage-red/30 shadow-xl">
-            <CardHeader>
-              <CardTitle className="text-tabloid-black flex items-center gap-2 text-xl font-display">
-                <Coffee className="w-6 h-6 text-vintage-red" />
-                What's the tea? ☕
-              </CardTitle>
-            </CardHeader>
-            
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Anonymous Toggle */}
-                <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg border border-vintage-red/20">
-                  <div className="flex items-center gap-3">
-                    <UserX className="w-5 h-5 text-tabloid-black" />
-                    <span className="font-medium text-tabloid-black">
-                      {isAnonymous ? '🕵️ Going Incognito' : '👀 Saying It With Your Chest'}
-                    </span>
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          {/* Submission Form */}
+          <div className="lg:col-span-2">
+            <SpillTeaForm
+              onClose={() => navigate('/feed')}
+              onSubmit={handleSubmit}
+              isLoading={isSubmitting}
+              walletAddress={user?.wallet_address}
+              userId={user?.id}
+            />
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Wallet Balance */}
+            {user?.wallet_address && (
+              <WalletBalance 
+                walletAddress={user.wallet_address}
+                className="sticky top-4"
+              />
+            )}
+
+            {/* How It Works */}
+            <Card className="bg-white/90 border-vintage-red/30 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-tabloid-black flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-vintage-red" />
+                  How It Works
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {[
+                  { step: '1', title: 'Submit Tea', desc: 'Share your crypto gossip or insights', icon: '📝' },
+                  { step: '2', title: 'AI Moderation', desc: 'Content is automatically moderated for quality', icon: '🤖' },
+                  { step: '3', title: 'Earn $TEA', desc: 'Get rewarded with tokens for approved content', icon: '💰' },
+                  { step: '4', title: 'Community Votes', desc: 'Users vote on credibility and relevance', icon: '🗳️' }
+                ].map((item) => (
+                  <div key={item.step} className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-vintage-red rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 mt-0.5">
+                      {item.step}
+                    </div>
+                    <div>
+                      <div className="text-2xl mb-1">{item.icon}</div>
+                      <h4 className="font-semibold text-tabloid-black text-sm">{item.title}</h4>
+                      <p className="text-xs text-tabloid-black/70">{item.desc}</p>
+                    </div>
                   </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Token Rewards Info */}
+            <Card className="bg-gradient-to-br from-green-50 to-blue-50 border-green-300 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-green-800 flex items-center gap-2">
+                  <Wallet className="w-5 h-5" />
+                  $TEA Token Rewards
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="text-sm text-green-700">
+                  <p className="font-semibold mb-2">Earn tokens for quality content:</p>
+                  <ul className="space-y-1 text-xs">
+                    <li>• 5 $TEA for approved spills</li>
+                    <li>• 2 $TEA for helpful upvotes</li>
+                    <li>• 1 $TEA for community engagement</li>
+                  </ul>
+                </div>
+                {!user?.wallet_address && (
                   <Button
-                    type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => setIsAnonymous(!isAnonymous)}
-                    className="border-vintage-red/30 text-vintage-red hover:bg-vintage-red hover:text-white"
+                    className="w-full border-green-600 text-green-700 hover:bg-green-600 hover:text-white"
+                    onClick={() => navigate('/auth')}
                   >
-                    {isAnonymous ? 'Reveal Yourself' : 'Go Anonymous'}
+                    Connect Wallet to Earn
                   </Button>
-                </div>
-
-                {/* Username Field (if not anonymous) */}
-                {!isAnonymous && (
-                  <div>
-                    <label className="block text-sm font-medium text-tabloid-black mb-2">
-                      Your Username (optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      placeholder="Enter your handle..."
-                      className="w-full px-4 py-2 border border-vintage-red/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-vintage-red"
-                    />
-                  </div>
                 )}
+              </CardContent>
+            </Card>
 
-                {/* Tea Content */}
-                <div>
-                  <label className="block text-sm font-medium text-tabloid-black mb-2">
-                    Spill the Tea
-                  </label>
-                  <Textarea
-                    value={teaText}
-                    onChange={(e) => setTeaText(e.target.value)}
-                    placeholder="What's the tea? Drop your crypto gossip, industry intel, or hot takes here..."
-                    className="min-h-[120px] resize-none border-vintage-red/30 focus:border-vintage-red"
-                    maxLength={2000}
-                  />
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="text-xs text-tabloid-black/60">
-                      {teaText.length}/2000 characters
-                    </span>
-                    <span className="text-xs text-tabloid-black/60">
-                      Anonymous submissions are encouraged
-                    </span>
-                  </div>
+            {/* AI Moderation Info */}
+            <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-blue-300 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-blue-800 flex items-center gap-2">
+                  <Shield className="w-5 h-5" />
+                  AI Moderation
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm text-blue-700 space-y-2">
+                  <p>Our AI ensures content quality while maintaining your privacy:</p>
+                  <ul className="text-xs space-y-1">
+                    <li>• Automatic content screening</li>
+                    <li>• Harmful content detection</li>
+                    <li>• Quality scoring system</li>
+                    <li>• Human review for edge cases</li>
+                  </ul>
                 </div>
-
-                {/* Submit Button */}
-                <Button
-                  type="submit"
-                  disabled={isSubmitting || !teaText.trim()}
-                  className="btn-pill btn-pill-red w-full text-white font-bold py-3 text-lg"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Brewing Your Tea...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-5 h-5 mr-2" />
-                      Spill the Tea
-                    </>
-                  )}
-                </Button>
-
-                {/* Back to Main Site */}
-                <div className="text-center pt-4 border-t border-vintage-red/20">
-                  <p className="text-sm text-tabloid-black/70 mb-3">
-                    Want the full experience?
-                  </p>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => navigate('/')}
-                    className="border-tabloid-black text-tabloid-black hover:bg-tabloid-black hover:text-white"
-                  >
-                    Back to CTea Newsroom
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
-        {/* How It Works */}
-        <div className="max-w-4xl mx-auto mt-16">
-          <h2 className="text-2xl font-display font-bold text-tabloid-black text-center mb-8">
-            How Quick Spill Works
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { step: '1', title: 'DROP IT', desc: 'Share your crypto tea anonymously or with your chest out', icon: '📝' },
-              { step: '2', title: 'WE BREW IT', desc: 'Your submission gets queued for when the newsroom returns', icon: '⏳' },
-              { step: '3', title: 'WE SERVE IT', desc: 'Your gossip goes live with AI commentary and community votes', icon: '🚀' }
-            ].map((item) => (
-              <div key={item.step} className="text-center p-6 bg-white/80 rounded-lg border border-vintage-red/20 shadow-lg">
-                <div className="text-4xl mb-3">{item.icon}</div>
-                <div className="w-8 h-8 bg-vintage-red rounded-full flex items-center justify-center text-white font-bold mx-auto mb-3">
-                  {item.step}
-                </div>
-                <h3 className="text-tabloid-black font-bold mb-2 uppercase tracking-wide font-display text-sm">{item.title}</h3>
-                <p className="text-tabloid-black/70 text-sm">{item.desc}</p>
-              </div>
-            ))}
-          </div>
+        {/* Back to Main Site */}
+        <div className="text-center pt-8 mt-8 border-t border-vintage-red/20">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => navigate('/')}
+            className="border-tabloid-black text-tabloid-black hover:bg-tabloid-black hover:text-white"
+          >
+            Back to CTea Newsroom
+          </Button>
         </div>
       </div>
     </div>

@@ -1,14 +1,63 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
-import { Card, CardContent } from '@/components/ui/card';
-import { Coffee, Users, Zap, Shield } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { 
+  Coffee, 
+  Users, 
+  Zap, 
+  Shield, 
+  Bot, 
+  Wallet, 
+  TrendingUp,
+  FileText,
+  CheckCircle,
+  AlertTriangle,
+  Clock,
+  ExternalLink
+} from 'lucide-react';
 
 const About = () => {
+  const [auditLog, setAuditLog] = useState<string>('');
+  const [isLoadingAudit, setIsLoadingAudit] = useState(false);
+
+  useEffect(() => {
+    loadAuditLog();
+  }, []);
+
+  const loadAuditLog = async () => {
+    setIsLoadingAudit(true);
+    try {
+      const response = await fetch('/public_audit_log.md');
+      if (response.ok) {
+        const content = await response.text();
+        setAuditLog(content);
+      }
+    } catch (error) {
+      console.error('Failed to load audit log:', error);
+    } finally {
+      setIsLoadingAudit(false);
+    }
+  };
+
   const features = [
     {
       icon: Coffee,
       title: 'Spill Anonymous Tea',
       description: 'Share crypto gossip, rumors, and alpha without revealing your identity.'
+    },
+    {
+      icon: Bot,
+      title: 'AI-Powered Moderation',
+      description: 'Advanced AI moderation ensures content quality while maintaining privacy.'
+    },
+    {
+      icon: Wallet,
+      title: '$TEA Token Rewards',
+      description: 'Earn $TEA tokens for quality submissions and community engagement.'
     },
     {
       icon: Zap,
@@ -26,6 +75,59 @@ const About = () => {
       description: 'Build reputation through quality submissions and community engagement.'
     }
   ];
+
+  const parseAuditLog = (content: string) => {
+    const lines = content.split('\n');
+    const entries: Array<{
+      date: string;
+      title: string;
+      author: string;
+      pr?: string;
+      changes: string[];
+    }> = [];
+
+    let currentEntry: any = null;
+    
+    for (const line of lines) {
+      if (line.startsWith('### ')) {
+        if (currentEntry) {
+          entries.push(currentEntry);
+        }
+        const match = line.match(/### ([\d-]+) - (.+)/);
+        if (match) {
+          currentEntry = {
+            date: match[1],
+            title: match[2],
+            author: '',
+            changes: []
+          };
+        }
+      } else if (line.includes('**Deployed by**:') && currentEntry) {
+        const authorMatch = line.match(/\*\*Deployed by\*\*: @(.+)/);
+        if (authorMatch) {
+          currentEntry.author = authorMatch[1];
+        }
+      } else if (line.includes('**PR**:') && currentEntry) {
+        const prMatch = line.match(/\*\*PR\*\*: #(.+)/);
+        if (prMatch) {
+          currentEntry.pr = prMatch[1];
+        }
+      } else if (line.includes('✅') && currentEntry) {
+        const change = line.replace('- ✅ ', '').trim();
+        if (change) {
+          currentEntry.changes.push(change);
+        }
+      }
+    }
+    
+    if (currentEntry) {
+      entries.push(currentEntry);
+    }
+    
+    return entries;
+  };
+
+  const auditEntries = parseAuditLog(auditLog);
 
   return (
     <Layout>
@@ -85,7 +187,7 @@ const About = () => {
         </Card>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
@@ -106,9 +208,9 @@ const About = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
               { step: '1', title: 'Submit Tea', desc: 'Share anonymous crypto gossip or insights' },
-              { step: '2', title: 'AI Analysis', desc: 'CTeaBot analyzes and rates your submission' },
-              { step: '3', title: 'Community Votes', desc: 'Users vote on credibility and relevance' },
-              { step: '4', title: 'Earn Reputation', desc: 'Build credibility through quality content' }
+              { step: '2', title: 'AI Moderation', desc: 'Content is automatically moderated for quality' },
+              { step: '3', title: 'Earn $TEA', desc: 'Get rewarded with tokens for approved content' },
+              { step: '4', title: 'Community Votes', desc: 'Users vote on credibility and relevance' }
             ].map((item) => (
               <div key={item.step} className="text-center">
                 <div className="w-16 h-16 bg-gradient-ctea rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
@@ -120,6 +222,112 @@ const About = () => {
             ))}
           </div>
         </div>
+
+        {/* Public Audit Trail */}
+        <Card className="bg-gradient-to-br from-ctea-dark/50 to-ctea-darker/50 border-white/10 mb-16">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-white flex items-center gap-2">
+              <FileText className="w-6 h-6 text-[#00d1c1]" />
+              Public Audit Trail
+              <Badge variant="outline" className="ml-auto">
+                Transparency
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="recent" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="recent">Recent Deployments</TabsTrigger>
+                <TabsTrigger value="full">Full Log</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="recent" className="space-y-4">
+                <ScrollArea className="h-96">
+                  {isLoadingAudit ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00d1c1] mx-auto"></div>
+                      <p className="text-gray-400 mt-2">Loading audit log...</p>
+                    </div>
+                  ) : auditEntries.length > 0 ? (
+                    <div className="space-y-4">
+                      {auditEntries.slice(0, 5).map((entry, index) => (
+                        <div key={index} className="bg-ctea-dark/30 rounded-lg p-4 border border-white/10">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-semibold text-white">{entry.title}</h4>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="secondary" className="text-xs">
+                                {entry.date}
+                              </Badge>
+                              {entry.pr && (
+                                <Badge variant="outline" className="text-xs">
+                                  PR #{entry.pr}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-sm text-gray-400 mb-2">
+                            Deployed by @{entry.author}
+                          </p>
+                          <div className="space-y-1">
+                            {entry.changes.slice(0, 3).map((change, changeIndex) => (
+                              <div key={changeIndex} className="flex items-center gap-2 text-sm text-gray-300">
+                                <CheckCircle className="w-3 h-3 text-green-500" />
+                                {change}
+                              </div>
+                            ))}
+                            {entry.changes.length > 3 && (
+                              <p className="text-xs text-gray-500">
+                                +{entry.changes.length - 3} more changes
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-400">
+                      <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p>No audit entries found</p>
+                    </div>
+                  )}
+                </ScrollArea>
+              </TabsContent>
+              
+              <TabsContent value="full" className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-gray-400">
+                    Complete transparency in our development process
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={loadAuditLog}
+                    disabled={isLoadingAudit}
+                  >
+                    <RefreshCw className={`w-4 h-4 mr-2 ${isLoadingAudit ? 'animate-spin' : ''}`} />
+                    Refresh
+                  </Button>
+                </div>
+                <ScrollArea className="h-96">
+                  <pre className="text-sm text-gray-300 whitespace-pre-wrap font-mono">
+                    {auditLog || 'Loading full audit log...'}
+                  </pre>
+                </ScrollArea>
+                <div className="text-center">
+                  <a
+                    href="/public_audit_log.md"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm text-[#00d1c1] hover:underline"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    View Raw Audit Log
+                  </a>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
 
         {/* Values */}
         <Card className="bg-gradient-to-br from-[#ff61a6]/20 to-[#00d1c1]/20 border-[#00d1c1]/30">

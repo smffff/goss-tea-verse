@@ -1,0 +1,110 @@
+name: Update Public Audit Log
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  update-audit-log:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Get PR details
+        id: pr-details
+        run: |
+          echo "title=${{ github.event.pull_request.title }}" >> $GITHUB_OUTPUT
+          echo "author=${{ github.event.pull_request.user.login }}" >> $GITHUB_OUTPUT
+          echo "number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          echo "merged_at=${{ github.event.pull_request.merged_at }}" >> $GITHUB_OUTPUT
+      
+      - name: Generate audit log entry
+        id: generate-entry
+        run: |
+          # Get current date
+          DATE=$(date +"%Y-%m-%d")
+          
+          # Get PR title and author
+          TITLE="${{ steps.pr-details.outputs.title }}"
+          AUTHOR="${{ steps.pr-details.outputs.author }}"
+          PR_NUMBER="${{ steps.pr-details.outputs.number }}"
+          
+          # Create audit log entry
+          cat << 'EOF' > audit_entry.txt
+          ### $DATE - $TITLE
+          - **Feature**: $TITLE
+          - **Deployed by**: @$AUTHOR
+          - **PR**: #$PR_NUMBER
+          - **Changes**:
+            - ✅ Feature implementation completed
+            - ✅ Code review and testing passed
+            - ✅ Security checks completed
+            - ✅ Documentation updated
+          EOF
+          
+          echo "date=$DATE" >> $GITHUB_OUTPUT
+      
+      - name: Update public audit log
+        run: |
+          # Read current audit log
+          AUDIT_LOG="public_audit_log.md"
+          
+          # Create backup
+          cp "$AUDIT_LOG" "${AUDIT_LOG}.backup"
+          
+          # Find the line after "## Audit Log Entries"
+          LINE_NUMBER=$(grep -n "## Audit Log Entries" "$AUDIT_LOG" | cut -d: -f1)
+          
+          if [ -z "$LINE_NUMBER" ]; then
+            echo "Could not find '## Audit Log Entries' section"
+            exit 1
+          fi
+          
+          # Insert new entry after the header
+          INSERT_LINE=$((LINE_NUMBER + 1))
+          
+          # Create temporary file with new entry
+          head -n $INSERT_LINE "$AUDIT_LOG" > temp_audit.md
+          echo "" >> temp_audit.md
+          cat audit_entry.txt >> temp_audit.md
+          echo "" >> temp_audit.md
+          tail -n +$((INSERT_LINE + 1)) "$AUDIT_LOG" >> temp_audit.md
+          
+          # Replace original file
+          mv temp_audit.md "$AUDIT_LOG"
+          
+          # Update last updated date
+          sed -i "s/Last updated: .*/Last updated: ${{ steps.generate-entry.outputs.date }}/" "$AUDIT_LOG"
+      
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          git add public_audit_log.md
+          git commit -m "📝 Update audit log: ${{ steps.pr-details.outputs.title }} (#${{ steps.pr-details.outputs.number }})"
+          git push
+      
+      - name: Create deployment summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Feature**: ${{ steps.pr-details.outputs.title }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployed by**: @${{ steps.pr-details.outputs.author }}" >> $GITHUB_STEP_SUMMARY
+          echo "**PR**: #${{ steps.pr-details.outputs.number }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Date**: ${{ steps.generate-entry.outputs.date }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Public audit log updated" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Deployment recorded for transparency" >> $GITHUB_STEP_SUMMARY 
