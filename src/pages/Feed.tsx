@@ -3,7 +3,7 @@ import React from 'react';
 import Layout from '@/components/Layout';
 import EnhancedTeaFeed from '@/components/EnhancedTeaFeed';
 import { Card, CardContent } from '@/components/ui/card';
-import { Coffee, TrendingUp, Fire, Users } from 'lucide-react';
+import { Coffee, TrendingUp, Flame, Users } from 'lucide-react';
 
 const Feed = () => {
   const trendingTopics = [
@@ -22,7 +22,7 @@ const Feed = () => {
           <h1 className="text-3xl font-bold text-white mb-4 flex items-center justify-center gap-3">
             <Coffee className="w-8 h-8 text-[#00d1c1]" />
             Tea Feed
-            <Fire className="w-8 h-8 text-[#ff61a6]" />
+            <Flame className="w-8 h-8 text-[#ff61a6]" />
           </h1>
           <p className="text-gray-400 text-lg">
             The hottest crypto gossip, served fresh with AI commentary
