@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import { Coffee, X } from 'lucide-react';
 
 interface SpillTeaFormActionsProps {

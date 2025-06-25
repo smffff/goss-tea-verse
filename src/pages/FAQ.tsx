@@ -1,9 +1,8 @@
-
 import React from 'react';
 import Layout from '@/components/Layout';
 import { Card } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { HelpCircle, Coffee, Zap, Shield, Trophy, MessageCircle, Robot } from 'lucide-react';
+import { HelpCircle, Coffee, Zap, Shield, Trophy, MessageCircle, Bot } from 'lucide-react';
 
 const FAQ = () => {
   const faqs = [
@@ -45,7 +44,7 @@ const FAQ = () => {
     },
     {
       category: 'AI & Reactions',
-      icon: Robot,
+      icon: Bot,
       questions: [
         {
           question: 'What is CTeaBot?',
