@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,7 +19,7 @@ import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
-import NotFound from "./pages/NotFound";
+import NotFound404 from "./pages/404";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 
@@ -139,7 +138,7 @@ const App = () => {
                         
                         <Route path="*" element={
                           <ErrorBoundary componentName="NotFound">
-                            <NotFound />
+                            <NotFound404 />
                           </ErrorBoundary>
                         } />
                       </Routes>

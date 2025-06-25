@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, Crown, Star, TrendingUp, Coffee, Zap, RefreshCw } from 'lucide-react';
+import { Trophy, Crown, Star, TrendingUp, Coffee, Zap, RefreshCw, Brain, DollarSign } from 'lucide-react';
 
 interface LeaderboardEntry {
   rank: number;
@@ -94,6 +93,30 @@ const Leaderboard = () => {
     return 'text-gray-400';
   };
 
+  const topSpillers = [
+    { rank: 1, username: 'CryptoWhale', teas: 89 },
+    { rank: 2, username: 'AlphaHunter', teas: 67 },
+    { rank: 3, username: 'TeaSpiller99', teas: 61 },
+    { rank: 4, username: 'DegenTrader2024', teas: 56 },
+    { rank: 5, username: 'TokenGossiper', teas: 45 },
+  ];
+
+  const mostAIUpvoted = [
+    { rank: 1, username: 'AlphaHunter', upvotes: 120 },
+    { rank: 2, username: 'CryptoWhale', upvotes: 110 },
+    { rank: 3, username: 'TeaSpiller99', upvotes: 98 },
+    { rank: 4, username: 'TokenGossiper', upvotes: 87 },
+    { rank: 5, username: 'DegenTrader2024', upvotes: 80 },
+  ];
+
+  const topTippers = [
+    { rank: 1, username: 'TipsterPro', tips: 42 },
+    { rank: 2, username: 'AlphaHunter', tips: 37 },
+    { rank: 3, username: 'CryptoWhale', tips: 29 },
+    { rank: 4, username: 'TeaSpiller99', tips: 21 },
+    { rank: 5, username: 'TokenGossiper', tips: 18 },
+  ];
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
@@ -154,6 +177,63 @@ const Leaderboard = () => {
                   <div className="text-gray-300">Bonus for high engagement</div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* MVP Leaderboard Categories */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+          {/* Top Spillers */}
+          <Card className="bg-ctea-dark/50 border-[#00d1c1]/30">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-white"><TrendingUp className="w-5 h-5 text-ctea-teal" /> Top Spillers</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                {topSpillers.map((user) => (
+                  <li key={user.rank} className="flex items-center gap-3">
+                    <span className={`text-xl font-bold ${user.rank === 1 ? 'text-yellow-400' : user.rank === 2 ? 'text-gray-300' : user.rank === 3 ? 'text-amber-600' : 'text-gray-400'}`}>{user.rank}</span>
+                    <span className="font-semibold text-white flex-1">{user.username}</span>
+                    <span className="text-ctea-teal font-mono">{user.teas} teas</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* Most AI-Upvoted */}
+          <Card className="bg-ctea-dark/50 border-[#00d1c1]/30">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-white"><Brain className="w-5 h-5 text-ctea-pink" /> Most AI-Upvoted</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                {mostAIUpvoted.map((user) => (
+                  <li key={user.rank} className="flex items-center gap-3">
+                    <span className={`text-xl font-bold ${user.rank === 1 ? 'text-yellow-400' : user.rank === 2 ? 'text-gray-300' : user.rank === 3 ? 'text-amber-600' : 'text-gray-400'}`}>{user.rank}</span>
+                    <span className="font-semibold text-white flex-1">{user.username}</span>
+                    <span className="text-ctea-pink font-mono">{user.upvotes} upvotes</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* Top Tippers */}
+          <Card className="bg-ctea-dark/50 border-[#00d1c1]/30">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-white"><DollarSign className="w-5 h-5 text-yellow-400" /> Top Tippers</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                {topTippers.map((user) => (
+                  <li key={user.rank} className="flex items-center gap-3">
+                    <span className={`text-xl font-bold ${user.rank === 1 ? 'text-yellow-400' : user.rank === 2 ? 'text-gray-300' : user.rank === 3 ? 'text-amber-600' : 'text-gray-400'}`}>{user.rank}</span>
+                    <span className="font-semibold text-white flex-1">{user.username}</span>
+                    <span className="text-yellow-400 font-mono">{user.tips} tips</span>
+                  </li>
+                ))}
+              </ul>
             </CardContent>
           </Card>
         </div>

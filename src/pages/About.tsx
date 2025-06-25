@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -56,6 +55,32 @@ const About = () => {
               anonymous platform where community members can share insights, rumors, and alpha 
               while maintaining accountability through AI moderation and community governance.
             </p>
+          </CardContent>
+        </Card>
+
+        {/* Arena Stream & Tip Jar */}
+        <Card className="bg-gradient-to-br from-ctea-teal/10 to-ctea-pink/10 border-ctea-teal/20 mb-16">
+          <CardContent className="p-8 text-center">
+            <h2 className="text-2xl font-bold text-white mb-4">Live Arena Stream</h2>
+            <div className="w-full max-w-3xl mx-auto mb-6">
+              <iframe
+                src="https://arena.app/ladyinvisible/live"
+                width="100%"
+                height="500"
+                frameBorder="0"
+                allow="autoplay; encrypted-media"
+                title="Arena Live Stream"
+                className="rounded-lg shadow-lg border border-ctea-teal/30"
+              ></iframe>
+            </div>
+            <a
+              href="https://arena.app/ladyinvisible/support"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block px-6 py-2 rounded-lg bg-ctea-pink text-white font-semibold shadow btn-hover-glow hover:bg-ctea-teal transition-colors"
+            >
+              Tip the Source
+            </a>
           </CardContent>
         </Card>
 
