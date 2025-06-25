@@ -121,7 +121,11 @@ const Features = () => {
           {/* Meme Generator */}
           <section>
             <h2 className="text-2xl font-bold text-white mb-6">🎨 Enhanced Meme Generator</h2>
-            <EnhancedMemeGenerator />
+            <EnhancedMemeGenerator 
+              submissionId="demo"
+              content="Demo meme content for features page"
+              category="general"
+            />
           </section>
 
           {/* Token Integration */}

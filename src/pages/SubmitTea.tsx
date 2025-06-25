@@ -6,31 +6,34 @@ import { useToast } from '@/hooks/use-toast';
 
 interface SubmissionData {
   tea: string;
-  evidence: string[];
+  email: string;
+  wallet: string;
   category: string;
+  evidence_urls: string[];
+  isAnonymous: boolean;
 }
 
 const SubmitTea = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = async (data: SubmissionData) => {
+  const handleSubmit = (data: SubmissionData) => {
     setIsSubmitting(true);
     try {
       // Simulate submission
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast({
-        title: "Tea Submitted! ☕",
-        description: "Your submission is being reviewed. Check back soon!",
-      });
+      setTimeout(() => {
+        toast({
+          title: "Tea Submitted! ☕",
+          description: "Your submission is being reviewed. Check back soon!",
+        });
+        setIsSubmitting(false);
+      }, 2000);
     } catch (error) {
       toast({
         title: "Submission Failed",
         description: "Couldn't submit your tea. Please try again.",
         variant: "destructive"
       });
-    } finally {
       setIsSubmitting(false);
     }
   };

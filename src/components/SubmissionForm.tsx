@@ -25,6 +25,7 @@ interface SubmissionFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: SubmissionData) => void;
+  isLoading?: boolean;
 }
 
 interface SubmissionData {
@@ -39,7 +40,8 @@ interface SubmissionData {
 const SubmissionForm: React.FC<SubmissionFormProps> = ({
   isOpen,
   onClose,
-  onSubmit
+  onSubmit,
+  isLoading = false
 }) => {
   const [formData, setFormData] = useState<SubmissionData>({
     tea: '',
@@ -115,7 +117,7 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       onSubmit(formData);
-      trackTeaSpill();
+      trackTeaSpill(formData.category);
       
       toast({
         title: "Tea Spilled Successfully! ☕",
@@ -373,10 +375,10 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
           <div className="flex gap-3 pt-4">
             <Button
               type="submit"
-              disabled={isSubmitting || formData.tea.trim().length < 20}
+              disabled={isSubmitting || isLoading || formData.tea.trim().length < 20}
               className="flex-1 bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent text-white font-bold uppercase px-6 py-3 rounded-lg transition-all shadow hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? (
+              {isSubmitting || isLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                   Spilling Tea...

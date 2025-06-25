@@ -2,22 +2,13 @@
 import { track } from '@vercel/analytics';
 
 interface AnalyticsEvent {
-  page_title?: string;
-  page_location?: string;
-  custom_map?: Record<string, string>;
-  event_category?: string;
-  event_label?: string;
-  custom_parameter_1?: string;
-  custom_parameter_2?: string;
-  custom_parameter_3?: string;
-  value?: number;
-  [key: string]: string | number | Record<string, string> | undefined;
+  [key: string]: string | number;
 }
 
 export const trackEvent = (eventName: string, properties?: AnalyticsEvent) => {
   try {
-    // Use Vercel Analytics track function
-    track(eventName, properties);
+    // Use Vercel Analytics track function with proper typing
+    track(eventName, properties as Record<string, string | number>);
     
     // Also log to console in development
     if (process.env.NODE_ENV === 'development') {
@@ -48,7 +39,7 @@ export const trackTeaSubmission = (category: string, hasEvidence: boolean) => {
   trackEvent('tea_submission', {
     event_category: 'content',
     event_label: category,
-    custom_parameter_1: hasEvidence ? 'with_evidence' : 'no_evidence'
+    has_evidence: hasEvidence ? 'true' : 'false'
   });
 };
 
@@ -70,7 +61,7 @@ export const trackReaction = (reactionType: string, submissionCategory: string) 
   trackEvent('reaction_given', {
     event_category: 'engagement',
     event_label: reactionType,
-    custom_parameter_1: submissionCategory
+    submission_category: submissionCategory
   });
 };
 
@@ -78,7 +69,7 @@ export const trackShare = (platform: string, contentType: string) => {
   trackEvent('content_shared', {
     event_category: 'sharing',
     event_label: platform,
-    custom_parameter_1: contentType
+    content_type: contentType
   });
 };
 
@@ -86,6 +77,6 @@ export const trackError = (errorType: string, errorMessage: string) => {
   trackEvent('error_occurred', {
     event_category: 'error',
     event_label: errorType,
-    custom_parameter_1: errorMessage.substring(0, 100)
+    error_message: errorMessage.substring(0, 100)
   });
 };

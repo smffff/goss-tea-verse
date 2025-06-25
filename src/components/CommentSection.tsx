@@ -20,10 +20,8 @@ const CommentSection = ({ submissionId }: CommentSectionProps) => {
 
     setIsSubmitting(true);
     try {
-      const success = await addComment(newComment);
-      if (success) {
-        setNewComment('');
-      }
+      await addComment(newComment);
+      setNewComment('');
     } finally {
       setIsSubmitting(false);
     }
