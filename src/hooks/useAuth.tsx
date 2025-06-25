@@ -15,6 +15,11 @@ interface AuthContextType {
   isModerator: boolean;
 }
 
+interface AdminAccessResponse {
+  is_admin?: boolean;
+  user_role?: string;
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
@@ -38,8 +43,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data, error } = await supabase.rpc('validate_admin_access');
       if (error) throw error;
       
-      setIsAdmin(data?.is_admin || false);
-      setIsModerator(data?.user_role === 'moderator' || data?.is_admin || false);
+      const adminData = data as AdminAccessResponse;
+      setIsAdmin(adminData?.is_admin || false);
+      setIsModerator(adminData?.user_role === 'moderator' || adminData?.is_admin || false);
     } catch (error) {
       console.log('Role check error:', error);
       setIsAdmin(false);
