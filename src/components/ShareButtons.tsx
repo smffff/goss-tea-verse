@@ -1,100 +1,95 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Copy, Check, Twitter, Facebook, MessageCircle } from 'lucide-react';
+import { Twitter, Copy, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ShareButtonsProps {
   url: string;
   title: string;
-  variant?: 'minimal' | 'expanded';
+  variant?: 'full' | 'minimal';
   className?: string;
 }
 
-const ShareButtons: React.FC<ShareButtonsProps> = ({
-  url,
-  title,
-  variant = 'expanded',
-  className = ''
+const ShareButtons: React.FC<ShareButtonsProps> = ({ 
+  url, 
+  title, 
+  variant = 'full',
+  className = '' 
 }) => {
-  const [copied, setCopied] = useState(false);
   const { toast } = useToast();
-
-  const shareOnTwitter = () => {
-    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
-    window.open(twitterUrl, '_blank', 'width=600,height=400');
-  };
-
-  const shareOnFacebook = () => {
-    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-    window.open(facebookUrl, '_blank', 'width=600,height=400');
-  };
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(`${title} ${url}`);
-      setCopied(true);
+      await navigator.clipboard.writeText(url);
       toast({
-        title: "Link copied!",
-        description: "The link has been copied to your clipboard."
+        title: "Link Copied!",
+        description: "The link has been copied to your clipboard",
       });
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error('Failed to copy:', error);
+    } catch (err) {
       toast({
-        title: "Copy failed",
-        description: "Please try copying the link manually.",
+        title: "Copy Failed",
+        description: "Please copy the link manually",
         variant: "destructive"
       });
     }
   };
 
-  const shareNative = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: title,
-          url: url
-        });
-      } catch (error) {
-        console.error('Error sharing:', error);
-      }
-    } else {
-      copyToClipboard();
-    }
+  const shareOnTwitter = () => {
+    const tweetText = encodeURIComponent(`${title} ${url} #CTea #CryptoTea`);
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
+    window.open(twitterUrl, '_blank', 'noopener,noreferrer');
   };
 
   if (variant === 'minimal') {
     return (
-      <div className={`flex items-center gap-1 ${className}`}>
-        <Button size="sm" variant="ghost" onClick={copyToClipboard} className="text-ctea-teal hover:bg-ctea-teal/10">
-          {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+      <div className={`flex gap-2 ${className}`}>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={shareOnTwitter}
+          className="border-[#00d1c1]/30 text-[#00d1c1] hover:bg-[#00d1c1]/10"
+        >
+          <Twitter className="w-4 h-4" />
         </Button>
-        <Button size="sm" variant="ghost" onClick={shareOnTwitter} className="text-ctea-teal hover:bg-ctea-teal/10">
-          <Twitter className="w-3 h-3" />
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={copyToClipboard}
+          className="border-[#ff61a6]/30 text-[#ff61a6] hover:bg-[#ff61a6]/10"
+        >
+          <Copy className="w-4 h-4" />
         </Button>
-        {navigator.share && (
-          <Button size="sm" variant="ghost" onClick={shareNative} className="text-ctea-teal hover:bg-ctea-teal/10">
-            <MessageCircle className="w-3 h-3" />
-          </Button>
-        )}
       </div>
     );
   }
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <Button size="sm" variant="outline" onClick={copyToClipboard} className="border-ctea-teal/30 text-ctea-teal hover:bg-ctea-teal/10">
-        {copied ? <Check className="w-3 h-3 mr-1" /> : <Copy className="w-3 h-3 mr-1" />}
-        {copied ? 'Copied!' : 'Copy'}
+    <div className={`flex gap-2 ${className}`}>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={shareOnTwitter}
+        className="border-[#00d1c1]/30 text-[#00d1c1] hover:bg-[#00d1c1]/10 flex-1"
+      >
+        <Twitter className="w-4 h-4 mr-2" />
+        Tweet
       </Button>
-      <Button size="sm" variant="outline" onClick={shareOnTwitter} className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10">
-        <Twitter className="w-3 h-3 mr-1" />
-        Twitter
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={copyToClipboard}
+        className="border-[#ff61a6]/30 text-[#ff61a6] hover:bg-[#ff61a6]/10 flex-1"
+      >
+        <Copy className="w-4 h-4 mr-2" />
+        Copy Link
       </Button>
-      <Button size="sm" variant="outline" onClick={shareOnFacebook} className="border-blue-600/30 text-blue-500 hover:bg-blue-600/10">
-        <Facebook className="w-3 h-3 mr-1" />
-        Facebook
+      <Button
+        size="sm"
+        variant="outline"
+        className="border-gray-500/30 text-gray-400 hover:bg-gray-500/10"
+      >
+        <Share2 className="w-4 h-4" />
       </Button>
     </div>
   );
