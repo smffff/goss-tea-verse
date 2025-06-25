@@ -18,7 +18,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({
     if (feedSection) {
       feedSection.scrollIntoView({ behavior: 'smooth' });
     } else {
-      // If no feed section on page, navigate to feed page
       window.location.href = '/feed';
     }
   };
@@ -27,63 +26,62 @@ const HeroSection: React.FC<HeroSectionProps> = ({
     if (onSpillFormOpen) {
       onSpillFormOpen();
     } else {
-      // Fallback: navigate to submit page
       window.location.href = '/submit';
     }
   };
 
-  const handleTipping = () => {
-    if (onTippingModalOpen) {
-      onTippingModalOpen();
-    }
-  };
-
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-ctea-pink rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-40 h-40 bg-purple-500 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-blue-500 rounded-full blur-3xl animate-pulse delay-2000"></div>
+    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-b from-newsprint via-pale-pink to-newsprint overflow-hidden">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-20 left-10 w-32 h-32 bg-vintage-red rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-40 h-40 bg-tabloid-black rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-vintage-red rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
 
       <div className="relative z-10 text-center px-4 max-w-6xl mx-auto">
         {/* Beta Badge */}
         <div className="mb-6">
-          <Badge className="bg-gradient-to-r from-ctea-pink to-purple-500 text-white font-bold px-4 py-2 text-sm">
+          <Badge className="bg-gradient-to-r from-vintage-red to-tabloid-black text-white font-bold px-4 py-2 text-sm shadow-lg">
             <Sparkles className="w-4 h-4 mr-2" />
-            PUBLIC BETA LIVE
+            BREAKING: GOSSIP INCOMING
           </Badge>
         </div>
 
+        {/* Centered Logo */}
+        <div className="mb-8">
+          {/* TODO: Replace with hero banner image when provided */}
+          <img 
+            src="/ctea-logo-icon.svg" 
+            alt="CTea Newsroom" 
+            className="w-32 h-32 md:w-40 md:h-40 mx-auto mb-6 drop-shadow-2xl animate-float"
+          />
+        </div>
+
         {/* Main Headline */}
-        <h1 className="text-4xl md:text-7xl font-bold bg-gradient-to-r from-ctea-pink via-white to-purple-400 bg-clip-text text-transparent mb-6 font-['Playfair_Display']">
+        <h1 className="text-4xl md:text-7xl font-display font-bold text-tabloid-black mb-6 leading-tight tabloid-headline animate-red-glow">
           CTea Newsroom
         </h1>
 
-        {/* Tagline */}
-        <p className="text-xl md:text-3xl text-gray-300 mb-4 font-medium">
-          Where Memes, Gossip, and Crypto Collide
-        </p>
-        <p className="text-lg md:text-2xl text-ctea-pink mb-12 font-bold">
-          Spill Tea. Get Paid.
-        </p>
-
-        {/* Description */}
-        <p className="text-lg md:text-xl text-gray-400 mb-12 max-w-3xl mx-auto leading-relaxed">
-          Anonymous crypto gossip meets AI-powered reactions. Share alpha, earn credibility, 
-          and watch the community decide what's hot or cold.
+        {/* Subheading with retro styling */}
+        <h2 className="text-xl md:text-3xl font-display text-vintage-red mb-4 font-bold uppercase tracking-wide drop-shadow-md">
+          Web3's Gossip Feed
+        </h2>
+        
+        {/* Hero Tagline */}
+        <p className="text-lg md:text-2xl font-display text-tabloid-black mb-12 font-medium italic drop-shadow-sm">
+          "Spill tea anonymously or say it with your chest"
         </p>
 
-        {/* CTA Buttons */}
+        {/* Updated CTA Buttons with new copy */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
           <Button
             size="lg"
             onClick={handleSpillTea}
-            className="bg-gradient-to-r from-ctea-pink to-purple-500 hover:from-ctea-pink/80 hover:to-purple-500/80 text-white font-bold px-8 py-4 text-lg border-0"
+            className="btn-pill btn-pill-red text-white font-bold px-8 py-4 text-lg border-0 shadow-xl btn-tabloid-hover"
           >
             <Coffee className="w-5 h-5 mr-2" />
-            Spill Tea
+            Spill the Tea
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
           
@@ -91,26 +89,27 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             size="lg"
             variant="outline"
             onClick={scrollToFeed}
-            className="border-ctea-pink text-ctea-pink hover:bg-ctea-pink hover:text-black font-bold px-8 py-4 text-lg"
+            className="btn-pill border-2 border-tabloid-black text-tabloid-black hover:bg-tabloid-black hover:text-white font-bold px-8 py-4 text-lg shadow-lg btn-tabloid-hover"
           >
-            View the Tea
+            Read What's Brewing
           </Button>
         </div>
 
-        {/* How It Works */}
+        {/* How It Works - Enhanced with emojis */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
           {[
-            { step: '1', title: 'Submit Tea', desc: 'Share anonymous crypto gossip' },
-            { step: '2', title: 'AI Reacts', desc: 'CTeaBot adds spicy commentary' },
-            { step: '3', title: 'Community Reacts', desc: 'Users vote hot, cold, or spicy' },
-            { step: '4', title: 'Earn Credibility', desc: 'Build reputation & future rewards' }
+            { step: '1', title: 'SPILL THE TEA', desc: 'Drop anonymous crypto intel', icon: '🕵️' },
+            { step: '2', title: 'AI REACTS', desc: 'CTeaBot adds spicy commentary', icon: '🤖' },
+            { step: '3', title: 'CROWD JUDGES', desc: 'Community votes: 🔥 or 🧊', icon: '👥' },
+            { step: '4', title: 'EARN CLOUT', desc: 'Build credibility & unlock rewards', icon: '🏆' }
           ].map((item) => (
-            <div key={item.step} className="text-center p-6 bg-black/50 rounded-lg border border-gray-800 hover:border-ctea-pink/50 transition-colors">
-              <div className="w-12 h-12 bg-gradient-to-r from-ctea-pink to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
+            <div key={item.step} className="text-center p-6 bg-white/80 rounded-lg border-2 border-vintage-red/20 hover:border-vintage-red/40 transition-colors shadow-lg card-tabloid-hover backdrop-blur-sm">
+              <div className="text-4xl mb-3">{item.icon}</div>
+              <div className="w-12 h-12 bg-gradient-to-r from-vintage-red to-tabloid-black rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
                 {item.step}
               </div>
-              <h3 className="text-white font-bold mb-2">{item.title}</h3>
-              <p className="text-gray-400 text-sm">{item.desc}</p>
+              <h3 className="text-tabloid-black font-bold mb-2 uppercase tracking-wide font-display">{item.title}</h3>
+              <p className="text-tabloid-black/70 text-sm">{item.desc}</p>
             </div>
           ))}
         </div>

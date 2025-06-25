@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import ReactionIcons from '@/components/ui/ReactionIcons';
 import { track } from '@/utils/analytics';
 
 interface TeaRatingProps {
@@ -25,7 +26,8 @@ const TeaRating: React.FC<TeaRatingProps> = ({ submissionId, initialRating = nul
   return (
     <div className="tea-rating-block">
       <h4 className="font-bold text-tabloid-black mb-2 flex items-center gap-2">
-        ☕ Rate This Tea
+        <ReactionIcons type="teacup" size={20} />
+        Rate This Tea
       </h4>
       <p className="text-sm text-tabloid-black/70 mb-3">
         How's this gossip hitting? Vote to help the community filter the best intel.
@@ -35,30 +37,34 @@ const TeaRating: React.FC<TeaRatingProps> = ({ submissionId, initialRating = nul
         <Button
           onClick={() => handleRating('hot')}
           size="sm"
-          className={`btn-pill flex-1 transition-all ${
+          title="Spicy - This tea is hot!"
+          className={`btn-pill flex-1 transition-all duration-300 ${
             rating === 'hot' 
-              ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-lg' 
+              ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-lg transform scale-105' 
               : 'bg-white border border-orange-300 text-orange-600 hover:bg-orange-50'
           }`}
         >
-          🔥 Hot Tea
+          <ReactionIcons type="flame" size={16} className="mr-1" />
+          Hot Tea
         </Button>
         
         <Button
           onClick={() => handleRating('cold')}
           size="sm"
-          className={`btn-pill flex-1 transition-all ${
+          title="Cold take - This ain't it"
+          className={`btn-pill flex-1 transition-all duration-300 ${
             rating === 'cold' 
-              ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg' 
+              ? 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg transform scale-105' 
               : 'bg-white border border-blue-300 text-blue-600 hover:bg-blue-50'
           }`}
         >
-          🧊 Cold Tea
+          <ReactionIcons type="ice" size={16} className="mr-1" />
+          Cold Tea
         </Button>
       </div>
       
       {rating && (
-        <p className="text-xs text-tabloid-black/60 mt-2 text-center">
+        <p className="text-xs text-tabloid-black/60 mt-2 text-center animate-fade-in">
           Thanks for rating! Your feedback helps surface the best content.
         </p>
       )}

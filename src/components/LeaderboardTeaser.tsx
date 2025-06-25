@@ -4,14 +4,36 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, Crown, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import UserBadges from '@/components/ui/UserBadges';
 
 const LeaderboardTeaser = () => {
   const navigate = useNavigate();
 
   const topSpillers = [
-    { rank: 1, name: 'Anonymous Oracle', spills: 42, badge: '🏆', bgClass: 'badge-gold' },
-    { rank: 2, name: 'CryptoGossiper', spills: 38, badge: '🥈', bgClass: 'badge-silver' },
-    { rank: 3, name: 'TeaSpillMaster', spills: 35, badge: '🥉', bgClass: 'badge-bronze' }
+    { 
+      rank: 1, 
+      name: 'Anonymous Oracle', 
+      spills: 42, 
+      badge: '🏆', 
+      bgClass: 'badge-gold',
+      badgeType: 'top-spiller' as const
+    },
+    { 
+      rank: 2, 
+      name: 'CryptoGossiper', 
+      spills: 38, 
+      badge: '🥈', 
+      bgClass: 'badge-silver',
+      badgeType: 'ai-favorite' as const
+    },
+    { 
+      rank: 3, 
+      name: 'TeaSpillMaster', 
+      spills: 35, 
+      badge: '🥉', 
+      bgClass: 'badge-bronze',
+      badgeType: 'anonymous-oracle' as const
+    }
   ];
 
   return (
@@ -31,6 +53,7 @@ const LeaderboardTeaser = () => {
                 </span>
                 <span className="font-medium text-tabloid-black">#{spiller.rank}</span>
                 <span className="text-tabloid-black/80">{spiller.name}</span>
+                <UserBadges type={spiller.badgeType} size={24} />
               </div>
               <span className="text-sm font-bold text-vintage-red">{spiller.spills} spills</span>
             </div>
@@ -39,7 +62,7 @@ const LeaderboardTeaser = () => {
 
         <Button 
           onClick={() => navigate('/leaderboard')}
-          className="btn-pill btn-pill-red w-full text-white font-bold"
+          className="btn-pill btn-pill-red w-full text-white font-bold btn-tabloid-hover"
         >
           <TrendingUp className="w-4 h-4 mr-2" />
           See Spillerboard

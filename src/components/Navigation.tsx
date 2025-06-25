@@ -33,10 +33,12 @@ const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-vintage-red to-tabloid-black rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">C</span>
-            </div>
+          <Link to="/" className="flex items-center gap-2 nav-link-hover">
+            <img 
+              src="/ctea-logo-icon.svg" 
+              alt="CTea Newsroom" 
+              className="w-8 h-8 transition-transform hover:scale-110"
+            />
             <span className="text-xl font-display font-bold text-tabloid-black hidden sm:block">CTea</span>
           </Link>
 

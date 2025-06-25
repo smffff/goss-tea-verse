@@ -101,6 +101,34 @@ h1, h2, h3, h4, h5, h6, .font-display {
   animation: breaking-news 2s ease-in-out infinite;
 }
 
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
 /* Gradient utilities with tabloid theme */
 .bg-gradient-tabloid {
   background: linear-gradient(135deg, var(--newsprint-bg) 0%, var(--pale-pink) 50%, var(--vintage-red) 100%);
@@ -269,6 +297,8 @@ h1, h2, h3, h4, h5, h6, .font-display {
 @media (prefers-reduced-motion: reduce) {
   .animate-red-glow,
   .animate-breaking-news,
+  .animate-float,
+  .animate-fade-in,
   .loading-tabloid {
     animation: none;
   }
