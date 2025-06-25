@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface WalletState {
@@ -14,9 +13,10 @@ interface WalletState {
 
 interface WalletContextType {
   wallet: WalletState;
-  connectWallet: (type: 'metamask' | 'walletconnect') => Promise<void>;
+  connectWallet: (type: 'metamask' | 'walletconnect' | 'core') => Promise<void>;
   disconnectWallet: () => void;
   switchChain: (chainId: number) => Promise<void>;
+  switchToAvalanche: () => Promise<void>;
 }
 
 const WalletContext = createContext<WalletContextType | null>(null);
@@ -45,9 +45,12 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
     }
   });
 
-  const connectWallet = async (type: 'metamask' | 'walletconnect') => {
+  const AVALANCHE_CHAIN_ID = 43114;
+  const AVALANCHE_TESTNET_CHAIN_ID = 43113;
+
+  const connectWallet = async (type: 'metamask' | 'walletconnect' | 'core') => {
     try {
-      if (type === 'metamask' && typeof window.ethereum !== 'undefined') {
+      if ((type === 'metamask' || type === 'core') && typeof window.ethereum !== 'undefined') {
         const accounts = await window.ethereum.request({
           method: 'eth_requestAccounts'
         });
@@ -68,7 +71,6 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
             }
           });
 
-          // Store connection preference
           localStorage.setItem('ctea_wallet_connected', 'true');
           localStorage.setItem('ctea_wallet_type', type);
         }
@@ -76,6 +78,42 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('Failed to connect wallet:', error);
       throw error;
+    }
+  };
+
+  const switchToAvalanche = async () => {
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: `0x${AVALANCHE_CHAIN_ID.toString(16)}` }],
+      });
+    } catch (switchError: any) {
+      // This error code indicates that the chain has not been added to MetaMask
+      if (switchError.code === 4902) {
+        try {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [
+              {
+                chainId: `0x${AVALANCHE_CHAIN_ID.toString(16)}`,
+                chainName: 'Avalanche Network',
+                nativeCurrency: {
+                  name: 'AVAX',
+                  symbol: 'AVAX',
+                  decimals: 18,
+                },
+                rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+                blockExplorerUrls: ['https://snowtrace.io/'],
+              },
+            ],
+          });
+        } catch (addError) {
+          console.error('Failed to add Avalanche network:', addError);
+          throw addError;
+        }
+      } else {
+        throw switchError;
+      }
     }
   };
 
@@ -113,7 +151,7 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
     const walletType = localStorage.getItem('ctea_wallet_type');
     
     if (isConnected && walletType && typeof window.ethereum !== 'undefined') {
-      connectWallet(walletType as 'metamask' | 'walletconnect').catch(console.error);
+      connectWallet(walletType as 'metamask' | 'walletconnect' | 'core').catch(console.error);
     }
   }, []);
 
@@ -122,7 +160,8 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
       wallet,
       connectWallet,
       disconnectWallet,
-      switchChain
+      switchChain,
+      switchToAvalanche
     }}>
       {children}
     </WalletContext.Provider>

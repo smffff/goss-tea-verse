@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import SubmissionForm from '@/components/SubmissionForm';
 import { useToast } from '@/hooks/use-toast';
 import BetaDisclaimer from '@/components/BetaDisclaimer';
+import EarlyAccessGate from '@/components/EarlyAccessGate';
 
 interface SubmissionData {
   tea: string;
@@ -57,12 +57,24 @@ const SubmitTea = () => {
             </p>
           </div>
           
-          <SubmissionForm
-            isOpen={true}
-            onClose={handleClose}
-            onSubmit={handleSubmit}
-            isLoading={isSubmitting}
-          />
+          <EarlyAccessGate
+            requiredTeaAmount={500}
+            fallbackContent={
+              <SubmissionForm
+                isOpen={true}
+                onClose={handleClose}
+                onSubmit={handleSubmit}
+                isLoading={isSubmitting}
+              />
+            }
+          >
+            <SubmissionForm
+              isOpen={true}
+              onClose={handleClose}
+              onSubmit={handleSubmit}
+              isLoading={isSubmitting}
+            />
+          </EarlyAccessGate>
         </div>
       </div>
     </Layout>

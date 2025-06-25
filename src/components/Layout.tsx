@@ -1,6 +1,8 @@
 import React from 'react';
 import Navigation from './Navigation';
 import Footer from './Footer';
+import FeedbackWidget from './FeedbackWidget';
+import ErrorBoundary from './ErrorBoundary';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -16,14 +18,17 @@ const Layout: React.FC<LayoutProps> = ({
   showFooter = true
 }) => {
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-cyan-50 dark:bg-gradient-dark retro-grid ${className}`}>
-      {showNavigation && <Navigation />}
-      <main className={`${showNavigation ? 'pt-16 sm:pt-20' : ''} ${showFooter ? 'pb-16' : ''} px-4 sm:px-6 lg:px-8 py-6 sm:py-8`}>
-        {children}
-      </main>
-      {showFooter && <Footer />}
-    </div>
+    <ErrorBoundary>
+      <div className="min-h-screen bg-gradient-to-br from-ctea-dark via-purple-900/20 to-ctea-dark">
+        {showNavigation && <Navigation />}
+        <main className="container mx-auto px-4 py-8">
+          {children}
+        </main>
+        {showFooter && <Footer />}
+        <FeedbackWidget />
+      </div>
+    </ErrorBoundary>
   );
 };
 
-export default Layout; 
+export default Layout;
