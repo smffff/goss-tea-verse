@@ -3,22 +3,20 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from '@/hooks/useAuth';
 import { WalletProvider } from '@/components/WalletProvider';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
+// Core Pages
 import Landing from "./pages/Landing";
 import Feed from "./pages/Feed";
-import SubmitTea from "./pages/SubmitTea";
-import GovernancePage from "./pages/GovernancePage";
-import TokenPage from "./pages/TokenPage";
-import Trends from "./pages/Trends";
-import Campaigns from "./pages/Campaigns";
-import Features from "./pages/Features";
+import SpillTea from "./pages/SpillTea";
+import Leaderboard from "./pages/Leaderboard";
 import About from "./pages/About";
+import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
@@ -54,52 +52,52 @@ const App = () => {
                   <BrowserRouter>
                     <ErrorBoundary componentName="Router">
                       <Routes>
-                        {/* Public Routes */}
+                        {/* Core App Routes */}
                         <Route path="/" element={
                           <ErrorBoundary componentName="Landing">
                             <Landing />
                           </ErrorBoundary>
                         } />
+                        
+                        <Route path="/spill" element={
+                          <ErrorBoundary componentName="SpillTea">
+                            <SpillTea />
+                          </ErrorBoundary>
+                        } />
+                        
                         <Route path="/feed" element={
                           <ErrorBoundary componentName="Feed">
                             <Feed />
                           </ErrorBoundary>
                         } />
-                        <Route path="/submit" element={
-                          <ErrorBoundary componentName="SubmitTea">
-                            <SubmitTea />
+                        
+                        <Route path="/leaderboard" element={
+                          <ErrorBoundary componentName="Leaderboard">
+                            <Leaderboard />
                           </ErrorBoundary>
                         } />
-                        <Route path="/governance" element={
-                          <ErrorBoundary componentName="GovernancePage">
-                            <GovernancePage />
-                          </ErrorBoundary>
-                        } />
-                        <Route path="/token" element={
-                          <ErrorBoundary componentName="TokenPage">
-                            <TokenPage />
-                          </ErrorBoundary>
-                        } />
-                        <Route path="/trends" element={
-                          <ErrorBoundary componentName="Trends">
-                            <Trends />
-                          </ErrorBoundary>
-                        } />
-                        <Route path="/campaigns" element={
-                          <ErrorBoundary componentName="Campaigns">
-                            <Campaigns />
-                          </ErrorBoundary>
-                        } />
-                        <Route path="/features" element={
-                          <ErrorBoundary componentName="Features">
-                            <Features />
-                          </ErrorBoundary>
-                        } />
+                        
                         <Route path="/about" element={
                           <ErrorBoundary componentName="About">
                             <About />
                           </ErrorBoundary>
                         } />
+                        
+                        <Route path="/faq" element={
+                          <ErrorBoundary componentName="FAQ">
+                            <FAQ />
+                          </ErrorBoundary>
+                        } />
+
+                        {/* Legacy Redirects */}
+                        <Route path="/submit" element={<Navigate to="/spill" replace />} />
+                        <Route path="/trends" element={<Navigate to="/feed" replace />} />
+                        <Route path="/governance" element={<Navigate to="/about" replace />} />
+                        <Route path="/token" element={<Navigate to="/about" replace />} />
+                        <Route path="/campaigns" element={<Navigate to="/feed" replace />} />
+                        <Route path="/features" element={<Navigate to="/about" replace />} />
+
+                        {/* Support Pages */}
                         <Route path="/contact" element={
                           <ErrorBoundary componentName="Contact">
                             <Contact />

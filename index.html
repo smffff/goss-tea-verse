@@ -1,95 +1,46 @@
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>CTea Newsroom – Where Crypto Twitter Comes to Spill | Anonymous Crypto Gossip Platform</title>
-    <meta name="description" content="Submit, score, and spill crypto tea anonymously. Join the beta for exclusive access to the hottest crypto gossip, alpha leaks, and meme-fueled market takes." />
-    <meta name="author" content="CTea Newsroom" />
-    <meta name="keywords" content="crypto gossip, crypto news, web3, blockchain, memecoin, alpha leaks, crypto twitter, anonymous crypto, crypto community, defi news, nft gossip" />
-
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json" />
-
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXXXX', {
-        page_title: 'CTea Newsroom',
-        page_location: window.location.href,
-        custom_map: {
-          'custom_parameter_1': 'cta_clicks',
-          'custom_parameter_2': 'form_completions',
-          'custom_parameter_3': 'tea_spills'
-        }
-      });
-    </script>
-
+    <link rel="icon" type="image/svg+xml" href="/ctea-logo-icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Primary Meta Tags -->
+    <title>CTea Newsroom — Where Gossip Gets Tokenized</title>
+    <meta name="title" content="CTea Newsroom — Where Gossip Gets Tokenized" />
+    <meta name="description" content="Spill your crypto tea, get roasted by AI, and earn clout. Anonymous gossip meets AI-powered reactions in the ultimate Web3 drama hub." />
+    
     <!-- Open Graph / Facebook -->
-    <meta property="og:title" content="CTea Newsroom – Where Crypto Twitter Comes to Spill" />
-    <meta property="og:description" content="Submit, score, and spill crypto tea anonymously. Join the beta for exclusive access to the hottest crypto gossip, alpha leaks, and meme-fueled market takes." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://cteanews.com" />
-    <meta property="og:image" content="/ctea-banner.png" />
-    <meta property="og:image:alt" content="CTea Newsroom - Anonymous Crypto Gossip Platform" />
-    <meta property="og:site_name" content="CTea Newsroom" />
-    <meta property="og:locale" content="en_US" />
-
+    <meta property="og:url" content="https://cteanews.com/" />
+    <meta property="og:title" content="CTea Newsroom — Where Gossip Gets Tokenized" />
+    <meta property="og:description" content="Spill your crypto tea, get roasted by AI, and earn clout. Anonymous gossip meets AI-powered reactions in the ultimate Web3 drama hub." />
+    <meta property="og:image" content="https://cteanews.com/ctea-banner.png" />
+    
     <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@ctea_newsroom" />
-    <meta name="twitter:creator" content="@ctea_newsroom" />
-    <meta name="twitter:title" content="CTea Newsroom – Where Crypto Twitter Comes to Spill" />
-    <meta name="twitter:description" content="Submit, score, and spill crypto tea anonymously. Join the beta for exclusive access to the hottest crypto gossip, alpha leaks, and meme-fueled market takes." />
-    <meta name="twitter:image" content="/ctea-banner.png" />
-    <meta name="twitter:image:alt" content="CTea Newsroom - Anonymous Crypto Gossip Platform" />
-
-    <!-- Additional SEO -->
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    <meta name="theme-color" content="#00d4aa" />
-    <meta name="msapplication-TileColor" content="#00d4aa" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="CTea Newsroom" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="application-name" content="CTea Newsroom" />
-    <meta name="msapplication-TileImage" content="/ctea-logo-icon.png" />
-    <meta name="msapplication-config" content="/browserconfig.xml" />
-    <link rel="canonical" href="https://cteanews.com" />
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://cteanews.com/" />
+    <meta property="twitter:title" content="CTea Newsroom — Where Gossip Gets Tokenized" />
+    <meta property="twitter:description" content="Spill your crypto tea, get roasted by AI, and earn clout. Anonymous gossip meets AI-powered reactions in the ultimate Web3 drama hub." />
+    <meta property="twitter:image" content="https://cteanews.com/ctea-banner.png" />
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" href="/ctea-logo-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/ctea-logo-icon.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/ctea-logo-icon.png" />
+    <!-- Additional Meta -->
+    <meta name="keywords" content="crypto, gossip, tea, Web3, anonymous, AI, reactions, leaderboard, drama, blockchain, DeFi" />
+    <meta name="author" content="Lady Invisible" />
+    <meta name="robots" content="index, follow" />
     
-    <!-- Preload critical assets -->
-    <link rel="preload" href="/ctea-logo-icon.svg" as="image" type="image/svg+xml" />
-    <link rel="preload" href="/ctea-logo-full.png" as="image" type="image/png" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "CTea Newsroom",
-      "description": "Anonymous crypto gossip platform where crypto Twitter comes to spill",
-      "url": "https://cteanews.com",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://cteanews.com/search?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
-    }
-    </script>
-
-    <!-- Plausible Analytics -->
-    <script async defer data-domain="ctea.newsroom" src="https://plausible.io/js/plausible.js"></script>
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#FF4C7B" />
+    
+    <!-- Manifest for PWA -->
+    <link rel="manifest" href="/manifest.json" />
   </head>
-
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
