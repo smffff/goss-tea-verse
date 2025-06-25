@@ -59,15 +59,15 @@ const App = () => {
                           </ErrorBoundary>
                         } />
                         
-                        <Route path="/spill" element={
-                          <ErrorBoundary componentName="SpillTea">
-                            <SpillTea />
-                          </ErrorBoundary>
-                        } />
-                        
                         <Route path="/feed" element={
                           <ErrorBoundary componentName="Feed">
                             <Feed />
+                          </ErrorBoundary>
+                        } />
+                        
+                        <Route path="/spill" element={
+                          <ErrorBoundary componentName="SpillTea">
+                            <SpillTea />
                           </ErrorBoundary>
                         } />
                         
