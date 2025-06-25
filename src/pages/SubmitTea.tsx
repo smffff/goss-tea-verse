@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import SubmissionForm from '@/components/SubmissionForm';
 import { useToast } from '@/hooks/use-toast';
 import BetaDisclaimer from '@/components/BetaDisclaimer';
-import EarlyAccessGate from '@/components/EarlyAccessGate';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SubmissionData {
   tea: string;
@@ -18,29 +19,58 @@ const SubmitTea = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = (data: SubmissionData) => {
+  const handleSubmit = async (data: SubmissionData) => {
     setIsSubmitting(true);
+    
     try {
-      // Simulate submission
-      setTimeout(() => {
-        toast({
-          title: "Tea Submitted! ☕",
-          description: "Your submission is being reviewed. Check back soon!",
+      // Generate anonymous token for submissions
+      const anonymousToken = localStorage.getItem('ctea_anonymous_token') || 
+        Array.from(crypto.getRandomValues(new Uint8Array(32)))
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('');
+      
+      localStorage.setItem('ctea_anonymous_token', anonymousToken);
+
+      // Submit to Supabase
+      const { error } = await supabase
+        .from('tea_submissions')
+        .insert({
+          content: data.tea,
+          category: data.category,
+          evidence_urls: data.evidence_urls.length > 0 ? data.evidence_urls : null,
+          anonymous_token: anonymousToken,
+          status: 'pending'
         });
-        setIsSubmitting(false);
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Tea Submitted! ☕",
+        description: "Your submission has been received. Check back soon to see it in the feed!",
+      });
+
+      // Optional: redirect to feed after successful submission
+      setTimeout(() => {
+        window.location.href = '/feed';
       }, 2000);
+
     } catch (error) {
+      console.error('Submission error:', error);
       toast({
         title: "Submission Failed",
         description: "Couldn't submit your tea. Please try again.",
         variant: "destructive"
       });
+    } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleClose = () => {
-    // Handle close if needed
+    // Redirect back to home or feed
+    window.location.href = '/';
   };
 
   return (
@@ -57,24 +87,12 @@ const SubmitTea = () => {
             </p>
           </div>
           
-          <EarlyAccessGate
-            requiredTeaAmount={500}
-            fallbackContent={
-              <SubmissionForm
-                isOpen={true}
-                onClose={handleClose}
-                onSubmit={handleSubmit}
-                isLoading={isSubmitting}
-              />
-            }
-          >
-            <SubmissionForm
-              isOpen={true}
-              onClose={handleClose}
-              onSubmit={handleSubmit}
-              isLoading={isSubmitting}
-            />
-          </EarlyAccessGate>
+          <SubmissionForm
+            isOpen={true}
+            onClose={handleClose}
+            onSubmit={handleSubmit}
+            isLoading={isSubmitting}
+          />
         </div>
       </div>
     </Layout>

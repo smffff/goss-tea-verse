@@ -21,6 +21,12 @@ const EarlyAccessGate: React.FC<EarlyAccessGateProps> = ({
   const { wallet, connectWallet } = useWallet();
   const { earlyAccessStatus, isLoading } = useTeaToken();
 
+  // For now, allow all users access - remove the gate
+  // This makes submissions available to everyone without wallet requirements
+  return <>{children}</>;
+
+  // The original gating logic is commented out below for future use
+  /*
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -107,6 +113,7 @@ const EarlyAccessGate: React.FC<EarlyAccessGateProps> = ({
       </div>
     </Card>
   );
+  */
 };
 
 export default EarlyAccessGate;

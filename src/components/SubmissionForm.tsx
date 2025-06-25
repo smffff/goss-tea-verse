@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -81,10 +82,8 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
       newErrors.tea = 'Tea must be less than 2000 characters';
     }
 
-    // Validate email
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required for beta access';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    // Email is optional for anonymous submissions
+    if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
     }
 
@@ -113,17 +112,9 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
     trackFormCompletion('tea_submission');
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
       onSubmit(formData);
       trackTeaSpill(formData.category);
       
-      toast({
-        title: "Tea Spilled Successfully! ☕",
-        description: "Your submission has been received and added to the feed!",
-      });
-
       // Reset form
       setFormData({
         tea: '',
@@ -135,7 +126,6 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
       });
       setErrors({});
       setShowConfirmation(false);
-      onClose();
       
     } catch (error) {
       toast({
@@ -219,7 +209,7 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
           {/* Tea Content */}
           <div>
             <Label htmlFor="tea" className="text-gray-300 flex items-center gap-2">
-              Your Tea (Anonymous) ☕
+              Your Tea ☕
               <span className="text-red-400">*</span>
             </Label>
             <Textarea
@@ -303,17 +293,16 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
             </div>
           </div>
 
-          {/* Contact Information */}
+          {/* Contact Information - Made Optional */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="email" className="text-gray-300 flex items-center gap-2">
-                Email Address
-                <span className="text-red-400">*</span>
+              <Label htmlFor="email" className="text-gray-300">
+                Email Address (Optional)
               </Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="your@email.com"
+                placeholder="your@email.com (optional)"
                 value={formData.email}
                 onChange={(e) => {
                   setFormData(prev => ({ ...prev, email: e.target.value }));
@@ -322,7 +311,6 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
                 className={`bg-ctea-dark/50 border-ctea-teal/30 text-white placeholder-gray-400 focus:ring-2 focus:ring-accent/50 focus:border-accent ${
                   errors.email ? 'border-red-400' : ''
                 }`}
-                required
               />
               {errors.email && (
                 <div className="flex items-center gap-1 text-red-400 text-sm mt-1">
@@ -338,7 +326,7 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
               </Label>
               <Input
                 id="wallet"
-                placeholder="0x... or Solana address"
+                placeholder="0x... or Solana address (optional)"
                 value={formData.wallet}
                 onChange={(e) => {
                   setFormData(prev => ({ ...prev, wallet: e.target.value }));
