@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Users, Flag, Shield, BarChart3, Settings, AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import AdminSetup from '@/components/admin/AdminSetup';
 
 const AdminDashboard = () => {
   const { user, isAdmin } = useAuth();
@@ -32,6 +33,11 @@ const AdminDashboard = () => {
           {isAdmin ? 'Administrator' : 'Moderator'}
         </Badge>
       </div>
+
+      {/* Admin Setup Section - Show if not admin */}
+      {!isAdmin && (
+        <AdminSetup />
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

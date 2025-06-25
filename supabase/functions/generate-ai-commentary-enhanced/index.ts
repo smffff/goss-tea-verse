@@ -21,6 +21,26 @@ interface AIRatingResponse {
   relevance: number
 }
 
+interface ModerationResponse {
+  flagged: boolean
+  categories: {
+    hate: boolean
+    'hate/threatening': boolean
+    harassment: boolean
+    'harassment/threatening': boolean
+    'self-harm': boolean
+    'self-harm/intent': boolean
+    'self-harm/instructions': boolean
+    sexual: boolean
+    'sexual/minors': boolean
+    violence: boolean
+    'violence/graphic': boolean
+  }
+  category_scores: {
+    [key: string]: number
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -32,35 +52,85 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY')
+    if (!openAIApiKey) {
+      console.error('OpenAI API key not configured')
+      return new Response(
+        JSON.stringify({ success: false, error: 'AI moderation not configured' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      )
+    }
+
     const { content, category, submissionId, commentaryType = 'spicy' }: AICommentaryRequest = await req.json()
 
-    // Enhanced AI prompt for CTeaBot with rating system
-    const aiPrompt = `You are CTeaBot, a sharp, emotionally intelligent AI gossip analyst for crypto tea.
+    console.log(`Processing content moderation for submission ${submissionId}`)
 
-You'll be given anonymous crypto gossip. React with:
-1. A short, witty one-liner reaction (max 140 characters)
-2. Three ratings from 1–10:
-   🔥 Spiciness (how controversial/dramatic)
-   😵‍💫 Chaos (how messy/confusing)  
-   🎯 Relevance (how important to crypto community)
+    // Step 1: Check content with OpenAI Moderation API
+    const moderationResponse = await fetch('https://api.openai.com/v1/moderations', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        input: content
+      }),
+    })
 
-Format your response as valid JSON only:
-{
-  "reaction": "Your witty one-liner here",
-  "spiciness": 7,
-  "chaos": 5,
-  "relevance": 8
-}
+    if (!moderationResponse.ok) {
+      throw new Error(`Moderation API failed: ${moderationResponse.statusText}`)
+    }
 
-Tea: """${content}"""
+    const moderationData = await moderationResponse.json()
+    const moderation: ModerationResponse = moderationData.results[0]
 
-Category: ${category}`
+    console.log(`Moderation result for ${submissionId}:`, {
+      flagged: moderation.flagged,
+      categories: Object.entries(moderation.categories).filter(([_, flagged]) => flagged)
+    })
 
-    // Call OpenAI API (mock for now - replace with actual OpenAI call)
+    // Step 2: Handle flagged content
+    if (moderation.flagged) {
+      const flaggedCategories = Object.entries(moderation.categories)
+        .filter(([_, flagged]) => flagged)
+        .map(([category, _]) => category)
+
+      console.log(`Content flagged for: ${flaggedCategories.join(', ')}`)
+
+      // Flag the submission for manual review
+      const { error: flagError } = await supabase.rpc('handle_ai_verification_failure', {
+        p_submission_id: submissionId,
+        p_error_details: { 
+          moderation_flagged: true,
+          flagged_categories: flaggedCategories,
+          category_scores: moderation.category_scores,
+          reason: 'Content flagged by AI moderation for harmful content'
+        }
+      })
+
+      if (flagError) {
+        console.error('Failed to flag submission:', flagError)
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Content flagged for moderation',
+          flagged: true,
+          categories: flaggedCategories,
+          addedToModeration: true 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
+        }
+      )
+    }
+
+    // Step 3: Content is clean, generate AI commentary
     const aiResponse = await generateAIRating(content, category, commentaryType)
 
     if (!aiResponse || !aiResponse.reaction || aiResponse.reaction.trim().length === 0) {
-      // Handle AI verification failure
       const { error: failureError } = await supabase.rpc('handle_ai_verification_failure', {
         p_submission_id: submissionId,
         p_error_details: { error: 'Empty AI response generated' }
@@ -83,7 +153,7 @@ Category: ${category}`
       )
     }
 
-    // Handle successful AI verification with ratings
+    // Step 4: Handle successful AI verification with ratings
     const { error: successError } = await supabase.rpc('handle_ai_verification_workflow', {
       p_submission_id: submissionId,
       p_ai_reaction: aiResponse.reaction,
@@ -103,6 +173,8 @@ Category: ${category}`
       )
     }
 
+    console.log(`Successfully processed submission ${submissionId} with AI commentary`)
+
     return new Response(
       JSON.stringify({ 
         success: true, 
@@ -113,7 +185,8 @@ Category: ${category}`
           relevance: aiResponse.relevance
         },
         submissionId,
-        visibilityUpdated: true
+        visibilityUpdated: true,
+        moderationPassed: true
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
