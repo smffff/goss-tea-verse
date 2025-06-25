@@ -1,0 +1,58 @@
+name: Weekly Security Hardening
+
+on:
+  schedule:
+    - cron: "0 3 * * 0"  # Sunday 3AM UTC
+  workflow_dispatch:  # Allow manual trigger
+  push:
+    branches:
+      - main
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/functions/harden_security/**'
+
+jobs:
+  run-security-harden:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Trigger Supabase Edge Function
+        run: |
+          curl -X POST ${{ secrets.HARDEN_SECURITY_ENDPOINT }} \
+            -H "Content-Type: application/json" \
+            -d '{"triggered_by": "github_actions", "workflow_run_id": "${{ github.run_id }}"}'
+        
+      - name: Check Security Status
+        run: |
+          # Wait a moment for the function to complete
+          sleep 5
+          
+          # Check if the hardening was successful
+          response=$(curl -s ${{ secrets.HARDEN_SECURITY_ENDPOINT }})
+          echo "Response: $response"
+          
+          # Extract success status (basic check)
+          if echo "$response" | grep -q '"success":true'; then
+            echo "✅ Security hardening completed successfully"
+          else
+            echo "❌ Security hardening failed"
+            exit 1
+          fi
+
+      - name: Notify on Failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Security Hardening Failed',
+              body: `Security hardening workflow failed on ${new Date().toISOString()}
+              
+              **Workflow Run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}
+              
+              Please check the logs and investigate the issue.`
+            }) 

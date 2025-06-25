@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,32 @@ import TabloidButton from '@/components/ui/TabloidButton';
 import { useScrollLock } from '@/hooks/useScrollLock';
 import { useToast } from '@/hooks/use-toast';
 import { track, trackEnteredJoinFlow, trackFunnelStep } from '@/utils/analytics';
+import TeaCup from '@/components/TeaCup';
+
+// Build Mode Banner
+const BuildModeBanner: React.FC = () => {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    if (!localStorage.getItem('buildBannerDismissed')) setVisible(true);
+  }, []);
+  if (!visible) return null;
+  return (
+    <div className="fixed top-0 left-0 w-full z-50 flex items-center justify-center bg-gradient-to-r from-pink-400 via-purple-400 to-teal-300 text-white py-2 px-4 shadow-lg animate-fadeInUp">
+      <span className="font-bold text-shadow-glow text-base flex items-center gap-2">
+        ⚠️ The tea's still brewing — occasional bugs may occur.
+      </span>
+      <button
+        className="ml-4 px-3 py-1 rounded-full bg-white/20 hover:bg-white/40 transition text-white font-bold text-xs border border-white/30"
+        onClick={() => {
+          setVisible(false);
+          localStorage.setItem('buildBannerDismissed', '1');
+        }}
+      >
+        Dismiss
+      </button>
+    </div>
+  );
+};
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -21,6 +47,11 @@ const Landing = () => {
   const [showTipModal, setShowTipModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  // Add animation state for hero
+  const [heroVisible, setHeroVisible] = useState(false);
+  useEffect(() => {
+    setTimeout(() => setHeroVisible(true), 100);
+  }, []);
 
   // Lock scroll when modals are open
   useScrollLock(showJoinModal || showSubmissionModal || showTipModal);
@@ -68,82 +99,58 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero pb-sticky-cta">
+    <div className="min-h-screen bg-background pb-sticky-cta">
+      <BuildModeBanner />
       {/* Floating Badges */}
       <FloatingBadges />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Enhanced background elements */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-32 h-32 bg-vintage-red rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-40 h-40 bg-tabloid-black rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-vintage-red rounded-full blur-3xl animate-pulse delay-2000"></div>
-          {/* New neon accent */}
-          <div className="absolute top-32 right-20 w-24 h-24 bg-neon-pink rounded-full blur-2xl animate-pulse delay-500 opacity-30"></div>
+      <section className={`relative min-h-screen flex items-center justify-center overflow-hidden bg-vaporwave transition-all duration-700 ${heroVisible ? 'animate-fadeInUp' : 'opacity-0 translate-y-8'}`}>
+        {/* Vaporwave background overlays */}
+        <div className="absolute inset-0 opacity-30 pointer-events-none">
+          <div className="absolute top-20 left-10 w-32 h-32 bg-pink-400 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-40 h-40 bg-purple-400 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-teal-300 rounded-full blur-3xl animate-pulse delay-2000"></div>
         </div>
-
-        <div className="relative z-base text-center px-4 max-w-6xl mx-auto">
-          {/* Breaking News Badge */}
-          <div className="mb-6">
-            <Badge className="bg-gradient-to-r from-vintage-red to-tabloid-black text-white font-headline font-bold px-6 py-3 text-base shadow-xl animate-headline-pulse uppercase tracking-wider">
-              <Sparkles className="w-5 h-5 mr-2" />
-              BREAKING: GOSSIP INCOMING
-            </Badge>
+        <div className="relative z-base text-center px-4 max-w-6xl mx-auto flex flex-col items-center">
+          {/* Teacup Icon Floated */}
+          <div className="mb-6 animate-float" style={{ zIndex: 2 }}>
+            <TeaCup className="w-32 h-32 md:w-48 md:h-48 mx-auto drop-shadow-2xl" animated />
           </div>
-
-          {/* Logo */}
-          <div className="mb-8">
-            <img 
-              src="/ctea-logo-icon.svg" 
-              alt="CTea Newsroom" 
-              className="w-28 h-28 md:w-40 md:h-40 mx-auto mb-6 drop-shadow-2xl animate-float"
-            />
-          </div>
-
-          {/* Main Headline - Enhanced Tabloid Style */}
-          <h1 className="text-5xl md:text-8xl font-tabloid font-bold text-vintage-red mb-8 leading-tight animate-headline-pulse uppercase tracking-wider" 
-              style={{ textShadow: '4px 4px 8px rgba(0,0,0,0.3)' }}>
+          {/* Main Headline - Neon Glow */}
+          <h1 className="text-5xl md:text-8xl font-headline font-bold text-white mb-6 leading-tight text-shadow-glow uppercase tracking-wider animate-pulse-glow">
             CTea Newsroom
           </h1>
-
-          {/* Tabloid Subheading */}
-          <h2 className="text-2xl md:text-4xl text-tabloid-black mb-6 font-headline font-bold uppercase tracking-widest">
+          {/* Tagline */}
+          <h2 className="text-2xl md:text-4xl text-white mb-4 font-headline font-bold uppercase tracking-widest text-shadow-glow">
             Web3's Gossip Feed
           </h2>
-          <p className="text-xl md:text-3xl text-vintage-red mb-12 font-bold italic font-headline">
+          <p className="text-xl md:text-3xl text-pink-200 mb-10 font-bold italic font-headline text-shadow-glow">
             Where crypto's unspoken news gets surfaced
           </p>
-
           {/* Description */}
-          <p className="text-lg md:text-xl text-tabloid-black mb-16 max-w-3xl mx-auto leading-relaxed font-medium">
-            Submit anonymous intel, vote on rumors, and catch early alpha. 
-            The underground newsroom where crypto scandals break first.
+          <p className="text-lg md:text-xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed font-medium">
+            Submit anonymous intel, vote on rumors, and catch early alpha. The underground newsroom where crypto scandals break first.
           </p>
-
-          {/* Enhanced CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-20">
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
             <TabloidButton
               variant="spill"
               shake={true}
+              className="shadow-2xl animate-pulse-glow hover:animate-teacup-shake hover:shadow-pink-400/60 hover:scale-110"
               onClick={handleSpillClick}
-              className="shadow-2xl"
             >
-              <Coffee className="w-6 h-6 mr-3" />
-              Spill the Tea
-              <ArrowRight className="w-6 h-6 ml-3" />
+              <span className="mr-3">🫖</span>
+              Spill Gossip
             </TabloidButton>
-            
             <TabloidButton
-              variant="read"
+              variant="connect"
+              className="shadow-2xl animate-pulse-glow hover:shadow-teal-300/60 hover:scale-110"
               onClick={handleReadClick}
-              className="shadow-2xl"
             >
-              <Eye className="w-6 h-6 mr-3" />
-              Read What's Brewing
+              Connect Wallet
             </TabloidButton>
           </div>
-
           {/* Enhanced How It Works */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
             {[
