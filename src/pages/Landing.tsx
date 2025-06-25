@@ -16,7 +16,12 @@ import LandingHeader from '@/components/landing/LandingHeader';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { getOrCreateSecureToken } from '@/utils/securityUtils';
+import { 
+  getOrCreateSecureToken, 
+  validateContentSecurity,
+  sanitizeUrls,
+  checkClientRateLimit
+} from '@/utils/securityEnhanced';
 
 interface SubmissionData {
   tea: string;
@@ -85,43 +90,52 @@ const Landing = () => {
       });
       return;
     }
+
+    // Client-side rate limiting
+    if (!checkClientRateLimit('submission', 3, 60)) {
+      toast({
+        title: "Rate Limit Exceeded",
+        description: "Please wait before submitting again.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setIsSubmitting(true);
     
     try {
-      console.log('[Landing] Starting submission process');
+      console.log('[Landing] Starting enhanced submission process');
+      
+      // Enhanced content validation
+      const validation = validateContentSecurity(data.tea);
+      
+      if (!validation.isValid) {
+        throw new Error(`Content validation failed: ${validation.threats.join(', ')}`);
+      }
+
+      // Enhanced URL sanitization
+      const sanitizedUrls = sanitizeUrls(data.evidence_urls || []);
       
       // Generate secure anonymous token
       const anonymousToken = getOrCreateSecureToken();
-      console.log('[Landing] Generated anonymous token');
+      console.log('[Landing] Generated secure anonymous token');
 
-      // Prepare submission data
+      // Prepare submission data with enhanced security
       const submissionData = {
-        content: data.tea.trim(),
+        content: validation.sanitized,
         category: data.category || 'general',
-        evidence_urls: data.evidence_urls && data.evidence_urls.length > 0 ? data.evidence_urls : null,
+        evidence_urls: sanitizedUrls.length > 0 ? sanitizedUrls : null,
         anonymous_token: anonymousToken,
         status: 'approved',
-        has_evidence: data.evidence_urls && data.evidence_urls.length > 0,
+        has_evidence: sanitizedUrls.length > 0,
         reactions: { hot: 0, cold: 0, spicy: 0 },
         average_rating: 0,
         rating_count: 0
       };
 
-      console.log('[Landing] Prepared submission data:', submissionData);
+      console.log('[Landing] Prepared enhanced submission data:', submissionData);
 
-      // Validate content
-      if (!submissionData.content || submissionData.content.length < 3) {
-        throw new Error('Content must be at least 3 characters long');
-      }
-
-      if (submissionData.content.length > 2000) {
-        throw new Error('Content must be less than 2000 characters');
-      }
-
-      console.log('[Landing] Content validation passed, inserting into Supabase');
-
-      // Insert into Supabase
+      // Insert into Supabase with enhanced validation
       const { data: result, error } = await supabase
         .from('tea_submissions')
         .insert(submissionData)
@@ -137,7 +151,7 @@ const Landing = () => {
         throw new Error('Submission failed: No data returned');
       }
 
-      console.log('[Landing] Submission successful:', result);
+      console.log('[Landing] Enhanced submission successful:', result);
       setShowSpillForm(false);
       setSuccessType('spill');
       setShowSuccessModal(true);

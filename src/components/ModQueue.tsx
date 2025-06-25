@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,11 +5,15 @@ import { Badge } from '@/components/ui/badge';
 import { Eye, CheckCircle, X, Flag, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useSecureAuth } from '@/hooks/useSecureAuth';
+import SecurityMonitor from '@/components/security/SecurityMonitor';
 
 interface QueueItem {
   id: string;
   content: string;
   category: string;
+  evidence_urls: string[] | null;
+  reactions: { hot: number; cold: number; spicy: number };
   created_at: string;
   anonymous_token: string;
   flag_count: number;
@@ -25,10 +28,12 @@ const ModQueue = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const { toast } = useToast();
+  const { requireModerator, isAdmin } = useSecureAuth();
 
   useEffect(() => {
+    if (!requireModerator()) return;
     fetchQueueItems();
-  }, []);
+  }, [requireModerator]);
 
   const fetchQueueItems = async () => {
     try {
@@ -129,6 +134,11 @@ const ModQueue = () => {
           {queueItems.length} pending
         </Badge>
       </div>
+
+      {/* Security Monitor for Admins */}
+      {isAdmin && (
+        <SecurityMonitor />
+      )}
 
       <div className="space-y-4">
         {queueItems.map((item) => (
