@@ -1,232 +1,176 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+
+import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Coffee, ExternalLink, Twitter, MessageCircle, Users, ArrowRight, Sparkles, MessageSquare, Mail, Github, Globe } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { trackFeedbackSubmission, trackFeedbackButtonClick } from '@/lib/analytics';
+import { Twitter, Github, MessageCircle, Heart, ExternalLink } from 'lucide-react';
 
 const Footer = () => {
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [feedbackText, setFeedbackText] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
+  const currentYear = new Date().getFullYear();
 
-  const footerLinks = [
-    { path: '/about', label: 'About', external: false },
-    { path: '/privacy', label: 'Privacy', external: false },
-    { path: '/terms', label: 'Terms', external: false }
-  ];
-
-  const socialLinks = [
-    { href: 'https://twitter.com/ctea_newsroom', label: 'Twitter', icon: <Twitter className="w-4 h-4" />, external: true },
-    { href: 'https://arena.ctea.news', label: 'Arena', icon: <MessageCircle className="w-4 h-4" />, external: true },
-    { href: 'https://discord.gg/ctea', label: 'Discord', icon: <Users className="w-4 h-4" />, external: true },
-    { href: 'https://github.com/ctea-newsroom', label: 'GitHub', icon: <Github className="w-4 h-4" />, external: true }
-  ];
-
-  const handleFeedbackSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!feedbackText.trim()) return;
-
-    setIsSubmitting(true);
-    try {
-      // Track feedback submission
-      trackFeedbackSubmission();
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast({
-        title: "Feedback Submitted! 🫖",
-        description: "Thanks for helping us improve CTea Newsroom!",
-      });
-
-      setFeedbackText('');
-      setShowFeedback(false);
-    } catch (error) {
-      toast({
-        title: "Feedback Failed",
-        description: "Couldn't submit feedback. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+  const openLink = (url: string) => {
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
+  const socialLinks = [
+    {
+      name: 'Twitter',
+      icon: Twitter,
+      url: 'https://twitter.com/cteaplatform',
+      color: 'hover:text-blue-400'
+    },
+    {
+      name: 'Discord',
+      icon: MessageCircle,
+      url: 'https://discord.gg/ctea',
+      color: 'hover:text-purple-400'
+    },
+    {
+      name: 'GitHub',
+      icon: Github,
+      url: 'https://github.com/ctea-platform',
+      color: 'hover:text-gray-300'
+    }
+  ];
+
+  const footerLinks = [
+    {
+      title: 'Platform',
+      links: [
+        { name: 'About', href: '/about' },
+        { name: 'Features', href: '/features' },
+        { name: 'Tokenomics', href: '/token' },
+        { name: 'Governance', href: '/governance' }
+      ]
+    },
+    {
+      title: 'Community',
+      links: [
+        { name: 'Discord', href: 'https://discord.gg/ctea', external: true },
+        { name: 'Twitter', href: 'https://twitter.com/cteaplatform', external: true },
+        { name: 'Blog', href: '/blog', external: false },
+        { name: 'Newsletter', href: '/newsletter', external: false }
+      ]
+    },
+    {
+      title: 'Resources',
+      links: [
+        { name: 'Documentation', href: '/docs', external: false },
+        { name: 'API', href: '/api', external: false },
+        { name: 'Help Center', href: '/help', external: false },
+        { name: 'Status', href: 'https://status.ctea.io', external: true }
+      ]
+    },
+    {
+      title: 'Legal',
+      links: [
+        { name: 'Privacy Policy', href: '/privacy' },
+        { name: 'Terms of Service', href: '/terms' },
+        { name: 'Cookie Policy', href: '/cookies' },
+        { name: 'Contact', href: '/contact' }
+      ]
+    }
+  ];
+
   return (
-    <>
-      <footer className="py-16 bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="text-center max-w-4xl mx-auto">
-            <div className="mb-8">
-              <div className="flex justify-center mb-6">
-                <div className="relative">
-                  <img 
-                    src="/ctea-logo-icon.svg" 
-                    alt="CTea Newsroom Logo - Anonymous Crypto Gossip Platform" 
-                    className="w-12 h-12 text-accent animate-float" 
-                  />
-                  <div className="absolute -top-1 -right-1">
-                    <Sparkles className="w-4 h-4 text-accent2 animate-pulse" />
-                  </div>
-                </div>
+    <footer className="bg-ctea-darker border-t border-ctea-teal/20">
+      <div className="container mx-auto px-4 py-12">
+        {/* Main Footer Content */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-8">
+          {/* Brand Section */}
+          <div className="lg:col-span-2">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 bg-gradient-to-br from-ctea-teal to-ctea-purple rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">C</span>
               </div>
-              <p className="text-lg text-gray-300 leading-relaxed mb-4">
-                Where Crypto Twitter Comes to Spill. Submit, track, and score the latest gossip & alpha—anonymous, algorithmic, and spicy.
-              </p>
-              <p className="text-sm text-gray-400 italic">
-                Beta open. VIPs welcome. ☕️
-              </p>
+              <span className="text-xl font-bold text-white">CTea</span>
             </div>
-            
-            {/* Get Started Button */}
-            <div className="mb-8">
-              <Link to="/feed">
-                <Button className="bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent text-white font-bold uppercase tracking-wide px-8 py-4 text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95">
-                  <ArrowRight className="w-5 h-5 mr-2" />
-                  Enter the Newsroom
+            <p className="text-gray-400 mb-4 text-sm leading-relaxed">
+              The ultimate platform for crypto gossip, verified rumors, and community-driven truth. 
+              Spill the tea, earn rewards, and stay ahead of the crypto narrative.
+            </p>
+            <div className="flex items-center gap-3">
+              {socialLinks.map((social) => (
+                <Button
+                  key={social.name}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => openLink(social.url)}
+                  className={`text-gray-400 ${social.color} transition-colors duration-200`}
+                  aria-label={social.name}
+                >
+                  <social.icon className="w-4 h-4" />
                 </Button>
-              </Link>
-            </div>
-            
-            {/* Footer Links */}
-            <div className="flex flex-wrap justify-center gap-6 mb-8">
-              <a 
-                href="https://cteanews.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 group hover:bg-accent/10 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
-                aria-label="Visit cteanews.com (opens in new tab)"
-              >
-                <Globe className="w-4 h-4 group-hover:animate-pulse" />
-                <span className="font-medium">cteanews.com</span>
-                <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity" />
-              </a>
-              
-              {/* Social Links */}
-              {socialLinks.map((link, index) => (
-                <a 
-                  key={index}
-                  href={link.href} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 group hover:bg-accent/10 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
-                  aria-label={`Visit ${link.label} (opens in new tab)`}
-                >
-                  {link.icon}
-                  <span className="font-medium">{link.label}</span>
-                  <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity" />
-                </a>
               ))}
             </div>
+          </div>
 
-            {/* Navigation Links */}
-            <div className="flex flex-wrap justify-center gap-6 mb-8">
-              {footerLinks.map((link, index) => (
-                <Link
-                  key={index}
-                  to={link.path}
-                  className="text-accent hover:text-accent2 transition-all duration-300 hover:scale-110 font-medium hover:bg-accent/10 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-
-            {/* Feedback and Contact Buttons */}
-            <div className="flex flex-wrap justify-center gap-4 mb-8">
-              <Dialog open={showFeedback} onOpenChange={setShowFeedback}>
-                <DialogTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className="border-accent text-accent hover:bg-accent/10 hover:text-accent2 transition-all duration-300 uppercase font-semibold px-6 py-3 rounded-lg shadow hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
-                    onClick={() => {
-                      trackFeedbackButtonClick();
-                    }}
-                  >
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    Send Feedback
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="bg-gray-900 border-accent/30">
-                  <DialogHeader>
-                    <DialogTitle className="text-white flex items-center gap-2">
-                      <MessageSquare className="w-5 h-5 text-accent" />
-                      Help Us Improve CTea
-                    </DialogTitle>
-                  </DialogHeader>
-                  <form onSubmit={handleFeedbackSubmit} className="space-y-4">
-                    <div>
-                      <Label htmlFor="feedback" className="text-gray-300">
-                        What's on your mind? 💭
-                      </Label>
-                      <Textarea
-                        id="feedback"
-                        placeholder="Share your thoughts, suggestions, or report issues..."
-                        value={feedbackText}
-                        onChange={(e) => setFeedbackText(e.target.value)}
-                        className="min-h-[120px] bg-gray-800 border-accent/30 text-white placeholder-gray-400 focus:ring-2 focus:ring-accent/50 focus:border-accent"
-                        required
-                      />
-                    </div>
-                    <div className="flex gap-3">
+          {/* Footer Links */}
+          {footerLinks.map((section) => (
+            <div key={section.title}>
+              <h3 className="text-white font-semibold mb-3 text-sm">{section.title}</h3>
+              <ul className="space-y-2">
+                {section.links.map((link) => (
+                  <li key={link.name}>
+                    {link.external ? (
                       <Button
-                        type="submit"
-                        disabled={isSubmitting || !feedbackText.trim()}
-                        className="flex-1 bg-gradient-to-r from-accent to-accent2 hover:from-accent2 hover:to-accent text-white font-bold uppercase px-6 py-3 rounded-lg transition-all shadow hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openLink(link.href)}
+                        className="text-gray-400 hover:text-ctea-teal text-sm justify-start p-0 h-auto font-normal"
                       >
-                        {isSubmitting ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            Sending...
-                          </>
-                        ) : (
-                          <>
-                            <MessageSquare className="w-4 h-4 mr-2" />
-                            Send Feedback
-                          </>
-                        )}
+                        {link.name}
+                        <ExternalLink className="w-3 h-3 ml-1" />
                       </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setShowFeedback(false)}
-                        className="border-accent/30 text-accent hover:bg-accent/10 uppercase font-semibold px-6 py-3 rounded-lg transition-all shadow hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
+                    ) : (
+                      <a
+                        href={link.href}
+                        className="text-gray-400 hover:text-ctea-teal text-sm transition-colors duration-200"
                       >
-                        Cancel
-                      </Button>
-                    </div>
-                  </form>
-                </DialogContent>
-              </Dialog>
-
-              <a 
-                href="mailto:hello@ctea.news"
-                className="flex items-center gap-2 border-accent/30 text-accent hover:bg-accent/10 hover:text-accent2 transition-all duration-300 uppercase font-semibold px-6 py-3 rounded-lg shadow hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95"
-              >
-                <Mail className="w-4 h-4" />
-                Contact
-              </a>
+                        {link.name}
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
             </div>
+          ))}
+        </div>
 
-            {/* Copyright */}
-            <div className="border-t border-accent/20 pt-8">
-              <p className="text-sm text-gray-400">
-                © 2024 CTea Newsroom. All rights reserved. Built with ☕ and chaos.
-              </p>
-              <p className="text-xs text-gray-500 mt-2">
-                Beta v1.0.0 • Managed Chaos, Served Hot
-              </p>
+        {/* Stats Bar */}
+        <div className="border-t border-ctea-teal/20 pt-8 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div>
+              <div className="text-2xl font-bold text-ctea-teal">1.2M+</div>
+              <div className="text-sm text-gray-400">Tea Spilled</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-ctea-purple">420K+</div>
+              <div className="text-sm text-gray-400">Active Sippers</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-ctea-yellow">$2.1M</div>
+              <div className="text-sm text-gray-400">Rewards Distributed</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-ctea-pink">99.9%</div>
+              <div className="text-sm text-gray-400">Uptime</div>
             </div>
           </div>
         </div>
-      </footer>
-    </>
+
+        {/* Bottom Section */}
+        <div className="border-t border-ctea-teal/20 pt-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-sm text-gray-400">
+              © {currentYear} CTea Platform. All rights reserved.
+            </div>
+            <div className="flex items-center gap-1 text-sm text-gray-400">
+              Made with <Heart className="w-4 h-4 text-red-400" /> for the crypto community
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
   );
 };
 
-export default Footer; 
+export default Footer;

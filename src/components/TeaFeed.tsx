@@ -199,7 +199,7 @@ const TeaFeed = () => {
       localStorage.setItem('ctea_anonymous_token', anonymousToken);
 
       const { data: existingReaction } = await supabase
-        .from('submission_reactions')
+        .from('user_reactions')
         .select('*')
         .eq('submission_id', submissionId)
         .eq('anonymous_token', anonymousToken)
@@ -208,13 +208,13 @@ const TeaFeed = () => {
       if (existingReaction) {
         // Update existing reaction
         await supabase
-          .from('submission_reactions')
+          .from('user_reactions')
           .update({ reaction_type: reactionType })
           .eq('id', existingReaction.id);
       } else {
         // Create new reaction
         await supabase
-          .from('submission_reactions')
+          .from('user_reactions')
           .insert({
             submission_id: submissionId,
             anonymous_token,

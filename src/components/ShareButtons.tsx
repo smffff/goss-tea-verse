@@ -1,252 +1,103 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
-import { 
-  Share2, 
-  Twitter, 
-  Copy, 
-  CheckCircle, 
-  ExternalLink,
-  MessageCircle,
-  Link as LinkIcon,
-  Zap,
-  Heart,
-  Users
-} from 'lucide-react';
+import { Copy, Check, Twitter, Facebook, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { trackSocialShare } from '@/lib/analytics';
 
 interface ShareButtonsProps {
-  url?: string;
-  title?: string;
-  description?: string;
-  hashtags?: string[];
-  platform?: 'twitter' | 'discord' | 'telegram' | 'copy';
-  size?: 'sm' | 'md' | 'lg';
-  variant?: 'default' | 'minimal' | 'expanded';
-  showCounts?: boolean;
+  url: string;
+  title: string;
+  variant?: 'minimal' | 'expanded';
   className?: string;
 }
 
 const ShareButtons: React.FC<ShareButtonsProps> = ({
-  url = typeof window !== 'undefined' ? window.location.href : '',
-  title = 'Check out this spicy tea on CTea Newsroom! ☕',
-  description = 'Anonymous crypto gossip, served hot.',
-  hashtags = ['CTea', 'CryptoGossip', 'SpillTheTea'],
-  platform,
-  size = 'md',
-  variant = 'default',
-  showCounts = false,
+  url,
+  title,
+  variant = 'expanded',
   className = ''
 }) => {
   const [copied, setCopied] = useState(false);
-  const [shareCount, setShareCount] = useState(0);
   const { toast } = useToast();
 
-  const shareData = {
-    url,
-    title,
-    description,
-    hashtags: hashtags.join(' ')
+  const shareOnTwitter = () => {
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+    window.open(twitterUrl, '_blank', 'width=600,height=400');
   };
 
-  const handleShare = async (platform: string) => {
+  const shareOnFacebook = () => {
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    window.open(facebookUrl, '_blank', 'width=600,height=400');
+  };
+
+  const copyToClipboard = async () => {
     try {
-      trackSocialShare(platform);
-
-      switch (platform) {
-        case 'twitter': {
-          const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}&hashtags=${encodeURIComponent(hashtags.join(','))}`;
-          window.open(twitterUrl, '_blank', 'width=600,height=400');
-          break;
-        }
-
-        case 'discord': {
-          const discordUrl = `https://discord.com/channels/@me?content=${encodeURIComponent(`${title} ${url}`)}`;
-          window.open(discordUrl, '_blank');
-          break;
-        }
-
-        case 'telegram': {
-          const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
-          window.open(telegramUrl, '_blank');
-          break;
-        }
-
-        case 'copy':
-          await navigator.clipboard.writeText(`${title} ${url}`);
-          setCopied(true);
-          toast({
-            title: "Link Copied! 📋",
-            description: "Share link copied to clipboard",
-          });
-          setTimeout(() => setCopied(false), 2000);
-          break;
-
-        default:
-          if (navigator.share) {
-            await navigator.share({
-              title,
-              text: description,
-              url
-            });
-          } else {
-            await navigator.clipboard.writeText(`${title} ${url}`);
-            setCopied(true);
-            toast({
-              title: "Link Copied! 📋",
-              description: "Share link copied to clipboard",
-            });
-            setTimeout(() => setCopied(false), 2000);
-          }
-      }
-
-      setShareCount(prev => prev + 1);
-    } catch (error) {
-      console.error('Share error:', error);
+      await navigator.clipboard.writeText(`${title} ${url}`);
+      setCopied(true);
       toast({
-        title: "Share Failed",
-        description: "Couldn't share content. Please try again.",
+        title: "Link copied!",
+        description: "The link has been copied to your clipboard."
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+      toast({
+        title: "Copy failed",
+        description: "Please try copying the link manually.",
         variant: "destructive"
       });
     }
   };
 
-  const getButtonSize = () => {
-    switch (size) {
-      case 'sm':
-        return 'h-8 px-3 text-sm';
-      case 'lg':
-        return 'h-12 px-6 text-lg';
-      default:
-        return 'h-10 px-4 text-base';
+  const shareNative = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: title,
+          url: url
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
+    } else {
+      copyToClipboard();
     }
   };
-
-  const getIconSize = () => {
-    switch (size) {
-      case 'sm':
-        return 'w-4 h-4';
-      case 'lg':
-        return 'w-6 h-6';
-      default:
-        return 'w-5 h-5';
-    }
-  };
-
-  const shareOptions = [
-    {
-      platform: 'twitter',
-      label: 'Twitter',
-      icon: <Twitter className={getIconSize()} />,
-      color: 'bg-blue-500 hover:bg-blue-600 text-white',
-      borderColor: 'border-blue-500/30'
-    },
-    {
-      platform: 'discord',
-      label: 'Discord',
-      icon: <MessageCircle className={getIconSize()} />,
-      color: 'bg-indigo-500 hover:bg-indigo-600 text-white',
-      borderColor: 'border-indigo-500/30'
-    },
-    {
-      platform: 'telegram',
-      label: 'Telegram',
-      icon: <ExternalLink className={getIconSize()} />,
-      color: 'bg-blue-400 hover:bg-blue-500 text-white',
-      borderColor: 'border-blue-400/30'
-    },
-    {
-      platform: 'copy',
-      label: copied ? 'Copied!' : 'Copy Link',
-      icon: copied ? <CheckCircle className={getIconSize()} /> : <Copy className={getIconSize()} />,
-      color: copied ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-gray-500 hover:bg-gray-600 text-white',
-      borderColor: copied ? 'border-green-500/30' : 'border-gray-500/30'
-    }
-  ];
 
   if (variant === 'minimal') {
     return (
-      <div className={`flex items-center gap-2 ${className}`}>
-        <Button
-          onClick={() => handleShare('twitter')}
-          size="sm"
-          variant="outline"
-          className="border-accent/30 text-accent hover:bg-accent/10 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95 transition-transform duration-150"
-          data-cta="share-twitter"
-        >
-          <Twitter className="w-4 h-4" />
+      <div className={`flex items-center gap-1 ${className}`}>
+        <Button size="sm" variant="ghost" onClick={copyToClipboard} className="text-ctea-teal hover:bg-ctea-teal/10">
+          {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
         </Button>
-        <Button
-          onClick={() => handleShare('copy')}
-          size="sm"
-          variant="outline"
-          className="border-accent/30 text-accent hover:bg-accent/10 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95 transition-transform duration-150"
-          data-cta="share-copy"
-        >
-          <Copy className="w-4 h-4" />
+        <Button size="sm" variant="ghost" onClick={shareOnTwitter} className="text-ctea-teal hover:bg-ctea-teal/10">
+          <Twitter className="w-3 h-3" />
         </Button>
+        {navigator.share && (
+          <Button size="sm" variant="ghost" onClick={shareNative} className="text-ctea-teal hover:bg-ctea-teal/10">
+            <MessageCircle className="w-3 h-3" />
+          </Button>
+        )}
       </div>
     );
   }
 
-  if (variant === 'expanded') {
-    return (
-      <Card className={`p-6 bg-gradient-to-br from-accent/5 to-accent2/5 border-accent/20 ${className}`}>
-        <div className="text-center mb-4">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center justify-center gap-2">
-            <Share2 className="w-5 h-5 text-accent" />
-            Share This Tea
-          </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Help spread the word about this hot take!
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          {shareOptions.map((option) => (
-            <Button
-              key={option.platform}
-              onClick={() => handleShare(option.platform)}
-              className={`${option.color} font-medium transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95`}
-              data-cta={`share-${option.platform}`}
-            >
-              {option.icon}
-              <span className="ml-2">{option.label}</span>
-            </Button>
-          ))}
-        </div>
-
-        {showCounts && (
-          <div className="text-center">
-            <p className="text-sm text-gray-500">
-              {shareCount} shares • {hashtags.join(' ')}
-            </p>
-          </div>
-        )}
-      </Card>
-    );
-  }
-
-  // Default variant
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      {shareOptions.map((option) => (
-        <Button
-          key={option.platform}
-          onClick={() => handleShare(option.platform)}
-          size="sm"
-          variant="outline"
-          className={`${option.borderColor} ${option.color} transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent active:scale-95`}
-          data-cta={`share-${option.platform}`}
-        >
-          {option.icon}
-          <span className="ml-2 hidden sm:inline">{option.label}</span>
-        </Button>
-      ))}
+      <Button size="sm" variant="outline" onClick={copyToClipboard} className="border-ctea-teal/30 text-ctea-teal hover:bg-ctea-teal/10">
+        {copied ? <Check className="w-3 h-3 mr-1" /> : <Copy className="w-3 h-3 mr-1" />}
+        {copied ? 'Copied!' : 'Copy'}
+      </Button>
+      <Button size="sm" variant="outline" onClick={shareOnTwitter} className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10">
+        <Twitter className="w-3 h-3 mr-1" />
+        Twitter
+      </Button>
+      <Button size="sm" variant="outline" onClick={shareOnFacebook} className="border-blue-600/30 text-blue-500 hover:bg-blue-600/10">
+        <Facebook className="w-3 h-3 mr-1" />
+        Facebook
+      </Button>
     </div>
   );
 };
 
-export default ShareButtons; 
+export default ShareButtons;

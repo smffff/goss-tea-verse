@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserProgression } from '@/hooks/useUserProgression';
@@ -75,14 +76,12 @@ const EnhancedTeaFeed = () => {
           query = query.order('created_at', { ascending: false });
           break;
         case 'boosted':
-          query = query.order('boost_score', { ascending: false });
+          query = query.order('created_at', { ascending: false }); // Changed from boost_score since it doesn't exist
           break;
         case 'credibility':
-          // Sort by credibility score (synthetic for now)
           query = query.order('created_at', { ascending: false });
           break;
         case 'viral':
-          // Sort by viral potential (synthetic for now)
           query = query.order('rating_count', { ascending: false });
           break;
         default:
@@ -93,20 +92,31 @@ const EnhancedTeaFeed = () => {
 
       if (error) throw error;
       
-      const transformedData = (data || []).map(submission => ({
-        ...submission,
-        reactions: typeof submission.reactions === 'object' && submission.reactions !== null 
-          ? submission.reactions as { hot: number; cold: number; spicy: number }
-          : { hot: 0, cold: 0, spicy: 0 },
-        boost_score: submission.boost_score || 0,
-        // Add synthetic enhanced metrics for demo
-        credibility_score: Math.floor(Math.random() * 100),
-        verification_level: ['none', 'basic', 'verified', 'trusted', 'legendary'][Math.floor(Math.random() * 5)] as 'none' | 'basic' | 'verified' | 'trusted' | 'legendary',
-        memeability_score: Math.floor(Math.random() * 100),
-        viral_potential: Math.floor(Math.random() * 100),
-        engagement_rate: Math.min(100, (submission.reactions?.hot || 0) + (submission.reactions?.cold || 0) + (submission.reactions?.spicy || 0)),
-        is_trending: Math.random() > 0.8
-      }));
+      const transformedData = (data || []).map(submission => {
+        // Safely parse reactions
+        let parsedReactions = { hot: 0, cold: 0, spicy: 0 };
+        if (submission.reactions && typeof submission.reactions === 'object') {
+          const reactions = submission.reactions as any;
+          parsedReactions = {
+            hot: reactions.hot || 0,
+            cold: reactions.cold || 0,
+            spicy: reactions.spicy || 0
+          };
+        }
+
+        return {
+          ...submission,
+          reactions: parsedReactions,
+          boost_score: 0, // Default value since field doesn't exist
+          // Add synthetic enhanced metrics for demo
+          credibility_score: Math.floor(Math.random() * 100),
+          verification_level: ['none', 'basic', 'verified', 'trusted', 'legendary'][Math.floor(Math.random() * 5)] as 'none' | 'basic' | 'verified' | 'trusted' | 'legendary',
+          memeability_score: Math.floor(Math.random() * 100),
+          viral_potential: Math.floor(Math.random() * 100),
+          engagement_rate: Math.min(100, parsedReactions.hot + parsedReactions.cold + parsedReactions.spicy),
+          is_trending: Math.random() > 0.8
+        };
+      });
 
       // Apply client-side filtering with enhanced options
       let filteredData = transformedData;
