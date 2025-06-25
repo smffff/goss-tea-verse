@@ -79,6 +79,10 @@
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-ctea-darker text-white font-sans;
     font-family: 'Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif';
@@ -87,6 +91,8 @@
     overflow-x: hidden;
     /* Improve touch targets on mobile */
     -webkit-tap-highlight-color: transparent;
+    /* Smooth scrolling for iOS */
+    -webkit-overflow-scrolling: touch;
   }
   .dark body {
     background: linear-gradient(135deg, #0f0619 0%, #1a0d26 100%);
@@ -107,6 +113,21 @@
   
   p {
     @apply text-sm sm:text-base lg:text-lg;
+  }
+
+  /* Improve button touch targets on mobile */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Better focus states for accessibility */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid #9b59b6;
+    outline-offset: 2px;
   }
 }
 
