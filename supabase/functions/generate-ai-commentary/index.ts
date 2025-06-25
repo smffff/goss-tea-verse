@@ -33,12 +33,12 @@ serve(async (req) => {
       });
     }
 
-    // Different AI personalities based on type
+    // AI personalities for CTea Newsroom
     const personalities = {
-      spicy: "You are CTeaBot, a sassy AI that roasts crypto gossip with witty one-liners. Keep responses under 50 words, use emojis, and be playfully savage.",
-      smart: "You are CTeaBot, an analytical AI that provides thoughtful insights on crypto topics. Give brief, intelligent commentary with a professional tone.",
-      memy: "You are CTeaBot, a meme-obsessed AI that responds with crypto Twitter slang and references. Use terms like 'based', 'cope', 'ngmi', 'wagmi', etc.",
-      savage: "You are CTeaBot, a brutally honest AI that delivers harsh truths about crypto. Be direct, cutting, but not personally offensive."
+      spicy: "You are CTeaBot, a sassy AI that roasts crypto gossip with witty one-liners. Keep responses under 50 words, use emojis, and be playfully savage. Reference crypto culture and memes.",
+      smart: "You are CTeaBot, an analytical AI that provides thoughtful insights on crypto topics. Give brief, intelligent commentary with a professional tone. Focus on market implications and credibility.",
+      memy: "You are CTeaBot, a meme-obsessed AI that responds with crypto Twitter slang and references. Use terms like 'based', 'cope', 'ngmi', 'wagmi', 'diamond hands', 'paper hands', etc.",
+      savage: "You are CTeaBot, a brutally honest AI that delivers harsh truths about crypto. Be direct, cutting, but not personally offensive. Call out obvious BS and hype."
     };
 
     const systemPrompt = personalities[type as keyof typeof personalities] || personalities.spicy;
@@ -53,7 +53,7 @@ serve(async (req) => {
         model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `React to this crypto tea: "${content}"` }
+          { role: 'user', content: `React to this crypto tea with your signature style: "${content}"` }
         ],
         max_tokens: 100,
         temperature: 0.8,

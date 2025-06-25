@@ -47,32 +47,32 @@ const AICommentary: React.FC<AICommentaryProps> = ({
         return {
           icon: <Flame className="w-4 h-4" />,
           label: 'SPICY TAKE',
-          gradient: 'from-ctea-orange to-ctea-pink',
-          bgGradient: 'from-ctea-orange/20 to-ctea-pink/20',
+          gradient: 'from-ctea-pink to-orange-500',
+          bgGradient: 'from-ctea-pink/20 to-orange-500/20',
           description: 'The hottest, most controversial takes'
         };
       case 'smart':
         return {
           icon: <Brain className="w-4 h-4" />,
           label: 'BIG BRAIN',
-          gradient: 'from-ctea-purple to-ctea-teal',
-          bgGradient: 'from-ctea-purple/20 to-ctea-teal/20',
+          gradient: 'from-purple-500 to-blue-500',
+          bgGradient: 'from-purple-500/20 to-blue-500/20',
           description: 'Deep analysis and thoughtful insights'
         };
       case 'memy':
         return {
           icon: <Laugh className="w-4 h-4" />,
           label: 'MEME LORD',
-          gradient: 'from-ctea-teal to-ctea-yellow',
-          bgGradient: 'from-ctea-teal/20 to-ctea-yellow/20',
+          gradient: 'from-green-500 to-yellow-500',
+          bgGradient: 'from-green-500/20 to-yellow-500/20',
           description: 'Pure internet chaos and humor'
         };
       case 'savage':
         return {
           icon: <Zap className="w-4 h-4" />,
           label: 'SAVAGE MODE',
-          gradient: 'from-ctea-pink to-ctea-purple',
-          bgGradient: 'from-ctea-pink/20 to-ctea-purple/20',
+          gradient: 'from-ctea-pink to-red-500',
+          bgGradient: 'from-ctea-pink/20 to-red-500/20',
           description: 'Cutting insights with no mercy'
         };
     }
@@ -81,7 +81,7 @@ const AICommentary: React.FC<AICommentaryProps> = ({
   const config = getTypeConfig();
 
   return (
-    <Card className={`p-4 bg-gradient-to-br ${config.bgGradient} border-ctea-teal/30 neon-border relative`}>
+    <Card className={`p-4 bg-gradient-to-br ${config.bgGradient} border-gray-700 relative`}>
       <div className="flex items-start justify-between mb-3">
         <div className="flex flex-col gap-1">
           <Badge className={`bg-gradient-to-r ${config.gradient} text-white font-bold w-fit`}>
@@ -99,7 +99,7 @@ const AICommentary: React.FC<AICommentaryProps> = ({
             variant="ghost"
             onClick={onRegenerate}
             disabled={isGenerating}
-            className="text-ctea-teal hover:text-ctea-teal/80 hover:bg-ctea-teal/10"
+            className="text-ctea-pink hover:text-ctea-pink/80 hover:bg-ctea-pink/10"
           >
             <RefreshCw className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
           </Button>
@@ -112,9 +112,9 @@ const AICommentary: React.FC<AICommentaryProps> = ({
             <Bot className="w-4 h-4 animate-pulse" />
             <span>CTeaBot is brewing a {type} take...</span>
             <div className="flex gap-1">
-              <div className="w-2 h-2 bg-ctea-teal rounded-full animate-bounce"></div>
-              <div className="w-2 h-2 bg-ctea-teal rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-              <div className="w-2 h-2 bg-ctea-teal rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+              <div className="w-2 h-2 bg-ctea-pink rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-ctea-pink rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+              <div className="w-2 h-2 bg-ctea-pink rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
             </div>
           </div>
         ) : (
@@ -127,7 +127,7 @@ const AICommentary: React.FC<AICommentaryProps> = ({
       
       {!isGenerating && content && (
         <div className="absolute bottom-2 right-2">
-          <div className="w-2 h-2 bg-ctea-teal rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-ctea-pink rounded-full animate-pulse"></div>
         </div>
       )}
     </Card>

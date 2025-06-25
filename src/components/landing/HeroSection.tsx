@@ -2,130 +2,98 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Sparkles } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import ShareButtons from '@/components/ShareButtons';
-import BetaDisclaimer from '@/components/BetaDisclaimer';
-import LiveStats from './LiveStats';
+import { ArrowRight, Sparkles, Coffee } from 'lucide-react';
 
-interface HeroSectionProps {
-  onSpillFormOpen?: () => void;
-  onTippingModalOpen?: () => void;
-}
+const HeroSection = () => {
+  const scrollToFeed = () => {
+    const feedSection = document.getElementById('tea-feed');
+    if (feedSection) {
+      feedSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
-const HeroSection: React.FC<HeroSectionProps> = ({
-  onSpillFormOpen,
-  onTippingModalOpen
-}) => {
-  const navigate = useNavigate();
+  const openSubmissionModal = () => {
+    // Trigger submission modal - this will be handled by parent component
+    const event = new CustomEvent('openSubmissionModal');
+    window.dispatchEvent(event);
+  };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0 bg-gradient-to-br from-ctea-dark via-ctea-darker to-black"></div>
-      
-      {/* Animated Background Particles */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-ctea-teal rounded-full animate-ping"></div>
-        <div className="absolute top-3/4 right-1/4 w-1 h-1 bg-ctea-purple rounded-full animate-pulse"></div>
-        <div className="absolute top-1/2 left-3/4 w-3 h-3 bg-ctea-pink rounded-full animate-bounce"></div>
+    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-20 left-10 w-32 h-32 bg-ctea-pink rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-40 h-40 bg-purple-500 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-blue-500 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
 
-      <div className="relative z-10 text-center max-w-5xl mx-auto">
-        {/* Beta Disclaimer */}
+      <div className="relative z-10 text-center px-4 max-w-6xl mx-auto">
+        {/* Beta Badge */}
         <div className="mb-6">
-          <BetaDisclaimer variant="banner" />
-        </div>
-
-        {/* Main Heading */}
-        <div className="mb-8">
-          <Badge className="mb-4 bg-gradient-to-r from-ctea-teal to-ctea-purple text-white px-4 py-2 text-sm font-medium">
+          <Badge className="bg-gradient-to-r from-ctea-pink to-purple-500 text-white font-bold px-4 py-2 text-sm">
             <Sparkles className="w-4 h-4 mr-2" />
-            Where Memes, Gossip, and Crypto Collide
+            PUBLIC BETA LIVE
           </Badge>
-          
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white mb-6 leading-tight animate-glow">
-            Spill Tea.{' '}
-            <span className="bg-gradient-to-r from-ctea-teal via-ctea-purple to-ctea-pink bg-clip-text text-transparent">
-              Get Paid.
-            </span>
-          </h1>
-          
-          <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed px-4">
-            Anonymous crypto gossip meets AI-powered reactions. Share alpha, earn credibility, and watch the community decide what's{' '}
-            <span className="text-ctea-teal font-semibold">hot or cold</span>.
-          </p>
         </div>
 
-        {/* How It Works - 4 Step Flow */}
-        <div className="mb-12 max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-white mb-8">How It Works</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-ctea-teal to-ctea-purple rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-white font-bold text-xl">1</span>
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">Submit Tea</h3>
-              <p className="text-gray-400 text-sm">Anonymously share crypto gossip, alpha, or hot takes</p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-ctea-purple to-ctea-pink rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-white font-bold text-xl">2</span>
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">AI Reacts</h3>
-              <p className="text-gray-400 text-sm">Our AI bot generates witty commentary on your submission</p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-ctea-pink to-ctea-yellow rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-white font-bold text-xl">3</span>
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">Community Reacts</h3>
-              <p className="text-gray-400 text-sm">Users vote with 🔥 Hot, ❄️ Cold, or 🌶️ Spicy reactions</p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-ctea-yellow to-ctea-teal rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-white font-bold text-xl">4</span>
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">Earn Credibility</h3>
-              <p className="text-gray-400 text-sm">Build your anonymous reputation and climb the leaderboard</p>
-            </div>
-          </div>
-        </div>
+        {/* Main Headline */}
+        <h1 className="text-4xl md:text-7xl font-bold bg-gradient-to-r from-ctea-pink via-white to-purple-400 bg-clip-text text-transparent mb-6 font-['Playfair_Display']">
+          CTea Newsroom
+        </h1>
+
+        {/* Tagline */}
+        <p className="text-xl md:text-3xl text-gray-300 mb-4 font-medium">
+          Where Memes, Gossip, and Crypto Collide
+        </p>
+        <p className="text-lg md:text-2xl text-ctea-pink mb-12 font-bold">
+          Spill Tea. Get Paid.
+        </p>
+
+        {/* Description */}
+        <p className="text-lg md:text-xl text-gray-400 mb-12 max-w-3xl mx-auto leading-relaxed">
+          Anonymous crypto gossip meets AI-powered reactions. Share alpha, earn credibility, 
+          and watch the community decide what's hot or cold.
+        </p>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 px-4">
-          <Button 
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+          <Button
             size="lg"
-            className="bg-gradient-to-r from-[#FF4C7B] to-ctea-purple text-white font-bold py-3 sm:py-4 px-6 sm:px-8 text-base sm:text-lg hover:scale-105 transition-transform duration-200 shadow-lg"
-            onClick={() => navigate('/submit')}
+            onClick={openSubmissionModal}
+            className="bg-gradient-to-r from-ctea-pink to-purple-500 hover:from-ctea-pink/80 hover:to-purple-500/80 text-white font-bold px-8 py-4 text-lg border-0"
           >
-            Spill Tea ☕
-            <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
+            <Coffee className="w-5 h-5 mr-2" />
+            Spill Tea
+            <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
           
-          <Button 
+          <Button
             size="lg"
             variant="outline"
-            className="border-[#FF4C7B] text-[#FF4C7B] hover:bg-[#FF4C7B] hover:text-white py-3 sm:py-4 px-6 sm:px-8 text-base sm:text-lg hover:scale-105 transition-transform duration-200"
-            onClick={() => navigate('/feed')}
+            onClick={scrollToFeed}
+            className="border-ctea-pink text-ctea-pink hover:bg-ctea-pink hover:text-black font-bold px-8 py-4 text-lg"
           >
-            View the Tea 🫖
+            View the Tea
           </Button>
         </div>
 
-        {/* Social Sharing */}
-        <div className="mb-12 px-4">
-          <p className="text-gray-400 mb-4 text-sm sm:text-base">Share the revolution:</p>
-          <ShareButtons
-            url={window.location.origin}
-            title="CTea Newsroom - Where Memes, Gossip, and Crypto Collide"
-            variant="expanded"
-            className="justify-center"
-          />
+        {/* How It Works */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+          {[
+            { step: '1', title: 'Submit Tea', desc: 'Share anonymous crypto gossip' },
+            { step: '2', title: 'AI Reacts', desc: 'CTeaBot adds spicy commentary' },
+            { step: '3', title: 'Community Reacts', desc: 'Users vote hot, cold, or spicy' },
+            { step: '4', title: 'Earn Credibility', desc: 'Build reputation & future rewards' }
+          ].map((item) => (
+            <div key={item.step} className="text-center p-6 bg-black/50 rounded-lg border border-gray-800 hover:border-ctea-pink/50 transition-colors">
+              <div className="w-12 h-12 bg-gradient-to-r from-ctea-pink to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
+                {item.step}
+              </div>
+              <h3 className="text-white font-bold mb-2">{item.title}</h3>
+              <p className="text-gray-400 text-sm">{item.desc}</p>
+            </div>
+          ))}
         </div>
-
-        {/* Live Stats */}
-        <LiveStats />
       </div>
     </section>
   );
