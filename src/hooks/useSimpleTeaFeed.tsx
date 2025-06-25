@@ -50,7 +50,7 @@ export const useSimpleTeaFeed = (externalFilter?: string) => {
           // Only add if status is approved AND visible
           if (newSubmission.status === 'approved' && newSubmission.visible === true) {
             const transformedSubmission = transformSubmission(newSubmission);
-            setSubmissions(currentSubmissions => [transformedSubmission, ...currentSubmissions]);
+            setSubmissions(prev => [transformedSubmission, ...prev]);
             
             toast({
               title: "New Tea Alert! ☕",
@@ -74,16 +74,16 @@ export const useSimpleTeaFeed = (externalFilter?: string) => {
           if (updatedSubmission.status === 'approved' && updatedSubmission.visible === true) {
             const transformedSubmission = transformSubmission(updatedSubmission);
             
-            setSubmissions(currentSubmissions => {
-              const existingIndex = currentSubmissions.findIndex(sub => sub.id === updatedSubmission.id);
+            setSubmissions(prev => {
+              const existingIndex = prev.findIndex(sub => sub.id === updatedSubmission.id);
               if (existingIndex >= 0) {
                 // Update existing submission
-                const newSubmissions = [...currentSubmissions];
+                const newSubmissions = [...prev];
                 newSubmissions[existingIndex] = transformedSubmission;
                 return newSubmissions;
               } else {
                 // Add new visible submission
-                return [transformedSubmission, ...currentSubmissions];
+                return [transformedSubmission, ...prev];
               }
             });
             
@@ -160,11 +160,15 @@ export const useSimpleTeaFeed = (externalFilter?: string) => {
     
     if (success) {
       // Update local state optimistically
-      setSubmissions(currentSubmissions => currentSubmissions.map(submission => {
+      setSubmissions(prev => prev.map(submission => {
         if (submission.id === submissionId) {
-          const newReactions = { ...submission.reactions };
-          newReactions[reactionType]++;
-          return { ...submission, reactions: newReactions };
+          return {
+            ...submission,
+            reactions: {
+              ...submission.reactions,
+              [reactionType]: submission.reactions[reactionType] + 1
+            }
+          };
         }
         return submission;
       }));
@@ -172,7 +176,7 @@ export const useSimpleTeaFeed = (externalFilter?: string) => {
   };
 
   const handleBoostUpdated = (submissionId: string, newBoost: number) => {
-    setSubmissions(currentSubmissions => currentSubmissions.map(submission => 
+    setSubmissions(prev => prev.map(submission => 
       submission.id === submissionId 
         ? { ...submission, boost_score: newBoost }
         : submission
@@ -180,8 +184,8 @@ export const useSimpleTeaFeed = (externalFilter?: string) => {
   };
 
   const toggleComments = (submissionId: string) => {
-    setExpandedSubmissions(currentExpanded => {
-      const newSet = new Set(currentExpanded);
+    setExpandedSubmissions(prev => {
+      const newSet = new Set(prev);
       if (newSet.has(submissionId)) {
         newSet.delete(submissionId);
       } else {

@@ -108,17 +108,19 @@ export const useEnhancedFeedState = () => {
         await incrementReaction('given');
       }
 
-      // Update local state with optimistic update
-      setSubmissions(currentList => {
-        return currentList.map(item => {
-          if (item.id === submissionId) {
-            const newReactions = { ...item.reactions };
-            newReactions[reactionType] = (newReactions[reactionType] || 0) + 1;
-            return { ...item, reactions: newReactions };
-          }
-          return item;
-        });
-      });
+      // Simple optimistic update
+      setSubmissions(prev => prev.map(item => {
+        if (item.id === submissionId) {
+          return {
+            ...item,
+            reactions: {
+              ...item.reactions,
+              [reactionType]: (item.reactions[reactionType] || 0) + 1
+            }
+          };
+        }
+        return item;
+      }));
 
       toast({
         title: `Reaction Added! ${reactionType === 'hot' ? '🔥' : reactionType === 'cold' ? '❄️' : '🌶️'}`,
@@ -136,19 +138,14 @@ export const useEnhancedFeedState = () => {
   };
 
   const handleBoostUpdated = (submissionId: string, newBoost: number) => {
-    setSubmissions(currentList => {
-      return currentList.map(item => {
-        if (item.id === submissionId) {
-          return { ...item, boost_score: newBoost };
-        }
-        return item;
-      });
-    });
+    setSubmissions(prev => prev.map(item => 
+      item.id === submissionId ? { ...item, boost_score: newBoost } : item
+    ));
   };
 
   const toggleComments = (submissionId: string) => {
-    setExpandedSubmissions(currentSet => {
-      const newSet = new Set(currentSet);
+    setExpandedSubmissions(prev => {
+      const newSet = new Set(prev);
       if (newSet.has(submissionId)) {
         newSet.delete(submissionId);
       } else {
