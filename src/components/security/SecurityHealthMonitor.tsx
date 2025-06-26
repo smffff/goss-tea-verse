@@ -21,14 +21,27 @@ const SecurityHealthMonitor: React.FC = () => {
     totalPolicies: 0
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    // Only show in development with explicit flag
+    const shouldShow = process.env.NODE_ENV === 'development' && 
+                     localStorage.getItem('ctea-show-security-debug') === 'true';
+    setIsVisible(shouldShow);
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) {
+      setIsLoading(false);
+      return;
+    }
+
     const checkSecurityHealth = async () => {
       try {
         const { data: conflictData, error } = await supabase.rpc('detect_policy_conflicts');
         
         if (error) {
-          console.warn('Policy conflict check failed (non-critical):', error);
+          // Silently handle errors in production-like way
           setHealthStatus({
             policyConflicts: 0,
             lastCheck: new Date().toLocaleTimeString(),
@@ -56,7 +69,7 @@ const SecurityHealthMonitor: React.FC = () => {
           totalPolicies
         });
       } catch (error) {
-        console.warn('Security health check failed (non-critical):', error);
+        // Silently handle errors
         setHealthStatus({
           policyConflicts: 0,
           lastCheck: new Date().toLocaleTimeString(),
@@ -70,11 +83,16 @@ const SecurityHealthMonitor: React.FC = () => {
 
     checkSecurityHealth();
     
-    // Check every 5 minutes
+    // Check every 5 minutes only if visible
     const interval = setInterval(checkSecurityHealth, 5 * 60 * 1000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [isVisible]);
+
+  // Completely hidden if not in development mode with debug flag
+  if (!isVisible || process.env.NODE_ENV === 'production') {
+    return null;
+  }
 
   const getStatusIcon = () => {
     switch (healthStatus.policyStatus) {
@@ -104,7 +122,7 @@ const SecurityHealthMonitor: React.FC = () => {
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-sm">
             <Shield className="w-4 h-4" />
-            Security Health
+            Security Health (DEV)
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -123,7 +141,7 @@ const SecurityHealthMonitor: React.FC = () => {
         <CardTitle className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4" />
-            Security Health
+            Security Health (DEV)
           </div>
           {getStatusBadge()}
         </CardTitle>

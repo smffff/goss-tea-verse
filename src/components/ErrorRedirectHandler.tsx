@@ -1,0 +1,100 @@
+
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import SplashScreen from './SplashScreen';
+
+interface ErrorRedirectHandlerProps {
+  children: React.ReactNode;
+}
+
+const ErrorRedirectHandler: React.FC<ErrorRedirectHandlerProps> = ({ children }) => {
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check for any critical errors on startup
+    const checkSystemHealth = async () => {
+      try {
+        // Give a moment for any immediate errors to surface
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Check localStorage for any stored error flags
+        const hasStoredErrors = localStorage.getItem('ctea_critical_error');
+        if (hasStoredErrors) {
+          console.log('🔧 Clearing stored error flags');
+          localStorage.removeItem('ctea_critical_error');
+        }
+        
+        setIsInitializing(false);
+      } catch (error) {
+        console.error('System health check failed:', error);
+        setHasError(true);
+        setIsInitializing(false);
+      }
+    };
+
+    checkSystemHealth();
+  }, []);
+
+  // Handle any runtime errors by redirecting gracefully
+  useEffect(() => {
+    const handleError = (event: ErrorEvent) => {
+      console.error('🚨 Global error caught:', event.error);
+      
+      // Store error for debugging but don't show to user
+      try {
+        const errorLog = {
+          message: event.error?.message || 'Unknown error',
+          timestamp: new Date().toISOString(),
+          url: window.location.href
+        };
+        localStorage.setItem('ctea_debug_log', JSON.stringify(errorLog));
+      } catch (e) {
+        // Silently handle storage errors
+      }
+      
+      // Redirect to safe state instead of showing error
+      if (window.location.pathname !== '/' && !hasError) {
+        navigate('/', { replace: true });
+      }
+    };
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      console.error('🚨 Unhandled promise rejection:', event.reason);
+      
+      // Log for debugging
+      try {
+        const errorLog = {
+          type: 'promise_rejection',
+          reason: event.reason?.toString() || 'Unknown promise rejection',
+          timestamp: new Date().toISOString(),
+          url: window.location.href
+        };
+        localStorage.setItem('ctea_debug_log', JSON.stringify(errorLog));
+      } catch (e) {
+        // Silently handle storage errors
+      }
+    };
+
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    return () => {
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, [navigate, hasError]);
+
+  if (isInitializing) {
+    return <SplashScreen message="Initializing CTea..." />;
+  }
+
+  if (hasError) {
+    return <SplashScreen message="Refreshing your experience..." />;
+  }
+
+  return <>{children}</>;
+};
+
+export default ErrorRedirectHandler;

@@ -41,14 +41,15 @@ const EnhancedSecurityMonitor: React.FC = () => {
     setLastRefresh(new Date().toLocaleTimeString());
   };
 
-  // Only show in development or for admins
+  // Only show in development AND if specifically enabled
   useEffect(() => {
-    const shouldShow = process.env.NODE_ENV === 'development' || 
-                     localStorage.getItem('ctea-admin-debug') === 'true';
+    const shouldShow = process.env.NODE_ENV === 'development' && 
+                     localStorage.getItem('ctea-show-security-debug') === 'true';
     setIsVisible(shouldShow);
   }, []);
 
-  if (!isVisible) {
+  // Completely hidden in production - no DOM output
+  if (!isVisible || process.env.NODE_ENV === 'production') {
     return null;
   }
 
@@ -63,7 +64,7 @@ const EnhancedSecurityMonitor: React.FC = () => {
           <CardTitle className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
               <Shield className={`w-4 h-4 ${getThreatColor()}`} />
-              Security Monitor
+              Security Monitor (DEV)
             </div>
             <div className="flex items-center gap-2">
               {getThreatBadge()}
