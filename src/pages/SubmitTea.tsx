@@ -6,7 +6,7 @@ import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { performSubmissionSecurityCheck } from '@/utils/security';
-import { BetaCodeService } from '@/services/betaCodeService';
+import { betaCodeService } from '@/services/betaCodeService';
 
 interface SubmissionData {
   tea: string;
@@ -76,7 +76,7 @@ const SubmitTea = () => {
 
       // Generate beta code for successful submission
       try {
-        const codeResult = await BetaCodeService.generateCodeForSpill(result[0].id);
+        const codeResult = await betaCodeService.generateCodeForSpill(result[0].id);
         if (codeResult.success && codeResult.code) {
           toast({
             title: "Tea Spilled Successfully! 🫖",

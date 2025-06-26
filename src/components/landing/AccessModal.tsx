@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Coffee } from 'lucide-react';
-import { BetaCodeService } from '@/services/betaCodeService';
+import { betaCodeService } from '@/services/betaCodeService';
 import { useToast } from '@/hooks/use-toast';
 
 interface AccessModalProps {
@@ -42,7 +41,7 @@ const AccessModal: React.FC<AccessModalProps> = ({
       setError('');
 
       try {
-        const result = await BetaCodeService.validateCode(accessCode, true);
+        const result = await betaCodeService.validateCode(accessCode, true);
         
         if (result.valid) {
           localStorage.setItem('ctea-beta-access', 'granted');
@@ -64,13 +63,13 @@ const AccessModal: React.FC<AccessModalProps> = ({
       // For spill and bribe paths, generate a code
       if (selectedPath === 'spill') {
         const mockSubmissionId = crypto.randomUUID();
-        const result = await BetaCodeService.generateCodeForSpill(mockSubmissionId);
+        const result = await betaCodeService.generateCodeForSpill(mockSubmissionId);
         if (result.success && result.code) {
           setGeneratedCode(result.code);
           onAccessCodeChange(result.code);
         }
       } else if (selectedPath === 'bribe') {
-        const testCodes = BetaCodeService.getTestCodes();
+        const testCodes = betaCodeService.getTestCodes();
         const randomCode = testCodes[Math.floor(Math.random() * testCodes.length)];
         setGeneratedCode(randomCode);
         onAccessCodeChange(randomCode);
@@ -85,7 +84,7 @@ const AccessModal: React.FC<AccessModalProps> = ({
     setError('');
 
     try {
-      const result = await BetaCodeService.validateCode(generatedCode, true);
+      const result = await betaCodeService.validateCode(generatedCode, true);
       
       if (result.valid) {
         localStorage.setItem('ctea-beta-access', 'granted');
