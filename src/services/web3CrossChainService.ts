@@ -2,12 +2,6 @@
 import { SUPPORTED_CHAINS, OG_TIERS } from '@/config/chainConfig';
 import { OGStatus, CrossChainUser } from '@/types/crossChain';
 
-declare global {
-  interface Window {
-    ethereum?: any;
-  }
-}
-
 class Web3CrossChainService {
   private readonly ACCESS_THRESHOLDS = {
     sipper: 69,
