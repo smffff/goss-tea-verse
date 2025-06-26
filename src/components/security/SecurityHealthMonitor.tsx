@@ -1,9 +1,9 @@
-
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Shield, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import type { PolicyConflictData } from '@/types/security';
 
 interface SecurityHealth {
   policyConflicts: number;
@@ -32,8 +32,10 @@ const SecurityHealthMonitor: React.FC = () => {
           return;
         }
 
-        const conflicts = conflictData?.total_potential_conflicts || 0;
-        const totalPolicies = conflictData?.policy_summary?.length || 0;
+        // Type assertion to handle Supabase Json type
+        const typedConflictData = conflictData as PolicyConflictData;
+        const conflicts = typedConflictData?.total_potential_conflicts || 0;
+        const totalPolicies = typedConflictData?.policy_summary?.length || 0;
         
         setHealthStatus({
           policyConflicts: conflicts,

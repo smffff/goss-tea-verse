@@ -1,8 +1,8 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { SecurityServiceUnified } from '@/services/securityServiceUnified';
 import { supabase } from '@/integrations/supabase/client';
+import type { PolicyConflictData } from '@/types/security';
 
 interface SecurityAuditContextType {
   threatLevel: 'low' | 'medium' | 'high' | 'critical';
@@ -46,13 +46,15 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
         return;
       }
 
-      const conflicts = healthData?.total_potential_conflicts || 0;
+      // Type assertion to handle Supabase Json type
+      const typedHealthData = healthData as PolicyConflictData;
+      const conflicts = typedHealthData?.total_potential_conflicts || 0;
       setPolicyHealth(conflicts > 0 ? 'critical' : 'healthy');
       
       if (conflicts > 0) {
         logSecurityEvent('policy_conflicts_detected', {
           conflict_count: conflicts,
-          policy_summary: healthData?.policy_summary
+          policy_summary: typedHealthData?.policy_summary
         }, 'critical');
       }
     } catch (error) {
