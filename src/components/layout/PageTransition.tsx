@@ -30,7 +30,7 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
 
   const pageTransition = {
     type: "tween" as const,
-    ease: "anticipate",
+    ease: "easeInOut",
     duration: 0.3
   };
 
