@@ -35,7 +35,7 @@ export const SUPPORTED_CHAINS: Record<string, ChainConfig> = {
 };
 
 export const OG_TIERS = {
-  sipper: { minBalance: 100, maxBalance: 999, perks: ['og_badge', 'early_access'] },
-  connoisseur: { minBalance: 1000, maxBalance: 9999, perks: ['og_badge', 'early_access', 'exclusive_content', 'priority_support'] },
-  legend: { minBalance: 10000, maxBalance: Infinity, perks: ['og_badge', 'early_access', 'exclusive_content', 'priority_support', 'governance_power', 'custom_badge'] }
+  sipper: { minBalance: 69, maxBalance: 419, perks: ['og_badge', 'early_access'] },
+  connoisseur: { minBalance: 420, maxBalance: 1336, perks: ['og_badge', 'early_access', 'exclusive_content', 'priority_support'] },
+  legend: { minBalance: 1337, maxBalance: Infinity, perks: ['og_badge', 'early_access', 'exclusive_content', 'priority_support', 'governance_power', 'custom_badge'] }
 };

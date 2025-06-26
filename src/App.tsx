@@ -12,6 +12,7 @@ import LaunchReadyApp from '@/components/launch/LaunchReadyApp';
 import DemoModeGate from '@/components/demo/DemoModeGate';
 import EnhancedLandingPage from '@/components/landing/EnhancedLandingPage';
 import { useAuth } from '@/hooks/useAuthProvider';
+import { adminConfigService } from '@/services/adminConfigService';
 
 function AppContent() {
   const { loading } = useAuth();
@@ -26,7 +27,7 @@ function AppContent() {
   // Show enhanced landing page for root route
   if (currentPath === '/') {
     // Check if user has access or should see gated landing
-    const hasAccess = localStorage.getItem('ctea_access_method');
+    const hasAccess = localStorage.getItem('ctea_access_method') || adminConfigService.shouldForceOGAccess();
     const isLaunchMode = true; // Toggle this for different modes
     
     if (!hasAccess && isLaunchMode) {
@@ -59,6 +60,11 @@ function AppContent() {
 
 function App() {
   console.log('🎯 App component rendering...');
+  
+  // Initialize admin configuration
+  React.useEffect(() => {
+    adminConfigService.initializeAdmin();
+  }, []);
   
   return (
     <div className="App">

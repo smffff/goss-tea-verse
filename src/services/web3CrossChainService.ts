@@ -1,6 +1,7 @@
 
 import { SUPPORTED_CHAINS, OG_TIERS } from '@/config/chainConfig';
 import { OGStatus, CrossChainUser } from '@/types/crossChain';
+import { adminConfigService } from './adminConfigService';
 
 class Web3CrossChainService {
   private readonly ACCESS_THRESHOLDS = {
@@ -14,6 +15,13 @@ class Web3CrossChainService {
     try {
       console.log('🔍 Checking Avalanche $TEA balance for:', address);
       
+      // Check for admin override
+      const mockBalance = adminConfigService.getMockTokenBalance();
+      if (mockBalance !== null) {
+        console.log('🔧 Using admin mock balance:', mockBalance);
+        return mockBalance;
+      }
+
       if (!window.ethereum) {
         console.warn('No ethereum provider found');
         return 0;
@@ -32,21 +40,51 @@ class Web3CrossChainService {
     }
   }
 
+  // Check Solana $TEA balance for Phantom wallet
+  async checkSolanaBalance(address: string): Promise<number> {
+    try {
+      console.log('🔍 Checking Solana $TEA balance for:', address);
+      
+      // Check for admin override
+      const mockBalance = adminConfigService.getMockTokenBalance();
+      if (mockBalance !== null) {
+        console.log('🔧 Using admin mock balance:', mockBalance);
+        return mockBalance;
+      }
+
+      // For demo purposes, generate a realistic mock balance
+      // In production, this would call the actual SPL token program
+      const mockBalance = this.generateRealisticBalance(address);
+      
+      console.log('💰 Solana balance found:', mockBalance);
+      return mockBalance;
+      
+    } catch (error) {
+      console.error('Failed to check Solana balance:', error);
+      return 0;
+    }
+  }
+
   // Generate realistic balance based on address for demo
   private generateRealisticBalance(address: string): number {
     // Use address hash to generate consistent "balance" for demo
     const hash = address.toLowerCase().slice(2, 10);
     const seed = parseInt(hash, 16) % 10000;
     
-    // Create realistic distribution
-    if (seed < 50) return Math.floor(Math.random() * 5000) + 2000; // 0.5% are legends
-    if (seed < 200) return Math.floor(Math.random() * 1000) + 500; // 1.5% are connoisseurs  
-    if (seed < 1000) return Math.floor(Math.random() * 300) + 100; // 8% are sippers
-    return Math.floor(Math.random() * 50); // 90% have low/no balance
+    // Create realistic distribution with fun numbers
+    if (seed < 50) return Math.floor(Math.random() * 5000) + 2000; // 0.5% are legends (1337+)
+    if (seed < 200) return Math.floor(Math.random() * 917) + 420; // 1.5% are connoisseurs (420-1336)
+    if (seed < 1000) return Math.floor(Math.random() * 351) + 69; // 8% are sippers (69-419)
+    return Math.floor(Math.random() * 69); // 90% have low/no balance
   }
 
   // Determine OG tier based on balance
   determineOGTier(balance: number): OGStatus['tier'] {
+    // Admin override
+    if (adminConfigService.shouldForceOGAccess()) {
+      return 'legend';
+    }
+
     if (balance >= this.ACCESS_THRESHOLDS.legend) return 'legend';
     if (balance >= this.ACCESS_THRESHOLDS.connoisseur) return 'connoisseur';
     if (balance >= this.ACCESS_THRESHOLDS.sipper) return 'sipper';
@@ -54,18 +92,21 @@ class Web3CrossChainService {
   }
 
   // Get complete OG status
-  async getOGStatus(address: string): Promise<OGStatus> {
-    const avalancheBalance = await this.checkAvalancheBalance(address);
-    const tier = this.determineOGTier(avalancheBalance);
+  async getOGStatus(address: string, chain: 'avalanche' | 'solana' = 'avalanche'): Promise<OGStatus> {
+    const balance = chain === 'solana' 
+      ? await this.checkSolanaBalance(address)
+      : await this.checkAvalancheBalance(address);
+    
+    const tier = this.determineOGTier(balance);
     
     return {
-      isOG: tier !== 'none',
+      isOG: tier !== 'none' || adminConfigService.shouldForceOGAccess(),
       tier,
-      balance: avalancheBalance,
-      eligibleForAirdrop: avalancheBalance >= this.ACCESS_THRESHOLDS.sipper,
+      balance,
+      eligibleForAirdrop: balance >= this.ACCESS_THRESHOLDS.sipper || adminConfigService.shouldForceOGAccess(),
       chainData: {
-        avalanche: {
-          balance: avalancheBalance,
+        [chain]: {
+          balance,
           lastChecked: new Date().toISOString()
         }
       }
@@ -74,7 +115,7 @@ class Web3CrossChainService {
 
   // Get OG tier perks
   getOGPerks(tier: OGStatus['tier']): string[] {
-    if (tier === 'none') return [];
+    if (tier === 'none' && !adminConfigService.shouldForceOGAccess()) return [];
     
     const perks = {
       sipper: ['early_access', 'basic_features'],
@@ -82,7 +123,7 @@ class Web3CrossChainService {
       legend: ['early_access', 'priority_support', 'exclusive_content', 'governance_voting', 'vip_features']
     };
     
-    return perks[tier] || [];
+    return perks[tier] || perks.legend; // Default to legend perks for admin users
   }
 
   // Create shareable OG status
@@ -124,6 +165,21 @@ class Web3CrossChainService {
         await this.addAvalancheNetwork();
         return true;
       }
+      throw error;
+    }
+  }
+
+  // Connect to Phantom wallet for Solana
+  async connectPhantom(): Promise<string | null> {
+    try {
+      if (typeof window.solana !== 'undefined' && window.solana.isPhantom) {
+        await window.solana.connect();
+        return window.solana.publicKey.toString();
+      } else {
+        throw new Error('Phantom wallet not found');
+      }
+    } catch (error) {
+      console.error('Failed to connect Phantom wallet:', error);
       throw error;
     }
   }
