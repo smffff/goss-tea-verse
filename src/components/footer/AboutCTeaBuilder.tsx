@@ -1,5 +1,6 @@
+
 import { useState } from 'react';
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 
 export default function AboutCTeaBuilder() {
   const [open, setOpen] = useState(false);
@@ -19,29 +20,31 @@ export default function AboutCTeaBuilder() {
           <div className="font-bold text-sm mb-2">Meet the Builder</div>
           <p>
             Crafted live with love, memes, and too much tea by{' '}
-            <Link
+            <a
               href="https://arena.social/ladyinvisible"
               className="underline hover:text-yellow-300"
               target="_blank"
+              rel="noopener noreferrer"
             >
               Lady Invisible
-            </Link>
+            </a>
             . Watch the chaos unfold:
           </p>
           <p className="mt-2">
-            <Link
+            <a
               href="https://arena.social/ladyinvisible"
               target="_blank"
+              rel="noopener noreferrer"
               className="text-blue-400 hover:text-yellow-400 underline"
             >
               📺 Live stream build on Arena
-            </Link>
+            </a>
           </p>
           <p className="mt-2 italic opacity-70">
-            “Make CTea Great Again.” – Someone probably
+            "Make CTea Great Again." – Someone probably
           </p>
         </div>
       )}
     </div>
   );
-} 
+}

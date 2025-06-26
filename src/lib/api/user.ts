@@ -1,5 +1,5 @@
 
-import { supabase } from '../integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Upserts a user profile by wallet address, linking it to anonymous token if provided.

@@ -6,17 +6,34 @@ import { upsertUserProfile, getUserProfile } from '@/lib/api/user';
 import { rewardEarlyUser, getWalletBalance } from '@/lib/api/rewards';
 
 interface WalletUser {
+  id: string;
   wallet_address: string;
   token_balance: number;
+  email?: string;
   anonymous_token?: string;
   verification_level?: string;
   is_verified?: boolean;
+  email_confirmed_at?: string | null;
+  last_sign_in_at?: string | null;
+  user_metadata?: any;
+  app_metadata?: any;
+}
+
+interface AuthSession {
+  user: WalletUser | null;
+  access_token?: string;
 }
 
 interface AuthContextType {
   user: WalletUser | null;
+  session: AuthSession | null;
   loading: boolean;
+  isAdmin: boolean;
+  isModerator: boolean;
   disconnect: () => void;
+  signOut: () => void;
+  signIn: (email: string, password: string) => Promise<any>;
+  signUp: (email: string, password: string) => Promise<any>;
   refreshBalance: () => Promise<void>;
 }
 
@@ -33,9 +50,14 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { wallet, disconnectWallet } = useWallet();
   const [user, setUser] = useState<WalletUser | null>(null);
+  const [session, setSession] = useState<AuthSession | null>(null);
   const [loading, setLoading] = useState(false);
   const [processingReward, setProcessingReward] = useState(false);
   const { toast } = useToast();
+
+  // Mock admin check - in production this would check user roles
+  const isAdmin = user?.email === 'admin@cteanews.com' || user?.email === 'stephanie@taskbytask.net';
+  const isModerator = isAdmin; // For now, admins are also moderators
 
   // Refresh wallet balance
   const refreshBalance = useCallback(async () => {
@@ -51,6 +73,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Failed to refresh balance:', error);
     }
   }, [wallet.address, wallet.isConnected]);
+
+  // Mock sign in/up functions for compatibility
+  const signIn = useCallback(async (email: string, password: string) => {
+    // This would normally handle email/password auth
+    // For now, just return success for wallet-based auth
+    return { data: { user: user }, error: null };
+  }, [user]);
+
+  const signUp = useCallback(async (email: string, password: string) => {
+    // This would normally handle email/password registration
+    // For now, just return success for wallet-based auth
+    return { data: { user: user }, error: null };
+  }, [user]);
 
   // Handle wallet connection and user sync
   useEffect(() => {
@@ -79,14 +114,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!mounted) return;
 
         const userData: WalletUser = {
+          id: profile.wallet_address, // Use wallet address as ID
           wallet_address: profile.wallet_address,
           token_balance: balance.tea_balance,
           anonymous_token: profile.anonymous_token,
           verification_level: profile.verification_level,
-          is_verified: profile.is_verified
+          is_verified: profile.is_verified,
+          email_confirmed_at: new Date().toISOString(), // Mock confirmed for wallet users
+          last_sign_in_at: new Date().toISOString(),
+          user_metadata: {},
+          app_metadata: {}
         };
 
         setUser(userData);
+        setSession({ user: userData });
 
         // Award early user reward (only once per wallet)
         if (!processingReward) {
@@ -106,6 +147,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               // Update balance after reward
               userData.token_balance = rewardResult.new_balance || balance.tea_balance + rewardResult.amount;
               setUser({...userData});
+              setSession({ user: {...userData} });
             }
           } catch (rewardError) {
             console.warn('Reward error (likely already rewarded):', rewardError);
@@ -124,6 +166,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           variant: 'destructive',
         });
         setUser(null);
+        setSession(null);
       } finally {
         if (mounted) {
           setLoading(false);
@@ -144,6 +187,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     if (!wallet.isConnected) {
       setUser(null);
+      setSession(null);
       setProcessingReward(false);
     }
   }, [wallet.isConnected]);
@@ -152,13 +196,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const disconnect = useCallback(() => {
     disconnectWallet();
     setUser(null);
+    setSession(null);
     setProcessingReward(false);
   }, [disconnectWallet]);
 
+  // Sign out handler (same as disconnect for wallet auth)
+  const signOut = useCallback(() => {
+    disconnect();
+  }, [disconnect]);
+
   const value: AuthContextType = {
     user,
+    session,
     loading,
+    isAdmin,
+    isModerator,
     disconnect,
+    signOut,
+    signIn,
+    signUp,
     refreshBalance,
   };
 
