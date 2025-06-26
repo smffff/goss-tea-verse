@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import SplashScreen from './SplashScreen';
 
@@ -28,7 +27,9 @@ const AppInitializer: React.FC<AppInitializerProps> = ({
         // Clear any debug noise from console for production feel
         if (process.env.NODE_ENV === 'production') {
           console.clear();
-          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🫖 CTea Newsroom - Ready to serve!');
+        }
+        if (process.env.NODE_ENV === "development") {
+          console.info('🫖 CTea Newsroom - Ready to serve!');
         }
         
         // Stage 3: Ready
@@ -39,7 +40,9 @@ const AppInitializer: React.FC<AppInitializerProps> = ({
         onInitialized?.();
         
       } catch (error) {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('App initialization error:', error);
+        if (process.env.NODE_ENV === "development") {
+          console.error('App initialization error:', error);
+        }
         // Still proceed to avoid blocking user
         setIsReady(true);
         onInitialized?.();
