@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,7 +9,8 @@ import { WalletProvider } from "@/components/WalletProvider";
 import { SecurityProvider } from "@/components/SecurityProvider";
 import { EnhancedErrorBoundary } from "@/components/EnhancedErrorBoundary";
 import { setupGlobalErrorHandler } from "@/utils/errorHandler";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import BetaGate from "@/components/BetaGate";
 
 // Pages
 import Landing from "./pages/Landing";
@@ -24,10 +26,44 @@ import MemeOps from "./pages/MemeOps";
 const queryClient = new QueryClient();
 
 function App() {
+  const [hasBetaAccess, setHasBetaAccess] = useState(false);
+  const [isCheckingAccess, setIsCheckingAccess] = useState(true);
+
   useEffect(() => {
     // Setup global error handling
     setupGlobalErrorHandler();
+    
+    // Check for existing beta access
+    const betaAccess = localStorage.getItem('ctea-beta-access');
+    setHasBetaAccess(!!betaAccess);
+    setIsCheckingAccess(false);
   }, []);
+
+  const handleAccessGranted = () => {
+    setHasBetaAccess(true);
+  };
+
+  if (isCheckingAccess) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-orange-500 flex items-center justify-center">
+        <div className="text-white text-2xl font-bold">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!hasBetaAccess) {
+    return (
+      <EnhancedErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BetaGate onAccessGranted={handleAccessGranted} />
+          </TooltipProvider>
+        </QueryClientProvider>
+      </EnhancedErrorBoundary>
+    );
+  }
 
   return (
     <EnhancedErrorBoundary>

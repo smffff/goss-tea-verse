@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client'
 import { SecureTokenManager, ContentSanitizer } from '@/utils/enhancedSecurityUtils'
 
@@ -29,7 +28,6 @@ export class EnhancedSecurityService {
     maxLength: number = 1000
   ): Promise<SecurityValidationResult> {
     try {
-      // Use existing validate_unified_security function
       const { data, error } = await supabase.rpc('validate_unified_security', {
         content,
         max_length: maxLength
@@ -37,7 +35,6 @@ export class EnhancedSecurityService {
 
       if (error) {
         console.error('Server-side validation error:', error);
-        // Fallback to client-side validation
         const clientResult = ContentSanitizer.sanitizeContent(content);
         return {
           valid: clientResult.threats.length === 0,
@@ -47,9 +44,7 @@ export class EnhancedSecurityService {
         };
       }
 
-      // Handle the response data safely with proper typing
       if (!data || typeof data !== 'object') {
-        // Fallback to client-side validation
         const clientResult = ContentSanitizer.sanitizeContent(content);
         return {
           valid: clientResult.threats.length === 0,
@@ -69,7 +64,6 @@ export class EnhancedSecurityService {
       };
     } catch (error) {
       console.error('Content validation service error:', error);
-      // Fallback to client-side validation
       const clientResult = ContentSanitizer.sanitizeContent(content);
       return {
         valid: clientResult.threats.length === 0,
@@ -91,7 +85,6 @@ export class EnhancedSecurityService {
     try {
       const token = await SecureTokenManager.getOrCreateToken();
       
-      // Use existing check_enhanced_rate_limit function
       const { data, error } = await supabase.rpc('check_enhanced_rate_limit', {
         p_token: token,
         p_action: action,
@@ -108,7 +101,6 @@ export class EnhancedSecurityService {
         };
       }
 
-      // Handle the response data safely with proper typing
       if (!data || typeof data !== 'object') {
         return {
           allowed: true, // Fail open for availability
@@ -150,13 +142,11 @@ export class EnhancedSecurityService {
     urlValidation: { valid: string[]; invalid: string[] };
     overallValid: boolean;
   }> {
-    // Run all validations in parallel for better performance
     const [contentValidation, rateLimitCheck] = await Promise.all([
       this.validateContentSecurely(content),
       this.checkRateLimitSecurely(action, 3, 60) // Max 3 submissions per hour
     ]);
 
-    // Validate URLs client-side (faster and sufficient for this use case)
     const validUrls = ContentSanitizer.validateUrls(evidenceUrls);
     const invalidUrls = evidenceUrls.filter(url => !validUrls.includes(url));
 
@@ -178,8 +168,6 @@ export class EnhancedSecurityService {
    */
   static async rotateToken(): Promise<{ success: boolean; newToken?: string }> {
     try {
-      // For now, just generate a new token client-side
-      // In production, this would call a proper server-side rotation function
       SecureTokenManager.clearToken();
       const newToken = await SecureTokenManager.getOrCreateToken();
       
@@ -200,7 +188,6 @@ export class EnhancedSecurityService {
     severity: 'low' | 'medium' | 'high' | 'critical' = 'low'
   ): Promise<void> {
     try {
-      // Use admin_audit_log table which exists
       const { error } = await supabase.from('admin_audit_log').insert({
         admin_email: 'system',
         action: eventType,
