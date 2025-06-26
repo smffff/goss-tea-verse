@@ -1,75 +1,24 @@
 
-import posthog from 'posthog-js';
-
-// Extend the Window interface to include our custom property
-declare global {
-  interface Window {
-    __posthog_initialized?: boolean;
-  }
-}
-
-// Initialize PostHog with proper configuration
-if (typeof window !== 'undefined' && !window.__posthog_initialized) {
-  posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_API_KEY || 'phc_demo_key', {
-    api_host: 'https://app.posthog.com',
-    capture_pageview: true,
-    loaded: (posthog) => {
-      if (import.meta.env.DEV) {
-        console.log('PostHog loaded successfully');
-      }
+// Analytics utility for revenue tracking
+export const track = (eventName: string, properties?: Record<string, any>) => {
+  console.log(`📊 Analytics Event: ${eventName}`, properties);
+  
+  // In production, you'd integrate with your analytics service
+  // Examples: Google Analytics, PostHog, Mixpanel, etc.
+  
+  try {
+    // PostHog integration example (if installed)
+    if (typeof window !== 'undefined' && (window as any).posthog) {
+      (window as any).posthog.capture(eventName, properties);
     }
-  });
-  window.__posthog_initialized = true;
-}
-
-export const track = (event: string, properties = {}) => {
-  if (typeof window !== 'undefined') {
-    posthog.capture(event, properties);
-    console.log(`[Analytics] ${event}:`, properties);
+    
+    // You can also send to your own analytics endpoint
+    // fetch('/api/analytics', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ event: eventName, properties })
+    // });
+  } catch (error) {
+    console.error('Analytics tracking failed:', error);
   }
-};
-
-export const identify = (userId: string, properties = {}) => {
-  if (typeof window !== 'undefined') {
-    posthog.identify(userId, properties);
-    console.log(`[Analytics] Identified user: ${userId}`, properties);
-  }
-};
-
-// Enhanced event tracking functions
-export const trackTeaSpilled = (identity_mode: string, category?: string) => {
-  track('tea_spilled', { 
-    identity_mode, 
-    category,
-    timestamp: new Date().toISOString()
-  });
-};
-
-export const trackEnteredJoinFlow = (source: string = 'unknown') => {
-  track('entered_join_flow', { source });
-};
-
-export const trackConnectedWallet = (wallet_type?: string) => {
-  track('connected_wallet', { wallet_type });
-};
-
-export const trackBadgeEarned = (badge: string, user_id?: string) => {
-  track('badge_earned', { badge, user_id });
-};
-
-export const trackViewedLeaderboard = (source: string = 'navigation') => {
-  track('viewed_leaderboard', { source });
-};
-
-export const trackToggleIdentityMode = (from: string, to: string) => {
-  track('toggle_identity_mode', { from, to });
-};
-
-export const trackUpvotedTea = (post_id: string, reaction_type: string) => {
-  track('upvoted_tea', { post_id, reaction_type });
-};
-
-// Funnel tracking
-export const trackFunnelStep = (step: string, funnel: string = 'main') => {
-  track('funnel_step', { step, funnel });
 };

@@ -4,8 +4,13 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Crown, Lock, Sparkles } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
 import { track } from '@/utils/analytics';
+
+interface User {
+  user_metadata?: {
+    subscription_tier?: string;
+  };
+}
 
 interface PremiumFeatureGateProps {
   children: React.ReactNode;
@@ -14,6 +19,7 @@ interface PremiumFeatureGateProps {
   requiredTier: 'basic' | 'premium' | 'pro';
   onUpgrade: () => void;
   className?: string;
+  user?: User | null;
 }
 
 const PremiumFeatureGate: React.FC<PremiumFeatureGateProps> = ({
@@ -22,11 +28,10 @@ const PremiumFeatureGate: React.FC<PremiumFeatureGateProps> = ({
   description,
   requiredTier,
   onUpgrade,
-  className = ''
+  className = '',
+  user = null
 }) => {
-  const { user } = useAuth();
-  
-  // Check if user has required tier (simplified - you'd check against actual subscription)
+  // Check if user has required tier
   const hasAccess = user?.user_metadata?.subscription_tier === requiredTier || 
                    user?.user_metadata?.subscription_tier === 'pro';
 

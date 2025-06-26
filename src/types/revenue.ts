@@ -54,3 +54,20 @@ export interface TipTransaction {
   platformFee: number;
   netAmount: number;
 }
+
+export interface RevenueSettings {
+  affiliateCommissionRate: number;
+  sponsoredContentRate: number;
+  premiumSubscriptionPrice: number;
+  tipPercentage: number;
+}
+
+export interface User {
+  id: string;
+  email?: string;
+  wallet_address?: string;
+  user_metadata?: {
+    subscription_tier?: 'basic' | 'premium' | 'pro';
+    [key: string]: any;
+  };
+}

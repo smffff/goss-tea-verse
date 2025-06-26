@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 
 interface RevenueContextType {
   showAffiliateLinks: boolean;
@@ -8,6 +8,7 @@ interface RevenueContextType {
   tipJarEnabled: boolean;
   revenueSettings: RevenueSettings;
   updateRevenueSettings: (settings: Partial<RevenueSettings>) => void;
+  toggleFeature: (feature: keyof Omit<RevenueContextType, 'revenueSettings' | 'updateRevenueSettings' | 'toggleFeature'>) => void;
 }
 
 interface RevenueSettings {
@@ -45,31 +46,64 @@ export const RevenueProvider: React.FC<RevenueProviderProps> = ({ children }) =>
   const [tipJarEnabled, setTipJarEnabled] = useState(true);
   const [revenueSettings, setRevenueSettings] = useState<RevenueSettings>(defaultSettings);
 
-  const updateRevenueSettings = (settings: Partial<RevenueSettings>) => {
-    setRevenueSettings(prev => ({ ...prev, ...settings }));
-    localStorage.setItem('ctea_revenue_settings', JSON.stringify({ ...revenueSettings, ...settings }));
-  };
-
-  useEffect(() => {
-    const stored = localStorage.getItem('ctea_revenue_settings');
-    if (stored) {
+  const updateRevenueSettings = useCallback((settings: Partial<RevenueSettings>) => {
+    setRevenueSettings(prev => {
+      const newSettings = { ...prev, ...settings };
       try {
-        const parsed = JSON.parse(stored);
-        setRevenueSettings(prev => ({ ...prev, ...parsed }));
+        localStorage.setItem('ctea_revenue_settings', JSON.stringify(newSettings));
       } catch (error) {
-        console.error('Failed to parse revenue settings:', error);
+        console.error('Failed to save revenue settings:', error);
       }
+      return newSettings;
+    });
+  }, []);
+
+  const toggleFeature = useCallback((feature: keyof Omit<RevenueContextType, 'revenueSettings' | 'updateRevenueSettings' | 'toggleFeature'>) => {
+    switch (feature) {
+      case 'showAffiliateLinks':
+        setShowAffiliateLinks(prev => !prev);
+        break;
+      case 'sponsoredContentEnabled':
+        setSponsoredContentEnabled(prev => !prev);
+        break;
+      case 'premiumContentEnabled':
+        setPremiumContentEnabled(prev => !prev);
+        break;
+      case 'tipJarEnabled':
+        setTipJarEnabled(prev => !prev);
+        break;
     }
   }, []);
 
-  const value = {
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('ctea_revenue_settings');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setRevenueSettings(prev => ({ ...prev, ...parsed }));
+      }
+    } catch (error) {
+      console.error('Failed to parse revenue settings:', error);
+    }
+  }, []);
+
+  const value = useMemo(() => ({
     showAffiliateLinks,
     sponsoredContentEnabled,
     premiumContentEnabled,
     tipJarEnabled,
     revenueSettings,
-    updateRevenueSettings
-  };
+    updateRevenueSettings,
+    toggleFeature
+  }), [
+    showAffiliateLinks,
+    sponsoredContentEnabled,
+    premiumContentEnabled,
+    tipJarEnabled,
+    revenueSettings,
+    updateRevenueSettings,
+    toggleFeature
+  ]);
 
   return (
     <RevenueContext.Provider value={value}>
