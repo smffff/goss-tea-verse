@@ -2,7 +2,7 @@ import React from 'react';
 import Layout from '@/components/Layout';
 import { Card } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { HelpCircle, Coffee, Zap, Shield, Trophy, MessageCircle, Bot } from 'lucide-react';
+import { HelpCircle, Coffee, Zap, Shield, Trophy, MessageCircle, Bot, Coins, Users, Lock } from 'lucide-react';
 
 const FAQ = () => {
   const faqs = [
@@ -21,6 +21,62 @@ const FAQ = () => {
         {
           question: 'How do I submit tea?',
           answer: 'Click "Spill Tea" in the navigation, choose a topic category, write your gossip (with optional media links), and hit submit. Your tea appears in the feed instantly!'
+        },
+        {
+          question: 'Is my identity really protected?',
+          answer: 'Yes! We use secure cryptographic tokens instead of personal data. No emails, names, or tracking cookies. Your identity is protected while still allowing us to track your contributions for the leaderboard.'
+        }
+      ]
+    },
+    {
+      category: 'AI & Moderation',
+      icon: Bot,
+      questions: [
+        {
+          question: 'What is CTeaBot?',
+          answer: 'CTeaBot is our emotionally intelligent AI that roasts, analyzes, and reacts to your tea with sass, insight, and dark humor. Think of it as your brutally honest crypto-savvy friend who always has the perfect comeback.'
+        },
+        {
+          question: 'What are the different AI modes?',
+          answer: 'CTeaBot has four personalities: 🌶️ SPICY (hot takes and drama), 🧠 SMART (analytical insights), 😂 MEME (internet chaos), and ⚡ WISE (brutal honesty). Each mode provides different commentary styles.'
+        },
+        {
+          question: 'How does AI moderation work?',
+          answer: 'We use OpenAI\'s content safety API to automatically scan submissions for harmful content. Clean content is approved instantly, while flagged content gets reviewed. The system assigns risk scores and categorizes potential issues.'
+        },
+        {
+          question: 'What content gets flagged?',
+          answer: 'Harmful content like harassment, hate speech, or illegal activities gets flagged. We want spicy tea, not harmful behavior. The goal is fun drama, not real harm.'
+        },
+        {
+          question: 'Can I request different AI commentary styles?',
+          answer: 'Yes! You can choose which AI mode responds to your content. Each mode has a unique personality and commentary style to match your preferences.'
+        }
+      ]
+    },
+    {
+      category: 'Tokenomics & Rewards',
+      icon: Coins,
+      questions: [
+        {
+          question: 'What are $TEA tokens?',
+          answer: '$TEA is our platform utility token used for rewards, staking, content boosting, and governance voting. You earn them for quality submissions and community engagement.'
+        },
+        {
+          question: 'What are $SOAP tokens?',
+          answer: '$SOAP tokens track your credibility and reputation on the platform. They unlock features, moderation rights, and community governance participation.'
+        },
+        {
+          question: 'How do I earn tokens?',
+          answer: 'Earn 5 $TEA for approved submissions, 2 $TEA for helpful upvotes, and 1 $TEA for community engagement. Tokens are awarded automatically when content is approved.'
+        },
+        {
+          question: 'Can I stake my tokens?',
+          answer: 'Yes! You can stake $TEA tokens to earn passive rewards and unlock exclusive platform features. Staking also gives you governance rights.'
+        },
+        {
+          question: 'What can I do with my tokens?',
+          answer: 'Use $TEA for content boosting, staking rewards, governance voting, and platform features. $SOAP tokens unlock credibility-based features and moderation rights.'
         }
       ]
     },
@@ -39,24 +95,32 @@ const FAQ = () => {
         {
           question: 'How are usernames generated?',
           answer: 'We automatically generate fun usernames like "SpicyTeaSpiller42" based on your anonymous token. Your avatar is also randomly generated using DiceBear.'
+        },
+        {
+          question: 'How do I climb the leaderboard?',
+          answer: 'Submit quality content that gets community engagement, react to other posts, and participate regularly. High-quality submissions with lots of reactions earn the most points.'
         }
       ]
     },
     {
-      category: 'AI & Reactions',
-      icon: Bot,
+      category: 'Community & Voting',
+      icon: Users,
       questions: [
-        {
-          question: 'What is CTeaBot?',
-          answer: 'CTeaBot is our emotionally intelligent AI that roasts, analyzes, and reacts to your tea with sass, insight, and dark humor. Think of it as your brutally honest crypto-savvy friend who always has the perfect comeback.'
-        },
         {
           question: 'What are the emoji reactions?',
           answer: 'You can react with: 🔥 Hot (spicy tea), 🥶 Cold (boring/fake), and 🌶️ Spicy (extra dramatic). Your reactions help score posts and contribute to your own leaderboard points.'
         },
         {
-          question: 'Can I request different AI commentary styles?',
-          answer: 'Yes! CTeaBot has different personalities: Spicy (sassy roasts), Smart (analytical takes), Memy (crypto Twitter slang), and Savage (brutal honesty).'
+          question: 'How does community voting work?',
+          answer: 'Users vote on content credibility and relevance using emoji reactions. This helps surface the best submissions and maintain content quality through community curation.'
+        },
+        {
+          question: 'Can I report harmful content?',
+          answer: 'Yes! We have moderation tools and community reporting. Harmful content gets flagged and removed. We want spicy tea, not harmful harassment.'
+        },
+        {
+          question: 'How do I join the community?',
+          answer: 'Start by submitting tea and engaging with other posts. Join our Discord for deeper community discussions and stay updated on platform developments.'
         }
       ]
     },
@@ -75,11 +139,15 @@ const FAQ = () => {
         {
           question: 'Can I delete my submissions?',
           answer: 'Since everything is anonymous, there\'s no traditional "account deletion." However, you can report your own posts if needed, and moderators can help remove content.'
+        },
+        {
+          question: 'Is my data secure?',
+          answer: 'Yes! We use industry-standard encryption and security practices. Your data is protected with Row Level Security (RLS) policies and secure authentication systems.'
         }
       ]
     },
     {
-      category: 'Technical',
+      category: 'Technical & Web3',
       icon: Zap,
       questions: [
         {
@@ -93,6 +161,10 @@ const FAQ = () => {
         {
           question: 'Can I integrate this with other apps?',
           answer: 'We\'re building API access for developers who want to integrate CTea feeds into their own apps. Stay tuned for announcements!'
+        },
+        {
+          question: 'What blockchain do you use?',
+          answer: 'We\'re currently building on Ethereum and exploring Layer 2 solutions for scalability. Our token system is designed to be cross-chain compatible.'
         }
       ]
     }
@@ -194,3 +266,4 @@ const FAQ = () => {
 };
 
 export default FAQ;
+

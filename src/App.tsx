@@ -1,4 +1,3 @@
-
 import '@/utils/analytics';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -25,6 +24,11 @@ import NotFound from '@/pages/NotFound';
 import Auth from '@/pages/Auth';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import Settings from '@/pages/Settings';
+
+// New Pages
+import Roadmap from '@/pages/Roadmap';
+import Team from '@/pages/Team';
+import Investors from '@/pages/Investors';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -63,6 +67,11 @@ const App = () => {
                   <Route path="/terms" element={<Terms />} />
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/settings" element={<Settings />} />
+
+                  {/* New Pages */}
+                  <Route path="/roadmap" element={<Roadmap />} />
+                  <Route path="/team" element={<Team />} />
+                  <Route path="/investors" element={<Investors />} />
 
                   {/* Legacy Redirects - Fixed */}
                   <Route path="/submit" element={<Navigate to="/spill" replace />} />

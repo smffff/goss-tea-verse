@@ -17,7 +17,13 @@ import {
   CheckCircle,
   AlertTriangle,
   Clock,
-  ExternalLink
+  ExternalLink,
+  RefreshCw,
+  Coins,
+  MessageSquare,
+  Award,
+  Globe,
+  Lock
 } from 'lucide-react';
 
 const About = () => {
@@ -46,33 +52,71 @@ const About = () => {
   const features = [
     {
       icon: Coffee,
-      title: 'Spill Anonymous Tea',
-      description: 'Share crypto gossip, rumors, and alpha without revealing your identity.'
+      title: 'Anonymous Tea Submission',
+      description: 'Share crypto gossip, rumors, and alpha without revealing your identity. Complete privacy protection with secure cryptographic tokens.'
     },
     {
       icon: Bot,
       title: 'AI-Powered Moderation',
-      description: 'Advanced AI moderation ensures content quality while maintaining privacy.'
+      description: 'Advanced AI moderation using OpenAI\'s content safety API. Real-time content analysis with risk scoring and automatic flagging.'
     },
     {
-      icon: Wallet,
+      icon: Coins,
       title: '$TEA Token Rewards',
-      description: 'Earn $TEA tokens for quality submissions and community engagement.'
+      description: 'Earn $TEA tokens for quality submissions and community engagement. Automatic rewards for approved content and helpful interactions.'
     },
     {
-      icon: Zap,
-      title: 'AI-Powered Reactions',
-      description: 'Our AI bot CTeaBot adds spicy commentary and rates content for credibility.'
+      icon: MessageSquare,
+      title: 'CTeaBot AI Commentary',
+      description: 'Our emotionally intelligent AI adds spicy commentary in four modes: Spicy, Smart, Meme, and Wise. Each with unique personality and style.'
     },
     {
       icon: Users,
       title: 'Community Voting',
-      description: 'Users vote content as hot, cold, or spicy to surface the best submissions.'
+      description: 'Users vote content as hot, cold, or spicy to surface the best submissions. Community-driven content curation and quality control.'
     },
     {
-      icon: Shield,
-      title: 'Earn Credibility',
-      description: 'Build reputation through quality submissions and community engagement.'
+      icon: Award,
+      title: 'Credibility System',
+      description: 'Build reputation through quality submissions and community engagement. SOAP tokens track credibility and unlock platform features.'
+    }
+  ];
+
+  const aiModes = [
+    {
+      mode: '🌶️ SPICY MODE',
+      description: 'Hot takes that burn with controversy and drama',
+      characteristics: ['Bold, unapologetic tone', 'Casual internet slang', 'High energy entertainment', 'Balanced credibility']
+    },
+    {
+      mode: '🧠 SMART MODE',
+      description: 'Deep analysis and thoughtful insights',
+      characteristics: ['Analytical and objective', 'Professional but accessible', 'Evidence-based commentary', 'Technical explanations']
+    },
+    {
+      mode: '😂 MEME MODE',
+      description: 'Pure internet chaos and humor',
+      characteristics: ['Playful and absurdist', 'Meme references', 'Meta humor', 'Entertainment-focused']
+    },
+    {
+      mode: '⚡ WISE MODE',
+      description: 'Cutting insights with no mercy',
+      characteristics: ['Direct and critical', 'Brutally honest', 'Truth-focused', 'Sharp commentary']
+    }
+  ];
+
+  const tokenomics = [
+    {
+      token: '$TEA',
+      description: 'Platform utility token for rewards and governance',
+      uses: ['Content rewards', 'Staking', 'Content boosting', 'Governance voting'],
+      supply: '100M total supply'
+    },
+    {
+      token: '$SOAP',
+      description: 'Credibility and reputation token',
+      uses: ['Credibility tracking', 'Feature unlocking', 'Moderation rights', 'Community governance'],
+      supply: 'Dynamic based on activity'
     }
   ];
 
@@ -160,6 +204,129 @@ const About = () => {
           </CardContent>
         </Card>
 
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          {features.map((feature, index) => {
+            const Icon = feature.icon;
+            return (
+              <Card key={index} className="bg-ctea-dark/50 border-white/10 card-hover">
+                <CardContent className="p-6">
+                  <Icon className="w-12 h-12 text-[#00d1c1] mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
+                  <p className="text-gray-400">{feature.description}</p>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* AI Moderation Section */}
+        <Card className="bg-gradient-to-br from-ctea-teal/10 to-ctea-purple/10 border-ctea-teal/30 mb-16">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-white flex items-center gap-2">
+              <Bot className="w-6 h-6 text-ctea-teal" />
+              AI Moderation & Commentary
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-8">
+              <h3 className="text-lg font-bold text-white mb-4">CTeaBot AI Modes</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {aiModes.map((mode, index) => (
+                  <div key={index} className="bg-ctea-dark/30 rounded-lg p-4 border border-ctea-teal/20">
+                    <h4 className="text-lg font-bold text-white mb-2">{mode.mode}</h4>
+                    <p className="text-gray-300 mb-3">{mode.description}</p>
+                    <div className="space-y-1">
+                      {mode.characteristics.map((char, charIndex) => (
+                        <div key={charIndex} className="flex items-center gap-2 text-sm text-gray-400">
+                          <div className="w-1.5 h-1.5 bg-ctea-teal rounded-full"></div>
+                          {char}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="bg-ctea-dark/30 rounded-lg p-6 border border-ctea-teal/20">
+              <h3 className="text-lg font-bold text-white mb-4">Moderation Process</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-ctea-teal/20 to-ctea-purple/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Shield className="w-6 h-6 text-ctea-teal" />
+                  </div>
+                  <h4 className="text-white font-semibold mb-2">Content Analysis</h4>
+                  <p className="text-gray-300 text-sm">AI scans for harmful content and assigns risk scores</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-ctea-teal/20 to-ctea-purple/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <CheckCircle className="w-6 h-6 text-ctea-teal" />
+                  </div>
+                  <h4 className="text-white font-semibold mb-2">Automatic Review</h4>
+                  <p className="text-gray-300 text-sm">Clean content approved instantly, flagged content reviewed</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-ctea-teal/20 to-ctea-purple/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Award className="w-6 h-6 text-ctea-teal" />
+                  </div>
+                  <h4 className="text-white font-semibold mb-2">Token Rewards</h4>
+                  <p className="text-gray-300 text-sm">Approved content earns $TEA tokens automatically</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Tokenomics Section */}
+        <Card className="bg-gradient-to-br from-ctea-yellow/10 to-ctea-orange/10 border-ctea-yellow/30 mb-16">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-white flex items-center gap-2">
+              <Coins className="w-6 h-6 text-ctea-yellow" />
+              Token Economics
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {tokenomics.map((token, index) => (
+                <div key={index} className="bg-ctea-dark/30 rounded-lg p-6 border border-ctea-yellow/20">
+                  <h3 className="text-xl font-bold text-white mb-2">{token.token}</h3>
+                  <p className="text-gray-300 mb-4">{token.description}</p>
+                  <div className="mb-4">
+                    <h4 className="text-white font-semibold mb-2">Uses:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {token.uses.map((use, useIndex) => (
+                        <Badge key={useIndex} variant="outline" className="border-ctea-yellow/30 text-ctea-yellow">
+                          {use}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-400">{token.supply}</p>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-6 bg-ctea-dark/30 rounded-lg p-6 border border-ctea-yellow/20">
+              <h3 className="text-lg font-bold text-white mb-4">Reward Structure</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-ctea-yellow mb-1">5 $TEA</div>
+                  <p className="text-gray-300 text-sm">Per approved submission</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-ctea-yellow mb-1">2 $TEA</div>
+                  <p className="text-gray-300 text-sm">Per helpful upvote</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-ctea-yellow mb-1">1 $TEA</div>
+                  <p className="text-gray-300 text-sm">Per community engagement</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Arena Stream & Tip Jar */}
         <Card className="bg-gradient-to-br from-ctea-teal/10 to-ctea-pink/10 border-ctea-teal/20 mb-16">
           <CardContent className="p-8 text-center">
@@ -185,43 +352,6 @@ const About = () => {
             </a>
           </CardContent>
         </Card>
-
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {features.map((feature, index) => {
-            const Icon = feature.icon;
-            return (
-              <Card key={index} className="bg-ctea-dark/50 border-white/10 card-hover">
-                <CardContent className="p-6">
-                  <Icon className="w-12 h-12 text-[#00d1c1] mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
-                  <p className="text-gray-400">{feature.description}</p>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        {/* How It Works */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-white mb-8">How It Works</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {[
-              { step: '1', title: 'Submit Tea', desc: 'Share anonymous crypto gossip or insights' },
-              { step: '2', title: 'AI Moderation', desc: 'Content is automatically moderated for quality' },
-              { step: '3', title: 'Earn $TEA', desc: 'Get rewarded with tokens for approved content' },
-              { step: '4', title: 'Community Votes', desc: 'Users vote on credibility and relevance' }
-            ].map((item) => (
-              <div key={item.step} className="text-center">
-                <div className="w-16 h-16 bg-gradient-ctea rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
-                  {item.step}
-                </div>
-                <h3 className="text-white font-bold mb-2">{item.title}</h3>
-                <p className="text-gray-400 text-sm">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
 
         {/* Public Audit Trail */}
         <Card className="bg-gradient-to-br from-ctea-dark/50 to-ctea-darker/50 border-white/10 mb-16">
@@ -333,18 +463,34 @@ const About = () => {
         <Card className="bg-gradient-to-br from-[#ff61a6]/20 to-[#00d1c1]/20 border-[#00d1c1]/30">
           <CardContent className="p-8 text-center">
             <h2 className="text-3xl font-bold text-white mb-6">Our Values</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               <div>
+                <div className="w-16 h-16 bg-gradient-to-br from-ctea-teal/20 to-ctea-purple/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Shield className="w-8 h-8 text-ctea-teal" />
+                </div>
                 <h3 className="text-xl font-bold text-white mb-2">Transparency</h3>
                 <p className="text-gray-300">Open-source development and clear community guidelines</p>
               </div>
               <div>
+                <div className="w-16 h-16 bg-gradient-to-br from-ctea-teal/20 to-ctea-purple/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Lock className="w-8 h-8 text-ctea-teal" />
+                </div>
                 <h3 className="text-xl font-bold text-white mb-2">Privacy</h3>
                 <p className="text-gray-300">Anonymous submissions with secure identity protection</p>
               </div>
               <div>
+                <div className="w-16 h-16 bg-gradient-to-br from-ctea-teal/20 to-ctea-purple/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Users className="w-8 h-8 text-ctea-teal" />
+                </div>
                 <h3 className="text-xl font-bold text-white mb-2">Community</h3>
                 <p className="text-gray-300">Powered by and for the crypto community</p>
+              </div>
+              <div>
+                <div className="w-16 h-16 bg-gradient-to-br from-ctea-teal/20 to-ctea-purple/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Zap className="w-8 h-8 text-ctea-teal" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Innovation</h3>
+                <p className="text-gray-300">Pushing boundaries in AI, Web3, and community governance</p>
               </div>
             </div>
           </CardContent>

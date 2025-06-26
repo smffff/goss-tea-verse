@@ -1,14 +1,55 @@
-User-agent: Googlebot
+# CTea Newsroom Robots.txt
+# Allow all crawlers to access the site
+
+User-agent: *
 Allow: /
 
-User-agent: Bingbot
-Allow: /
+# Sitemap location
+Sitemap: https://cteanews.com/sitemap.xml
 
+# Crawl delay (optional - be respectful to servers)
+Crawl-delay: 1
+
+# Disallow admin areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+
+# Allow important pages
+Allow: /about
+Allow: /roadmap
+Allow: /team
+Allow: /investors
+Allow: /faq
+Allow: /contact
+Allow: /privacy
+Allow: /terms
+Allow: /token
+Allow: /feed
+Allow: /leaderboard
+Allow: /spill
+
+# Social media crawlers
 User-agent: Twitterbot
 Allow: /
 
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
+User-agent: LinkedInBot
+Allow: /
+
+# Search engine crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Archive.org
+User-agent: ia_archiver
 Allow: /
