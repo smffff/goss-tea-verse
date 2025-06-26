@@ -16,10 +16,10 @@ class Web3CrossChainService {
       console.log('🔍 Checking Avalanche $TEA balance for:', address);
       
       // Check for admin override
-      const mockBalance = adminConfigService.getMockTokenBalance();
-      if (mockBalance !== null) {
-        console.log('🔧 Using admin mock balance:', mockBalance);
-        return mockBalance;
+      const adminBalance = adminConfigService.getMockTokenBalance();
+      if (adminBalance !== null) {
+        console.log('🔧 Using admin mock balance:', adminBalance);
+        return adminBalance;
       }
 
       if (!window.ethereum) {
@@ -29,10 +29,10 @@ class Web3CrossChainService {
 
       // For demo purposes, generate a realistic mock balance
       // In production, this would call the actual token contract
-      const mockBalance = this.generateRealisticBalance(address);
+      const demoBalance = this.generateRealisticBalance(address);
       
-      console.log('💰 Balance found:', mockBalance);
-      return mockBalance;
+      console.log('💰 Balance found:', demoBalance);
+      return demoBalance;
       
     } catch (error) {
       console.error('Failed to check Avalanche balance:', error);
@@ -46,18 +46,18 @@ class Web3CrossChainService {
       console.log('🔍 Checking Solana $TEA balance for:', address);
       
       // Check for admin override
-      const mockBalance = adminConfigService.getMockTokenBalance();
-      if (mockBalance !== null) {
-        console.log('🔧 Using admin mock balance:', mockBalance);
-        return mockBalance;
+      const adminBalance = adminConfigService.getMockTokenBalance();
+      if (adminBalance !== null) {
+        console.log('🔧 Using admin mock balance:', adminBalance);
+        return adminBalance;
       }
 
       // For demo purposes, generate a realistic mock balance
       // In production, this would call the actual SPL token program
-      const mockBalance = this.generateRealisticBalance(address);
+      const demoBalance = this.generateRealisticBalance(address);
       
-      console.log('💰 Solana balance found:', mockBalance);
-      return mockBalance;
+      console.log('💰 Solana balance found:', demoBalance);
+      return demoBalance;
       
     } catch (error) {
       console.error('Failed to check Solana balance:', error);
@@ -99,17 +99,28 @@ class Web3CrossChainService {
     
     const tier = this.determineOGTier(balance);
     
+    // Ensure chainData always includes avalanche property
+    const chainData: OGStatus['chainData'] = {
+      avalanche: {
+        balance: chain === 'avalanche' ? balance : 0,
+        lastChecked: new Date().toISOString()
+      }
+    };
+
+    // Add solana data if that's the chain being checked
+    if (chain === 'solana') {
+      chainData.solana = {
+        balance,
+        lastChecked: new Date().toISOString()
+      };
+    }
+    
     return {
       isOG: tier !== 'none' || adminConfigService.shouldForceOGAccess(),
       tier,
       balance,
       eligibleForAirdrop: balance >= this.ACCESS_THRESHOLDS.sipper || adminConfigService.shouldForceOGAccess(),
-      chainData: {
-        [chain]: {
-          balance,
-          lastChecked: new Date().toISOString()
-        }
-      }
+      chainData
     };
   }
 
