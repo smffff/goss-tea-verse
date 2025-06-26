@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { identify, track } from '@/utils/analytics';
 
@@ -61,23 +62,26 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
         });
 
         if (accounts.length > 0) {
-          setWallet({
+          const newWalletState = {
             isConnected: true,
             address: accounts[0],
             chainId: parseInt(chainId, 16),
             balance: {
               eth: '1.234',
-              tea: '1500',
-              soap: '250'
+              tea: '0', // Will be updated by auth system
+              soap: '0'
             }
-          });
+          };
+
+          setWallet(newWalletState);
 
           localStorage.setItem('ctea_wallet_connected', 'true');
           localStorage.setItem('ctea_wallet_type', type);
+          localStorage.setItem('ctea_wallet_address', accounts[0]);
 
           // Analytics: identify user and track wallet connection
           identify(accounts[0]);
-          track('connected_wallet');
+          track('connected_wallet', { wallet_type: type, chain_id: parseInt(chainId, 16) });
         }
       }
     } catch (error) {
@@ -135,6 +139,9 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
     });
     localStorage.removeItem('ctea_wallet_connected');
     localStorage.removeItem('ctea_wallet_type');
+    localStorage.removeItem('ctea_wallet_address');
+    
+    track('disconnected_wallet');
   };
 
   const switchChain = async (chainId: number) => {
@@ -150,15 +157,62 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
     }
   };
 
-  // Auto-connect on load
+  // Auto-connect on load with enhanced checks
   useEffect(() => {
-    const isConnected = localStorage.getItem('ctea_wallet_connected');
-    const walletType = localStorage.getItem('ctea_wallet_type');
-    
-    if (isConnected && walletType && typeof window.ethereum !== 'undefined') {
-      connectWallet(walletType as 'metamask' | 'walletconnect' | 'core').catch(console.error);
-    }
+    const autoConnect = async () => {
+      const isConnected = localStorage.getItem('ctea_wallet_connected');
+      const walletType = localStorage.getItem('ctea_wallet_type');
+      const savedAddress = localStorage.getItem('ctea_wallet_address');
+      
+      if (isConnected && walletType && savedAddress && typeof window.ethereum !== 'undefined') {
+        try {
+          // Check if wallet is still connected
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          
+          if (accounts.length > 0 && accounts[0].toLowerCase() === savedAddress.toLowerCase()) {
+            await connectWallet(walletType as 'metamask' | 'walletconnect' | 'core');
+          } else {
+            // Clear stale connection data
+            disconnectWallet();
+          }
+        } catch (error) {
+          console.error('Auto-connect failed:', error);
+          disconnectWallet();
+        }
+      }
+    };
+
+    autoConnect();
   }, []);
+
+  // Listen for account changes
+  useEffect(() => {
+    if (typeof window.ethereum !== 'undefined') {
+      const handleAccountsChanged = (accounts: string[]) => {
+        if (accounts.length === 0) {
+          disconnectWallet();
+        } else if (wallet.isConnected && accounts[0] !== wallet.address) {
+          // Account changed, reconnect with new account
+          const walletType = localStorage.getItem('ctea_wallet_type');
+          if (walletType) {
+            connectWallet(walletType as 'metamask' | 'walletconnect' | 'core');
+          }
+        }
+      };
+
+      const handleChainChanged = (chainId: string) => {
+        setWallet(prev => ({ ...prev, chainId: parseInt(chainId, 16) }));
+      };
+
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+      window.ethereum.on('chainChanged', handleChainChanged);
+
+      return () => {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        window.ethereum.removeListener('chainChanged', handleChainChanged);
+      };
+    }
+  }, [wallet.isConnected, wallet.address]);
 
   return (
     <WalletContext.Provider value={{
