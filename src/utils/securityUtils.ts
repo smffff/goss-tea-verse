@@ -1,17 +1,21 @@
 
 import { SecurityServiceUnified } from '@/services/securityServiceUnified';
+import { ContentValidationService } from '@/services/security/contentValidationService';
+import { RateLimitService } from '@/services/security/rateLimitService';
+import { UrlValidationService } from '@/services/security/urlValidationService';
+import { TokenValidationService } from '@/services/security/tokenValidationService';
 
 // Main security function that replaces all scattered security checks
 export const performSubmissionSecurityCheck = SecurityServiceUnified.validateSubmissionSecurity;
 
 // Content sanitization with enhanced security
 export const sanitizeContent = (content: string): string => {
-  return SecurityServiceUnified.getInstance().sanitizeContent(content);
+  return ContentValidationService.sanitizeContent(content);
 };
 
 // Token management
 export const getOrCreateSecureToken = (): string => {
-  const result = SecurityServiceUnified.getInstance().getOrCreateSecureToken();
+  const result = TokenValidationService.getOrCreateSecureToken();
   return result.token;
 };
 
@@ -19,13 +23,13 @@ export const getOrCreateSecureToken = (): string => {
 export const validateUrl = (url: string): boolean => {
   if (!url?.trim()) return false;
   
-  const result = SecurityServiceUnified.getInstance().validateUrls([url]);
+  const result = UrlValidationService.validateUrls([url]);
   return result.valid.length > 0;
 };
 
 // URL validation - multiple URLs
 export const validateUrls = (urls: string[]): string[] => {
-  const result = SecurityServiceUnified.getInstance().validateUrls(urls);
+  const result = UrlValidationService.validateUrls(urls);
   return result.valid;
 };
 
@@ -50,8 +54,8 @@ export const validateContentSecurity = (content: string) => {
 export const checkClientRateLimit = async (action: string, maxAttempts: number, windowMinutes: number): Promise<boolean> => {
   try {
     const token = getOrCreateSecureToken();
-    const result = await SecurityServiceUnified.validateSubmissionSecurity('', [], action);
-    return result.rateLimitCheck.allowed;
+    const result = await RateLimitService.checkRateLimit(token, action, maxAttempts, windowMinutes);
+    return result.allowed;
   } catch (error) {
     console.error('Rate limit check failed:', error);
     return false;
