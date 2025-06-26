@@ -18,7 +18,7 @@ export const useComments = (submissionId: string) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const fetchComments = async () => {
+  const fetchComments = async (): Promise<void> => {
     try {
       setIsLoading(true);
       
@@ -45,11 +45,11 @@ export const useComments = (submissionId: string) => {
       ];
       
       setComments(mockComments);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error fetching comments:', error);
       toast({
         title: "Error",
-        description: "Failed to load comments",
+        description: error instanceof Error ? error.message : "Failed to load comments",
         variant: "destructive"
       });
     } finally {
@@ -57,7 +57,7 @@ export const useComments = (submissionId: string) => {
     }
   };
 
-  const addComment = async (content: string, parentId?: string) => {
+  const addComment = async (content: string, parentId?: string): Promise<void> => {
     try {
       // Use secure token generation and content sanitization
       const anonymousToken = getOrCreateSecureToken();
@@ -107,7 +107,7 @@ export const useComments = (submissionId: string) => {
         title: "Comment Added! 💬",
         description: "Your comment has been posted successfully.",
       });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error adding comment:', error);
       toast({
         title: "Error",
@@ -117,7 +117,7 @@ export const useComments = (submissionId: string) => {
     }
   };
 
-  const toggleLike = async (commentId: string) => {
+  const toggleLike = async (commentId: string): Promise<void> => {
     try {
       setComments(prev => prev.map(comment => {
         if (comment.id === commentId) {
@@ -130,11 +130,11 @@ export const useComments = (submissionId: string) => {
         }
         return comment;
       }));
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error toggling like:', error);
       toast({
         title: "Error",
-        description: "Failed to update like",
+        description: error instanceof Error ? error.message : "Failed to update like",
         variant: "destructive"
       });
     }

@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { TeaSubmission } from '@/types/teaFeed';
 import { transformSubmission } from '@/utils/submissionUtils';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 
 interface UseEnhancedRealTimeProps {
   setSubmissions: React.Dispatch<React.SetStateAction<TeaSubmission[]>>;
@@ -10,7 +11,7 @@ interface UseEnhancedRealTimeProps {
 
 export const useEnhancedRealTime = ({ setSubmissions }: UseEnhancedRealTimeProps) => {
   const { toast } = useToast();
-  const channelRef = useRef<any>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
 
   useEffect(() => {
     console.log('useEnhancedRealTime - Setting up subscription');
@@ -31,7 +32,7 @@ export const useEnhancedRealTime = ({ setSubmissions }: UseEnhancedRealTimeProps
         },
         (payload) => {
           console.log('useEnhancedRealTime - New submission:', payload);
-          const newSubmission = payload.new as any;
+          const newSubmission = payload.new as TeaSubmission;
           
           if (newSubmission.status === 'approved') {
             const transformedSubmission = transformSubmission(newSubmission);
@@ -53,7 +54,7 @@ export const useEnhancedRealTime = ({ setSubmissions }: UseEnhancedRealTimeProps
         },
         (payload) => {
           console.log('useEnhancedRealTime - Submission updated:', payload);
-          const updatedSubmission = payload.new as any;
+          const updatedSubmission = payload.new as TeaSubmission;
           
           if (updatedSubmission.status === 'approved') {
             const transformedSubmission = transformSubmission(updatedSubmission);
