@@ -24,7 +24,7 @@ export async function rewardEarlyUser(wallet_address: string) {
     const rewardAmount = 100;
     
     // Insert transaction record
-    const transactionResult = await supabase
+    const { data: transactionData, error: transactionError } = await supabase
       .from('tea_transactions')
       .insert({
         wallet_address,
@@ -36,13 +36,13 @@ export async function rewardEarlyUser(wallet_address: string) {
       .select()
       .single();
 
-    if (transactionResult.error) {
-      console.error('Error creating transaction:', transactionResult.error);
-      throw transactionResult.error;
+    if (transactionError) {
+      console.error('Error creating transaction:', transactionError);
+      throw transactionError;
     }
 
     // Update or create wallet balance
-    const balanceResult = await supabase
+    const { data: balanceData, error: balanceError } = await supabase
       .from('wallet_balances')
       .upsert({
         wallet_address,
@@ -56,16 +56,16 @@ export async function rewardEarlyUser(wallet_address: string) {
       .select()
       .single();
 
-    if (balanceResult.error) {
-      console.error('Error updating balance:', balanceResult.error);
-      throw balanceResult.error;
+    if (balanceError) {
+      console.error('Error updating balance:', balanceError);
+      throw balanceError;
     }
 
     return { 
       rewarded: true, 
       amount: rewardAmount,
-      new_balance: balanceResult.data?.tea_balance || rewardAmount,
-      transaction_id: transactionResult.data?.id
+      new_balance: balanceData?.tea_balance || rewardAmount,
+      transaction_id: transactionData?.id
     };
   } catch (error) {
     console.error('Error in rewardEarlyUser:', error);
