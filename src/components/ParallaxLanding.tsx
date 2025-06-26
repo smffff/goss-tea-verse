@@ -61,12 +61,12 @@ const ParallaxLanding: React.FC = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#1b1b1b] via-[#2a1a2a] to-[#1a2a2a]">
-      {/* Background Layer - VHS Grid (Slowest) */}
+      {/* Background Layer - Cyber Grid (Slowest) */}
       <motion.div 
         className="absolute inset-0 opacity-20"
         style={{ y: backgroundY }}
       >
-        <div className="w-full h-full bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%2300d1c1" fill-opacity="0.3"%3E%3Ccircle cx="30" cy="30" r="1"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] animate-pulse"></div>
+        <div className="w-full h-full cyber-grid animate-pulse"></div>
       </motion.div>
 
       {/* Middle Layer - Floating Elements */}
