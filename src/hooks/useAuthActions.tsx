@@ -10,7 +10,7 @@ export const useAuthActions = (
 ) => {
   // Mock sign in/up functions for compatibility
   const signIn = useCallback(async (email: string, password: string): Promise<AuthResult> => {
-    console.log('📧 [AuthActions] Sign in attempt for:', email);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('📧 [AuthActions] Sign in attempt for:', email);
     // This would normally handle email/password auth
     // For now, just return success for wallet-based auth
     return { 
@@ -20,7 +20,7 @@ export const useAuthActions = (
   }, [user]);
 
   const signUp = useCallback(async (email: string, password: string): Promise<AuthResult> => {
-    console.log('📝 [AuthActions] Sign up attempt for:', email);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('📝 [AuthActions] Sign up attempt for:', email);
     // This would normally handle email/password registration
     // For now, just return success for wallet-based auth
     return { 
@@ -31,7 +31,7 @@ export const useAuthActions = (
 
   // Disconnect handler
   const disconnect = useCallback(() => {
-    console.log('🔌 [AuthActions] Disconnecting wallet...');
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔌 [AuthActions] Disconnecting wallet...');
     disconnectWallet();
     setUser(null);
     setSession(null);
@@ -39,7 +39,7 @@ export const useAuthActions = (
 
   // Sign out handler (same as disconnect for wallet auth)
   const signOut = useCallback(() => {
-    console.log('👋 [AuthActions] Signing out...');
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('👋 [AuthActions] Signing out...');
     disconnect();
   }, [disconnect]);
 

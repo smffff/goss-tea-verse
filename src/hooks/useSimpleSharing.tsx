@@ -22,7 +22,7 @@ export const useSimpleSharing = (submissions: TeaSubmission[]) => {
         description: "Share this tea with your friends!",
       });
     } catch (error) {
-      console.error('useSimpleSharing - Error sharing:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('useSimpleSharing - Error sharing:', error);
       toast({
         title: "Share Failed",
         description: "Couldn't copy the link. Please try again.",

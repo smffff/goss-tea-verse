@@ -33,7 +33,7 @@ export const usePerformanceMonitor = (pageName: string) => {
       const loadTime = performance.now() - startTime;
       metricsRef.current.pageLoadTime = loadTime;
       
-      console.log(`[Performance] ${pageName} loaded in ${loadTime.toFixed(2)}ms`);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`[Performance] ${pageName} loaded in ${loadTime.toFixed(2)}ms`);
       
       // Track in analytics
       if (window.gtag) {
@@ -52,7 +52,7 @@ export const usePerformanceMonitor = (pageName: string) => {
       
       if (fcpEntry) {
         metricsRef.current.firstContentfulPaint = fcpEntry.startTime;
-        console.log(`[Performance] FCP: ${fcpEntry.startTime.toFixed(2)}ms`);
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`[Performance] FCP: ${fcpEntry.startTime.toFixed(2)}ms`);
       }
     };
 
@@ -63,7 +63,7 @@ export const usePerformanceMonitor = (pageName: string) => {
         const lastEntry = entries[entries.length - 1];
         metricsRef.current.largestContentfulPaint = lastEntry.startTime;
         
-        console.log(`[Performance] LCP: ${lastEntry.startTime.toFixed(2)}ms`);
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`[Performance] LCP: ${lastEntry.startTime.toFixed(2)}ms`);
         
         if (window.gtag) {
           window.gtag('event', 'largest_contentful_paint', {
@@ -93,7 +93,7 @@ export const usePerformanceMonitor = (pageName: string) => {
         }
         metricsRef.current.cumulativeLayoutShift = clsValue;
         
-        console.log(`[Performance] CLS: ${clsValue.toFixed(4)}`);
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`[Performance] CLS: ${clsValue.toFixed(4)}`);
       });
       
       observer.observe({ entryTypes: ['layout-shift'] });
@@ -111,7 +111,7 @@ export const usePerformanceMonitor = (pageName: string) => {
           if (fidEntry.processingStart) {
             metricsRef.current.firstInputDelay = fidEntry.processingStart - entry.startTime;
             
-            console.log(`[Performance] FID: ${metricsRef.current.firstInputDelay.toFixed(2)}ms`);
+            if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`[Performance] FID: ${metricsRef.current.firstInputDelay.toFixed(2)}ms`);
             
             if (window.gtag) {
               window.gtag('event', 'first_input_delay', {
@@ -160,7 +160,7 @@ export const useComponentPerformance = (componentName: string) => {
       const renderTime = performance.now() - renderStartRef.current;
       
       if (renderTime > 16) { // Longer than one frame (16ms)
-        console.warn(`[Performance] ${componentName} took ${renderTime.toFixed(2)}ms to render`);
+        secureLog.warn(`[Performance] ${componentName} took ${renderTime.toFixed(2)}ms to render`);
       }
     };
   });

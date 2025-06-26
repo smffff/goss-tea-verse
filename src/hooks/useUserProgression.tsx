@@ -66,7 +66,7 @@ export const useUserProgression = () => {
         setProgression(data);
       }
     } catch (error) {
-      console.error('Error loading user progression:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error loading user progression:', error);
     } finally {
       setIsLoading(false);
     }
@@ -96,7 +96,7 @@ export const useUserProgression = () => {
         }
       }
     } catch (error) {
-      console.error('Error loading user levels:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error loading user levels:', error);
     }
   };
 
@@ -121,7 +121,7 @@ export const useUserProgression = () => {
       addTeaPoints(2);
       checkLevelUp();
     } catch (error) {
-      console.error('Error incrementing reaction:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error incrementing reaction:', error);
     }
   };
 
@@ -146,7 +146,7 @@ export const useUserProgression = () => {
       addTeaPoints(10);
       checkLevelUp();
     } catch (error) {
-      console.error('Error incrementing post count:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error incrementing post count:', error);
     }
   };
 
@@ -170,7 +170,7 @@ export const useUserProgression = () => {
       setProgression(updatedProgression);
       checkLevelUp();
     } catch (error) {
-      console.error('Error adding tea points:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error adding tea points:', error);
     }
   };
 
@@ -220,7 +220,7 @@ export const useUserProgression = () => {
         });
       }
     } catch (error) {
-      console.error('Error checking level up:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error checking level up:', error);
     }
   };
 

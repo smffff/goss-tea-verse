@@ -92,7 +92,7 @@ const LaunchDashboard: React.FC = () => {
                 <CTeaBotCommentary 
                   submission={mockSubmission}
                   onCommentGenerated={(comment, mode) => {
-                    console.log(`Generated ${mode} comment:`, comment);
+                    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`Generated ${mode} comment:`, comment);
                   }}
                 />
               </CardContent>

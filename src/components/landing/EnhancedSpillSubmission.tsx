@@ -58,7 +58,7 @@ const EnhancedSpillSubmission: React.FC<EnhancedSpillSubmissionProps> = ({
       }, 3000);
       
     } catch (error) {
-      console.error('Spill submission failed:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Spill submission failed:', error);
     } finally {
       setIsSubmitting(false);
     }

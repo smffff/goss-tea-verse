@@ -61,7 +61,7 @@ const EnhancedMemeGenerator: React.FC<EnhancedMemeGeneratorProps> = ({
       // 3. Apply effects and filters
       // 4. Generate downloadable image
       
-      console.log('Meme generated:', {
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Meme generated:', {
         template: selectedTemplate,
         topText,
         bottomText,
@@ -74,7 +74,7 @@ const EnhancedMemeGenerator: React.FC<EnhancedMemeGeneratorProps> = ({
   };
 
   const shareToSocial = (platform: string) => {
-    console.log(`Sharing meme to ${platform}`);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`Sharing meme to ${platform}`);
     // Implement sharing logic for each platform
   };
 

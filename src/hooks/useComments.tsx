@@ -46,7 +46,7 @@ export const useComments = (submissionId: string) => {
       
       setComments(mockComments);
     } catch (error: unknown) {
-      console.error('Error fetching comments:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching comments:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to load comments",
@@ -108,7 +108,7 @@ export const useComments = (submissionId: string) => {
         description: "Your comment has been posted successfully.",
       });
     } catch (error: unknown) {
-      console.error('Error adding comment:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error adding comment:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to post comment",
@@ -131,7 +131,7 @@ export const useComments = (submissionId: string) => {
         return comment;
       }));
     } catch (error: unknown) {
-      console.error('Error toggling like:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error toggling like:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to update like",

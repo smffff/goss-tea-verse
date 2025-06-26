@@ -8,7 +8,7 @@ export const useSimpleReactions = () => {
 
   const handleReaction = async (submissionId: string, reactionType: 'hot' | 'cold' | 'spicy'): Promise<boolean> => {
     try {
-      console.log('useSimpleReactions - Adding reaction:', { submissionId, reactionType });
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('useSimpleReactions - Adding reaction:', { submissionId, reactionType });
       
       const anonymousToken = localStorage.getItem('ctea_anonymous_token') || 
         Array.from(crypto.getRandomValues(new Uint8Array(32)))
@@ -48,7 +48,7 @@ export const useSimpleReactions = () => {
 
       return true;
     } catch (error) {
-      console.error('useSimpleReactions - Error handling reaction:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('useSimpleReactions - Error handling reaction:', error);
       toast({
         title: "Reaction Failed",
         description: "Couldn't add your reaction. Please try again.",

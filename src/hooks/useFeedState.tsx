@@ -13,7 +13,7 @@ export const useFeedState = () => {
   const fetchSubmissions = useCallback(async () => {
     try {
       setIsLoading(true);
-      console.log('Fetching submissions...');
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Fetching submissions...');
       
       const { data, error } = await supabase
         .from('tea_submissions')
@@ -26,9 +26,9 @@ export const useFeedState = () => {
       
       const transformedData = (data || []).map(transformSubmission);
       setSubmissions(transformedData);
-      console.log('Fetched submissions:', transformedData.length);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Fetched submissions:', transformedData.length);
     } catch (error) {
-      console.error('Error fetching submissions:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching submissions:', error);
       toast({
         title: "Failed to Load Feed",
         description: "Please try refreshing the page.",
@@ -57,7 +57,7 @@ export const useFeedState = () => {
       
       return true;
     } catch (error) {
-      console.error('Reaction error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Reaction error:', error);
       return false;
     }
   }, []);

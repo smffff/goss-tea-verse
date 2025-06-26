@@ -48,7 +48,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, contentId })
     setIsSubmitting(true);
 
     // Simulate API call
-    console.log('Report submitted:', {
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Report submitted:', {
       contentId,
       reason,
       comment: comment.trim(),

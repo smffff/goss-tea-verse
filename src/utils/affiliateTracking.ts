@@ -28,7 +28,7 @@ export const trackAffiliateClick = (platform: string, url: string) => {
   clicks.push(clickData);
   localStorage.setItem('ctea_affiliate_clicks', JSON.stringify(clicks.slice(-50))); // Keep last 50
 
-  console.log('🔗 Affiliate click tracked:', platform, url);
+  if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔗 Affiliate click tracked:', platform, url);
 };
 
 export const getAffiliateStats = (): AffiliateClick[] => {

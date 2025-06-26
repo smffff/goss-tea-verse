@@ -14,7 +14,7 @@ export const useEnhancedRealTime = ({ setSubmissions }: UseEnhancedRealTimeProps
   const channelRef = useRef<RealtimeChannel | null>(null);
 
   useEffect(() => {
-    console.log('useEnhancedRealTime - Setting up subscription');
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('useEnhancedRealTime - Setting up subscription');
     
     // Clean up existing channel
     if (channelRef.current) {
@@ -31,7 +31,7 @@ export const useEnhancedRealTime = ({ setSubmissions }: UseEnhancedRealTimeProps
           table: 'tea_submissions'
         },
         (payload) => {
-          console.log('useEnhancedRealTime - New submission:', payload);
+          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('useEnhancedRealTime - New submission:', payload);
           const newSubmission = payload.new as TeaSubmission;
           
           if (newSubmission.status === 'approved') {
@@ -53,7 +53,7 @@ export const useEnhancedRealTime = ({ setSubmissions }: UseEnhancedRealTimeProps
           table: 'tea_submissions'
         },
         (payload) => {
-          console.log('useEnhancedRealTime - Submission updated:', payload);
+          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('useEnhancedRealTime - Submission updated:', payload);
           const updatedSubmission = payload.new as TeaSubmission;
           
           if (updatedSubmission.status === 'approved') {

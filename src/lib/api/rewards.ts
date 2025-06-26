@@ -27,7 +27,7 @@ export async function rewardEarlyUser(
     .maybeSingle();
 
   if (checkError) {
-    console.error('Error checking for existing reward:', checkError);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error checking for existing reward:', checkError);
     throw checkError;
   }
 
@@ -50,7 +50,7 @@ export async function rewardEarlyUser(
   });
 
   if (insertError) {
-    console.error('Error inserting reward:', insertError);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error inserting reward:', insertError);
     throw insertError;
   }
 
@@ -63,7 +63,7 @@ export async function rewardEarlyUser(
     .maybeSingle();
 
   if (balanceError) {
-    console.error('Error fetching balance for update:', balanceError);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching balance for update:', balanceError);
     throw balanceError;
   }
 
@@ -77,7 +77,7 @@ export async function rewardEarlyUser(
   });
 
   if (updateError) {
-    console.error('Error upserting wallet balance:', updateError);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error upserting wallet balance:', updateError);
     throw updateError;
   }
 
@@ -97,7 +97,7 @@ export async function getWalletBalance(wallet_address: string) {
 
   if (error && error.code !== 'PGRST116') {
     // PGRST116 means no row was found, which is not an error here.
-    console.error('Error fetching wallet balance:', error);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching wallet balance:', error);
     throw error;
   }
 
@@ -123,7 +123,7 @@ export async function getWalletTransactions(
     .limit(limit);
 
   if (error) {
-    console.error('Error fetching wallet transactions:', error);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching wallet transactions:', error);
     throw error;
   }
 

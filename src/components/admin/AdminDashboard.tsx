@@ -47,7 +47,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
         flaggedContent: flaggedRes.count || 0
       });
     } catch (error) {
-      console.error('Error fetching admin stats:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching admin stats:', error);
       toast({
         title: "Error Loading Stats",
         description: "Could not load admin dashboard data",

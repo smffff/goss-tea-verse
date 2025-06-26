@@ -1,0 +1,173 @@
+
+import React, { useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { MessageCircle, Flag, ThumbsUp, ThumbsDown, Coffee } from 'lucide-react';
+import ShareButtons from '@/components/ShareButtons';
+import ReportModal from '@/components/modals/ReportModal';
+import TeaRating from '@/components/TeaRating';
+import { TeaSubmission } from '@/types/teaFeed';
+import { useTeaSubmissionActions } from '@/hooks/useTeaSubmissionActions';
+
+interface EnhancedTeaSubmissionCardProps {
+  submission: TeaSubmission;
+  onReaction?: (submissionId: string, reactionType: 'hot' | 'cold' | 'spicy') => void;
+  onVote?: (submissionId: string, voteType: 'up' | 'down') => void;
+  viewMode?: 'quick' | 'detailed';
+}
+
+const EnhancedTeaSubmissionCard: React.FC<EnhancedTeaSubmissionCardProps> = ({
+  submission,
+  onReaction,
+  onVote,
+  viewMode = 'detailed'
+}) => {
+  const [showReportModal, setShowReportModal] = useState(false);
+  const { userVote, handleVote, formatTimeAgo } = useTeaSubmissionActions();
+
+  const shareUrl = `${window.location.origin}/feed/${submission.id}`;
+  const shareTitle = submission.content.slice(0, 80) + '...';
+
+  const onVoteClick = (voteType: 'up' | 'down') => {
+    handleVote(submission.id, voteType, onVote);
+  };
+
+  return (
+    <>
+      <Card className="p-6 bg-pale-pink border-vintage-red/20 hover:border-vintage-red/40 transition-all duration-300 card-tabloid-hover shadow-sm">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-vintage-red to-tabloid-black rounded-full flex items-center justify-center">
+              <Coffee className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-tabloid-black font-medium">
+                {submission.author || 'Anonymous Tea Spiller'}
+              </p>
+              <p className="text-tabloid-black/60 text-sm">
+                {formatTimeAgo(submission.created_at)}
+              </p>
+            </div>
+          </div>
+          
+          {submission.category && (
+            <Badge className="bg-vintage-red/20 text-vintage-red border-vintage-red/30">
+              #{submission.category}
+            </Badge>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="mb-4">
+          <p className="text-tabloid-black leading-relaxed">
+            {submission.content}
+          </p>
+        </div>
+
+        {/* Evidence/Media */}
+        {submission.evidence_urls && submission.evidence_urls.length > 0 && (
+          <div className="mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {submission.evidence_urls.slice(0, 2).map((url, index) => (
+                <img
+                  key={index}
+                  src={url}
+                  alt={`Evidence ${index + 1}`}
+                  className="w-full rounded-lg border border-vintage-red/20 hover:border-vintage-red/40 transition-colors"
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Reactions */}
+        <div className="flex items-center gap-4 mb-4 p-3 bg-white/50 rounded-lg border border-vintage-red/10">
+          <button
+            onClick={() => onReaction?.(submission.id, 'hot')}
+            className="flex items-center gap-2 text-orange-500 hover:text-orange-600 transition-colors"
+          >
+            🔥 <span>{submission.reactions.hot}</span>
+          </button>
+          <button
+            onClick={() => onReaction?.(submission.id, 'spicy')}
+            className="flex items-center gap-2 text-red-500 hover:text-red-600 transition-colors"
+          >
+            🌶️ <span>{submission.reactions.spicy}</span>
+          </button>
+          <button
+            onClick={() => onReaction?.(submission.id, 'cold')}
+            className="flex items-center gap-2 text-blue-500 hover:text-blue-600 transition-colors"
+          >
+            🧊 <span>{submission.reactions.cold}</span>
+          </button>
+        </div>
+
+        {/* Tea Rating Component */}
+        <TeaRating submissionId={submission.id} />
+
+        {/* Actions */}
+        <div className="flex items-center justify-between mt-4">
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onVoteClick('up')}
+              className={`border-green-500/30 hover:bg-green-500/10 ${
+                userVote === 'up' ? 'bg-green-500/20 text-green-600' : 'text-green-600'
+              }`}
+            >
+              <ThumbsUp className="w-4 h-4" />
+            </Button>
+            
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onVoteClick('down')}
+              className={`border-red-500/30 hover:bg-red-500/10 ${
+                userVote === 'down' ? 'bg-red-500/20 text-red-600' : 'text-red-600'
+              }`}
+            >
+              <ThumbsDown className="w-4 h-4" />
+            </Button>
+
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-vintage-red/30 text-vintage-red hover:bg-vintage-red/10"
+            >
+              <MessageCircle className="w-4 h-4 mr-1" />
+              Comment
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <ShareButtons
+              url={shareUrl}
+              title={shareTitle}
+              variant="minimal"
+            />
+            
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setShowReportModal(true)}
+              className="text-tabloid-black/60 hover:text-vintage-red"
+            >
+              <Flag className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      <ReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        contentId={submission.id}
+      />
+    </>
+  );
+};
+
+export default EnhancedTeaSubmissionCard;

@@ -53,7 +53,7 @@ const WalletIntegration: React.FC<WalletIntegrationProps> = ({
       const mockBalance = Math.floor(Math.random() * 1000);
       setTeaBalance(mockBalance);
     } catch (error) {
-      console.error('Failed to check TEA balance:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to check TEA balance:', error);
     } finally {
       setIsCheckingBalance(false);
     }

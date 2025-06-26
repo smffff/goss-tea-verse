@@ -58,13 +58,13 @@ const SecurityFallbackDisplay: React.FC<SecurityFallbackDisplayProps> = ({
       };
       
       localStorage.setItem('ctea_error_report', JSON.stringify(errorReport));
-      console.log('🫖 CTea Error Report created:', errorReport);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🫖 CTea Error Report created:', errorReport);
       
       if (onReportIssue) {
         onReportIssue();
       }
     } catch (error) {
-      console.error('Failed to create error report:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to create error report:', error);
     }
   };
 

@@ -53,7 +53,7 @@ const BetaCodeTab: React.FC<BetaCodeTabProps> = ({
         setError('Invalid beta code. Need access? Try other options below!');
       }
     } catch (error) {
-      console.error('Beta verification error:', error);
+      secureLog.error('Beta verification error:', error);
       setError('Verification failed - probably the server having main character energy 🎭');
     } finally {
       setIsProcessing(false);

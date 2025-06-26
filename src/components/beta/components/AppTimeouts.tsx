@@ -17,13 +17,13 @@ export const AppTimeouts: React.FC<AppTimeoutsProps> = ({
 
     // Emergency timeout - show emergency access after 5 seconds
     const emergencyTimeout = setTimeout(() => {
-      console.warn('⚠️ Emergency timeout triggered');
+      secureLog.warn('⚠️ Emergency timeout triggered');
       onEmergencyTimeout();
     }, 5000);
 
     // Force timeout - stop loading after 10 seconds
     const forceTimeout = setTimeout(() => {
-      console.warn('⚠️ Force timeout - stopping loading');
+      secureLog.warn('⚠️ Force timeout - stopping loading');
       onForceTimeout('Loading took too long. Activating emergency access! 🚨');
     }, 10000);
 

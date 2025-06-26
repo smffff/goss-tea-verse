@@ -60,7 +60,7 @@ const TippingModal: React.FC<TippingModalProps> = ({ isOpen, onClose }) => {
       });
       setTimeout(() => setCopiedAddress(null), 2000);
     } catch (err) {
-      console.error('Failed to copy: ', err);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to copy: ', err);
       toast({
         title: "Copy Failed",
         description: "Couldn't copy address. Please try again.",

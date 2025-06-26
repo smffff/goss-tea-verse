@@ -122,7 +122,7 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
       }, 'info');
 
     } catch (error) {
-      console.error('Submission error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Submission error:', error);
       toast({
         title: "Submission Failed",
         description: error instanceof Error ? error.message : 'An unexpected error occurred',

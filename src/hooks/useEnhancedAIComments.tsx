@@ -47,7 +47,7 @@ export const useEnhancedAIComments = () => {
         });
       }
     } catch (error) {
-      console.error('useEnhancedAIComments - Error generating AI commentary:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('useEnhancedAIComments - Error generating AI commentary:', error);
     }
   };
 

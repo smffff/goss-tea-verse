@@ -36,7 +36,7 @@ const SecurityDashboard: React.FC = () => {
         activeThreats: Math.floor(Math.random() * 5)
       });
     } catch (error) {
-      console.error('Failed to load security metrics:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to load security metrics:', error);
     } finally {
       setIsLoading(false);
     }

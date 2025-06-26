@@ -77,7 +77,7 @@ const CTeaBotCommentary: React.FC<CTeaBotCommentaryProps> = ({
         });
       }
     } catch (error) {
-      console.error('Error generating AI commentary:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error generating AI commentary:', error);
       toast({
         title: "AI Commentary Failed",
         description: "CTeaBot is taking a tea break. Try again in a moment.",

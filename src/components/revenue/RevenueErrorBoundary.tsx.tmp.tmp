@@ -1,0 +1,58 @@
+
+import React, { Component, ReactNode } from 'react';
+import { Card } from '@/components/ui/card';
+import { AlertTriangle } from 'lucide-react';
+
+interface Props {
+  children: ReactNode;
+  fallback?: ReactNode;
+}
+
+interface State {
+  hasError: boolean;
+  error?: Error;
+}
+
+export class RevenueErrorBoundary extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: any) {
+    if (process.env.NODE_ENV === "development") { console.error('Revenue component error:', error, errorInfo);
+    // Track error for analytics
+    if (typeof window !== 'undefined' && (window as any).posthog) {
+      (window as any).posthog.capture('revenue_component_error', {
+        error: error.message,
+        stack: error.stack,
+        errorInfo
+      });
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      if (this.props.fallback) {
+        return this.props.fallback;
+      }
+
+      return (
+        <Card className="p-4 bg-red-50 border-red-200">
+          <div className="flex items-center gap-2 text-red-700">
+            <AlertTriangle className="w-4 h-4" />
+            <span className="text-sm">Revenue feature temporarily unavailable</span>
+          </div>
+        </Card>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+export default RevenueErrorBoundary;

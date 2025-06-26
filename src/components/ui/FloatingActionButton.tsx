@@ -30,7 +30,7 @@ const FloatingActionButton: React.FC = () => {
       icon: Ghost,
       label: 'Ghost Mode',
       color: 'from-gray-500 to-gray-700',
-      action: () => console.log('Toggle ghost mode')
+      action: () => if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Toggle ghost mode')
     },
   ];
 

@@ -22,7 +22,7 @@ const SneakPeekTab: React.FC<SneakPeekTabProps> = ({ onAccessGranted }) => {
       });
       onAccessGranted('guest');
     } catch (error) {
-      console.error('Error setting sneak peek:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error setting sneak peek:', error);
       toast({
         title: "Oops! Something went sideways",
         description: "Sneak peek couldn't start. Try refreshing and we'll fix this mess 💅",

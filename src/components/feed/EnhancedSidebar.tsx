@@ -20,7 +20,7 @@ const EnhancedSidebar = () => {
 
   const handleUpgrade = () => {
     // Navigate to subscription page or open Stripe checkout
-    console.log('Opening subscription flow...');
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Opening subscription flow...');
     // You can integrate this with your payment system
   };
 

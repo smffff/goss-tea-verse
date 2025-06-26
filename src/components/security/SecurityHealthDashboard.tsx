@@ -38,7 +38,7 @@ const SecurityHealthDashboard: React.FC = () => {
         setErrorReports([report]);
       }
     } catch (error) {
-      console.error('Failed to load error reports:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to load error reports:', error);
     }
   };
 
@@ -102,7 +102,7 @@ const SecurityHealthDashboard: React.FC = () => {
       linkElement.setAttribute('download', exportFileDefaultName);
       linkElement.click();
     } catch (error) {
-      console.error('Failed to export error reports:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to export error reports:', error);
     }
   };
 

@@ -57,7 +57,7 @@ const BetaLaunchStatus: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Launch status check failed:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Launch status check failed:', error);
     } finally {
       setLoading(false);
     }

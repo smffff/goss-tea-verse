@@ -105,7 +105,7 @@ const TokenIntegration: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Error connecting wallet:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error connecting wallet:', error);
       toast({
         title: "Connection Failed",
         description: "Could not connect to wallet. Please try again.",

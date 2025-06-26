@@ -164,7 +164,7 @@ const EnhancedRealTimeFeed: React.FC = () => {
   }, []);
 
   const handleReaction = useCallback((submissionId: string, reactionType: 'hot' | 'cold' | 'spicy') => {
-    console.log(`Reaction ${reactionType} on submission ${submissionId}`);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`Reaction ${reactionType} on submission ${submissionId}`);
     // TODO: Implement reaction logic
     toast({
       title: "Reaction added! 🔥",
@@ -173,7 +173,7 @@ const EnhancedRealTimeFeed: React.FC = () => {
   }, [toast]);
 
   const handleVote = useCallback((submissionId: string, voteType: 'up' | 'down') => {
-    console.log(`Vote ${voteType} on submission ${submissionId}`);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`Vote ${voteType} on submission ${submissionId}`);
     // TODO: Implement voting logic
   }, []);
 

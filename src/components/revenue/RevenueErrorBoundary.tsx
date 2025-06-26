@@ -24,7 +24,7 @@ export class RevenueErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    console.error('Revenue component error:', error, errorInfo);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Revenue component error:', error, errorInfo);
     // Track error for analytics
     if (typeof window !== 'undefined' && (window as any).posthog) {
       (window as any).posthog.capture('revenue_component_error', {

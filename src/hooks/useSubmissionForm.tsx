@@ -120,7 +120,7 @@ export const useSubmissionForm = (
       setErrors({});
       
     } catch (error) {
-      console.error('Form submission error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Form submission error:', error);
       toast({
         title: "Submission Failed",
         description: error instanceof Error ? error.message : 'An unexpected error occurred',

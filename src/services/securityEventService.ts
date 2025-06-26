@@ -23,10 +23,10 @@ export class SecurityEventService {
       })
 
       if (error) {
-        console.error('Security event logging failed:', error)
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Security event logging failed:', error)
       }
     } catch (error) {
-      console.error('Security logging service error:', error)
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Security logging service error:', error)
     }
   }
 }

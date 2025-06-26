@@ -22,13 +22,13 @@ const ErrorRedirectHandler: React.FC<ErrorRedirectHandlerProps> = ({ children })
         // Check localStorage for any stored error flags
         const hasStoredErrors = localStorage.getItem('ctea_critical_error');
         if (hasStoredErrors) {
-          console.log('🔧 Clearing stored error flags');
+          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔧 Clearing stored error flags');
           localStorage.removeItem('ctea_critical_error');
         }
         
         setIsInitializing(false);
       } catch (error) {
-        console.error('System health check failed:', error);
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('System health check failed:', error);
         setHasError(true);
         setIsInitializing(false);
       }
@@ -40,7 +40,7 @@ const ErrorRedirectHandler: React.FC<ErrorRedirectHandlerProps> = ({ children })
   // Handle any runtime errors by redirecting gracefully
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
-      console.error('🚨 Global error caught:', event.error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('🚨 Global error caught:', event.error);
       
       // Store error for debugging but don't show to user
       try {
@@ -61,7 +61,7 @@ const ErrorRedirectHandler: React.FC<ErrorRedirectHandlerProps> = ({ children })
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      console.error('🚨 Unhandled promise rejection:', event.reason);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('🚨 Unhandled promise rejection:', event.reason);
       
       // Log for debugging
       try {

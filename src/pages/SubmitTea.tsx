@@ -96,7 +96,7 @@ const SubmitTea = () => {
           });
         }
       } catch (codeError) {
-        console.log('Beta code generation failed:', codeError);
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Beta code generation failed:', codeError);
         // Don't fail the submission if code generation fails
       }
 
@@ -108,7 +108,7 @@ const SubmitTea = () => {
       navigate('/feed');
 
     } catch (error) {
-      console.error('Submission error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Submission error:', error);
       
       toast({
         title: "Submission Failed",

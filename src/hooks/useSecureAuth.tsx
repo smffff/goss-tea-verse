@@ -46,7 +46,7 @@ export const useSecureAuth = () => {
         const { data, error } = await supabase.rpc('validate_admin_access');
         
         if (error) {
-          console.error('Session validation error:', error);
+          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Session validation error:', error);
           setSecureState(prev => ({
             ...prev,
             isAuthenticated: false,
@@ -87,7 +87,7 @@ export const useSecureAuth = () => {
         }
 
       } catch (error) {
-        console.error('Session validation failed:', error);
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Session validation failed:', error);
         setSecureState(prev => ({
           ...prev,
           isAuthenticated: false,

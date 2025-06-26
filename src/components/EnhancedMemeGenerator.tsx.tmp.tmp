@@ -1,0 +1,314 @@
+
+import React, { useState, useRef } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Download, Share2, Sparkles, Palette, Type, Image } from 'lucide-react';
+
+interface EnhancedMemeGeneratorProps {
+  submissionId: string;
+  content: string;
+  category: string;
+  onClose?: () => void;
+}
+
+const EnhancedMemeGenerator: React.FC<EnhancedMemeGeneratorProps> = ({
+  submissionId,
+  content,
+  category,
+  onClose
+}) => {
+  const [selectedTemplate, setSelectedTemplate] = useState('drake');
+  const [topText, setTopText] = useState('');
+  const [bottomText, setBottomText] = useState('');
+  const [textStyle, setTextStyle] = useState('impact');
+  const [backgroundColor, setBackgroundColor] = useState('#000000');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const templates = [
+    { id: 'drake', name: 'Drake Pointing', category: 'reaction' },
+    { id: 'distracted', name: 'Distracted Boyfriend', category: 'reaction' },
+    { id: 'wojak', name: 'Wojak Crying', category: 'crypto' },
+    { id: 'bull', name: 'Bull Market', category: 'crypto' },
+    { id: 'bear', name: 'Bear Market', category: 'crypto' },
+    { id: 'diamond', name: 'Diamond Hands', category: 'crypto' },
+    { id: 'paper', name: 'Paper Hands', category: 'crypto' },
+    { id: 'wen', name: 'Wen Moon', category: 'crypto' },
+    { id: 'nfa', name: 'NFA Template', category: 'crypto' },
+    { id: 'custom', name: 'Custom Background', category: 'custom' }
+  ];
+
+  const textStyles = [
+    { id: 'impact', name: 'Impact (Classic)', preview: 'BOLD CAPS' },
+    { id: 'comic', name: 'Comic Sans', preview: 'Friendly' },
+    { id: 'helvetica', name: 'Helvetica', preview: 'Clean' },
+    { id: 'courier', name: 'Courier', preview: 'Mono' }
+  ];
+
+  const generateMeme = async () => {
+    setIsGenerating(true);
+    try {
+      // Simulate meme generation
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // In a real implementation, this would:
+      // 1. Draw the template image on canvas
+      // 2. Add text with selected styling
+      // 3. Apply effects and filters
+      // 4. Generate downloadable image
+      
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { console.log('Meme generated:', {
+        template: selectedTemplate,
+        topText,
+        bottomText,
+        style: textStyle,
+        backgroundColor
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const shareToSocial = (platform: string) => {
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { console.log(`Sharing meme to ${platform}`);
+    // Implement sharing logic for each platform
+  };
+
+  const downloadMeme = () => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const link = document.createElement('a');
+      link.download = `ctea-meme-${submissionId}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+  };
+
+  return (
+    <Card className="p-6 bg-gradient-to-br from-ctea-dark/90 to-ctea-darker/95 border-ctea-teal/30">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Sparkles className="w-6 h-6 text-ctea-yellow" />
+            <div>
+              <h3 className="text-xl font-bold text-white">Enhanced Meme Generator</h3>
+              <p className="text-sm text-gray-400">Create viral content from your tea</p>
+            </div>
+          </div>
+          <Badge className="bg-gradient-to-r from-ctea-pink to-ctea-purple text-white">
+            Pro Tools
+          </Badge>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Controls */}
+          <div className="space-y-4">
+            {/* Template Selection */}
+            <div>
+              <label className="text-white font-medium mb-2 block">Meme Template</label>
+              <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                <SelectTrigger className="bg-ctea-dark/50 border-ctea-teal/30 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-ctea-darker border-ctea-teal/30">
+                  {templates.map((template) => (
+                    <SelectItem
+                      key={template.id}
+                      value={template.id}
+                      className="text-white hover:bg-ctea-teal/20 focus:bg-ctea-teal/20"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-ctea-purple/20 text-ctea-purple text-xs">
+                          {template.category}
+                        </Badge>
+                        {template.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Text Inputs */}
+            <div className="space-y-3">
+              <div>
+                <label className="text-white font-medium mb-2 block">Top Text</label>
+                <Input
+                  value={topText}
+                  onChange={(e) => setTopText(e.target.value)}
+                  placeholder="Enter top text..."
+                  className="bg-ctea-dark/50 border-ctea-teal/30 text-white"
+                />
+              </div>
+              <div>
+                <label className="text-white font-medium mb-2 block">Bottom Text</label>
+                <Input
+                  value={bottomText}
+                  onChange={(e) => setBottomText(e.target.value)}
+                  placeholder="Enter bottom text..."
+                  className="bg-ctea-dark/50 border-ctea-teal/30 text-white"
+                />
+              </div>
+            </div>
+
+            {/* Text Styling */}
+            <div>
+              <label className="text-white font-medium mb-2 block">Text Style</label>
+              <Select value={textStyle} onValueChange={setTextStyle}>
+                <SelectTrigger className="bg-ctea-dark/50 border-ctea-teal/30 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-ctea-darker border-ctea-teal/30">
+                  {textStyles.map((style) => (
+                    <SelectItem
+                      key={style.id}
+                      value={style.id}
+                      className="text-white hover:bg-ctea-teal/20 focus:bg-ctea-teal/20"
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span>{style.name}</span>
+                        <span className="text-gray-400 text-xs">{style.preview}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Advanced Options */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-white font-medium mb-2 block flex items-center gap-2">
+                  <Palette className="w-4 h-4" />
+                  Background
+                </label>
+                <input
+                  type="color"
+                  value={backgroundColor}
+                  onChange={(e) => setBackgroundColor(e.target.value)}
+                  className="w-full h-10 rounded border border-ctea-teal/30"
+                />
+              </div>
+              <div>
+                <label className="text-white font-medium mb-2 block flex items-center gap-2">
+                  <Type className="w-4 h-4" />
+                  Font Size
+                </label>
+                <Select defaultValue="medium">
+                  <SelectTrigger className="bg-ctea-dark/50 border-ctea-teal/30 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-ctea-darker border-ctea-teal/30">
+                    <SelectItem value="small" className="text-white">Small</SelectItem>
+                    <SelectItem value="medium" className="text-white">Medium</SelectItem>
+                    <SelectItem value="large" className="text-white">Large</SelectItem>
+                    <SelectItem value="xlarge" className="text-white">X-Large</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* AI Enhancement */}
+            <div className="p-4 bg-ctea-purple/10 rounded-lg border border-ctea-purple/30">
+              <h4 className="text-white font-medium mb-2 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-ctea-yellow" />
+                AI Enhancement
+              </h4>
+              <p className="text-sm text-gray-300 mb-3">
+                Let AI suggest viral text based on your content
+              </p>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-ctea-purple/30 text-ctea-purple hover:bg-ctea-purple/10"
+              >
+                Generate AI Text
+              </Button>
+            </div>
+          </div>
+
+          {/* Preview */}
+          <div className="space-y-4">
+            <div>
+              <label className="text-white font-medium mb-2 block">Preview</label>
+              <div className="bg-ctea-dark/30 border border-ctea-teal/20 rounded-lg p-4 aspect-square flex items-center justify-center">
+                <canvas
+                  ref={canvasRef}
+                  width={400}
+                  height={400}
+                  className="max-w-full max-h-full rounded"
+                  style={{ backgroundColor }}
+                />
+                <div className="text-center text-gray-400">
+                  <Image className="w-12 h-12 mx-auto mb-2" />
+                  <p>Meme preview will appear here</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Generate Button */}
+            <Button
+              onClick={generateMeme}
+              disabled={isGenerating || (!topText && !bottomText)}
+              className="w-full bg-gradient-ctea text-white font-bold h-12"
+            >
+              {isGenerating ? 'Generating...' : 'Generate Meme'}
+            </Button>
+
+            {/* Action Buttons */}
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                onClick={downloadMeme}
+                variant="outline"
+                className="border-ctea-teal/30 text-ctea-teal hover:bg-ctea-teal/10"
+              >
+                <Download className="w-4 h-4 mr-1" />
+                Download
+              </Button>
+              <Button
+                onClick={() => shareToSocial('twitter')}
+                variant="outline"
+                className="border-ctea-pink/30 text-ctea-pink hover:bg-ctea-pink/10"
+              >
+                <Share2 className="w-4 h-4 mr-1" />
+                Share
+              </Button>
+            </div>
+
+            {/* Social Share Options */}
+            <div className="grid grid-cols-3 gap-2">
+              <Button
+                size="sm"
+                onClick={() => shareToSocial('twitter')}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                Twitter
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => shareToSocial('telegram')}
+                className="bg-blue-400 hover:bg-blue-500 text-white"
+              >
+                Telegram
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => shareToSocial('farcaster')}
+                className="bg-purple-500 hover:bg-purple-600 text-white"
+              >
+                Farcaster
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+export default EnhancedMemeGenerator;

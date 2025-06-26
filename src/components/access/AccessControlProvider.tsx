@@ -63,7 +63,7 @@ export const AccessControlProvider: React.FC<AccessControlProviderProps> = ({ ch
         const savedLevel = localStorage.getItem('ctea-access-level') as AccessLevel;
         const savedPeekStart = localStorage.getItem('ctea-peek-start');
         
-        console.log('Initializing access control with:', { savedLevel, savedPeekStart });
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Initializing access control with:', { savedLevel, savedPeekStart });
         
         if (savedLevel && ['guest', 'authenticated', 'beta', 'admin'].includes(savedLevel)) {
           if (savedLevel === 'guest' && savedPeekStart) {
@@ -142,7 +142,7 @@ export const AccessControlProvider: React.FC<AccessControlProviderProps> = ({ ch
 
   const setAccessLevel = useCallback((level: AccessLevel) => {
     try {
-      console.log('Setting access level to:', level);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Setting access level to:', level);
       setAccessLevelState(level);
       localStorage.setItem('ctea-access-level', level);
       

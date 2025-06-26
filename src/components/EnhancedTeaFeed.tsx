@@ -40,7 +40,7 @@ const EnhancedTeaFeed = () => {
   };
 
   const handleVote = (submissionId: string, voteType: 'up' | 'down') => {
-    console.log(`Vote ${voteType} on submission ${submissionId}`);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`Vote ${voteType} on submission ${submissionId}`);
     // TODO: Implement voting logic
   };
 

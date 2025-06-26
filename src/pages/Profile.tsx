@@ -21,7 +21,7 @@ const Profile = () => {
         const data = await getUserProfileWithVisibility(user.wallet_address);
         setProfileData(data);
       } catch (error) {
-        console.error('Error loading profile:', error);
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error loading profile:', error);
       } finally {
         setLoading(false);
       }

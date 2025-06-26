@@ -1,0 +1,226 @@
+
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Coffee, Lock, Sparkles, Users, TrendingUp, Eye, Play } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { betaCodeService } from '@/services/betaCodeService';
+import { useDemo } from '@/contexts/DemoContext';
+import EnhancedLandingPage from '@/components/landing/EnhancedLandingPage';
+
+interface EnhancedBetaGateProps {
+  onAccessGranted: () => void;
+}
+
+const EnhancedBetaGate: React.FC<EnhancedBetaGateProps> = ({ onAccessGranted }) => {
+  const [betaCode, setBetaCode] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [error, setError] = useState('');
+  const [showTestCodes, setShowTestCodes] = useState(false);
+  const { toast } = useToast();
+  const { enableDemo, isPreviewMode } = useDemo();
+
+  // Show enhanced landing page if in preview mode
+  if (isPreviewMode) {
+    return <EnhancedLandingPage />;
+  }
+
+  const testCodes = betaCodeService.getTestCodes();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!betaCode.trim()) {
+      setError('Please enter a beta code');
+      return;
+    }
+
+    setIsVerifying(true);
+    setError('');
+
+    try {
+      const result = await betaCodeService.validateCode(betaCode, true);
+      
+      if (result.valid) {
+        toast({
+          title: "Access Granted! ☕",
+          description: "Welcome to CTea Newsroom!",
+        });
+        onAccessGranted();
+      } else {
+        setError(result.error || 'Invalid beta code. Request access below or try again.');
+      }
+    } catch (error) {
+      console.error('Beta verification error:', error);
+      setError('Verification failed. Please try again.');
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleDemoMode = () => {
+    enableDemo();
+    onAccessGranted();
+  };
+
+  const handleTestCode = (code: string) => {
+    setBetaCode(code);
+    setShowTestCodes(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black flex items-center justify-center p-4">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-ctea-teal rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-ctea-purple rounded-full blur-2xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-pink-500 rounded-full blur-xl animate-pulse delay-2000"></div>
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md relative z-10"
+      >
+        <Card className="bg-ctea-dark/90 border-ctea-teal/30 backdrop-blur-sm">
+          <CardHeader className="text-center">
+            <div className="w-16 h-16 mx-auto bg-gradient-to-r from-ctea-teal to-pink-400 rounded-full flex items-center justify-center mb-4">
+              <Coffee className="w-8 h-8 text-white" />
+            </div>
+            <CardTitle className="text-2xl text-white">CTea Newsroom</CardTitle>
+            <p className="text-gray-400">Beta Access Required</p>
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+            {/* Demo Access */}
+            <div className="space-y-3">
+              <Button
+                onClick={handleDemoMode}
+                className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold"
+              >
+                <Play className="w-4 h-4 mr-2" />
+                Try Demo Mode
+              </Button>
+              <p className="text-xs text-gray-400 text-center">
+                Experience CTea with sample data • No signup required
+              </p>
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-ctea-teal/20" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-ctea-dark px-2 text-gray-400">Or enter beta code</span>
+              </div>
+            </div>
+
+            {/* Beta Code Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="betaCode" className="text-white">Beta Code</Label>
+                <Input
+                  id="betaCode"
+                  placeholder="Enter your beta code..."
+                  value={betaCode}
+                  onChange={(e) => setBetaCode(e.target.value)}
+                  className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-500 focus:border-ctea-teal font-mono"
+                />
+              </div>
+
+              {error && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-red-400 text-sm"
+                >
+                  {error}
+                </motion.p>
+              )}
+
+              <Button
+                type="submit"
+                disabled={isVerifying}
+                className="w-full bg-gradient-to-r from-ctea-teal to-pink-400 hover:from-ctea-teal/80 hover:to-pink-400/80"
+              >
+                {isVerifying ? (
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
+                    Verifying...
+                  </div>
+                ) : (
+                  <div className="flex items-center">
+                    <Lock className="w-4 h-4 mr-2" />
+                    Access CTea
+                  </div>
+                )}
+              </Button>
+            </form>
+
+            {/* Test Codes */}
+            <div className="pt-4 border-t border-ctea-teal/20">
+              <Button
+                variant="ghost"
+                onClick={() => setShowTestCodes(!showTestCodes)}
+                className="w-full text-ctea-teal hover:bg-ctea-teal/10"
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                {showTestCodes ? 'Hide' : 'Show'} Test Codes
+              </Button>
+
+              <AnimatePresence>
+                {showTestCodes && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-3 space-y-2"
+                  >
+                    <p className="text-xs text-gray-400 text-center">Quick access codes for testing:</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {testCodes.map((code) => (
+                        <Badge
+                          key={code}
+                          variant="outline"
+                          className="cursor-pointer border-ctea-teal/30 text-ctea-teal hover:bg-ctea-teal/10 font-mono text-xs justify-center py-1"
+                          onClick={() => handleTestCode(code)}
+                        >
+                          {code}
+                        </Badge>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Help Section */}
+            <div className="pt-4 border-t border-ctea-teal/20">
+              <h3 className="text-white font-medium mb-3">Need Access?</h3>
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="p-2 bg-ctea-darker/50 rounded">
+                  <Users className="w-5 h-5 text-ctea-teal mx-auto mb-1" />
+                  <p className="text-xs text-gray-400">Join Community</p>
+                </div>
+                <div className="p-2 bg-ctea-darker/50 rounded">
+                  <TrendingUp className="w-5 h-5 text-ctea-teal mx-auto mb-1" />
+                  <p className="text-xs text-gray-400">Follow Updates</p>
+                </div>
+                <div className="p-2 bg-ctea-darker/50 rounded">
+                  <Sparkles className="w-5 h-5 text-ctea-teal mx-auto mb-1" />
+                  <p className="text-xs text-gray-400">Request Invite</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </div>
+  );
+};
+
+export default EnhancedBetaGate;

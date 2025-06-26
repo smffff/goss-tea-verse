@@ -68,7 +68,7 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({
       onClose();
 
     } catch (error) {
-      console.error('Error submitting feedback:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error submitting feedback:', error);
       toast({
         title: "Submission Failed 😤",
         description: "Couldn't submit your feedback. Even our systems have drama sometimes...",

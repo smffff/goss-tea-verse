@@ -3,7 +3,7 @@ import React from 'react';
 
 // Error handling utilities
 export const handleError = (error: Error, context?: string) => {
-  console.error(`Error in ${context || 'unknown context'}:`, error);
+  if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error(`Error in ${context || 'unknown context'}:`, error);
   
   // In production, you would send this to an error reporting service
   if (process.env.NODE_ENV === 'production') {

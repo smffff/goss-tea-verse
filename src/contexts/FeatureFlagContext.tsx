@@ -42,7 +42,7 @@ const FeatureFlagProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const parsedFlags = JSON.parse(savedFlags);
         setFlags({ ...defaultFlags, ...parsedFlags });
       } catch (error) {
-        console.error('Failed to parse feature flags:', error);
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to parse feature flags:', error);
       }
     }
   }, []);

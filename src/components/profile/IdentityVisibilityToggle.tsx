@@ -48,7 +48,7 @@ const IdentityVisibilityToggle: React.FC<IdentityVisibilityToggleProps> = ({
         });
       }
     } catch (error) {
-      console.error('Error updating visibility:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error updating visibility:', error);
       toast({
         title: "☕️ Could not change visibility",
         description: "Try again in a bit!",

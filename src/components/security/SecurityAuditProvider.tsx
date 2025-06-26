@@ -41,7 +41,7 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
       const { data: healthData, error } = await supabase.rpc('detect_policy_conflicts');
       
       if (error) {
-        console.error('Failed to check policy health:', error);
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to check policy health:', error);
         setPolicyHealth('warning');
         setSecurityScore(70);
         setThreatLevel('medium');
@@ -73,7 +73,7 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
         }, 'critical');
       }
     } catch (error) {
-      console.error('Security health check failed:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Security health check failed:', error);
       setPolicyHealth('warning');
       setSecurityScore(60);
       setThreatLevel('medium');
@@ -81,7 +81,7 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
   };
 
   const logSecurityEvent = (event: string, details: any, severity: 'low' | 'medium' | 'high' | 'critical' = 'low') => {
-    console.log(`🔐 Security Event [${severity.toUpperCase()}]:`, event, details);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`🔐 Security Event [${severity.toUpperCase()}]:`, event, details);
     
     // Only show critical alerts to avoid spam
     if (severity === 'critical') {
@@ -106,7 +106,7 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
       });
       localStorage.setItem('ctea_security_audit', JSON.stringify(auditLog.slice(-50)));
     } catch (error) {
-      console.error('Failed to store security audit log:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to store security audit log:', error);
     }
   };
 

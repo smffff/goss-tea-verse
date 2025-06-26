@@ -36,12 +36,12 @@ export class SecurityMonitoringService {
     try {
       localStorage.setItem('security_events', JSON.stringify(this.events.slice(0, 100)));
     } catch (error) {
-      console.warn('Failed to store security events:', error);
+      secureLog.warn('Failed to store security events:', error);
     }
 
     // Log critical events to console
     if (severity === 'critical' || severity === 'high') {
-      console.warn(`🚨 Security Event [${severity.toUpperCase()}]:`, eventType, details);
+      secureLog.warn(`🚨 Security Event [${severity.toUpperCase()}]:`, eventType, details);
     }
   }
 
@@ -74,7 +74,7 @@ export class SecurityMonitoringService {
         }));
       }
     } catch (error) {
-      console.warn('Failed to load security events from storage:', error);
+      secureLog.warn('Failed to load security events from storage:', error);
     }
   }
 }

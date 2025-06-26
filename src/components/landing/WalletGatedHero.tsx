@@ -71,7 +71,7 @@ const WalletGatedHero: React.FC<WalletGatedHeroProps> = ({
     try {
       await connectWallet(type);
     } catch (error) {
-      console.error('Failed to connect wallet:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to connect wallet:', error);
     } finally {
       setIsConnecting(false);
     }

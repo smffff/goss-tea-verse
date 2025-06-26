@@ -47,7 +47,7 @@ const LiveTeaApp: React.FC<LiveTeaAppProps> = ({ onLogout }) => {
       const transformedData = (data || []).map(transformSubmission);
       setSubmissions(transformedData);
     } catch (error) {
-      console.error('Error fetching submissions:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching submissions:', error);
       toast({
         title: "Error Loading Feed",
         description: "Could not load latest tea. Please refresh.",
@@ -75,7 +75,7 @@ const LiveTeaApp: React.FC<LiveTeaAppProps> = ({ onLogout }) => {
         dailyGrowth: Math.floor(Math.random() * 50) + 10 // Simulated for now
       });
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching stats:', error);
     }
   };
 
@@ -137,7 +137,7 @@ const LiveTeaApp: React.FC<LiveTeaAppProps> = ({ onLogout }) => {
         description: "Your reaction has been recorded!",
       });
     } catch (error) {
-      console.error('Reaction error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Reaction error:', error);
     }
   };
 

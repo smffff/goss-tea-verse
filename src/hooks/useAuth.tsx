@@ -17,7 +17,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  console.log('🔐 [AuthProvider] Initializing...');
+  if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔐 [AuthProvider] Initializing...');
   
   const { wallet, disconnectWallet } = useWallet();
   const { 
@@ -40,7 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSession
   );
 
-  console.log('👛 [AuthProvider] Wallet state:', { 
+  if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('👛 [AuthProvider] Wallet state:', { 
     address: wallet.address, 
     isConnected: wallet.isConnected,
     chainId: wallet.chainId 
@@ -51,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let mounted = true;
 
     if (wallet.isConnected && wallet.address && !user) {
-      console.log('🔄 [AuthProvider] Triggering wallet sync...');
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔄 [AuthProvider] Triggering wallet sync...');
       syncWalletUser(wallet.address, setUser, setSession, setLoading, refreshBalance);
     }
 
@@ -63,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Handle wallet disconnection
   useEffect(() => {
     if (!wallet.isConnected) {
-      console.log('👛 [AuthProvider] Wallet disconnected, clearing user state');
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('👛 [AuthProvider] Wallet disconnected, clearing user state');
       setUser(null);
       setSession(null);
     }
@@ -82,7 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     refreshBalance,
   };
 
-  console.log('🔐 [AuthProvider] Rendering with value:', { 
+  if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔐 [AuthProvider] Rendering with value:', { 
     hasUser: !!user, 
     hasSession: !!session, 
     loading, 

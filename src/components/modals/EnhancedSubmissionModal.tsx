@@ -49,7 +49,7 @@ const EnhancedSubmissionModal: React.FC<EnhancedSubmissionModalProps> = ({
       setEmail('');
       onClose();
     } catch (error) {
-      console.error('Submission error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Submission error:', error);
       toast({
         title: "Submission Failed",
         description: "Please try again later.",

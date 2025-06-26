@@ -33,7 +33,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log error using the available handleError function
     handleError(error, 'EnhancedErrorBoundary')
-    console.error('Error details:', {
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error details:', {
       componentStack: errorInfo.componentStack,
       errorBoundary: true,
       errorId: this.state.errorId

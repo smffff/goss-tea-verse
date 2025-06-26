@@ -47,7 +47,7 @@ const SimpleBetaLanding: React.FC<SimpleBetaLandingProps> = ({ onAccessGranted }
         setError('Invalid beta code. Need access? Request an invite from the CTea team!');
       }
     } catch (error) {
-      console.error('Beta verification error:', error);
+      secureLog.error('Beta verification error:', error);
       setError('Verification failed. Please try again.');
     } finally {
       setIsVerifying(false);

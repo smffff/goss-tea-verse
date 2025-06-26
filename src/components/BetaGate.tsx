@@ -47,7 +47,7 @@ const BetaGate: React.FC<BetaGateProps> = ({ onAccessGranted }) => {
         setError(result.error || 'Invalid beta code. Please check your code and try again.');
       }
     } catch (error) {
-      console.error('Beta verification error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Beta verification error:', error);
       setError('Verification failed. Please try again.');
     } finally {
       setIsVerifying(false);
@@ -82,7 +82,7 @@ const BetaGate: React.FC<BetaGateProps> = ({ onAccessGranted }) => {
         setError(result.error || 'Failed to generate access code');
       }
     } catch (error) {
-      console.error('Spill tea error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Spill tea error:', error);
       setError('Failed to spill tea. Please try again.');
     } finally {
       setIsSpilling(false);

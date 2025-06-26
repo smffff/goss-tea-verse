@@ -32,7 +32,7 @@ class ErrorBoundary extends Component<Props, State> {
 
   static getDerivedStateFromError(error: Error): Partial<State> {
     const errorId = `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    console.error(`[ErrorBoundary ${errorId}] Error caught:`, error);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error(`[ErrorBoundary ${errorId}] Error caught:`, error);
     return {
       hasError: true,
       error,
@@ -42,9 +42,9 @@ class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     const { componentName = 'Unknown' } = this.props;
-    console.error(`[ErrorBoundary] Error in ${componentName}:`, error);
-    console.error(`[ErrorBoundary] Component stack:`, errorInfo.componentStack);
-    console.error(`[ErrorBoundary] Error stack:`, error.stack);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error(`[ErrorBoundary] Error in ${componentName}:`, error);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error(`[ErrorBoundary] Component stack:`, errorInfo.componentStack);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error(`[ErrorBoundary] Error stack:`, error.stack);
     
     this.setState({
       error,
@@ -69,7 +69,7 @@ class ErrorBoundary extends Component<Props, State> {
         props: this.props
       };
       
-      console.log(`[ErrorBoundary] Detailed error data:`, errorData);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`[ErrorBoundary] Detailed error data:`, errorData);
       
       // Store in localStorage for debugging
       try {
@@ -81,20 +81,20 @@ class ErrorBoundary extends Component<Props, State> {
         }
         localStorage.setItem('ctea_error_log', JSON.stringify(existingErrors));
       } catch (storageError) {
-        console.warn('[ErrorBoundary] Could not store error in localStorage:', storageError);
+        secureLog.warn('[ErrorBoundary] Could not store error in localStorage:', storageError);
       }
     } catch (logError) {
-      console.error('[ErrorBoundary] Failed to log error:', logError);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('[ErrorBoundary] Failed to log error:', logError);
     }
   };
 
   handleReload = () => {
-    console.log('[ErrorBoundary] User triggered page reload');
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('[ErrorBoundary] User triggered page reload');
     window.location.reload();
   };
 
   handleReset = () => {
-    console.log('[ErrorBoundary] User triggered error reset');
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('[ErrorBoundary] User triggered error reset');
     this.setState({
       hasError: false,
       error: null,

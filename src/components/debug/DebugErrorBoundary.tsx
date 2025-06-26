@@ -22,7 +22,7 @@ class DebugErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error(`Error in ${this.props.componentName || 'Component'}:`, error, errorInfo);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error(`Error in ${this.props.componentName || 'Component'}:`, error, errorInfo);
   }
 
   render() {

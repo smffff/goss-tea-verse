@@ -7,7 +7,7 @@ class CrossChainService {
   async checkAvalancheBalance(address: string): Promise<number> {
     try {
       // Mock implementation - replace with actual token contract call
-      console.log('🔍 Checking Avalanche $TEA balance for:', address);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔍 Checking Avalanche $TEA balance for:', address);
       
       // Simulate API call to check token balance
       const mockBalance = Math.floor(Math.random() * 15000); // Mock for demo
@@ -19,7 +19,7 @@ class CrossChainService {
       
       return mockBalance;
     } catch (error) {
-      console.error('Failed to check Avalanche balance:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to check Avalanche balance:', error);
       return 0;
     }
   }

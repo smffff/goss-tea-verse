@@ -30,21 +30,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('🔐 [AuthProvider] Initializing...');
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔐 [AuthProvider] Initializing...');
     
     // Get initial session
     const getInitialSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) {
-          console.error('🔐 [AuthProvider] Session error:', error);
+          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('🔐 [AuthProvider] Session error:', error);
         } else {
-          console.log('🔐 [AuthProvider] Initial session:', !!session);
+          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔐 [AuthProvider] Initial session:', !!session);
           setSession(session);
           setUser(session?.user || null);
         }
       } catch (error) {
-        console.error('🔐 [AuthProvider] Failed to get session:', error);
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('🔐 [AuthProvider] Failed to get session:', error);
       } finally {
         setLoading(false);
       }
@@ -55,7 +55,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔐 [AuthProvider] Auth state changed:', event);
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔐 [AuthProvider] Auth state changed:', event);
         setSession(session);
         setUser(session?.user || null);
         setLoading(false);
@@ -71,7 +71,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await supabase.auth.signOut();
     } catch (error) {
-      console.error('🔐 [AuthProvider] Sign out error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('🔐 [AuthProvider] Sign out error:', error);
     }
   };
 

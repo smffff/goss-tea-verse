@@ -25,7 +25,7 @@ function App() {
     
     // Only log in development
     if (process.env.NODE_ENV === 'development') {
-      console.log('Access check:', { betaAccess, accessMethod, devRoutes, demoMode, existingAccess });
+      secureLog.info('Access check:', { betaAccess, accessMethod, devRoutes, demoMode, existingAccess });
     }
     
     setHasAccess(existingAccess);
@@ -33,7 +33,7 @@ function App() {
 
   const handleAccessGranted = () => {
     if (process.env.NODE_ENV === 'development') {
-      console.log('Access granted');
+      secureLog.info('Access granted');
     }
     setHasAccess(true);
   };

@@ -38,7 +38,7 @@ const MemeRemixer: React.FC<MemeRemixerProps> = ({
       });
 
     } catch (error) {
-      console.error('Error generating meme:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error generating meme:', error);
       toast({
         title: "Meme Generation Failed",
         description: "Couldn't generate your meme. Please try again.",
@@ -70,7 +70,7 @@ const MemeRemixer: React.FC<MemeRemixerProps> = ({
         });
       }
     } catch (error) {
-      console.error('Error sharing meme:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error sharing meme:', error);
     }
   };
 

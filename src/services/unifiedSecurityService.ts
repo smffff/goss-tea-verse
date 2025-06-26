@@ -64,7 +64,7 @@ export class UnifiedSecurityService {
         }
       };
     } catch (error) {
-      console.error('Unified security validation failed:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Unified security validation failed:', error);
       
       // Fallback validation
       return {

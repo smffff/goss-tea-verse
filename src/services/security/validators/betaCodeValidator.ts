@@ -23,7 +23,7 @@ export class BetaCodeValidator {
     let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
 
     try {
-      console.log('🔍 Starting beta code validation:', code.substring(0, 4) + '...');
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔍 Starting beta code validation:', code.substring(0, 4) + '...');
       
       // Basic format validation
       if (!code || code.length < 3) {
@@ -54,23 +54,23 @@ export class BetaCodeValidator {
 
       // Enhanced server-side validation with better error handling
       try {
-        console.log('🌐 Calling Supabase RPC for beta code validation...');
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🌐 Calling Supabase RPC for beta code validation...');
         const { data: result, error } = await supabase.rpc('validate_beta_code', {
           p_code: code.trim().toUpperCase()
         });
 
         if (error) {
-          console.error('🚨 Supabase RPC error:', error);
+          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('🚨 Supabase RPC error:', error);
           threats.push('Server validation failed');
           securityScore -= 40;
           riskLevel = 'high';
           recommendations.push('Try the tea spill method instead');
         } else {
-          console.log('📦 Server response:', result);
+          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('📦 Server response:', result);
           
           // Handle the response properly - check if it's the expected format
           if (!result) {
-            console.warn('⚠️ Empty response from server');
+            secureLog.warn('⚠️ Empty response from server');
             threats.push('Invalid server response');
             securityScore -= 30;
             riskLevel = 'medium';
@@ -79,15 +79,15 @@ export class BetaCodeValidator {
             // New format response - safely convert the type
             const validationResult = safeConvertToBetaCodeResponse(result as unknown);
             if (validationResult && !validationResult.valid) {
-              console.log('❌ Beta code marked as invalid by server');
+              if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('❌ Beta code marked as invalid by server');
               threats.push('Invalid beta code');
               securityScore -= 30;
               riskLevel = 'medium';
               recommendations.push('Request a new beta code or try tea spilling');
             } else if (validationResult) {
-              console.log('✅ Beta code validated successfully');
+              if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('✅ Beta code validated successfully');
             } else {
-              console.warn('⚠️ Could not parse server response');
+              secureLog.warn('⚠️ Could not parse server response');
               threats.push('Server response format error');
               securityScore -= 20;
               riskLevel = 'medium';
@@ -95,23 +95,23 @@ export class BetaCodeValidator {
           } else if (typeof result === 'boolean') {
             // Simple boolean response
             if (!result) {
-              console.log('❌ Beta code validation returned false');
+              if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('❌ Beta code validation returned false');
               threats.push('Invalid beta code');
               securityScore -= 30;
               riskLevel = 'medium';
               recommendations.push('Try other access methods');
             } else {
-              console.log('✅ Beta code validated successfully (boolean)');
+              if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('✅ Beta code validated successfully (boolean)');
             }
           } else {
-            console.warn('⚠️ Unexpected response format:', typeof result, result);
+            secureLog.warn('⚠️ Unexpected response format:', typeof result, result);
             threats.push('Unexpected server response format');
             securityScore -= 20;
             riskLevel = 'medium';
           }
         }
       } catch (rpcError: any) {
-        console.error('🚨 RPC call failed:', rpcError);
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('🚨 RPC call failed:', rpcError);
         threats.push('Network validation failed');
         securityScore -= 30;
         riskLevel = 'high';
@@ -120,7 +120,7 @@ export class BetaCodeValidator {
 
       const isValid = threats.length === 0 && securityScore >= 70;
       
-      console.log('📊 Beta code validation result:', {
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('📊 Beta code validation result:', {
         isValid,
         securityScore,
         threats,
@@ -135,7 +135,7 @@ export class BetaCodeValidator {
         riskLevel
       };
     } catch (error: any) {
-      console.error('💥 Beta code validation error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('💥 Beta code validation error:', error);
       return {
         isValid: false,
         securityScore: 0,

@@ -39,7 +39,7 @@ export const getRandomLoadingMessage = (): string => {
 };
 
 export const logError = (error: any, context: string) => {
-  console.error(`[${context}]`, error);
+  if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error(`[${context}]`, error);
   
   // In production, you might want to send to an error tracking service
   if (process.env.NODE_ENV === 'production') {

@@ -69,7 +69,7 @@ class BetaCodeService {
           .eq('id', codeData.id);
 
         if (updateError) {
-          console.error('Failed to mark code as used:', updateError);
+          secureLog.error('Failed to mark code as used:', updateError);
         }
 
         // Store real beta access
@@ -84,7 +84,7 @@ class BetaCodeService {
       };
 
     } catch (error) {
-      console.error('Code validation error:', error);
+      secureLog.error('Code validation error:', error);
       return { valid: false, error: 'Validation failed. Please try again.' };
     }
   }
@@ -125,13 +125,13 @@ class BetaCodeService {
         });
 
       if (error) {
-        console.error('Failed to generate beta code:', error);
+        secureLog.error('Failed to generate beta code:', error);
         return { success: false, error: 'Failed to generate access code' };
       }
 
       return { success: true, code };
     } catch (error) {
-      console.error('Code generation error:', error);
+      secureLog.error('Code generation error:', error);
       return { success: false, error: 'Code generation failed' };
     }
   }

@@ -90,7 +90,7 @@ const EnhancedAccessModal: React.FC<EnhancedAccessModalProps> = ({
         setError(result.error || 'Failed to generate access code');
       }
     } catch (error) {
-      console.error('Spill tea error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Spill tea error:', error);
       setError('Failed to spill tea. Please try again.');
     } finally {
       setIsLoading(false);

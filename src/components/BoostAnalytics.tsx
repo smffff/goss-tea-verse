@@ -92,7 +92,7 @@ const BoostAnalytics: React.FC = () => {
       setStats(mockStats);
 
     } catch (error) {
-      console.error('Error fetching boost stats:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching boost stats:', error);
       toast({
         title: "Error",
         description: "Failed to load boost analytics.",

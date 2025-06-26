@@ -15,7 +15,7 @@ export const useRealTime = ({ setSubmissions }: UseRealTimeProps) => {
   const channelRef = useRef<RealtimeChannel | null>(null);
 
   useEffect(() => {
-    console.log('Setting up real-time subscription');
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Setting up real-time subscription');
     
     // Clean up existing channel
     if (channelRef.current) {
@@ -32,7 +32,7 @@ export const useRealTime = ({ setSubmissions }: UseRealTimeProps) => {
           table: 'tea_submissions'
         },
         (payload) => {
-          console.log('New submission:', payload);
+          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('New submission:', payload);
           const newSubmission = payload.new as TeaSubmission;
           
           if (newSubmission.status === 'approved') {
@@ -54,7 +54,7 @@ export const useRealTime = ({ setSubmissions }: UseRealTimeProps) => {
           table: 'tea_submissions'
         },
         (payload) => {
-          console.log('Submission updated:', payload);
+          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Submission updated:', payload);
           const updatedSubmission = payload.new as TeaSubmission;
           
           if (updatedSubmission.status === 'approved') {

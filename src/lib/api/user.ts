@@ -42,7 +42,7 @@ export async function upsertUserProfile({
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error upserting user profile:', error);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error upserting user profile:', error);
     throw error;
   }
 }

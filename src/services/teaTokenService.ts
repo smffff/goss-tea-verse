@@ -15,7 +15,7 @@ export class TeaTokenService {
         .single()
 
       if (balanceError && balanceError.code !== 'PGRST116') {
-        console.error('Error fetching balance:', balanceError)
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching balance:', balanceError)
         throw balanceError
       }
 
@@ -26,7 +26,7 @@ export class TeaTokenService {
         .eq('wallet_address', address)
 
       if (transactionError) {
-        console.error('Error fetching transaction stats:', transactionError)
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching transaction stats:', transactionError)
       }
 
       // Calculate stats
@@ -47,7 +47,7 @@ export class TeaTokenService {
         rewards_received: rewardsReceived
       }
     } catch (error: unknown) {
-      console.error('Error fetching balance:', error)
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching balance:', error)
       throw error
     }
   }
@@ -64,7 +64,7 @@ export class TeaTokenService {
         .limit(limit)
 
       if (error) {
-        console.error('Error fetching transactions:', error)
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching transactions:', error)
         throw error
       }
 
@@ -83,7 +83,7 @@ export class TeaTokenService {
         created_at: t.created_at
       }))
     } catch (error: unknown) {
-      console.error('Error fetching transactions:', error)
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching transactions:', error)
       throw error
     }
   }
@@ -106,19 +106,19 @@ export class TeaTokenService {
       })
 
       if (error) {
-        console.error('Error awarding tokens:', error)
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error awarding tokens:', error)
         return { success: false, error: error.message }
       }
 
       const result = data as any
       if (!result?.success) {
-        console.error('Token award failed:', result?.error)
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Token award failed:', result?.error)
         return { success: false, error: result?.error || 'Unknown error occurred' }
       }
 
       return { success: true, data: result }
     } catch (error: unknown) {
-      console.error('Error awarding tokens:', error)
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error awarding tokens:', error)
       return { success: false, error: 'An unexpected error occurred' }
     }
   }

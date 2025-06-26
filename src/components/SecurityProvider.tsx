@@ -61,7 +61,7 @@ export const SecurityProvider: React.FC<SecurityProviderProps> = ({ children }) 
 
         setIsSecurityEnabled(true)
       } catch (error) {
-        console.error('Security initialization failed:', error)
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Security initialization failed:', error)
         await logSecurityEvent('security_init_failed', {
           error: error instanceof Error ? error.message : 'Unknown error'
         }, 'high')

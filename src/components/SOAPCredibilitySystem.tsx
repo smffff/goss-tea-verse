@@ -69,7 +69,7 @@ const SOAPCredibilitySystem = () => {
         setUserLevel(profile.verification_level as any || 'none');
       }
     } catch (error) {
-      console.error('Error fetching SOAP data:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching SOAP data:', error);
     } finally {
       setIsLoading(false);
     }
@@ -105,7 +105,7 @@ const SOAPCredibilitySystem = () => {
         description: "Complete challenges to increase your SOAP credibility score",
       });
     } catch (error) {
-      console.error('Error starting verification challenge:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error starting verification challenge:', error);
     }
   };
 

@@ -23,7 +23,7 @@ const EnhancedLeaderboard = () => {
   const [period, setPeriod] = useState<'weekly' | 'monthly' | 'all-time'>('weekly');
   const { toast } = useToast();
 
-  console.log('EnhancedLeaderboard - Component rendered, period:', period);
+  if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('EnhancedLeaderboard - Component rendered, period:', period);
 
   useEffect(() => {
     fetchLeaderboard();
@@ -32,7 +32,7 @@ const EnhancedLeaderboard = () => {
   const fetchLeaderboard = async () => {
     try {
       setIsLoading(true);
-      console.log('EnhancedLeaderboard - Fetching leaderboard data for period:', period);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('EnhancedLeaderboard - Fetching leaderboard data for period:', period);
 
       let query = supabase
         .from('user_progression')
@@ -53,14 +53,14 @@ const EnhancedLeaderboard = () => {
       const { data, error } = await query.limit(50);
 
       if (error) {
-        console.error('EnhancedLeaderboard - Error fetching leaderboard:', error);
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('EnhancedLeaderboard - Error fetching leaderboard:', error);
         throw error;
       }
 
-      console.log('EnhancedLeaderboard - Fetched leaderboard data:', data?.length || 0, 'entries');
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('EnhancedLeaderboard - Fetched leaderboard data:', data?.length || 0, 'entries');
       setLeaderboard(data || []);
     } catch (error) {
-      console.error('EnhancedLeaderboard - Error in fetchLeaderboard:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('EnhancedLeaderboard - Error in fetchLeaderboard:', error);
       toast({
         title: "Failed to Load Leaderboard",
         description: "Couldn't fetch the latest rankings. Please try again.",

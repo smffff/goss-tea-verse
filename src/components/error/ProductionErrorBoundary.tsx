@@ -53,7 +53,7 @@ class ProductionErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Only log in development
     if (process.env.NODE_ENV === 'development') {
-      console.error('ProductionErrorBoundary caught an error:', error, errorInfo);
+      secureLog.error('ProductionErrorBoundary caught an error:', error, errorInfo);
     }
     
     this.setState({
@@ -107,7 +107,7 @@ class ProductionErrorBoundary extends Component<Props, State> {
     } catch (reportError) {
       // Silent error handling in production
       if (process.env.NODE_ENV === 'development') {
-        console.error('Failed to report error:', reportError);
+        secureLog.error('Failed to report error:', reportError);
       }
     }
   };
@@ -139,7 +139,7 @@ class ProductionErrorBoundary extends Component<Props, State> {
       // In a real implementation, this would send to an error tracking service
       // Silent in production
       if (process.env.NODE_ENV === 'development') {
-        console.log('Error report sent successfully');
+        secureLog.info('Error report sent successfully');
       }
       
       // Show success feedback
@@ -150,7 +150,7 @@ class ProductionErrorBoundary extends Component<Props, State> {
     } catch (error) {
       // Silent error handling in production
       if (process.env.NODE_ENV === 'development') {
-        console.error('Failed to send error report:', error);
+        secureLog.error('Failed to send error report:', error);
       }
       this.setState({ reportSent: false });
     }
@@ -170,7 +170,7 @@ Time: ${new Date().toISOString()}`.trim();
     navigator.clipboard.writeText(errorText).then(() => {
       // Silent in production
       if (process.env.NODE_ENV === 'development') {
-        console.log('Error details copied to clipboard');
+        secureLog.info('Error details copied to clipboard');
       }
     });
   };

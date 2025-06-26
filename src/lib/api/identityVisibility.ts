@@ -17,13 +17,13 @@ export async function updateIdentityVisibility(
       .eq('id', userId);
 
     if (error) {
-      console.error('Error updating identity visibility:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error updating identity visibility:', error);
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error) {
-    console.error('Unexpected error updating identity visibility:', error);
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Unexpected error updating identity visibility:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown error' 

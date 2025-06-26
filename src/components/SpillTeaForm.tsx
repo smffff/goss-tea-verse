@@ -59,7 +59,7 @@ const SpillTeaForm: React.FC<SpillTeaFormProps> = ({
         );
         setModerationResult(moderation);
       } catch (error) {
-        console.log('AI moderation not available, proceeding without it');
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('AI moderation not available, proceeding without it');
       }
 
       // Step 3: Submit the spill
@@ -81,12 +81,12 @@ const SpillTeaForm: React.FC<SpillTeaFormProps> = ({
             }
           );
         } catch (error) {
-          console.error('Error awarding tokens:', error);
+          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error awarding tokens:', error);
           // Don't fail the submission if token award fails
         }
       }
     } catch (error) {
-      console.error('Submission error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Submission error:', error);
       throw error;
     } finally {
       setIsModerating(false);

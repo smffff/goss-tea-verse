@@ -59,7 +59,7 @@ const ImageUpload = ({ onImageUploaded, onImageRemoved, currentImage }: ImageUpl
         description: "Your meme is ready to spill with the tea!",
       });
     } catch (error: unknown) {
-      console.error('Upload error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Upload error:', error);
       toast({
         title: "Upload Failed",
         description: "Couldn't upload your image. Please try again.",

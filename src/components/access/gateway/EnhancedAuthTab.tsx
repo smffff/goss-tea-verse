@@ -102,7 +102,7 @@ const EnhancedAuthTab: React.FC<EnhancedAuthTabProps> = ({
         setError(errorMessage);
       }
     } catch (error: any) {
-      console.error('Login error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Login error:', error);
       logSecurityEvent('login_system_error', { error: error.message }, 'high');
       setError('Login failed - system error occurred');
     } finally {
@@ -163,7 +163,7 @@ const EnhancedAuthTab: React.FC<EnhancedAuthTabProps> = ({
         setError(errorMessage);
       }
     } catch (error: any) {
-      console.error('Signup error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Signup error:', error);
       logSecurityEvent('signup_system_error', { error: error.message }, 'high');
       setError('Signup failed - system error occurred');
     } finally {

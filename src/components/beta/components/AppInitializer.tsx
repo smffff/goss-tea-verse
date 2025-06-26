@@ -20,7 +20,7 @@ export const AppInitializer: React.FC<AppInitializerProps> = ({
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        console.log('🚀 Starting CTea app initialization...');
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🚀 Starting CTea app initialization...');
         onLoadingSteps(1);
         
         // Check for existing access
@@ -28,30 +28,30 @@ export const AppInitializer: React.FC<AppInitializerProps> = ({
         const betaAccess = localStorage.getItem('ctea-beta-access');
         const demoMode = localStorage.getItem('ctea-demo-mode');
         
-        console.log('📱 Found existing storage:', { savedLevel, betaAccess, demoMode });
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('📱 Found existing storage:', { savedLevel, betaAccess, demoMode });
         
         onLoadingSteps(2);
         await new Promise(resolve => setTimeout(resolve, 300));
         
         // Determine initial access level
         if (savedLevel && ['guest', 'authenticated', 'beta', 'admin'].includes(savedLevel)) {
-          console.log('✅ Using saved access level:', savedLevel);
+          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('✅ Using saved access level:', savedLevel);
           setAccessLevel(savedLevel);
         } else if (betaAccess || demoMode) {
-          console.log('🔄 Upgrading to beta access from legacy storage');
+          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔄 Upgrading to beta access from legacy storage');
           setAccessLevel('beta');
         } else {
-          console.log('🆕 No existing access found, defaulting to guest');
+          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🆕 No existing access found, defaulting to guest');
           setAccessLevel('guest');
         }
         
         onLoadingSteps(3);
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        console.log('✅ App initialization complete');
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('✅ App initialization complete');
         onInitialized();
       } catch (error) {
-        console.error('💥 App initialization error:', error);
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('💥 App initialization error:', error);
         logError(error, 'App initialization');
         onError(getRandomErrorMessage());
       }

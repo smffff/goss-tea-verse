@@ -1,0 +1,226 @@
+
+import React, { useState, useEffect } from 'react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Shield, Star, Award, TrendingUp, CheckCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+interface SOAPData {
+  total_verifications: number;
+  successful_verifications: number;
+  failed_verifications: number;
+  moderation_actions: number;
+  community_trust_score: number;
+  soap_tokens: number;
+  verification_accuracy: number;
+  last_verification_date: string;
+}
+
+const SOAPCredibilitySystem = () => {
+  const [soapData, setSoapData] = useState<SOAPData>({
+    total_verifications: 0,
+    successful_verifications: 0,
+    failed_verifications: 0,
+    moderation_actions: 0,
+    community_trust_score: 0,
+    soap_tokens: 0,
+    verification_accuracy: 0,
+    last_verification_date: ''
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [userLevel, setUserLevel] = useState<'none' | 'basic' | 'verified' | 'trusted' | 'legendary'>('none');
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchSOAPData();
+  }, []);
+
+  const fetchSOAPData = async () => {
+    try {
+      const anonymousToken = localStorage.getItem('ctea_anonymous_token');
+      if (!anonymousToken) {
+        setIsLoading(false);
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('anonymous_token', anonymousToken)
+        .single();
+
+      if (profile) {
+        // Mock SOAP data since these fields don't exist in the database
+        const mockSOAPData: SOAPData = {
+          total_verifications: Math.floor(Math.random() * 50) + 10,
+          successful_verifications: Math.floor(Math.random() * 40) + 8,
+          failed_verifications: Math.floor(Math.random() * 5) + 1,
+          moderation_actions: Math.floor(Math.random() * 20) + 5,
+          community_trust_score: Math.floor(Math.random() * 30) + 70,
+          soap_tokens: Math.floor(Math.random() * 1000) + 100,
+          verification_accuracy: Math.floor(Math.random() * 20) + 80,
+          last_verification_date: new Date().toISOString()
+        };
+
+        setSoapData(mockSOAPData);
+        setUserLevel(profile.verification_level as any || 'none');
+      }
+    } catch (error) {
+      console.error('Error fetching SOAP data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const calculateSOAPScore = () => {
+    const accuracy = soapData.verification_accuracy;
+    const trustScore = soapData.community_trust_score;
+    const moderationBonus = Math.min(soapData.moderation_actions * 2, 20);
+    
+    return Math.min(accuracy + trustScore + moderationBonus, 100);
+  };
+
+  const getVerificationBadge = (level: string) => {
+    switch (level) {
+      case 'legendary':
+        return { icon: '👑', color: 'text-yellow-400', name: 'Legendary Verifier' };
+      case 'trusted':
+        return { icon: '💎', color: 'text-blue-400', name: 'Trusted Verifier' };
+      case 'verified':
+        return { icon: '✅', color: 'text-green-400', name: 'Verified Member' };
+      case 'basic':
+        return { icon: '🔰', color: 'text-gray-400', name: 'Basic Member' };
+      default:
+        return { icon: '👤', color: 'text-gray-500', name: 'New Member' };
+    }
+  };
+
+  const initiateVerificationChallenge = async () => {
+    try {
+      toast({
+        title: "Verification Challenge Started! 🎯",
+        description: "Complete challenges to increase your SOAP credibility score",
+      });
+    } catch (error) {
+      console.error('Error starting verification challenge:', error);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Card className="p-6 bg-ctea-dark/30 border border-ctea-teal/20">
+        <div className="animate-pulse space-y-4">
+          <div className="h-4 bg-ctea-teal/20 rounded"></div>
+          <div className="h-8 bg-ctea-teal/20 rounded"></div>
+          <div className="h-4 bg-ctea-teal/20 rounded"></div>
+        </div>
+      </Card>
+    );
+  }
+
+  const soapScore = calculateSOAPScore();
+  const badge = getVerificationBadge(userLevel);
+
+  return (
+    <div className="space-y-6">
+      {/* SOAP Score Overview */}
+      <Card className="p-6 bg-gradient-to-br from-ctea-dark/80 to-ctea-darker/90 border-ctea-teal/30">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-bold text-white flex items-center gap-2">
+            <Shield className="w-6 h-6 text-ctea-teal" />
+            SOAP Credibility Score
+          </h3>
+          <Badge className={`${badge.color} bg-ctea-dark/50 border border-ctea-teal/30`}>
+            {badge.icon} {badge.name}
+          </Badge>
+        </div>
+
+        <div className="space-y-4">
+          <div className="text-center">
+            <div className="text-4xl font-bold text-ctea-teal mb-2">{soapScore}/100</div>
+            <Progress value={soapScore} className="w-full h-3" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="text-center p-3 bg-ctea-darker/50 rounded-lg">
+              <div className="text-lg font-bold text-white">{soapData.soap_tokens}</div>
+              <div className="text-sm text-gray-400">SOAP Tokens</div>
+            </div>
+            <div className="text-center p-3 bg-ctea-darker/50 rounded-lg">
+              <div className="text-lg font-bold text-white">{soapData.verification_accuracy}%</div>
+              <div className="text-sm text-gray-400">Accuracy</div>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Verification Stats */}
+      <Card className="p-6 bg-ctea-dark/30 border border-ctea-teal/20">
+        <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+          <Star className="w-5 h-5 text-ctea-yellow" />
+          Verification Statistics
+        </h4>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-gray-300">Total Verifications</span>
+              <span className="text-white font-bold">{soapData.total_verifications}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-300">Successful</span>
+              <span className="text-green-400 font-bold">{soapData.successful_verifications}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-300">Failed</span>
+              <span className="text-red-400 font-bold">{soapData.failed_verifications}</span>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-gray-300">Moderation Actions</span>
+              <span className="text-white font-bold">{soapData.moderation_actions}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-300">Community Trust</span>
+              <span className="text-ctea-teal font-bold">{soapData.community_trust_score}%</span>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Verification Challenges */}
+      <Card className="p-6 bg-gradient-to-br from-ctea-purple/20 to-ctea-pink/20 border-ctea-purple/30">
+        <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+          <Award className="w-5 h-5 text-ctea-purple" />
+          Level Up Your Credibility
+        </h4>
+
+        <div className="space-y-3">
+          <Button
+            onClick={initiateVerificationChallenge}
+            className="w-full bg-gradient-to-r from-ctea-purple to-ctea-pink text-white"
+          >
+            <CheckCircle className="w-4 h-4 mr-2" />
+            Start Verification Challenge
+          </Button>
+          
+          <div className="text-sm text-gray-300">
+            Complete verification challenges to:
+            <ul className="list-disc list-inside mt-2 space-y-1">
+              <li>Increase your SOAP credibility score</li>
+              <li>Unlock premium verification features</li>
+              <li>Earn exclusive badges and tokens</li>
+              <li>Access advanced moderation tools</li>
+            </ul>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+export default SOAPCredibilitySystem;

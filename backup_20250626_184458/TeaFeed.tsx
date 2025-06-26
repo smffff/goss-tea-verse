@@ -1,0 +1,92 @@
+
+import React, { useEffect } from 'react';
+import TeaSubmissionCard from '@/components/TeaSubmissionCard';
+import FeedSkeleton from '@/components/FeedSkeleton';
+import { Button } from '@/components/ui/button';
+import { RefreshCw, Coffee } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useFeedState } from '@/hooks/useFeedState';
+import { useRealTime } from '@/hooks/useRealTime';
+
+const TeaFeed = () => {
+  const {
+    submissions,
+    setSubmissions,
+    isLoading,
+    fetchSubmissions,
+    handleReaction
+  } = useFeedState();
+
+  const { toast } = useToast();
+
+  // Set up real-time updates
+  useRealTime({ setSubmissions });
+
+  useEffect(() => {
+    fetchSubmissions();
+  }, [fetchSubmissions]);
+
+  const handleRefresh = async () => {
+    await fetchSubmissions();
+    toast({
+      title: "Feed Refreshed!",
+      description: "Latest tea has been loaded",
+    });
+  };
+
+  const handleVote = (submissionId: string, voteType: 'up' | 'down') => {
+    console.log(`Vote ${voteType} on submission ${submissionId}`);
+    // TODO: Implement voting logic
+  };
+
+  if (isLoading) {
+    return <FeedSkeleton />;
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Feed Header */}
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <Coffee className="w-5 h-5 text-teal-400" />
+          Latest Tea
+        </h2>
+        <Button
+          onClick={handleRefresh}
+          variant="outline"
+          size="sm"
+          className="border-teal-400/30 text-teal-400 hover:bg-teal-400/10"
+        >
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Refresh
+        </Button>
+      </div>
+
+      {/* Feed Content */}
+      {submissions.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">☕</div>
+          <h3 className="text-xl font-bold text-white mb-2">No tea found</h3>
+          <p className="text-gray-400">Be the first to spill some tea!</p>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {submissions.map((submission) => (
+            <TeaSubmissionCard
+              key={submission.id}
+              submission={submission}
+              aiComments={[]}
+              isExpanded={false}
+              onReaction={handleReaction}
+              onToggleComments={() => {}}
+              onGenerateAI={() => {}}
+              onVote={handleVote}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default TeaFeed;

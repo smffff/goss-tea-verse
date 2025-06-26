@@ -55,7 +55,7 @@ const EnhancedBetaGate: React.FC<EnhancedBetaGateProps> = ({ onAccessGranted }) 
         setError(result.error || 'Invalid beta code. Request access below or try again.');
       }
     } catch (error) {
-      console.error('Beta verification error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Beta verification error:', error);
       setError('Verification failed. Please try again.');
     } finally {
       setIsVerifying(false);

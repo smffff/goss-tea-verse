@@ -33,7 +33,7 @@ const TipModal: React.FC<TipModalProps> = ({
       const codes = ['EARLY-BIRD', 'BETA-ACCESS', 'CTEA2024'];
       return codes[Math.floor(Math.random() * codes.length)];
     } catch (error) {
-      console.error('Beta access generation error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Beta access generation error:', error);
       return 'BETA-ACCESS';
     }
   };
@@ -74,7 +74,7 @@ const TipModal: React.FC<TipModalProps> = ({
       setMessage('');
       onClose();
     } catch (error) {
-      console.error('Tip processing error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Tip processing error:', error);
       toast({
         title: "Tip Failed",
         description: "Please try again later.",

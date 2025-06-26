@@ -30,7 +30,7 @@ export const CrossChainProvider: React.FC<CrossChainProviderProps> = ({ children
 
     setIsCheckingOGStatus(true);
     try {
-      console.log('🔄 Refreshing OG status for:', wallet.address);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔄 Refreshing OG status for:', wallet.address);
       
       // Ensure we're on Avalanche network
       await web3CrossChainService.ensureAvalancheNetwork();
@@ -51,7 +51,7 @@ export const CrossChainProvider: React.FC<CrossChainProviderProps> = ({ children
         });
       }
     } catch (error) {
-      console.error('Failed to refresh OG status:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to refresh OG status:', error);
       toast({
         title: 'OG Check Failed',
         description: 'Could not verify OG status. Please ensure you\'re connected to Avalanche network.',

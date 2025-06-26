@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 
 interface RevenueContextType {
@@ -52,7 +51,9 @@ export const RevenueProvider: React.FC<RevenueProviderProps> = ({ children }) =>
       try {
         localStorage.setItem('ctea_revenue_settings', JSON.stringify(newSettings));
       } catch (error) {
-        console.error('Failed to save revenue settings:', error);
+        if (process.env.NODE_ENV === "development") {
+          console.error('Failed to save revenue settings:', error);
+        }
       }
       return newSettings;
     });
@@ -83,7 +84,9 @@ export const RevenueProvider: React.FC<RevenueProviderProps> = ({ children }) =>
         setRevenueSettings(prev => ({ ...prev, ...parsed }));
       }
     } catch (error) {
-      console.error('Failed to parse revenue settings:', error);
+      if (process.env.NODE_ENV === "development") {
+        console.error('Failed to parse revenue settings:', error);
+      }
     }
   }, []);
 

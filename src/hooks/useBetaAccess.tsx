@@ -13,7 +13,7 @@ export const useBetaAccess = (onAccessGranted: () => void) => {
       const validCodes = ['CTEA2024', 'BETA-ACCESS', 'EARLY-BIRD'];
       return validCodes.includes(code.toUpperCase());
     } catch (error) {
-      console.error('Beta code validation error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Beta code validation error:', error);
       return false;
     }
   };
@@ -41,7 +41,7 @@ export const useBetaAccess = (onAccessGranted: () => void) => {
         setError('Invalid beta code. Please check your code and try again.');
       }
     } catch (error) {
-      console.error('Beta verification error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Beta verification error:', error);
       setError('Verification failed. Please try again.');
     } finally {
       setIsVerifying(false);

@@ -15,7 +15,7 @@ export const useEnhancedFeedState = () => {
   const fetchSubmissions = useCallback(async () => {
     try {
       setIsLoading(true);
-      console.log('useEnhancedFeedState - Fetching submissions...');
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('useEnhancedFeedState - Fetching submissions...');
       
       let query = supabase
         .from('tea_submissions')
@@ -42,9 +42,9 @@ export const useEnhancedFeedState = () => {
       const filteredData = filterSubmissions(transformedData, activeFilter);
       
       setSubmissions(filteredData);
-      console.log('useEnhancedFeedState - Fetched submissions:', filteredData.length);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('useEnhancedFeedState - Fetched submissions:', filteredData.length);
     } catch (error) {
-      console.error('useEnhancedFeedState - Error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('useEnhancedFeedState - Error:', error);
       toast({
         title: "Failed to Load Feed",
         description: "Please try refreshing the page.",
@@ -73,7 +73,7 @@ export const useEnhancedFeedState = () => {
       
       return true;
     } catch (error) {
-      console.error('useEnhancedFeedState - Reaction error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('useEnhancedFeedState - Reaction error:', error);
       return false;
     }
   }, []);

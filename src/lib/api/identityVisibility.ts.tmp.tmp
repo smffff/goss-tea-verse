@@ -1,0 +1,49 @@
+
+import { supabase } from '@/integrations/supabase/client';
+
+export type IdentityVisibility = 'anon' | 'public';
+
+/**
+ * Updates user identity visibility (admin/moderator only)
+ */
+export async function updateIdentityVisibility(
+  userId: string, 
+  visibility: IdentityVisibility
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabase
+      .from('user_profiles')
+      .update({ identity_visibility: visibility })
+      .eq('id', userId);
+
+    if (error) {
+      if (process.env.NODE_ENV === "development") { console.error('Error updating identity visibility:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    if (process.env.NODE_ENV === "development") { console.error('Unexpected error updating identity visibility:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    };
+  }
+}
+
+/**
+ * Gets user profile with identity visibility
+ */
+export async function getUserProfileWithVisibility(walletAddress: string) {
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .select('*')
+    .eq('wallet_address', walletAddress)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    throw error;
+  }
+
+  return data;
+}

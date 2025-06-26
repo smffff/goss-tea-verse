@@ -34,13 +34,13 @@ export const AppRenderer: React.FC<AppRendererProps> = ({
 
   // Show access gateway if no access or guest without peek
   if (isGuestWithoutPeek) {
-    console.log('🔐 Showing access gateway');
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔐 Showing access gateway');
     return <EnhancedAccessGateway onAccessGranted={onAccessGranted} />;
   }
 
   // Show sneak peek mode with timer
   if (isGuestWithPeek) {
-    console.log('👀 Showing sneak peek mode');
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('👀 Showing sneak peek mode');
     return (
       <>
         <SneakPeekTimer 
@@ -55,7 +55,7 @@ export const AppRenderer: React.FC<AppRendererProps> = ({
 
   // Show admin dashboard
   if (accessLevel === 'admin') {
-    console.log('👑 Showing admin dashboard');
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('👑 Showing admin dashboard');
     return (
       <>
         <AdminDashboard onLogout={onLogout} />
@@ -65,7 +65,7 @@ export const AppRenderer: React.FC<AppRendererProps> = ({
   }
 
   // Show full app for authenticated/beta users
-  console.log('🎉 Showing full app for level:', accessLevel);
+  if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🎉 Showing full app for level:', accessLevel);
   return (
     <>
       <LiveTeaApp onLogout={onLogout} />

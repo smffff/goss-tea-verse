@@ -43,7 +43,7 @@ export class PerformanceService {
         
         return duration;
       } catch (error) {
-        console.warn('Performance measurement failed:', error);
+        secureLog.warn('Performance measurement failed:', error);
         return null;
       }
     }
@@ -114,7 +114,7 @@ export class PerformanceService {
 
         // Log to console in development
         if (!this.isProduction) {
-          console.log(`📊 ${vital.name}:`, vital.value, vital);
+          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`📊 ${vital.name}:`, vital.value, vital);
         }
       };
 
@@ -125,7 +125,7 @@ export class PerformanceService {
       onTTFB(reportVital);
     }).catch(() => {
       // web-vitals library not available
-      console.warn('Web Vitals library not available');
+      secureLog.warn('Web Vitals library not available');
     });
   }
 
@@ -140,7 +140,7 @@ export class PerformanceService {
           
           // Track slow resources
           if (resource.duration > 1000) {
-            console.warn(`Slow resource: ${resource.name} took ${resource.duration}ms`);
+            secureLog.warn(`Slow resource: ${resource.name} took ${resource.duration}ms`);
             
             if (this.isProduction && typeof window !== 'undefined' && window.gtag) {
               window.gtag('event', 'slow_resource', {
@@ -189,7 +189,7 @@ export class PerformanceService {
     
     console.group('🚀 CTea Performance Summary');
     Object.entries(metrics).forEach(([name, value]) => {
-      console.log(`${name}: ${value.toFixed(2)}ms`);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`${name}: ${value.toFixed(2)}ms`);
     });
     console.groupEnd();
 

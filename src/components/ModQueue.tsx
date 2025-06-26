@@ -65,7 +65,7 @@ const ModQueue = () => {
 
       setQueueItems(transformedItems);
     } catch (error) {
-      console.error('Error fetching queue items:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching queue items:', error);
       toast({
         title: "Error loading moderation queue",
         description: "Please try again later.",
@@ -94,7 +94,7 @@ const ModQueue = () => {
         description: `The submission has been ${action}d.`,
       });
     } catch (error) {
-      console.error('Error moderating submission:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error moderating submission:', error);
       toast({
         title: "Moderation failed",
         description: "Please try again.",

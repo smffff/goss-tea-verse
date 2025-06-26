@@ -49,7 +49,7 @@ const BribeButton: React.FC<BribeButtonProps> = ({ onBribeAccepted, onClose }) =
       }, 2000);
       
     } catch (error) {
-      console.error('Bribe processing failed:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Bribe processing failed:', error);
     } finally {
       setIsProcessing(false);
     }

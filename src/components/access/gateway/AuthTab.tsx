@@ -47,7 +47,7 @@ const AuthTab: React.FC<AuthTabProps> = ({
         setError(errorMessage);
       }
     } catch (error: any) {
-      console.error('Login error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Login error:', error);
       setError('Login failed - probably my code acting up again 🙄');
     } finally {
       setIsProcessing(false);
@@ -73,7 +73,7 @@ const AuthTab: React.FC<AuthTabProps> = ({
         setError(errorMessage);
       }
     } catch (error: any) {
-      console.error('Signup error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Signup error:', error);
       setError('Signup failed - this is awkward but we\'ll figure it out 💅');
     } finally {
       setIsProcessing(false);

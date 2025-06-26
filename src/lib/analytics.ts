@@ -12,10 +12,10 @@ export const trackEvent = (eventName: string, properties?: AnalyticsEvent) => {
     
     // Also log to console in development
     if (process.env.NODE_ENV === 'development') {
-      console.log('Analytics Event:', eventName, properties);
+      secureLog.info('Analytics Event:', eventName, properties);
     }
   } catch (error) {
-    console.error('Analytics tracking error:', error);
+    secureLog.error('Analytics tracking error:', error);
   }
 };
 

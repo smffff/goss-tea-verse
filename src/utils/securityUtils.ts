@@ -11,13 +11,13 @@ export const performSubmissionSecurityCheck = SecurityServiceUnified.validateSub
 export const secureLog = {
   info: (message: string, data?: any) => {
     if (process.env.NODE_ENV === 'development') {
-      console.log(message, data);
+      secureLog.info(message, data);
     }
   },
   
   error: (message: string, error?: any) => {
     if (process.env.NODE_ENV === 'development') {
-      console.error(message, error);
+      secureLog.error(message, error);
     } else {
       // In production, only log sanitized error messages
       const sanitizedError = error instanceof Error 
@@ -25,19 +25,19 @@ export const secureLog = {
         : typeof error === 'string' 
           ? error.substring(0, 100) 
           : 'Unknown error';
-      console.error(message, sanitizedError);
+      secureLog.error(message, sanitizedError);
     }
   },
   
   warn: (message: string, data?: any) => {
     if (process.env.NODE_ENV === 'development') {
-      console.warn(message, data);
+      secureLog.warn(message, data);
     }
   },
   
   debug: (message: string, data?: any) => {
     if (process.env.NODE_ENV === 'development') {
-      console.log(`[DEBUG] ${message}`, data);
+      secureLog.info(`[DEBUG] ${message}`, data);
     }
   }
 };
@@ -118,7 +118,7 @@ export const checkClientRateLimit = async (action: string, maxAttempts: number, 
     const result = await RateLimitService.checkRateLimit(token, action, maxAttempts, windowMinutes);
     return result.allowed;
   } catch (error) {
-    console.error('Rate limit check failed:', error);
+    secureLog.error('Rate limit check failed:', error);
     return false;
   }
 };

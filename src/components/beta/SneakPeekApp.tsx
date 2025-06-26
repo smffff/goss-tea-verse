@@ -42,7 +42,7 @@ const SneakPeekApp: React.FC<SneakPeekAppProps> = ({ onUpgrade }) => {
       const transformedData = (data || []).map(transformSubmission);
       setSubmissions(transformedData);
     } catch (error) {
-      console.error('Error fetching preview submissions:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching preview submissions:', error);
       // Use mock data for preview
       setSubmissions([
         {

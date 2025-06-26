@@ -38,7 +38,7 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
     setIsLoading(true);
     
     try {
-      console.log('🔑 Validating beta code:', betaCode);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔑 Validating beta code:', betaCode);
       const validation = await EnhancedAuthValidation.validateBetaCode(betaCode);
       
       if (validation.isValid) {
@@ -50,10 +50,10 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
           description: "Welcome to CTea Newsroom! Full access unlocked.",
         });
         
-        console.log('✅ Beta access granted successfully');
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('✅ Beta access granted successfully');
         onAccessGranted('beta');
       } else {
-        console.log('❌ Beta code validation failed:', validation.threats);
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('❌ Beta code validation failed:', validation.threats);
         toast({
           title: "Invalid Code",
           description: "This code is not valid or has expired. Try spilling some tea instead!",
@@ -61,7 +61,7 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
         });
       }
     } catch (error) {
-      console.error('❌ Beta code validation error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('❌ Beta code validation error:', error);
       toast({
         title: "Verification Failed",
         description: "Could not verify code. Please try again or contact support.",
@@ -94,7 +94,7 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
     setIsLoading(true);
     
     try {
-      console.log('☕ Processing tea submission for access...');
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('☕ Processing tea submission for access...');
       
       // Simulate processing with realistic delay
       await new Promise(resolve => setTimeout(resolve, 2500));
@@ -113,10 +113,10 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
         duration: 8000,
       });
       
-      console.log('✅ Tea spill access granted:', accessCode);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('✅ Tea spill access granted:', accessCode);
       onAccessGranted('guest');
     } catch (error) {
-      console.error('❌ Tea submission error:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('❌ Tea submission error:', error);
       toast({
         title: "Submission Failed",
         description: "Could not process your tea. Please try again!",
@@ -128,7 +128,7 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
   }, [spillContent, onAccessGranted, toast]);
 
   const handleSneak = useCallback(() => {
-    console.log('👀 Starting sneak peek mode...');
+    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('👀 Starting sneak peek mode...');
     localStorage.setItem('ctea-access-level', 'guest');
     localStorage.setItem('ctea-peek-start', Date.now().toString());
     

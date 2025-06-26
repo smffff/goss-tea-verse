@@ -130,7 +130,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
       setEntries(mockEntries.slice(0, maxEntries));
       setLastUpdated(new Date());
     } catch (error) {
-      console.error('Error fetching leaderboard:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching leaderboard:', error);
       toast({
         title: "Leaderboard Error",
         description: "Couldn't load leaderboard data. Please try again.",

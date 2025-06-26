@@ -1,0 +1,210 @@
+
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Coffee, Sparkles, Wallet, Shield } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { track } from '@/utils/analytics';
+import SpillTeaForm from '@/components/SpillTeaForm';
+import WalletBalance from '@/components/WalletBalance';
+import { useAuth } from '@/hooks/useAuth';
+
+const SpillTea = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Get wallet address from user profile or fallback to anonymous token
+  const walletAddress = user?.user_metadata?.wallet_address || 
+                       user?.app_metadata?.wallet_address || 
+                       (user as any)?.anonymous_token;
+  const userId = user?.id;
+
+  const handleSubmit = async (data: any) => {
+    setIsSubmitting(true);
+    
+    try {
+      // Simulate submission delay with AI moderation
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      toast({
+        title: "Tea Spilled Successfully! 🫖",
+        description: "Your gossip is brewing and will appear in the feed shortly!",
+      });
+      
+      track('tea_spilled_enhanced', {
+        anonymous: !user,
+        content_length: data.teaText.length,
+        has_media: !!data.mediaUrl,
+        topic: data.topic,
+        wallet_connected: !!walletAddress
+      });
+      
+      // Navigate to feed after submission
+      navigate('/feed');
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") { console.error('Submission error:', error);
+      toast({
+        title: "Submission Failed",
+        description: "There was an error submitting your tea. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-hero">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <img 
+            src="/ctea-logo-icon.svg" 
+            alt="CTea Newsroom" 
+            className="w-16 h-16 mx-auto mb-4"
+          />
+          <h1 className="text-3xl md:text-5xl font-display font-bold text-tabloid-black mb-4">
+            Spill Your Tea
+          </h1>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Badge className="bg-vintage-red text-white font-bold px-4 py-2">
+              <Shield className="w-4 h-4 mr-2" />
+              AI MODERATED
+            </Badge>
+            <Badge className="bg-green-600 text-white font-bold px-4 py-2">
+              <Wallet className="w-4 h-4 mr-2" />
+              $TEA REWARDS
+            </Badge>
+          </div>
+          <p className="text-lg text-tabloid-black/80 max-w-2xl mx-auto">
+            Share your crypto gossip, industry intel, or hot takes. 
+            Earn $TEA tokens for quality submissions while maintaining your privacy.
+          </p>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          {/* Submission Form */}
+          <div className="lg:col-span-2">
+            <SpillTeaForm
+              onClose={() => navigate('/feed')}
+              onSubmit={handleSubmit}
+              isLoading={isSubmitting}
+              walletAddress={walletAddress}
+              userId={userId}
+            />
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Wallet Balance */}
+            {walletAddress && (
+              <WalletBalance 
+                walletAddress={walletAddress}
+                className="sticky top-4"
+              />
+            )}
+
+            {/* How It Works */}
+            <Card className="bg-white/90 border-vintage-red/30 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-tabloid-black flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-vintage-red" />
+                  How It Works
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {[
+                  { step: '1', title: 'Submit Tea', desc: 'Share your crypto gossip or insights', icon: '📝' },
+                  { step: '2', title: 'AI Moderation', desc: 'Content is automatically moderated for quality', icon: '🤖' },
+                  { step: '3', title: 'Earn $TEA', desc: 'Get rewarded with tokens for approved content', icon: '💰' },
+                  { step: '4', title: 'Community Votes', desc: 'Users vote on credibility and relevance', icon: '🗳️' }
+                ].map((item) => (
+                  <div key={item.step} className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-vintage-red rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 mt-0.5">
+                      {item.step}
+                    </div>
+                    <div>
+                      <div className="text-2xl mb-1">{item.icon}</div>
+                      <h4 className="font-semibold text-tabloid-black text-sm">{item.title}</h4>
+                      <p className="text-xs text-tabloid-black/70">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Token Rewards Info */}
+            <Card className="bg-gradient-to-br from-green-50 to-blue-50 border-green-300 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-green-800 flex items-center gap-2">
+                  <Wallet className="w-5 h-5" />
+                  $TEA Token Rewards
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="text-sm text-green-700">
+                  <p className="font-semibold mb-2">Earn tokens for quality content:</p>
+                  <ul className="space-y-1 text-xs">
+                    <li>• 5 $TEA for approved spills</li>
+                    <li>• 2 $TEA for helpful upvotes</li>
+                    <li>• 1 $TEA for community engagement</li>
+                  </ul>
+                </div>
+                {!walletAddress && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full border-green-600 text-green-700 hover:bg-green-600 hover:text-white"
+                    onClick={() => navigate('/auth')}
+                  >
+                    Connect Wallet to Earn
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* AI Moderation Info */}
+            <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-blue-300 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-blue-800 flex items-center gap-2">
+                  <Shield className="w-5 h-5" />
+                  AI Moderation
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm text-blue-700 space-y-2">
+                  <p>Our AI ensures content quality while maintaining your privacy:</p>
+                  <ul className="text-xs space-y-1">
+                    <li>• Automatic content screening</li>
+                    <li>• Harmful content detection</li>
+                    <li>• Quality scoring system</li>
+                    <li>• Human review for edge cases</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Back to Main Site */}
+        <div className="text-center pt-8 mt-8 border-t border-vintage-red/20">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => navigate('/')}
+            className="border-tabloid-black text-tabloid-black hover:bg-tabloid-black hover:text-white"
+          >
+            Back to CTea Newsroom
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SpillTea;

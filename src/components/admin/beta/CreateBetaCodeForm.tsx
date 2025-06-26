@@ -45,7 +45,7 @@ const CreateBetaCodeForm: React.FC<CreateBetaCodeFormProps> = ({ onCodeCreated }
       setNewCode('');
       onCodeCreated();
     } catch (error: any) {
-      console.error('Error creating beta code:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error creating beta code:', error);
       toast({
         title: "Error",
         description: error.message.includes('duplicate') ? 'Code already exists' : 'Failed to create beta code',

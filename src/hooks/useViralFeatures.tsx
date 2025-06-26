@@ -145,7 +145,7 @@ export const useViralFeatures = () => {
           url: window.location.href
         });
       } catch (error) {
-        console.log('Share cancelled or failed');
+        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Share cancelled or failed');
       }
     }
   };

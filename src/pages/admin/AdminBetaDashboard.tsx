@@ -36,7 +36,7 @@ const AdminBetaDashboard: React.FC = () => {
       if (error) throw error;
       setBetaCodes(data || []);
     } catch (error) {
-      console.error('Error fetching beta codes:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching beta codes:', error);
       toast({
         title: "Error",
         description: "Failed to fetch beta codes",

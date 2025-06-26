@@ -44,7 +44,7 @@ const WalletConnectOnboarding: React.FC<WalletConnectOnboardingProps> = ({
       await new Promise(resolve => setTimeout(resolve, 2000));
       setCurrentStep(1);
     } catch (error) {
-      console.error('Failed to connect wallet:', error);
+      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to connect wallet:', error);
     } finally {
       setIsConnecting(false);
     }

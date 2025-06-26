@@ -127,7 +127,7 @@ export class EnhancedSecurityService {
 
     // Console log for development
     if (process.env.NODE_ENV === 'development') {
-      console.log(`[SECURITY] ${severity.toUpperCase()}: ${eventType}`, details);
+      secureLog.info(`[SECURITY] ${severity.toUpperCase()}: ${eventType}`, details);
     }
 
     // Handle critical events
@@ -156,7 +156,7 @@ export class EnhancedSecurityService {
         securityScore: result.securityScore
       };
     } catch (error) {
-      console.error('Advanced content validation failed:', error);
+      secureLog.error('Advanced content validation failed:', error);
       // Fallback to basic validation
       return this.validateContentBasic(content);
     }
@@ -284,7 +284,7 @@ export class EnhancedSecurityService {
 
   private handleCriticalEvent(event: SecurityEvent): void {
     // Log critical event
-    console.error('[CRITICAL SECURITY EVENT]', event);
+    secureLog.error('[CRITICAL SECURITY EVENT]', event);
     
     // Could implement additional measures like:
     // - Block the session
