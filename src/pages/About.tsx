@@ -111,12 +111,6 @@ const About = () => {
       description: 'Platform utility token for rewards and governance',
       uses: ['Content rewards', 'Staking', 'Content boosting', 'Governance voting'],
       supply: '100M total supply'
-    },
-    {
-      token: '$SOAP',
-      description: 'Credibility and reputation token',
-      uses: ['Credibility tracking', 'Feature unlocking', 'Moderation rights', 'Community governance'],
-      supply: 'Dynamic based on activity'
     }
   ];
 
@@ -287,7 +281,7 @@ const About = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-8">
               {tokenomics.map((token, index) => (
                 <div key={index} className="bg-ctea-dark/30 rounded-lg p-6 border border-ctea-yellow/20">
                   <h3 className="text-xl font-bold text-white mb-2">{token.token}</h3>
