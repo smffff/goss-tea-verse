@@ -58,7 +58,7 @@ export async function rewardEarlyUser(
   // First, get the current balance to increment it.
   const { data: balanceRow, error: balanceError } = await supabase
     .from('wallet_balances')
-    .select('tea_balance')
+    .select('tea_balance, total_earned')
     .eq('wallet_address', wallet_address)
     .maybeSingle();
 

@@ -21,10 +21,16 @@ function App() {
   const { user, session, loading } = useAuth();
   const [isBetaAccessGranted, setIsBetaAccessGranted] = useState(false);
   
-  console.log('🔍 Auth state:', { user: !!user, session: !!session, loading });
+  console.log('🔍 Auth state:', { 
+    user: !!user, 
+    session: !!session, 
+    loading,
+    userWallet: user?.wallet_address 
+  });
   
   // Simple admin check based on user email or other criteria
   const isAdmin = user?.email === 'admin@cteanews.com' || user?.email === 'stephanie@taskbytask.net';
+  console.log('👑 Admin check:', { isAdmin, userEmail: user?.email });
 
   useEffect(() => {
     const hasBetaAccess = localStorage.getItem('ctea-beta-access') === 'granted';

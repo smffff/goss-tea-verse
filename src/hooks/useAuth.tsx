@@ -56,11 +56,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  console.log('👛 Wallet state:', { address: wallet.address, isConnected: wallet.isConnected });
+  console.log('👛 Wallet state in AuthProvider:', { 
+    address: wallet.address, 
+    isConnected: wallet.isConnected,
+    chainId: wallet.chainId 
+  });
 
   // Enhanced admin/moderator check based on verification level
   const isAdmin = user?.verification_level === 'admin';
   const isModerator = user?.verification_level === 'moderator' || isAdmin;
+
+  console.log('🛡️ Role check:', { isAdmin, isModerator, verificationLevel: user?.verification_level });
 
   // Refresh wallet balance
   const refreshBalance = useCallback(async () => {
@@ -84,12 +90,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Mock sign in/up functions for compatibility
   const signIn = useCallback(async (email: string, password: string) => {
+    console.log('📧 Sign in attempt for:', email);
     // This would normally handle email/password auth
     // For now, just return success for wallet-based auth
     return { data: { user: user }, error: null };
   }, [user]);
 
   const signUp = useCallback(async (email: string, password: string) => {
+    console.log('📝 Sign up attempt for:', email);
     // This would normally handle email/password registration
     // For now, just return success for wallet-based auth
     return { data: { user: user }, error: null };
@@ -111,6 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         // Get existing anonymous token from localStorage if available
         const existingToken = localStorage.getItem('ctea-anonymous-token');
+        console.log('🎫 Existing token found:', !!existingToken);
         
         // Upsert user profile
         console.log('👤 Upserting user profile...');
@@ -121,11 +130,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (!mounted) return;
 
+        console.log('👤 Profile upserted:', profile);
+
         // Get current balance
         console.log('💰 Getting wallet balance...');
         const balance = await getWalletBalance(wallet.address);
 
         if (!mounted) return;
+
+        console.log('💰 Balance retrieved:', balance);
 
         const userData: WalletUser = {
           id: profile.wallet_address,
@@ -158,9 +171,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             });
             // Refresh balance to show the new reward
             await refreshBalance();
+          } else {
+            console.log('ℹ️ Early user reward already claimed or not applicable');
           }
         } catch (rewardError: any) {
-          console.warn('Could not process early user reward:', rewardError.message);
+          console.warn('⚠️ Could not process early user reward:', rewardError.message);
         }
 
       } catch (error: any) {
@@ -182,6 +197,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     if (wallet.isConnected && wallet.address && !user) {
+      console.log('🔄 Triggering wallet sync...');
       syncWalletUser();
     }
 
@@ -209,6 +225,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Sign out handler (same as disconnect for wallet auth)
   const signOut = useCallback(() => {
+    console.log('👋 Signing out...');
     disconnect();
   }, [disconnect]);
 
@@ -230,7 +247,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     hasSession: !!session, 
     loading, 
     isAdmin, 
-    isModerator 
+    isModerator,
+    userWallet: user?.wallet_address
   });
 
   return (

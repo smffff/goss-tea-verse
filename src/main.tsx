@@ -17,6 +17,9 @@ if (!rootElement) {
 
 console.log('✅ Root element found, creating app...');
 
+// Debug: Check if AuthProvider exists
+console.log('🔐 AuthProvider available:', typeof AuthProvider);
+
 createRoot(rootElement).render(
   <HelmetProvider>
     <AuthProvider>
@@ -40,3 +43,5 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
 
 // Call Vercel Analytics inject
 inject();
+
+console.log('🎯 Main.tsx execution complete');
