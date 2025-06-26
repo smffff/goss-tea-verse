@@ -102,7 +102,7 @@ export class TeaTokenService {
         p_action: action,
         p_amount: amount,
         p_spill_id: spillId,
-        p_metadata: metadata || {}
+        p_metadata: metadata ? JSON.parse(JSON.stringify(metadata)) : null
       })
 
       if (error) {
