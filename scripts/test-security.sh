@@ -55,13 +55,17 @@ test_edge_function() {
     # Get the project URL from environment
     if [ -f ".env.local" ]; then
         SUPABASE_URL=$(grep "SUPABASE_URL" .env.local | cut -d '=' -f2)
+        SUPABASE_SERVICE_ROLE_KEY=$(grep "SUPABASE_SERVICE_ROLE_KEY" .env.local | cut -d '=' -f2)
         PROJECT_REF=$(echo $SUPABASE_URL | sed 's|https://||' | sed 's|.supabase.co||')
         ENDPOINT="https://${PROJECT_REF}.functions.supabase.co/harden_security"
         
         print_status "Testing: $ENDPOINT"
         
-        # Test the function
-        response=$(curl -s -X POST "$ENDPOINT" -H "Content-Type: application/json" -d '{"test": true}' 2>/dev/null || echo "ERROR")
+        # Test the function with proper authentication
+        response=$(curl -s -X POST "$ENDPOINT" \
+          -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+          -H "Content-Type: application/json" \
+          -d '{"test": true}' 2>/dev/null || echo "ERROR")
         
         if [ "$response" = "ERROR" ]; then
             print_error "Failed to connect to Edge Function"
