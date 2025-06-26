@@ -36,6 +36,8 @@ interface WalletProviderProps {
 }
 
 export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
+  console.log('👛 WalletProvider initializing...');
+  
   const [wallet, setWallet] = useState<WalletState>({
     isConnected: false,
     address: null,
@@ -51,6 +53,8 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
   const AVALANCHE_TESTNET_CHAIN_ID = 43113;
 
   const connectWallet = async (type: 'metamask' | 'walletconnect' | 'core') => {
+    console.log('🔗 Connecting wallet:', type);
+    
     try {
       if ((type === 'metamask' || type === 'core') && typeof window.ethereum !== 'undefined') {
         const accounts = await window.ethereum.request({
@@ -73,6 +77,7 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
             }
           };
 
+          console.log('✅ Wallet connected:', newWalletState);
           setWallet(newWalletState);
 
           localStorage.setItem('ctea_wallet_connected', 'true');
@@ -85,7 +90,7 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
         }
       }
     } catch (error) {
-      console.error('Failed to connect wallet:', error);
+      console.error('❌ Failed to connect wallet:', error);
       throw error;
     }
   };
@@ -127,6 +132,8 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
   };
 
   const disconnectWallet = () => {
+    console.log('🔌 Disconnecting wallet...');
+    
     setWallet({
       isConnected: false,
       address: null,
@@ -164,19 +171,23 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
       const walletType = localStorage.getItem('ctea_wallet_type');
       const savedAddress = localStorage.getItem('ctea_wallet_address');
       
+      console.log('🔍 Checking auto-connect:', { isConnected, walletType, savedAddress });
+      
       if (isConnected && walletType && savedAddress && typeof window.ethereum !== 'undefined') {
         try {
           // Check if wallet is still connected
           const accounts = await window.ethereum.request({ method: 'eth_accounts' });
           
           if (accounts.length > 0 && accounts[0].toLowerCase() === savedAddress.toLowerCase()) {
+            console.log('🔄 Auto-connecting wallet...');
             await connectWallet(walletType as 'metamask' | 'walletconnect' | 'core');
           } else {
             // Clear stale connection data
+            console.log('🧹 Clearing stale wallet data');
             disconnectWallet();
           }
         } catch (error) {
-          console.error('Auto-connect failed:', error);
+          console.error('❌ Auto-connect failed:', error);
           disconnectWallet();
         }
       }
@@ -189,6 +200,8 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
   useEffect(() => {
     if (typeof window.ethereum !== 'undefined') {
       const handleAccountsChanged = (accounts: string[]) => {
+        console.log('👛 Accounts changed:', accounts);
+        
         if (accounts.length === 0) {
           disconnectWallet();
         } else if (wallet.isConnected && accounts[0] !== wallet.address) {
@@ -201,6 +214,7 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
       };
 
       const handleChainChanged = (chainId: string) => {
+        console.log('⛓️ Chain changed:', chainId);
         setWallet(prev => ({ ...prev, chainId: parseInt(chainId, 16) }));
       };
 
@@ -213,6 +227,8 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
       };
     }
   }, [wallet.isConnected, wallet.address]);
+
+  console.log('👛 WalletProvider rendering with state:', wallet);
 
   return (
     <WalletContext.Provider value={{

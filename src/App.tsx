@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { WalletProvider } from '@/components/WalletProvider';
@@ -15,8 +16,12 @@ import Profile from '@/pages/Profile';
 import AdminBetaDashboard from '@/pages/admin/AdminBetaDashboard';
 
 function App() {
-  const { user, session } = useAuth();
+  console.log('🎯 App component rendering...');
+  
+  const { user, session, loading } = useAuth();
   const [isBetaAccessGranted, setIsBetaAccessGranted] = useState(false);
+  
+  console.log('🔍 Auth state:', { user: !!user, session: !!session, loading });
   
   // Simple admin check based on user email or other criteria
   const isAdmin = user?.email === 'admin@cteanews.com' || user?.email === 'stephanie@taskbytask.net';
@@ -24,11 +29,19 @@ function App() {
   useEffect(() => {
     const hasBetaAccess = localStorage.getItem('ctea-beta-access') === 'granted';
     setIsBetaAccessGranted(hasBetaAccess);
+    console.log('🔑 Beta access:', hasBetaAccess);
   }, [session]);
 
   const handleAccessGranted = () => {
     setIsBetaAccessGranted(true);
   };
+
+  if (loading) {
+    console.log('⏳ App is loading...');
+    return <LoadingSpinner />;
+  }
+
+  console.log('✅ App rendering router...');
 
   return (
     <div className="App">

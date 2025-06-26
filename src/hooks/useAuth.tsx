@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useWallet } from '@/components/WalletProvider';
@@ -47,11 +48,15 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  console.log('🔐 AuthProvider initializing...');
+  
   const { wallet, disconnectWallet } = useWallet();
   const [user, setUser] = useState<WalletUser | null>(null);
   const [session, setSession] = useState<AuthSession | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  console.log('👛 Wallet state:', { address: wallet.address, isConnected: wallet.isConnected });
 
   // Enhanced admin/moderator check based on verification level
   const isAdmin = user?.verification_level === 'admin';
@@ -59,16 +64,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Refresh wallet balance
   const refreshBalance = useCallback(async () => {
-    if (!wallet.address || !wallet.isConnected) return;
+    if (!wallet.address || !wallet.isConnected) {
+      console.log('⚠️ Cannot refresh balance - wallet not connected');
+      return;
+    }
 
     try {
+      console.log('💰 Refreshing balance for:', wallet.address);
       const balance = await getWalletBalance(wallet.address);
       setUser(prev => prev ? {
         ...prev,
         token_balance: balance.tea_balance
       } : null);
+      console.log('✅ Balance refreshed:', balance.tea_balance);
     } catch (error) {
-      console.error('Failed to refresh balance:', error);
+      console.error('❌ Failed to refresh balance:', error);
     }
   }, [wallet.address, wallet.isConnected]);
 
@@ -90,8 +100,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let mounted = true;
 
     const syncWalletUser = async () => {
-      if (!wallet.isConnected || !wallet.address) return;
+      if (!wallet.isConnected || !wallet.address) {
+        console.log('⚠️ Wallet not connected, skipping sync');
+        return;
+      }
       
+      console.log('🔄 Syncing wallet user for:', wallet.address);
       setLoading(true);
       
       try {
@@ -99,6 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const existingToken = localStorage.getItem('ctea-anonymous-token');
         
         // Upsert user profile
+        console.log('👤 Upserting user profile...');
         const profile = await upsertUserProfile({ 
           wallet_address: wallet.address,
           anonymous_token: existingToken || undefined
@@ -107,6 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!mounted) return;
 
         // Get current balance
+        console.log('💰 Getting wallet balance...');
         const balance = await getWalletBalance(wallet.address);
 
         if (!mounted) return;
@@ -124,15 +140,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           app_metadata: {}
         };
 
+        console.log('✅ User data created:', userData);
         setUser(userData);
         setSession({ user: userData });
 
         // Award early user reward. The new `rewardEarlyUser` function handles
         // the check internally to prevent duplicate rewards.
         try {
+          console.log('🎁 Checking early user reward...');
           const rewardResult = await rewardEarlyUser(wallet.address);
 
           if (mounted && rewardResult.rewarded) {
+            console.log('🎉 Early user reward granted!', rewardResult.amount);
             toast({
               title: "Welcome Bonus! 🎉",
               description: `You've received ${rewardResult.amount} $TEA tokens for being an early adopter!`,
@@ -147,7 +166,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (error: any) {
         if (!mounted) return;
         
-        console.error('Auth sync error:', error);
+        console.error('❌ Auth sync error:', error);
         toast({
           title: 'Connection Error',
           description: error.message || 'Failed to sync wallet data',
@@ -174,6 +193,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Handle wallet disconnection
   useEffect(() => {
     if (!wallet.isConnected) {
+      console.log('👛 Wallet disconnected, clearing user state');
       setUser(null);
       setSession(null);
     }
@@ -181,6 +201,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Disconnect handler
   const disconnect = useCallback(() => {
+    console.log('🔌 Disconnecting wallet...');
     disconnectWallet();
     setUser(null);
     setSession(null);
@@ -203,6 +224,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signUp,
     refreshBalance,
   };
+
+  console.log('🔐 AuthProvider rendering with value:', { 
+    hasUser: !!user, 
+    hasSession: !!session, 
+    loading, 
+    isAdmin, 
+    isModerator 
+  });
 
   return (
     <AuthContext.Provider value={value}>

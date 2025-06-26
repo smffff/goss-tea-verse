@@ -1,19 +1,27 @@
 
 import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
+import { AuthProvider } from '@/hooks/useAuth'
 import App from '@/App'
 import './index.css'
 import '@/utils/analytics' // Initialize analytics
 import { inject } from '@vercel/analytics'
 
+console.log('🚀 Starting CTea App...');
+
 const rootElement = document.getElementById("root");
 if (!rootElement) {
+  console.error('❌ Root element not found');
   throw new Error("Root element not found");
 }
 
+console.log('✅ Root element found, creating app...');
+
 createRoot(rootElement).render(
   <HelmetProvider>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </HelmetProvider>
 );
 
