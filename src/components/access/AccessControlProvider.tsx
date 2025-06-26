@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { logError } from '@/utils/errorUtils';
 
 export type AccessLevel = 'guest' | 'authenticated' | 'beta' | 'admin';
 
@@ -43,37 +44,58 @@ export const AccessControlProvider: React.FC<AccessControlProviderProps> = ({ ch
   };
 
   useEffect(() => {
-    // Initialize access level from localStorage with error handling
-    try {
-      const savedLevel = localStorage.getItem('ctea-access-level') as AccessLevel;
-      const savedPeekStart = localStorage.getItem('ctea-peek-start');
-      
-      if (savedLevel && ['guest', 'authenticated', 'beta', 'admin'].includes(savedLevel)) {
-        if (savedLevel === 'guest' && savedPeekStart) {
-          const elapsed = Math.floor((Date.now() - parseInt(savedPeekStart)) / 1000);
-          const remaining = Math.max(0, 300 - elapsed);
-          
-          if (remaining > 0) {
-            setAccessLevelState('guest');
-            setTimeRemaining(remaining);
+    // Initialize access level from localStorage with robust error handling
+    const initializeAccess = () => {
+      try {
+        const savedLevel = localStorage.getItem('ctea-access-level') as AccessLevel;
+        const savedPeekStart = localStorage.getItem('ctea-peek-start');
+        
+        console.log('Initializing access control with:', { savedLevel, savedPeekStart });
+        
+        if (savedLevel && ['guest', 'authenticated', 'beta', 'admin'].includes(savedLevel)) {
+          if (savedLevel === 'guest' && savedPeekStart) {
+            const startTime = parseInt(savedPeekStart);
+            if (isNaN(startTime)) {
+              // Invalid timestamp, reset
+              localStorage.removeItem('ctea-access-level');
+              localStorage.removeItem('ctea-peek-start');
+              setAccessLevelState('guest');
+              return;
+            }
+            
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const remaining = Math.max(0, 300 - elapsed); // 5 minutes = 300 seconds
+            
+            if (remaining > 0) {
+              setAccessLevelState('guest');
+              setTimeRemaining(remaining);
+            } else {
+              // Preview expired
+              localStorage.removeItem('ctea-access-level');
+              localStorage.removeItem('ctea-peek-start');
+              setAccessLevelState('guest');
+              setTimeRemaining(undefined);
+            }
           } else {
-            // Preview expired
-            localStorage.removeItem('ctea-access-level');
-            localStorage.removeItem('ctea-peek-start');
-            setAccessLevelState('guest');
+            setAccessLevelState(savedLevel);
+            setTimeRemaining(undefined);
           }
         } else {
-          setAccessLevelState(savedLevel);
+          setAccessLevelState('guest');
+          setTimeRemaining(undefined);
         }
+      } catch (error) {
+        logError(error, 'AccessControlProvider initialization');
+        setAccessLevelState('guest');
+        setTimeRemaining(undefined);
       }
-    } catch (error) {
-      console.error('Error initializing access control:', error);
-      setAccessLevelState('guest');
-    }
+    };
+
+    initializeAccess();
   }, []);
 
   useEffect(() => {
-    // Timer for guest access
+    // Timer for guest access with cleanup
     if (accessLevel === 'guest' && timeRemaining !== undefined && timeRemaining > 0) {
       const timer = setInterval(() => {
         setTimeRemaining((prev) => {
@@ -85,14 +107,17 @@ export const AccessControlProvider: React.FC<AccessControlProviderProps> = ({ ch
               localStorage.removeItem('ctea-access-level');
               localStorage.removeItem('ctea-peek-start');
             } catch (error) {
-              console.error('Error clearing localStorage:', error);
+              logError(error, 'AccessControlProvider timer cleanup');
             }
             
             toast({
-              title: "Preview Expired",
-              description: "Sign up or use a beta code for continued access!",
+              title: "Preview Expired 💔",
+              description: "Time's up bestie! Sign up or use a beta code for continued access!",
               variant: "destructive"
             });
+            
+            // Reset to guest without time limit
+            setAccessLevelState('guest');
             return undefined;
           }
         });
@@ -110,21 +135,25 @@ export const AccessControlProvider: React.FC<AccessControlProviderProps> = ({ ch
       
       if (level === 'guest' && !localStorage.getItem('ctea-peek-start')) {
         localStorage.setItem('ctea-peek-start', Date.now().toString());
-        setTimeRemaining(300);
+        setTimeRemaining(300); // 5 minutes
       } else if (level !== 'guest') {
         localStorage.removeItem('ctea-peek-start');
         setTimeRemaining(undefined);
       }
     } catch (error) {
-      console.error('Error setting access level:', error);
+      logError(error, 'AccessControlProvider setAccessLevel');
+      toast({
+        title: "Oops! Storage Issue",
+        description: "Couldn't save your access level. Try refreshing and we'll sort this out 💅",
+        variant: "destructive"
+      });
     }
   };
 
   const upgradeAccess = () => {
-    // This would typically trigger a modal or redirect to upgrade flow
     toast({
-      title: "Upgrade Your Access",
-      description: "Sign up or enter a beta code for unlimited access!",
+      title: "Upgrade Your Access ✨",
+      description: "Sign up or enter a beta code for unlimited access to all the tea!",
     });
   };
 

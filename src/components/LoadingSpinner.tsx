@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Coffee, Sparkles } from 'lucide-react';
+import { getRandomLoadingMessage } from '@/utils/errorUtils';
 
 interface LoadingSpinnerProps {
   message?: string;
@@ -25,20 +26,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     lg: 'gap-4 text-lg'
   };
 
-  const funnyMessages = [
-    "Give me a min I'm not a dev I'm just a lady ok",
-    "Hold up, the hamsters powering this thing need a coffee break ☕",
-    "Loading... please don't judge my spaghetti code",
-    "Trying to make this work with duct tape and determination",
-    "Buffering like it's 2005... sorry bestie",
-    "The tea is brewing but the code is still percolating",
-    "One sec, gotta untangle these digital Christmas lights",
-    "Loading faster than my will to debug on a Friday",
-    "Plot twist: I have no idea what I'm doing but we're here anyway",
-    "Patience grasshopper, Rome wasn't coded in a day"
-  ];
-
-  const displayMessage = message || funnyMessages[Math.floor(Math.random() * funnyMessages.length)];
+  const displayMessage = message || getRandomLoadingMessage();
 
   return (
     <div className={`flex flex-col items-center justify-center ${containerClasses[size]}`}>
