@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './button';
@@ -11,6 +12,7 @@ interface ViralCTAProps {
   children: React.ReactNode;
   showParticles?: boolean;
   shakeOnHover?: boolean;
+  disabled?: boolean;
 }
 
 const ViralCTA: React.FC<ViralCTAProps> = ({
@@ -20,7 +22,8 @@ const ViralCTA: React.FC<ViralCTAProps> = ({
   className = '',
   children,
   showParticles = true,
-  shakeOnHover = true
+  shakeOnHover = true,
+  disabled = false
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number }>>([]);
@@ -62,6 +65,7 @@ const ViralCTA: React.FC<ViralCTAProps> = ({
   const IconComponent = currentVariant.icon;
 
   const handleMouseEnter = () => {
+    if (disabled) return;
     setIsHovered(true);
     if (showParticles) {
       generateParticles();
@@ -85,22 +89,23 @@ const ViralCTA: React.FC<ViralCTAProps> = ({
   return (
     <div className="relative inline-block">
       <motion.div
-        className={`relative overflow-hidden rounded-xl ${currentVariant.bg} ${currentVariant.hover} ${currentVariant.shadow} ${sizes[size]} ${className}`}
-        whileHover={{ 
+        className={`relative overflow-hidden rounded-xl ${currentVariant.bg} ${!disabled ? currentVariant.hover : ''} ${currentVariant.shadow} ${sizes[size]} ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        whileHover={!disabled ? { 
           scale: 1.05,
           boxShadow: '0 20px 40px rgba(0,0,0,0.3)'
-        }}
-        whileTap={{ scale: 0.95 }}
+        } : {}}
+        whileTap={!disabled ? { scale: 0.95 } : {}}
         onHoverStart={handleMouseEnter}
         onHoverEnd={handleMouseLeave}
-        animate={shakeOnHover && isHovered ? {
+        animate={shakeOnHover && isHovered && !disabled ? {
           x: [-2, 2, -2, 2, 0],
           transition: { duration: 0.3 }
         } : {}}
       >
         <Button
-          onClick={onClick}
-          className={`relative z-10 w-full h-full ${currentVariant.bg} ${currentVariant.hover} border-0 text-white font-bold tracking-wider shadow-lg transition-all duration-300`}
+          onClick={disabled ? undefined : onClick}
+          disabled={disabled}
+          className={`relative z-10 w-full h-full ${currentVariant.bg} ${!disabled ? currentVariant.hover : ''} border-0 text-white font-bold tracking-wider shadow-lg transition-all duration-300`}
           variant="ghost"
         >
           <IconComponent className="w-5 h-5 mr-2 animate-pulse" />
@@ -111,7 +116,7 @@ const ViralCTA: React.FC<ViralCTAProps> = ({
         <motion.div
           className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent"
           animate={{
-            x: isHovered ? ['0%', '100%'] : '0%'
+            x: isHovered && !disabled ? ['0%', '100%'] : '0%'
           }}
           transition={{ duration: 0.6 }}
         />
@@ -144,7 +149,7 @@ const ViralCTA: React.FC<ViralCTAProps> = ({
         <motion.div
           className="absolute inset-0 rounded-xl"
           animate={{
-            boxShadow: isHovered 
+            boxShadow: isHovered && !disabled
               ? '0 0 30px rgba(255,255,255,0.3)' 
               : '0 0 0px rgba(255,255,255,0)'
           }}
@@ -155,4 +160,4 @@ const ViralCTA: React.FC<ViralCTAProps> = ({
   );
 };
 
-export default ViralCTA; 
+export default ViralCTA;
