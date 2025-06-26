@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
+import AnimatedLogo from '@/components/AnimatedLogo';
 
 const LandingNavigation = () => {
   const navigate = useNavigate();
@@ -28,11 +28,7 @@ const LandingNavigation = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <img 
-              src="/ctea-logo-icon.svg" 
-              alt="CTea Newsroom Logo" 
-              className="w-8 h-8"
-            />
+            <AnimatedLogo variant="subtle" size="md" />
             <span className="font-bold text-white text-lg">CTea Newsroom</span>
           </Link>
 

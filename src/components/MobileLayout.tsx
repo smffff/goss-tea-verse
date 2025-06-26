@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Coffee, TrendingUp, Users, Plus, Award, Home } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useUserProgression } from '@/hooks/useUserProgression';
+import AnimatedLogo from '@/components/AnimatedLogo';
 
 const MobileLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
@@ -30,9 +31,7 @@ const MobileLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       <div className="bg-ctea-dark/90 backdrop-blur-lg border-b border-ctea-teal/20 p-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-ctea-teal to-ctea-purple rounded-lg flex items-center justify-center">
-              <Coffee className="w-5 h-5 text-white" />
-            </div>
+            <AnimatedLogo variant="subtle" size="sm" />
             <span className="font-bold text-lg text-white">CTEA NEWS</span>
           </Link>
           

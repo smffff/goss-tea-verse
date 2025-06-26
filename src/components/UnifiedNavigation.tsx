@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import AnimatedLogo from '@/components/AnimatedLogo';
 
 const UnifiedNavigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -31,11 +31,7 @@ const UnifiedNavigation = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2" aria-label="CTea Newsroom Home">
-            <img 
-              src="/ctea-logo-icon.svg" 
-              alt="CTea Newsroom Logo" 
-              className="w-8 h-8"
-            />
+            <AnimatedLogo variant="subtle" size="md" />
             <span className="text-xl font-bold text-white hidden sm:block">CTea</span>
           </Link>
 

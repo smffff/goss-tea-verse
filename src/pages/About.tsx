@@ -25,6 +25,7 @@ import {
   Globe,
   Lock
 } from 'lucide-react';
+import AnimatedLogo from '@/components/AnimatedLogo';
 
 const About = () => {
   const [auditLog, setAuditLog] = useState<string>('');
@@ -172,11 +173,9 @@ const About = () => {
       <div className="container mx-auto px-4 py-16">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <img 
-            src="/ctea-logo-full.png" 
-            alt="CTea Newsroom Full Logo" 
-            className="w-64 mx-auto mb-8"
-          />
+          <div className="flex justify-center mb-8">
+            <AnimatedLogo variant="steam" size="xl" />
+          </div>
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 animate-glow">
             About CTea Newsroom
           </h1>
