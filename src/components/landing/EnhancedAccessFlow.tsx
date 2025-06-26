@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -83,7 +82,7 @@ const EnhancedAccessFlow: React.FC<EnhancedAccessFlowProps> = ({
 
     try {
       const mockSubmissionId = crypto.randomUUID();
-      const result = await BetaCodeService.generateCodeForSpill(mockSubmissionId);
+      const result = await betaCodeService.generateCodeForSpill(mockSubmissionId);
       
       if (result.success && result.code) {
         localStorage.setItem('ctea-beta-access', 'granted');
@@ -117,7 +116,7 @@ const EnhancedAccessFlow: React.FC<EnhancedAccessFlowProps> = ({
     setError('');
 
     try {
-      const result = await BetaCodeService.validateCode(accessCode, true);
+      const result = await betaCodeService.validateCode(accessCode, true);
       
       if (result.valid) {
         localStorage.setItem('ctea-beta-access', 'granted');
