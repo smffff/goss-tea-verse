@@ -17,8 +17,27 @@ function AppContent() {
     return <LoadingSpinner />;
   }
 
-  // For beta launch, use LaunchReadyApp instead of AppLayout
-  const isLaunchMode = true; // Toggle this for different modes
+  // Check current route to determine which landing page to show
+  const currentPath = window.location.pathname;
+  
+  // Show enhanced landing page for root route
+  if (currentPath === '/') {
+    // Check if user has access or should see gated landing
+    const hasAccess = localStorage.getItem('ctea_access_method');
+    const isLaunchMode = true; // Toggle this for different modes
+    
+    if (!hasAccess && isLaunchMode) {
+      // Show wallet-gated landing page for non-authenticated users
+      return (
+        <DemoModeGate>
+          <EnhancedLandingPage />
+        </DemoModeGate>
+      );
+    }
+  }
+
+  // For users with access or other routes, use LaunchReadyApp
+  const isLaunchMode = true;
   
   if (isLaunchMode) {
     return (

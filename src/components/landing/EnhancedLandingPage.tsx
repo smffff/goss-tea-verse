@@ -1,279 +1,189 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Coffee, Play, Users, TrendingUp, Sparkles, Eye, Code } from 'lucide-react';
-import { useDemo } from '@/contexts/DemoContext';
-import AccessModal from './AccessModal';
-import { mockData } from '@/data/mockData';
+import { Card, CardContent } from '@/components/ui/card';
+import { Users, TrendingUp, Coffee, Sparkles } from 'lucide-react';
+import WalletGatedHero from './WalletGatedHero';
+import BribeButton from './BribeButton';
+import EnhancedSpillSubmission from './EnhancedSpillSubmission';
+import { AccessLevel } from '@/services/accessControlService';
 
 const EnhancedLandingPage: React.FC = () => {
-  const [showAccessModal, setShowAccessModal] = useState(false);
-  const [selectedPath, setSelectedPath] = useState<'spill' | 'bribe' | 'code' | null>(null);
-  const [accessCode, setAccessCode] = useState('');
-  const { enableDemo, enablePreview } = useDemo();
+  const [showBribeModal, setShowBribeModal] = useState(false);
+  const [showSpillModal, setShowSpillModal] = useState(false);
+  const [hasAccess, setHasAccess] = useState(false);
+  const [accessLevel, setAccessLevel] = useState<AccessLevel | null>(null);
 
-  const handleDemoClick = () => {
-    enableDemo();
-    // Redirect to app
-    window.location.href = '/feed';
+  const handleAccessGranted = (access: AccessLevel) => {
+    setAccessLevel(access);
+    setHasAccess(true);
+    setShowBribeModal(false);
+    setShowSpillModal(false);
   };
 
-  const handlePreviewClick = () => {
-    enablePreview();
-  };
-
-  const handleAccessClick = (path: 'spill' | 'bribe' | 'code') => {
-    setSelectedPath(path);
-    setShowAccessModal(true);
-  };
-
-  const testCodes = ['TEA2024', 'CTEA-BETA', 'FREN-ZONE', 'SPILL-ZONE'];
+  // Check for existing access on load
+  React.useEffect(() => {
+    const existingAccess = localStorage.getItem('ctea_access_method');
+    if (existingAccess) {
+      // User already has some form of access
+      setHasAccess(true);
+    }
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-ctea-teal rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-pink-400 rounded-full blur-2xl animate-pulse delay-1000"></div>
-        </div>
-
-        <div className="relative z-10 container mx-auto px-4 py-20">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center max-w-4xl mx-auto"
-          >
-            {/* Logo & Title */}
-            <div className="mb-8">
-              <div className="w-24 h-24 mx-auto mb-6 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-ctea-teal to-pink-400 rounded-full animate-pulse"></div>
-                <div className="absolute inset-2 bg-ctea-dark rounded-full flex items-center justify-center">
-                  <Coffee className="w-8 h-8 text-ctea-teal" />
-                </div>
-              </div>
-              
-              <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-ctea-teal via-pink-400 to-ctea-purple bg-clip-text text-transparent mb-4">
-                CTea Newsroom
-              </h1>
-              
-              <p className="text-xl md:text-2xl text-gray-300 font-light mb-8">
-                Where Crypto Twitter Comes to Spill ☕
-              </p>
-
-              <div className="flex flex-wrap justify-center gap-2 mb-8">
-                <Badge className="bg-ctea-teal/20 text-ctea-teal">AI-Powered</Badge>
-                <Badge className="bg-pink-400/20 text-pink-400">Anonymous</Badge>
-                <Badge className="bg-ctea-purple/20 text-ctea-purple">Community-Driven</Badge>
-                <Badge className="bg-yellow-400/20 text-yellow-400">Beta Access</Badge>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto mb-16">
-              <Button
-                onClick={handleDemoClick}
-                size="lg"
-                className="bg-gradient-to-r from-ctea-teal to-pink-400 hover:from-ctea-teal/80 hover:to-pink-400/80 text-white font-bold py-4"
-              >
-                <Play className="w-5 h-5 mr-2" />
-                Try Full Demo
-              </Button>
-              
-              <Button
-                onClick={handlePreviewClick}
-                variant="outline"
-                size="lg"
-                className="border-white/30 text-white hover:bg-white/10 font-bold py-4"
-              >
-                <Eye className="w-5 h-5 mr-2" />
-                Quick Preview
-              </Button>
-            </div>
-
-            {/* Access Options */}
-            <div className="grid md:grid-cols-3 gap-6 mb-16">
-              <Card 
-                className="bg-ctea-dark/80 border-ctea-teal/30 backdrop-blur-lg cursor-pointer hover:border-ctea-teal/60 transition-all"
-                onClick={() => handleAccessClick('spill')}
-              >
-                <CardHeader className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-ctea-teal to-green-400 rounded-full flex items-center justify-center">
-                    <Coffee className="w-8 h-8 text-white" />
-                  </div>
-                  <CardTitle className="text-xl text-white">🫖 Spill Your Tea</CardTitle>
-                  <p className="text-gray-400 text-sm">Share gossip, get access</p>
-                </CardHeader>
-              </Card>
-
-              <Card 
-                className="bg-ctea-dark/80 border-pink-400/30 backdrop-blur-lg cursor-pointer hover:border-pink-400/60 transition-all"
-                onClick={() => handleAccessClick('bribe')}
-              >
-                <CardHeader className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full flex items-center justify-center">
-                    <Sparkles className="w-8 h-8 text-white" />
-                  </div>
-                  <CardTitle className="text-xl text-white">💸 Bribe the Gatekeepers</CardTitle>
-                  <p className="text-gray-400 text-sm">Send tip, unlock access</p>
-                </CardHeader>
-              </Card>
-
-              <Card 
-                className="bg-ctea-dark/80 border-yellow-400/30 backdrop-blur-lg cursor-pointer hover:border-yellow-400/60 transition-all"
-                onClick={() => handleAccessClick('code')}
-              >
-                <CardHeader className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center">
-                    <Code className="w-5 h-5 text-white" />
-                  </div>
-                  <CardTitle className="text-xl text-white">🔑 Enter Access Code</CardTitle>
-                  <p className="text-gray-400 text-sm">Already have a code?</p>
-                </CardHeader>
-              </Card>
-            </div>
-          </motion.div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-ctea-teal rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-pink-400 rounded-full blur-2xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-ctea-purple rounded-full blur-xl animate-pulse delay-2000"></div>
       </div>
 
-      {/* Test Codes Section */}
-      <div className="container mx-auto px-4 py-16">
+      <div className="relative z-10 container mx-auto px-4 py-12">
+        {/* Main Hero Section */}
+        <div className="min-h-screen flex items-center justify-center">
+          <WalletGatedHero
+            onAccessGranted={handleAccessGranted}
+            onShowBribe={() => setShowBribeModal(true)}
+            onShowSpill={() => setShowSpillModal(true)}
+          />
+        </div>
+
+        {/* Community Stats */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center max-w-2xl mx-auto"
+          transition={{ delay: 0.5 }}
+          className="grid md:grid-cols-4 gap-6 mb-20"
         >
-          <h2 className="text-3xl font-bold text-white mb-4">Quick Access Codes</h2>
-          <p className="text-gray-400 mb-8">
-            Try these codes to experience CTea instantly
-          </p>
+          <Card className="bg-ctea-dark/40 border-ctea-teal/20 text-center">
+            <CardContent className="p-6">
+              <Users className="w-8 h-8 text-ctea-teal mx-auto mb-2" />
+              <div className="text-2xl font-bold text-white">420</div>
+              <div className="text-sm text-gray-400">Beta OGs</div>
+            </CardContent>
+          </Card>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {testCodes.map((code) => (
-              <Card 
-                key={code}
-                className="bg-ctea-dark/40 border-ctea-teal/20 cursor-pointer hover:border-ctea-teal/40 transition-all"
-                onClick={() => {
-                  setAccessCode(code);
-                  handleAccessClick('code');
-                }}
-              >
-                <CardContent className="p-4 text-center">
-                  <code className="text-ctea-teal font-mono text-sm">{code}</code>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <Card className="bg-ctea-dark/40 border-pink-400/20 text-center">
+            <CardContent className="p-6">
+              <Coffee className="w-8 h-8 text-pink-400 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-white">1,337</div>
+              <div className="text-sm text-gray-400">Tea Spills</div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-ctea-dark/40 border-ctea-purple/20 text-center">
+            <CardContent className="p-6">
+              <TrendingUp className="w-8 h-8 text-ctea-purple mx-auto mb-2" />
+              <div className="text-2xl font-bold text-white">69</div>
+              <div className="text-sm text-gray-400">Hot Topics</div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-ctea-dark/40 border-yellow-400/20 text-center">
+            <CardContent className="p-6">
+              <Sparkles className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-white">+25%</div>
+              <div className="text-sm text-gray-400">Daily Chaos</div>
+            </CardContent>
+          </Card>
         </motion.div>
-      </div>
 
-      {/* Live Preview Section */}
-      <div className="container mx-auto px-4 py-16">
+        {/* Features Preview */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          className="max-w-4xl mx-auto"
+          transition={{ delay: 0.7 }}
+          className="text-center mb-20"
         >
-          <h2 className="text-3xl font-bold text-white text-center mb-8">
-            Live Preview: What's Inside
+          <h2 className="text-4xl font-bold text-white mb-8">
+            Where Crypto Twitter Comes to Spill ☕
           </h2>
           
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Sample Tea Spills */}
-            <Card className="bg-ctea-dark/80 border-ctea-teal/30">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center">
-                  <Coffee className="w-5 h-5 mr-2 text-ctea-teal" />
-                  Hot Tea 🔥
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {mockData.hotSpills.slice(0, 2).map((spill) => (
-                  <div key={spill.id} className="bg-ctea-darker rounded-lg p-3">
-                    <p className="text-gray-300 text-sm mb-2">{spill.content}</p>
-                    <div className="flex items-center justify-between text-xs text-gray-400">
-                      <span>🔥 {spill.heat}% Hot</span>
-                      <span>💬 {spill.comments} reactions</span>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Community Stats */}
-            <Card className="bg-ctea-dark/80 border-pink-400/30">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center">
-                  <TrendingUp className="w-5 h-5 mr-2 text-pink-400" />
-                  Live Community
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-ctea-teal">342</div>
-                    <div className="text-xs text-gray-400">Beta Users</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-pink-400">1,247</div>
-                    <div className="text-xs text-gray-400">Tea Spilled</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-ctea-purple">23</div>
-                    <div className="text-xs text-gray-400">Hot Topics</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-yellow-400">+15.7%</div>
-                    <div className="text-xs text-gray-400">Daily Growth</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="space-y-4">
+              <div className="w-16 h-16 mx-auto bg-gradient-to-r from-ctea-teal to-green-400 rounded-full flex items-center justify-center">
+                <Coffee className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Anonymous Intel</h3>
+              <p className="text-gray-400">
+                Share your hottest takes without revealing identity. Perfect for industry insiders.
+              </p>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="w-16 h-16 mx-auto bg-gradient-to-r from-pink-400 to-purple-400 rounded-full flex items-center justify-center">
+                <Sparkles className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-white">AI-Powered Chaos</h3>
+              <p className="text-gray-400">
+                Smart commentary, credibility scoring, and meme generation. Let the AI amplify your drama.
+              </p>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="w-16 h-16 mx-auto bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center">
+                <TrendingUp className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Earn & Govern</h3>
+              <p className="text-gray-400">
+                Stack $TEA tokens for quality content. Vote on platform direction. Become a meme legend.
+              </p>
+            </div>
           </div>
         </motion.div>
-      </div>
 
-      {/* Features Preview */}
-      <div className="container mx-auto px-4 py-16">
+        {/* Hashtag Footer */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="text-center space-y-4"
         >
-          <div className="bg-ctea-dark/40 backdrop-blur border border-ctea-teal/20 rounded-lg p-6 text-center">
-            <Users className="w-8 h-8 text-ctea-teal mx-auto mb-3" />
-            <h3 className="text-white font-semibold mb-2">Anonymous & Safe</h3>
-            <p className="text-gray-400 text-sm">Share your hottest takes without revealing identity</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            <Badge variant="outline" className="border-ctea-teal/50 text-ctea-teal">
+              #CTeaApp
+            </Badge>
+            <Badge variant="outline" className="border-pink-400/50 text-pink-400">
+              #TEAToken
+            </Badge>
+            <Badge variant="outline" className="border-ctea-purple/50 text-ctea-purple">
+              #OnChainGossip
+            </Badge>
+            <Badge variant="outline" className="border-yellow-400/50 text-yellow-400">
+              #SOAPDrop
+            </Badge>
           </div>
           
-          <div className="bg-ctea-dark/40 backdrop-blur border border-pink-400/20 rounded-lg p-6 text-center">
-            <TrendingUp className="w-8 h-8 text-pink-400 mx-auto mb-3" />
-            <h3 className="text-white font-semibold mb-2">AI-Powered Analysis</h3>
-            <p className="text-gray-400 text-sm">Smart commentary and credibility scoring</p>
-          </div>
-          
-          <div className="bg-ctea-dark/40 backdrop-blur border border-ctea-purple/20 rounded-lg p-6 text-center">
-            <Sparkles className="w-8 h-8 text-ctea-purple mx-auto mb-3" />
-            <h3 className="text-white font-semibold mb-2">Community Driven</h3>
-            <p className="text-gray-400 text-sm">Vote, react, and curate the best content</p>
-          </div>
+          <p className="text-sm text-gray-500 max-w-2xl mx-auto">
+            Built for degeneracy, powered by chaos, fueled by your hottest takes.
+            <br />
+            Join the revolution. Spill the tea. Stack the clout. 🫖
+          </p>
         </motion.div>
       </div>
 
-      <AccessModal
-        isOpen={showAccessModal}
-        onClose={() => setShowAccessModal(false)}
-        selectedPath={selectedPath}
-        accessCode={accessCode}
-        onAccessCodeChange={setAccessCode}
-        onSubmit={() => {
-          // Handle submission logic
-          setShowAccessModal(false);
-        }}
-      />
+      {/* Bribe Modal */}
+      <Dialog open={showBribeModal} onOpenChange={setShowBribeModal}>
+        <DialogContent className="bg-transparent border-none p-0 max-w-none">
+          <BribeButton
+            onBribeAccepted={handleAccessGranted}
+            onClose={() => setShowBribeModal(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Spill Modal */}
+      <Dialog open={showSpillModal} onOpenChange={setShowSpillModal}>
+        <DialogContent className="bg-transparent border-none p-0 max-w-none">
+          <EnhancedSpillSubmission
+            onSpillAccepted={handleAccessGranted}
+            onClose={() => setShowSpillModal(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
