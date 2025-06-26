@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface AuthValidationResult {
@@ -35,6 +34,11 @@ export interface PasswordValidationResult {
 interface BetaCodeValidationResponse {
   valid: boolean;
   message?: string;
+}
+
+// Type guard to check if response is valid beta code response
+function isBetaCodeValidationResponse(data: any): data is BetaCodeValidationResponse {
+  return data && typeof data === 'object' && typeof data.valid === 'boolean';
 }
 
 export class EnhancedAuthValidation {
@@ -190,10 +194,13 @@ export class EnhancedAuthValidation {
         securityScore -= 40;
         riskLevel = 'high';
       } else {
-        // Type-safe checking of the RPC response
-        const validationResult = result as BetaCodeValidationResponse | null;
-        
-        if (!validationResult || !validationResult.valid) {
+        // Safe type checking of the RPC response
+        if (!result || !isBetaCodeValidationResponse(result)) {
+          threats.push('Invalid beta code response format');
+          securityScore -= 30;
+          riskLevel = 'medium';
+          recommendations.push('Try other access methods');
+        } else if (!result.valid) {
           threats.push('Invalid beta code');
           securityScore -= 30;
           riskLevel = 'medium';
@@ -202,7 +209,7 @@ export class EnhancedAuthValidation {
       }
 
       return {
-        isValid: threats.length === 0 && (result as BetaCodeValidationResponse)?.valid === true,
+        isValid: threats.length === 0 && result && isBetaCodeValidationResponse(result) && result.valid === true,
         securityScore,
         threats,
         recommendations,
