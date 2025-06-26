@@ -1,7 +1,7 @@
-
 import React from 'react';
 import { Coffee, Twitter, Github, MessageCircle } from 'lucide-react';
 import { APP_CONFIG } from '@/config/app';
+import AboutCTeaBuilder from './footer/AboutCTeaBuilder';
 
 const Footer = () => {
   return (
@@ -75,6 +75,10 @@ const Footer = () => {
           <div className="text-gray-400 text-sm">
             Emotional intelligence meets memecoin culture ☕
           </div>
+        </div>
+
+        <div className="flex items-center justify-end pr-4">
+          <AboutCTeaBuilder />
         </div>
       </div>
     </footer>
