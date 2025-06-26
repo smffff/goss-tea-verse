@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface BrandedTeacupIconProps {
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-  variant?: 'default' | 'spilling' | 'bounce' | 'steam' | 'glow';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'hero';
+  variant?: 'default' | 'spilling' | 'bounce' | 'steam' | 'steaming' | 'glow' | 'glowing';
   className?: string;
   showText?: boolean;
   animated?: boolean;
@@ -19,30 +19,36 @@ const BrandedTeacupIcon: React.FC<BrandedTeacupIconProps> = ({
   animated = false
 }) => {
   const sizes = {
+    xs: 'w-6 h-6',
     sm: 'w-8 h-8',
     md: 'w-12 h-12',
     lg: 'w-16 h-16',
-    xl: 'w-24 h-24'
+    xl: 'w-24 h-24',
+    hero: 'w-32 h-32'
   };
 
   const textSizes = {
+    xs: 'text-xs',
     sm: 'text-xs',
     md: 'text-sm',
     lg: 'text-lg',
-    xl: 'text-2xl'
+    xl: 'text-2xl',
+    hero: 'text-3xl'
   };
 
   const getAnimation = () => {
     if (!animated && variant === 'default') return {};
     
-    switch (variant) {
+    const normalizedVariant = variant === 'steaming' ? 'steam' : variant === 'glowing' ? 'glow' : variant;
+    
+    switch (normalizedVariant) {
       case 'bounce':
         return {
           y: [0, -10, 0],
           transition: { 
             duration: 2, 
             repeat: Infinity, 
-            ease: [0.4, 0, 0.6, 1] 
+            ease: "easeInOut"
           }
         };
       case 'spilling':
@@ -51,7 +57,7 @@ const BrandedTeacupIcon: React.FC<BrandedTeacupIconProps> = ({
           transition: { 
             duration: 3, 
             repeat: Infinity, 
-            ease: [0.4, 0, 0.6, 1] 
+            ease: "easeInOut"
           }
         };
       case 'steam':
@@ -60,7 +66,7 @@ const BrandedTeacupIcon: React.FC<BrandedTeacupIconProps> = ({
           transition: { 
             duration: 2.5, 
             repeat: Infinity, 
-            ease: [0.4, 0, 0.6, 1] 
+            ease: "easeInOut"
           }
         };
       case 'glow':
@@ -69,7 +75,7 @@ const BrandedTeacupIcon: React.FC<BrandedTeacupIconProps> = ({
           transition: { 
             duration: 2, 
             repeat: Infinity, 
-            ease: [0.4, 0, 0.6, 1] 
+            ease: "easeInOut"
           }
         };
       default:
@@ -78,7 +84,7 @@ const BrandedTeacupIcon: React.FC<BrandedTeacupIconProps> = ({
           transition: { 
             duration: 2, 
             repeat: Infinity, 
-            ease: [0.4, 0, 0.6, 1] 
+            ease: "easeInOut"
           }
         } : {};
     }
@@ -114,7 +120,7 @@ const BrandedTeacupIcon: React.FC<BrandedTeacupIconProps> = ({
           </defs>
 
           {/* Steam */}
-          {(variant === 'steam' || variant === 'default') && (
+          {(variant === 'steam' || variant === 'steaming' || variant === 'default') && (
             <motion.g
               animate={{
                 y: [0, -5, 0],
@@ -123,7 +129,7 @@ const BrandedTeacupIcon: React.FC<BrandedTeacupIconProps> = ({
               transition={{ 
                 duration: 2, 
                 repeat: Infinity, 
-                ease: [0.4, 0, 0.6, 1] 
+                ease: "easeInOut"
               }}
             >
               <path
@@ -186,7 +192,7 @@ const BrandedTeacupIcon: React.FC<BrandedTeacupIconProps> = ({
           )}
 
           {/* Glow effect */}
-          {variant === 'glow' && (
+          {(variant === 'glow' || variant === 'glowing') && (
             <circle
               cx="50"
               cy="55"

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Coffee, Send, Key, Crown, Sparkles } from 'lucide-react';
+import { Coffee, Send, Key, Crown, Sparkles, Loader2, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import BrandedTeacupIcon from '@/components/ui/BrandedTeacupIcon';
@@ -38,6 +38,7 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
     setIsLoading(true);
     
     try {
+      console.log('🔑 Validating beta code:', betaCode);
       const validation = await EnhancedAuthValidation.validateBetaCode(betaCode);
       
       if (validation.isValid) {
@@ -46,21 +47,24 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
         
         toast({
           title: "Access Granted! 🎉",
-          description: "Welcome to CTea Newsroom!",
+          description: "Welcome to CTea Newsroom! Full access unlocked.",
         });
         
+        console.log('✅ Beta access granted successfully');
         onAccessGranted('beta');
       } else {
+        console.log('❌ Beta code validation failed:', validation.threats);
         toast({
           title: "Invalid Code",
-          description: "This code is not valid or has expired",
+          description: "This code is not valid or has expired. Try spilling some tea instead!",
           variant: "destructive"
         });
       }
     } catch (error) {
+      console.error('❌ Beta code validation error:', error);
       toast({
         title: "Verification Failed",
-        description: "Could not verify code. Please try again.",
+        description: "Could not verify code. Please try again or contact support.",
         variant: "destructive"
       });
     } finally {
@@ -72,7 +76,16 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
     if (!spillContent.trim()) {
       toast({
         title: "Content Required",
-        description: "Please share some tea to get access!",
+        description: "Please share some juicy crypto tea to get access!",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (spillContent.length < 50) {
+      toast({
+        title: "More Details Please",
+        description: "Give us at least 50 characters of that hot tea! ☕",
         variant: "destructive"
       });
       return;
@@ -81,15 +94,18 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
     setIsLoading(true);
     
     try {
-      // Simulate processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('☕ Processing tea submission for access...');
       
-      // Generate access code
+      // Simulate processing with realistic delay
+      await new Promise(resolve => setTimeout(resolve, 2500));
+      
+      // Generate unique access code
       const accessCode = `TEA-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
       
       localStorage.setItem('ctea-access-level', 'guest');
       localStorage.setItem('ctea-peek-start', Date.now().toString());
       localStorage.setItem('ctea-spill-code', accessCode);
+      localStorage.setItem('ctea-spill-content', spillContent);
       
       toast({
         title: "Tea Accepted! ☕",
@@ -97,11 +113,13 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
         duration: 8000,
       });
       
+      console.log('✅ Tea spill access granted:', accessCode);
       onAccessGranted('guest');
     } catch (error) {
+      console.error('❌ Tea submission error:', error);
       toast({
         title: "Submission Failed",
-        description: "Could not process your tea. Please try again.",
+        description: "Could not process your tea. Please try again!",
         variant: "destructive"
       });
     } finally {
@@ -110,12 +128,13 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
   }, [spillContent, onAccessGranted, toast]);
 
   const handleSneak = useCallback(() => {
+    console.log('👀 Starting sneak peek mode...');
     localStorage.setItem('ctea-access-level', 'guest');
     localStorage.setItem('ctea-peek-start', Date.now().toString());
     
     toast({
       title: "Welcome to CTea! 👀",
-      description: "You have 5 minutes to explore!",
+      description: "You have 5 minutes to explore the gossip!",
     });
     
     onAccessGranted('guest');
@@ -130,17 +149,14 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
       >
         {/* Header */}
         <div className="text-center space-y-4">
-          <BrandedTeacupIcon size="xl" variant="bounce" />
+          <BrandedTeacupIcon size="xl" variant="steam" animated showText />
           
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">
-              CTea Newsroom
-            </h1>
-            <p className="text-ctea-teal font-semibold">
-              Beta 1.2 is LIVE!
+            <p className="text-ctea-teal font-semibold text-lg">
+              Beta 1.2 is LIVE! 🚀
             </p>
             <p className="text-gray-400 text-sm">
-              Where Crypto Twitter Comes to Spill
+              Where Crypto Twitter Comes to Spill the Hottest Tea
             </p>
           </div>
 
@@ -160,11 +176,12 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
         {/* Access Methods */}
         <Card className="bg-ctea-dark/60 border-ctea-teal/30 backdrop-blur-sm">
           <CardHeader>
+            <CardTitle className="text-center text-white mb-4">Get Access</CardTitle>
             <div className="flex space-x-1">
               <Button
                 onClick={() => setActiveTab('spill')}
                 variant={activeTab === 'spill' ? 'default' : 'ghost'}
-                className={activeTab === 'spill' ? 'bg-ctea-teal text-white' : 'text-gray-400'}
+                className={activeTab === 'spill' ? 'bg-ctea-teal text-white flex-1' : 'text-gray-400 flex-1'}
                 size="sm"
               >
                 <Coffee className="w-4 h-4 mr-2" />
@@ -173,7 +190,7 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
               <Button
                 onClick={() => setActiveTab('code')}
                 variant={activeTab === 'code' ? 'default' : 'ghost'}
-                className={activeTab === 'code' ? 'bg-ctea-teal text-white' : 'text-gray-400'}
+                className={activeTab === 'code' ? 'bg-ctea-teal text-white flex-1' : 'text-gray-400 flex-1'}
                 size="sm"
               >
                 <Key className="w-4 h-4 mr-2" />
@@ -194,32 +211,37 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
                     What's the hottest crypto tea? ☕
                   </label>
                   <Textarea
-                    placeholder="Spill the tea... Which project is sus? Who's dumping? Share your alpha!"
+                    placeholder="Spill it all... Which project is sus? Who's dumping on retail? Share your alpha and insider knowledge!"
                     value={spillContent}
                     onChange={(e) => setSpillContent(e.target.value)}
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/50 resize-none"
+                    className="bg-white/10 border-white/20 text-white placeholder:text-white/50 resize-none min-h-[100px]"
                     rows={4}
                     maxLength={500}
                   />
-                  <div className="text-xs text-white/60 text-right mt-1">
-                    {spillContent.length}/500
+                  <div className="flex justify-between text-xs mt-1">
+                    <span className="text-white/60">
+                      {spillContent.length < 50 ? `Need ${50 - spillContent.length} more characters` : 'Ready to submit!'}
+                    </span>
+                    <span className="text-white/60">
+                      {spillContent.length}/500
+                    </span>
                   </div>
                 </div>
 
                 <Button
                   onClick={handleSpillSubmit}
-                  disabled={isLoading || !spillContent.trim()}
+                  disabled={isLoading || spillContent.length < 50}
                   className="w-full bg-gradient-to-r from-ctea-teal to-pink-400 hover:from-pink-400 hover:to-ctea-teal text-white font-bold"
                 >
                   {isLoading ? (
                     <>
-                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                      Brewing Code...
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      Brewing Your Access Code...
                     </>
                   ) : (
                     <>
                       <Send className="w-4 h-4 mr-2" />
-                      Spill & Get Access
+                      Spill & Get 5 Min Preview
                     </>
                   )}
                 </Button>
@@ -243,6 +265,9 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
                     className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
                     maxLength={20}
                   />
+                  <p className="text-xs text-white/60 mt-1">
+                    Get unlimited access with a beta invite code
+                  </p>
                 </div>
 
                 <Button
@@ -252,8 +277,8 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
                 >
                   {isLoading ? (
                     <>
-                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                      Verifying...
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      Verifying Code...
                     </>
                   ) : (
                     <>
@@ -269,19 +294,21 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
               <Button
                 onClick={handleSneak}
                 variant="outline"
+                disabled={isLoading}
                 className="w-full border-white/20 text-white/80 hover:bg-white/10"
               >
                 <Sparkles className="w-4 h-4 mr-2" />
-                Just Take a Peek (5 min preview)
+                Just Take a Quick Peek (5 min)
               </Button>
             </div>
           </CardContent>
         </Card>
 
         {/* Footer */}
-        <div className="text-center text-xs text-gray-500">
+        <div className="text-center text-xs text-gray-500 space-y-1">
+          <p className="font-semibold text-ctea-teal">CTea Newsroom • Beta 1.2</p>
           <p>On-chain gossip meets meme warfare.</p>
-          <p>CTea News is where rumors get receipts.</p>
+          <p>Where rumors get receipts and alpha gets spilled.</p>
         </div>
       </motion.div>
     </div>

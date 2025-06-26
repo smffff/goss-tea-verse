@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export interface AuthValidationResult {
@@ -157,6 +158,8 @@ export class EnhancedAuthValidation {
     let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
 
     try {
+      console.log('🔍 Starting beta code validation:', code.substring(0, 4) + '...');
+      
       // Basic format validation
       if (!code || code.length < 3) {
         threats.push('Beta code too short');
@@ -184,44 +187,89 @@ export class EnhancedAuthValidation {
 
       localStorage.setItem('ctea_last_beta_attempt', Date.now().toString());
 
-      // Server-side validation with proper type checking
-      const { data: result, error } = await supabase.rpc('validate_beta_code', {
-        p_code: code.trim().toUpperCase()
-      });
+      // Enhanced server-side validation with better error handling
+      try {
+        console.log('🌐 Calling Supabase RPC for beta code validation...');
+        const { data: result, error } = await supabase.rpc('validate_beta_code', {
+          p_code: code.trim().toUpperCase()
+        });
 
-      if (error) {
-        threats.push('Server validation failed');
-        securityScore -= 40;
-        riskLevel = 'high';
-      } else {
-        // Safe type checking of the RPC response
-        if (!result || !isBetaCodeValidationResponse(result)) {
-          threats.push('Invalid beta code response format');
-          securityScore -= 30;
-          riskLevel = 'medium';
-          recommendations.push('Try other access methods');
-        } else if (!result.valid) {
-          threats.push('Invalid beta code');
-          securityScore -= 30;
-          riskLevel = 'medium';
-          recommendations.push('Try other access methods');
+        if (error) {
+          console.error('🚨 Supabase RPC error:', error);
+          threats.push('Server validation failed');
+          securityScore -= 40;
+          riskLevel = 'high';
+          recommendations.push('Try the tea spill method instead');
+        } else {
+          console.log('📦 Server response:', result);
+          
+          // Handle the response properly - check if it's the expected format
+          if (!result) {
+            console.warn('⚠️ Empty response from server');
+            threats.push('Invalid server response');
+            securityScore -= 30;
+            riskLevel = 'medium';
+            recommendations.push('Try other access methods');
+          } else if (typeof result === 'object' && result.hasOwnProperty('valid')) {
+            // New format response
+            if (!result.valid) {
+              console.log('❌ Beta code marked as invalid by server');
+              threats.push('Invalid beta code');
+              securityScore -= 30;
+              riskLevel = 'medium';
+              recommendations.push('Request a new beta code or try tea spilling');
+            } else {
+              console.log('✅ Beta code validated successfully');
+            }
+          } else if (typeof result === 'boolean') {
+            // Simple boolean response
+            if (!result) {
+              console.log('❌ Beta code validation returned false');
+              threats.push('Invalid beta code');
+              securityScore -= 30;
+              riskLevel = 'medium';
+              recommendations.push('Try other access methods');
+            } else {
+              console.log('✅ Beta code validated successfully (boolean)');
+            }
+          } else {
+            console.warn('⚠️ Unexpected response format:', typeof result, result);
+            threats.push('Unexpected server response format');
+            securityScore -= 20;
+            riskLevel = 'medium';
+          }
         }
+      } catch (rpcError: any) {
+        console.error('🚨 RPC call failed:', rpcError);
+        threats.push('Network validation failed');
+        securityScore -= 30;
+        riskLevel = 'high';
+        recommendations.push('Check connection and try again');
       }
 
+      const isValid = threats.length === 0 && securityScore >= 70;
+      
+      console.log('📊 Beta code validation result:', {
+        isValid,
+        securityScore,
+        threats,
+        riskLevel
+      });
+
       return {
-        isValid: threats.length === 0 && result && isBetaCodeValidationResponse(result) && result.valid === true,
+        isValid,
         securityScore,
         threats,
         recommendations,
         riskLevel
       };
-    } catch (error) {
-      console.error('Beta code validation error:', error);
+    } catch (error: any) {
+      console.error('💥 Beta code validation error:', error);
       return {
         isValid: false,
         securityScore: 0,
-        threats: ['Validation system error'],
-        recommendations: ['Try again later or use alternative access'],
+        threats: ['Validation system error: ' + error.message],
+        recommendations: ['Try again later or use tea spill access'],
         riskLevel: 'critical'
       };
     }
@@ -270,7 +318,7 @@ export class EnhancedAuthValidation {
         recommendations,
         riskLevel
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Session validation error:', error);
       return {
         isValid: false,
