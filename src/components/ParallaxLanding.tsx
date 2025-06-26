@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Zap, Coffee, ArrowRight } from 'lucide-react';
+import { Sparkles, Zap, ArrowRight } from 'lucide-react';
 import { BRAND_CONFIG } from '@/lib/config/brandConfig';
 import EnhancedSpillingTeaCup from '@/components/ui/EnhancedSpillingTeaCup';
 import FallbackPage from '@/pages/FallbackPage';
@@ -79,20 +78,6 @@ export default function ParallaxLanding() {
         <div className="absolute top-20 left-10 w-96 h-96 bg-[#FF4FB3]/20 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#00D8A4]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#FF9C39]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
-        
-        {/* Floating geometric shapes */}
-        <motion.div 
-          className="absolute top-20 left-20 w-16 h-16 border-2 border-[#FF4FB3] rotate-45 opacity-30"
-          style={{ y: y1 }}
-          animate={{ rotate: [45, 90, 45] }}
-          transition={{ duration: 8, repeat: Infinity }}
-        />
-        <motion.div 
-          className="absolute bottom-40 right-20 w-12 h-12 border-2 border-[#00D8A4] opacity-25"
-          style={{ y: y2 }}
-          animate={{ rotate: [0, 360, 0] }}
-          transition={{ duration: 12, repeat: Infinity }}
-        />
       </div>
 
       {/* Main Content */}

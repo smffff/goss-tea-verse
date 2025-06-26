@@ -1,10 +1,9 @@
 
 import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
-import { AuthProvider } from '@/hooks/useAuth'
 import App from '@/App'
 import './index.css'
-import '@/utils/analytics' // Initialize analytics
+import '@/utils/analytics'
 import { inject } from '@vercel/analytics'
 import FallbackPage from '@/pages/FallbackPage'
 
@@ -27,16 +26,11 @@ if (!rootElement) {
 
 console.log('✅ Root element found, creating app...');
 
-// Debug: Check if AuthProvider exists
-console.log('🔐 AuthProvider available:', typeof AuthProvider);
-
 // Wrap everything in a try-catch for initialization errors
 try {
   createRoot(rootElement).render(
     <HelmetProvider>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <App />
     </HelmetProvider>
   );
   console.log('🎯 App rendered successfully');
