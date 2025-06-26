@@ -38,3 +38,24 @@ export const transformSubmission = (dbSubmission: any): TeaSubmission => {
     tweet_id: dbSubmission.tweet_id
   };
 };
+
+export const filterSubmissions = (submissions: TeaSubmission[], filter: string): TeaSubmission[] => {
+  if (filter === 'all') return submissions;
+  
+  switch (filter) {
+    case 'verified':
+      return submissions.filter(sub => sub.is_verified);
+    case 'hot':
+      return submissions.filter(sub => sub.reactions.hot > 5);
+    case 'spicy':
+      return submissions.filter(sub => sub.reactions.spicy > 3);
+    case 'tech':
+      return submissions.filter(sub => sub.category === 'tech');
+    case 'nft':
+      return submissions.filter(sub => sub.category === 'nft');
+    case 'exchange':
+      return submissions.filter(sub => sub.category === 'exchange');
+    default:
+      return submissions;
+  }
+};

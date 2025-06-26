@@ -26,6 +26,15 @@ interface UnifiedSecurityResult {
 }
 
 export class UnifiedSecurityService {
+  private static instance: UnifiedSecurityService;
+
+  public static getInstance(): UnifiedSecurityService {
+    if (!UnifiedSecurityService.instance) {
+      UnifiedSecurityService.instance = new UnifiedSecurityService();
+    }
+    return UnifiedSecurityService.instance;
+  }
+
   public static async validateSubmissionSecurity(
     content: string,
     urls: string[],
