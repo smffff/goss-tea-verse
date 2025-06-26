@@ -1,22 +1,19 @@
-
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Coffee } from 'lucide-react';
-import { useSubmissionForm } from '@/hooks/useSubmissionForm';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { X, Plus, AlertTriangle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { EnhancedSecurityService } from '@/services/enhancedSecurityService';
 
 interface SubmissionFormProps {
   onClose: () => void;
-  onSubmit: (data: {
-    tea: string;
-    email: string;
-    wallet: string;
-    category: string;
-    evidence_urls: string[];
-    isAnonymous: boolean;
-  }) => Promise<void>;
+  onSubmit: (data: any) => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -25,186 +22,257 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
   onSubmit,
   isLoading = false
 }) => {
-  const {
-    formData,
-    errors,
-    handleSubmit,
-    clearError,
-    updateFormData,
-    isFormValid
-  } = useSubmissionForm(onSubmit, isLoading);
+  const [data, setData] = useState({
+    tea: '',
+    email: '',
+    wallet: '',
+    category: 'general',
+    evidence_urls: [''],
+    isAnonymous: true
+  });
+  const { toast } = useToast();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setData(prev => ({ ...prev, isAnonymous: e.target.checked }));
+  };
+
+  const handleSelectChange = (value: string) => {
+    setData(prev => ({ ...prev, category: value }));
+  };
+
+  const addEvidenceUrl = () => {
+    setData(prev => ({ ...prev, evidence_urls: [...prev.evidence_urls, ''] }));
+  };
+
+  const updateEvidenceUrl = (index: number, value: string) => {
+    const updatedUrls = [...data.evidence_urls];
+    updatedUrls[index] = value;
+    setData(prev => ({ ...prev, evidence_urls: updatedUrls }));
+  };
+
+  const removeEvidenceUrl = (index: number) => {
+    const updatedUrls = [...data.evidence_urls];
+    updatedUrls.splice(index, 1);
+    setData(prev => ({ ...prev, evidence_urls: updatedUrls }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isLoading || !data.tea.trim()) return;
+
+    try {
+      // Enhanced security validation
+      const securityCheck = await EnhancedSecurityService.validateSubmissionSecurity(
+        data.tea,
+        data.evidence_urls,
+        'tea_submission'
+      );
+
+      // Check if validation failed
+      if (!securityCheck.overallValid) {
+        const errors = [];
+        
+        if (!securityCheck.contentValidation.valid) {
+          errors.push(...securityCheck.contentValidation.threats);
+        }
+        
+        if (!securityCheck.rateLimitCheck.allowed) {
+          errors.push(securityCheck.rateLimitCheck.blockedReason || 'Rate limit exceeded');
+        }
+        
+        if (securityCheck.urlValidation.invalid.length > 0) {
+          errors.push(`Invalid URLs: ${securityCheck.urlValidation.invalid.join(', ')}`);
+        }
+
+        toast({
+          title: "Submission Failed",
+          description: `Security validation failed: ${errors.join(', ')}`,
+          variant: "destructive"
+        });
+
+        // Log security violation
+        await EnhancedSecurityService.logSecurityEvent('submission_blocked', {
+          reasons: errors,
+          content_length: data.tea.length,
+          risk_level: securityCheck.contentValidation.riskLevel
+        }, 'high');
+
+        return;
+      }
+
+      // Use sanitized content
+      const sanitizedData = {
+        ...data,
+        tea: securityCheck.contentValidation.sanitized,
+        evidence_urls: securityCheck.urlValidation.valid
+      };
+
+      await onSubmit(sanitizedData);
+
+      // Log successful submission
+      await EnhancedSecurityService.logSecurityEvent('secure_submission_created', {
+        content_length: sanitizedData.tea.length,
+        evidence_count: sanitizedData.evidence_urls.length,
+        security_score: securityCheck.contentValidation.securityScore
+      }, 'low');
+
+    } catch (error) {
+      console.error('Submission error:', error);
+      toast({
+        title: "Submission Failed",
+        description: error instanceof Error ? error.message : 'An unexpected error occurred',
+        variant: "destructive"
+      });
+
+      // Log submission error
+      await EnhancedSecurityService.logSecurityEvent('submission_error', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        content_length: data.tea.length
+      }, 'medium');
+    }
+  };
 
   return (
-    <Card className="bg-newsprint border-vintage-red/30 shadow-xl">
+    <Card className="bg-white/90 border-vintage-red/30 shadow-lg">
       <CardHeader>
-        <CardTitle className="text-tabloid-black flex items-center gap-2 text-xl font-display">
-          <Coffee className="w-6 h-6 text-vintage-red" />
-          Spill Your Tea ☕
-        </CardTitle>
-        <p className="text-tabloid-black/70 text-sm">
-          Share the latest crypto gossip anonymously
-        </p>
+        <CardTitle className="text-tabloid-black">Spill The Tea</CardTitle>
       </CardHeader>
-      
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Tea Content */}
+      <CardContent className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-tabloid-black mb-2">
-              What's the tea? *
-            </label>
+            <Label htmlFor="tea">Tea</Label>
             <Textarea
-              value={formData.tea}
-              onChange={(e) => {
-                updateFormData({ tea: e.target.value });
-                if (errors.tea) clearError('tea');
-              }}
-              placeholder="Spill the gossip... What's really happening in crypto?"
-              className="min-h-[120px] bg-white border-vintage-red/30 text-tabloid-black placeholder:text-tabloid-black/50 focus:border-vintage-red resize-none"
-              maxLength={2000}
+              id="tea"
+              name="tea"
+              placeholder="What's the gossip?"
+              value={data.tea}
+              onChange={handleInputChange}
+              rows={4}
               required
+              className="bg-stone-100"
             />
-            {errors.tea && (
-              <p className="text-vintage-red text-sm mt-1">{errors.tea}</p>
-            )}
-            <div className="text-xs text-tabloid-black/60 mt-1">
-              {formData.tea.length}/2000 characters
-            </div>
           </div>
 
-          {/* Category */}
           <div>
-            <label className="block text-sm font-medium text-tabloid-black mb-2">
-              Category
-            </label>
-            <select
-              value={formData.category}
-              onChange={(e) => updateFormData({ category: e.target.value })}
-              className="w-full p-3 bg-white border border-vintage-red/30 rounded-md text-tabloid-black focus:border-vintage-red focus:ring-1 focus:ring-vintage-red"
-            >
-              <option value="general">General Gossip</option>
-              <option value="defi">DeFi Drama</option>
-              <option value="nft">NFT News</option>
-              <option value="exchanges">Exchange Exposé</option>
-              <option value="influencers">Influencer Intel</option>
-              <option value="projects">Project Predictions</option>
-            </select>
+            <Label htmlFor="category">Category</Label>
+            <Select onValueChange={handleSelectChange}>
+              <SelectTrigger className="w-full bg-stone-100">
+                <SelectValue placeholder="General" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="general">General</SelectItem>
+                <SelectItem value="exchanges">Exchanges</SelectItem>
+                <SelectItem value="defi">DeFi</SelectItem>
+                <SelectItem value="nfts">NFTs</SelectItem>
+                <SelectItem value="regulation">Regulation</SelectItem>
+                <SelectItem value="memecoins">Memecoins</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          {/* Evidence URLs */}
           <div>
-            <label className="block text-sm font-medium text-tabloid-black mb-2">
-              Evidence Links (Optional)
-            </label>
-            {formData.evidence_urls.map((url, index) => (
-              <div key={index} className="flex gap-2 mb-2">
+            <Label>Evidence (Optional)</Label>
+            {data.evidence_urls.map((url, index) => (
+              <div key={index} className="flex items-center space-x-2 mb-2">
                 <Input
                   type="url"
+                  placeholder="Link to evidence"
                   value={url}
-                  onChange={(e) => {
-                    const newUrls = [...formData.evidence_urls];
-                    newUrls[index] = e.target.value;
-                    updateFormData({ evidence_urls: newUrls });
-                  }}
-                  placeholder="https://twitter.com/..."
-                  className="bg-white border-vintage-red/30 text-tabloid-black focus:border-vintage-red"
+                  onChange={(e) => updateEvidenceUrl(index, e.target.value)}
+                  className="bg-stone-100"
                 />
-                {index === formData.evidence_urls.length - 1 && formData.evidence_urls.length < 3 && (
+                {data.evidence_urls.length > 1 && (
                   <Button
                     type="button"
-                    onClick={() => updateFormData({ 
-                      evidence_urls: [...formData.evidence_urls, ''] 
-                    })}
-                    className="px-3 bg-vintage-red hover:bg-vintage-red/90 text-white"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeEvidenceUrl(index)}
+                    className="text-red-500 hover:bg-red-100"
                   >
-                    +
+                    <X className="w-4 h-4" />
                   </Button>
                 )}
               </div>
             ))}
-            <div className="text-xs text-tabloid-black/60">
-              Add links to Twitter, articles, or other sources
-            </div>
+            {data.evidence_urls.length < 5 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addEvidenceUrl}
+                className="w-full justify-center border-vintage-red text-vintage-red hover:bg-vintage-red/10"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Evidence
+              </Button>
+            )}
           </div>
 
-          {/* Anonymous Toggle */}
-          <div className="bg-pale-pink p-4 rounded-lg border border-vintage-red/20">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={formData.isAnonymous}
-                onChange={(e) => updateFormData({ isAnonymous: e.target.checked })}
-                className="w-4 h-4 text-vintage-red border-vintage-red/30 rounded focus:ring-vintage-red"
-              />
-              <div>
-                <span className="text-tabloid-black font-medium">Submit Anonymously</span>
-                <p className="text-tabloid-black/70 text-sm">Your identity will be protected</p>
-              </div>
-            </label>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="isAnonymous"
+              checked={data.isAnonymous}
+              onCheckedChange={handleCheckboxChange}
+            />
+            <Label htmlFor="isAnonymous">Post Anonymously</Label>
           </div>
 
-          {/* Contact Fields (only if not anonymous) */}
-          {!formData.isAnonymous && (
-            <div className="space-y-4 bg-pale-pink p-4 rounded-lg border border-vintage-red/20">
-              <h4 className="text-tabloid-black font-medium">Contact Information (Optional)</h4>
-              
+          {!data.isAnonymous && (
+            <div className="space-y-2">
               <div>
-                <label className="block text-sm font-medium text-tabloid-black mb-1">
-                  Email
-                </label>
+                <Label htmlFor="email">Contact Email</Label>
                 <Input
                   type="email"
-                  value={formData.email}
-                  onChange={(e) => {
-                    updateFormData({ email: e.target.value });
-                    if (errors.email) clearError('email');
-                  }}
-                  placeholder="your@email.com"
-                  className="bg-white border-vintage-red/30 text-tabloid-black focus:border-vintage-red"
+                  id="email"
+                  name="email"
+                  placeholder="Your email"
+                  value={data.email}
+                  onChange={handleInputChange}
+                  className="bg-stone-100"
                 />
-                {errors.email && (
-                  <p className="text-vintage-red text-sm mt-1">{errors.email}</p>
-                )}
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-tabloid-black mb-1">
-                  Wallet Address
-                </label>
+                <Label htmlFor="wallet">Wallet Address</Label>
                 <Input
                   type="text"
-                  value={formData.wallet}
-                  onChange={(e) => {
-                    updateFormData({ wallet: e.target.value });
-                    if (errors.wallet) clearError('wallet');
-                  }}
-                  placeholder="0x..."
-                  className="bg-white border-vintage-red/30 text-tabloid-black focus:border-vintage-red"
+                  id="wallet"
+                  name="wallet"
+                  placeholder="Your wallet address"
+                  value={data.wallet}
+                  onChange={handleInputChange}
+                  className="bg-stone-100"
                 />
-                {errors.wallet && (
-                  <p className="text-vintage-red text-sm mt-1">{errors.wallet}</p>
-                )}
               </div>
             </div>
           )}
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex justify-between items-center">
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               onClick={onClose}
-              className="flex-1 border-tabloid-black text-tabloid-black hover:bg-tabloid-black hover:text-white btn-pill"
-              disabled={isLoading}
+              className="text-tabloid-black hover:bg-stone-100"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={isLoading || !isFormValid}
-              className="flex-1 btn-pill btn-pill-red shadow-lg btn-tabloid-hover"
+              disabled={isLoading}
+              className="bg-vintage-red text-white hover:bg-vintage-red/90"
             >
-              {isLoading ? 'Brewing...' : 'Spill the Tea'}
+              {isLoading ? (
+                <>
+                  Submitting...
+                </>
+              ) : (
+                'Submit Tea'
+              )}
             </Button>
           </div>
         </form>
