@@ -1,4 +1,7 @@
 
+// CTea App Configuration - Main app settings
+// Moved from lib/config/app.ts for better organization
+
 export const APP_CONFIG = {
   name: 'CTea Newsroom',
   tagline: 'Where Memes, Gossip, and Crypto Collide — Spill Tea. Get Paid.',
