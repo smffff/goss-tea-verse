@@ -1,10 +1,12 @@
 
 import React from 'react';
 import { AuthProvider } from '@/hooks/useAuthProvider';
+import { DemoProvider } from '@/contexts/DemoContext';
 import AppLayout from '@/components/AppLayout';
 import AppErrorBoundary from '@/components/AppErrorBoundary';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import LaunchReadyApp from '@/components/launch/LaunchReadyApp';
+import DemoModeGate from '@/components/demo/DemoModeGate';
 import { useAuth } from '@/hooks/useAuthProvider';
 
 function AppContent() {
@@ -18,10 +20,18 @@ function AppContent() {
   const isLaunchMode = true; // Toggle this for different modes
   
   if (isLaunchMode) {
-    return <LaunchReadyApp />;
+    return (
+      <DemoModeGate>
+        <LaunchReadyApp />
+      </DemoModeGate>
+    );
   }
 
-  return <AppLayout />;
+  return (
+    <DemoModeGate>
+      <AppLayout />
+    </DemoModeGate>
+  );
 }
 
 function App() {
@@ -30,9 +40,11 @@ function App() {
   return (
     <div className="App">
       <AppErrorBoundary>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
+        <DemoProvider>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </DemoProvider>
       </AppErrorBoundary>
     </div>
   );
