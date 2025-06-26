@@ -6,11 +6,10 @@ import { Toaster } from '@/components/ui/toaster';
 import { WalletProvider } from '@/components/WalletProvider';
 import { AuthProvider } from '@/hooks/useAuth';
 import { SecurityProvider } from '@/components/SecurityProvider';
-import Landing from '@/pages/Landing';
+import FeatureFlagProvider from '@/contexts/FeatureFlagContext';
+import MainApp from '@/components/beta/MainApp';
 import Admin from '@/pages/Admin';
 import LaunchReadyBanner from '@/components/launch/LaunchReadyBanner';
-import DevelopmentRoutes from '@/components/development/DevelopmentRoutes';
-import FeatureFlagProvider from '@/contexts/FeatureFlagContext';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -24,12 +23,6 @@ const queryClient = new QueryClient({
 
 const App: React.FC = () => {
   const isProduction = window.location.hostname !== 'localhost';
-  const isDevelopment = process.env.NODE_ENV === 'development';
-  const hasBetaAccess = localStorage.getItem('ctea-beta-access') === 'granted';
-  
-  // Feature flags for gradual rollout
-  const enableDevelopmentRoutes = isDevelopment || localStorage.getItem('ENABLE_DEV_ROUTES') === 'true';
-  const enableStagingFeatures = localStorage.getItem('ENABLE_STAGING_FEATURES') === 'true';
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -42,17 +35,14 @@ const App: React.FC = () => {
                   {isProduction && <LaunchReadyBanner />}
                   
                   <Routes>
-                    {/* Production Route - Always show landing for Beta 1.2 */}
-                    <Route path="/" element={<Landing />} />
+                    {/* Main App Route */}
+                    <Route path="/" element={<MainApp />} />
+                    
+                    {/* Admin Route */}
                     <Route path="/admin" element={<Admin />} />
                     
-                    {/* Development/Staging Routes - Only available with flags */}
-                    {(enableDevelopmentRoutes || enableStagingFeatures || hasBetaAccess) && (
-                      <Route path="/dev/*" element={<DevelopmentRoutes />} />
-                    )}
-                    
-                    {/* All other routes redirect to landing for Beta 1.2 */}
-                    <Route path="*" element={<Landing />} />
+                    {/* All other routes redirect to main app */}
+                    <Route path="*" element={<MainApp />} />
                   </Routes>
                   
                   <Toaster />

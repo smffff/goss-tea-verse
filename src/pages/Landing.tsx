@@ -1,9 +1,9 @@
 
 import React from 'react';
-import ParallaxLandingPage from './ParallaxLandingPage';
+import MainApp from '@/components/beta/MainApp';
 
 const Landing: React.FC = () => {
-  return <ParallaxLandingPage />;
+  return <MainApp />;
 };
 
 export default Landing;
