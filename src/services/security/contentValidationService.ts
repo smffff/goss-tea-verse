@@ -12,8 +12,9 @@ export interface SecurityValidationResult {
 export class ContentValidationService {
   public static async validateContent(content: string, maxLength: number = 1000): Promise<SecurityValidationResult> {
     try {
+      // Use the new server-side function
       const { data: contentResult, error: contentError } = await supabase.rpc(
-        'validate_content_ultimate',
+        'validate_content_server_side',
         { content, max_length: maxLength }
       );
 

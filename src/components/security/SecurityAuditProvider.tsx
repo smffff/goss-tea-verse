@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { SecurityServiceUnified } from '@/services/securityServiceUnified';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SecurityAuditContextType {
   threatLevel: 'low' | 'medium' | 'high' | 'critical';
@@ -9,6 +10,8 @@ interface SecurityAuditContextType {
   activeThreats: string[];
   logSecurityEvent: (event: string, details: any, severity?: 'low' | 'medium' | 'high' | 'critical') => void;
   isSecurityEnabled: boolean;
+  policyHealth: 'healthy' | 'warning' | 'critical';
+  refreshSecurityHealth: () => Promise<void>;
 }
 
 const SecurityAuditContext = createContext<SecurityAuditContextType | null>(null);
@@ -30,7 +33,33 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
   const [securityScore, setSecurityScore] = useState(100);
   const [activeThreats, setActiveThreats] = useState<string[]>([]);
   const [isSecurityEnabled, setIsSecurityEnabled] = useState(true);
+  const [policyHealth, setPolicyHealth] = useState<'healthy' | 'warning' | 'critical'>('healthy');
   const { toast } = useToast();
+
+  const refreshSecurityHealth = async () => {
+    try {
+      const { data: healthData, error } = await supabase.rpc('detect_policy_conflicts');
+      
+      if (error) {
+        console.error('Failed to check policy health:', error);
+        setPolicyHealth('warning');
+        return;
+      }
+
+      const conflicts = healthData?.total_potential_conflicts || 0;
+      setPolicyHealth(conflicts > 0 ? 'critical' : 'healthy');
+      
+      if (conflicts > 0) {
+        logSecurityEvent('policy_conflicts_detected', {
+          conflict_count: conflicts,
+          policy_summary: healthData?.policy_summary
+        }, 'critical');
+      }
+    } catch (error) {
+      console.error('Security health check failed:', error);
+      setPolicyHealth('warning');
+    }
+  };
 
   const logSecurityEvent = (event: string, details: any, severity: 'low' | 'medium' | 'high' | 'critical' = 'low') => {
     console.log(`🔐 Security Event [${severity.toUpperCase()}]:`, event, details);
@@ -53,7 +82,7 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
     }
 
     // Track active threats
-    if (severity in ['high', 'critical']) {
+    if (['high', 'critical'].includes(severity)) {
       setActiveThreats(prev => [...prev, event].slice(-5)); // Keep last 5 threats
     }
 
@@ -66,7 +95,8 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
         details,
         severity,
         threatLevel,
-        securityScore
+        securityScore,
+        policyHealth
       });
       localStorage.setItem('ctea_security_audit', JSON.stringify(auditLog.slice(-50))); // Keep last 50 events
     } catch (error) {
@@ -76,6 +106,9 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
 
   // Security monitoring effects
   useEffect(() => {
+    // Initial security health check
+    refreshSecurityHealth();
+    
     // Monitor for suspicious URL patterns
     const checkUrlSecurity = () => {
       const url = window.location.href;
@@ -119,8 +152,12 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
 
     window.addEventListener('popstate', handleNavigation);
     
+    // Check policy health every 10 minutes
+    const healthInterval = setInterval(refreshSecurityHealth, 10 * 60 * 1000);
+    
     return () => {
       clearInterval(navigationTimer);
+      clearInterval(healthInterval);
       window.removeEventListener('popstate', handleNavigation);
     };
   }, []);
@@ -143,7 +180,9 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
     securityScore,
     activeThreats,
     logSecurityEvent,
-    isSecurityEnabled
+    isSecurityEnabled,
+    policyHealth,
+    refreshSecurityHealth
   };
 
   return (

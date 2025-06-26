@@ -1154,6 +1154,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      detect_policy_conflicts: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       generate_beta_code_for_spill: {
         Args: { p_submission_id: string; p_user_token: string }
         Returns: Json
@@ -1379,6 +1383,10 @@ export type Database = {
         Returns: Json
       }
       validate_content_secure: {
+        Args: { content: string; max_length?: number }
+        Returns: Json
+      }
+      validate_content_server_side: {
         Args: { content: string; max_length?: number }
         Returns: Json
       }

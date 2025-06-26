@@ -1,3 +1,4 @@
+
 interface SecurityEvent {
   event_type: string;
   details: Record<string, unknown>;
@@ -70,8 +71,8 @@ export class EnhancedSecurityService {
   ): Promise<SubmissionSecurityResult> {
     const instance = this.getInstance();
     
-    // Content validation
-    const contentValidation = instance.validateContent(content);
+    // Content validation using new server-side function
+    const contentValidation = await instance.validateContentAdvanced(content);
     
     // URL validation
     const urlValidation = instance.validateUrls(urls);
@@ -135,7 +136,33 @@ export class EnhancedSecurityService {
     }
   }
 
-  private validateContent(content: string): {
+  private async validateContentAdvanced(content: string): Promise<{
+    valid: boolean;
+    sanitized: string;
+    threats: string[];
+    riskLevel: 'low' | 'medium' | 'high' | 'critical';
+    securityScore?: number;
+  }> {
+    try {
+      // Use the ContentValidationService which now calls the server-side function
+      const { ContentValidationService } = await import('./security/contentValidationService');
+      const result = await ContentValidationService.validateContent(content);
+      
+      return {
+        valid: result.valid,
+        sanitized: result.sanitized,
+        threats: result.threats,
+        riskLevel: result.riskLevel,
+        securityScore: result.securityScore
+      };
+    } catch (error) {
+      console.error('Advanced content validation failed:', error);
+      // Fallback to basic validation
+      return this.validateContentBasic(content);
+    }
+  }
+
+  private validateContentBasic(content: string): {
     valid: boolean;
     sanitized: string;
     threats: string[];
