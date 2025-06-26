@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { BetaCodeService } from '@/services/betaCodeService';
+import { betaCodeService } from '@/services/betaCodeService';
 import { useToast } from '@/hooks/use-toast';
 import { Coffee, Wallet, Code } from 'lucide-react';
 import AccessModalContent from './access-modal/AccessModalContent';
@@ -78,7 +77,7 @@ const EnhancedAccessModal: React.FC<EnhancedAccessModalProps> = ({
 
     try {
       const mockSubmissionId = crypto.randomUUID();
-      const result = await BetaCodeService.generateCodeForSpill(mockSubmissionId);
+      const result = await betaCodeService.generateCodeForSpill(mockSubmissionId);
       
       if (result.success && result.code) {
         setGeneratedCode(result.code);
@@ -109,7 +108,7 @@ const EnhancedAccessModal: React.FC<EnhancedAccessModalProps> = ({
 
     try {
       await new Promise(resolve => setTimeout(resolve, 2000));
-      const testCodes = BetaCodeService.getTestCodes();
+      const testCodes = betaCodeService.getTestCodes();
       const randomCode = testCodes[Math.floor(Math.random() * testCodes.length)];
       setGeneratedCode(randomCode);
       setStep('generated');
@@ -135,7 +134,7 @@ const EnhancedAccessModal: React.FC<EnhancedAccessModalProps> = ({
     setError('');
 
     try {
-      const result = await BetaCodeService.validateCode(accessCode, true);
+      const result = await betaCodeService.validateCode(accessCode, true);
       
       if (result.valid) {
         localStorage.setItem('ctea-beta-access', 'granted');
@@ -161,7 +160,7 @@ const EnhancedAccessModal: React.FC<EnhancedAccessModalProps> = ({
 
     setIsLoading(true);
     try {
-      const result = await BetaCodeService.validateCode(generatedCode, true);
+      const result = await betaCodeService.validateCode(generatedCode, true);
       
       if (result.valid) {
         localStorage.setItem('ctea-beta-access', 'granted');

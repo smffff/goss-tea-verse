@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,7 @@ import { Sparkles, Lock, Coffee, Users, TrendingUp, Zap, AlertCircle } from 'luc
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import ParallaxElement from '@/components/ui/ParallaxElement';
 import ViralCTA from '@/components/ui/ViralCTA';
-import { BetaCodeService } from '@/services/betaCodeService';
+import { betaCodeService } from '@/services/betaCodeService';
 import { useToast } from '@/hooks/use-toast';
 
 interface BetaGateProps {
@@ -34,7 +33,7 @@ const BetaGate: React.FC<BetaGateProps> = ({ onAccessGranted }) => {
     setError('');
 
     try {
-      const result = await BetaCodeService.validateCode(betaCode, true);
+      const result = await betaCodeService.validateCode(betaCode, true);
       
       if (result.valid) {
         localStorage.setItem('ctea-beta-access', 'granted');
@@ -69,7 +68,7 @@ const BetaGate: React.FC<BetaGateProps> = ({ onAccessGranted }) => {
       const mockSubmissionId = crypto.randomUUID();
       
       // Generate beta code for the spill
-      const result = await BetaCodeService.generateCodeForSpill(mockSubmissionId);
+      const result = await betaCodeService.generateCodeForSpill(mockSubmissionId);
       
       if (result.success && result.code) {
         localStorage.setItem('ctea-beta-access', 'granted');
@@ -92,7 +91,7 @@ const BetaGate: React.FC<BetaGateProps> = ({ onAccessGranted }) => {
 
   const handleBribe = () => {
     // For now, just give them a code - in production this would handle payment
-    const testCodes = BetaCodeService.getTestCodes();
+    const testCodes = betaCodeService.getTestCodes();
     const randomCode = testCodes[Math.floor(Math.random() * testCodes.length)];
     setBetaCode(randomCode);
     toast({

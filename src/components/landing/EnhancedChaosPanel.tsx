@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Coffee, Sparkles, Wallet, Code, Zap, TrendingUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { BetaCodeService } from '@/services/betaCodeService';
+import { betaCodeService } from '@/services/betaCodeService';
 
 interface EnhancedChaosPanelProps {
   onAccessPath: (path: 'spill' | 'bribe' | 'code') => void;

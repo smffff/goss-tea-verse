@@ -6,7 +6,7 @@ import { Coffee, Wallet, Mail, Users, Code } from 'lucide-react';
 import { motion } from 'framer-motion';
 import WalletIntegration from './WalletIntegration';
 import EmailOTPFlow from './EmailOTPFlow';
-import { BetaCodeService } from '@/services/betaCodeService';
+import { betaCodeService } from '@/services/betaCodeService';
 import { useToast } from '@/hooks/use-toast';
 import SpillSubmission from './access-modal/SpillSubmission';
 import CodeSubmission from './access-modal/CodeSubmission';

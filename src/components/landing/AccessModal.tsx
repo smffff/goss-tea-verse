@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Coffee } from 'lucide-react';
-import { BetaCodeService } from '@/services/betaCodeService';
+import { betaCodeService } from '@/services/betaCodeService';
 import { useToast } from '@/hooks/use-toast';
 
 interface AccessModalProps {
