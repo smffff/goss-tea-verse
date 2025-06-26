@@ -8,28 +8,7 @@ import ShareButtons from '@/components/ShareButtons';
 import ReportModal from '@/components/modals/ReportModal';
 import TeaRating from '@/components/TeaRating';
 import { useToast } from '@/hooks/use-toast';
-
-interface TeaSubmission {
-  id: string;
-  content: string;
-  category: string;
-  evidence_urls: string[] | null;
-  reactions: { hot: number; cold: number; spicy: number };
-  created_at: string;
-  average_rating: number;
-  rating_count: number;
-  has_evidence: boolean;
-  summary?: string;
-  boost_score?: number;
-  credibility_score?: number;
-  verification_level?: 'none' | 'basic' | 'verified' | 'trusted' | 'legendary';
-  memeability_score?: number;
-  viral_potential?: number;
-  engagement_rate?: number;
-  is_trending?: boolean;
-  author?: string;
-  user_vote?: 'up' | 'down' | null;
-}
+import { TeaSubmission } from '@/types/teaFeed';
 
 interface EnhancedTeaSubmissionCardProps {
   submission: TeaSubmission;
@@ -45,7 +24,7 @@ const EnhancedTeaSubmissionCard: React.FC<EnhancedTeaSubmissionCardProps> = ({
   viewMode = 'detailed'
 }) => {
   const [showReportModal, setShowReportModal] = useState(false);
-  const [userVote, setUserVote] = useState<'up' | 'down' | null>(submission.user_vote || null);
+  const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
   const { toast } = useToast();
 
   const handleVote = (voteType: 'up' | 'down') => {
@@ -107,14 +86,6 @@ const EnhancedTeaSubmissionCard: React.FC<EnhancedTeaSubmissionCardProps> = ({
           <p className="text-tabloid-black leading-relaxed">
             {submission.content}
           </p>
-          
-          {submission.summary && (
-            <div className="mt-3 p-3 bg-vintage-red/10 border border-vintage-red/30 rounded-lg">
-              <p className="text-sm text-tabloid-black">
-                <span className="text-vintage-red font-medium">AI Summary:</span> {submission.summary}
-              </p>
-            </div>
-          )}
         </div>
 
         {/* Evidence/Media */}
