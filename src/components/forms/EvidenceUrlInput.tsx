@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LinkIcon, X, AlertCircle } from 'lucide-react';
-import { validateUrl } from '@/utils/securityUtils';
+import { validateUrl } from '@/utils/urlValidation';
 
 interface EvidenceUrlInputProps {
   urls: string[];

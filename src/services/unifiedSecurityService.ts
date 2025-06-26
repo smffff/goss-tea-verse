@@ -92,7 +92,7 @@ export class UnifiedSecurityService {
     return Math.max(0, baseScore - (threats.length * penaltyPerThreat));
   }
 
-  private validateUrls(urls: string[]): { valid: string[]; invalid: string[] } {
+  public validateUrls(urls: string[]): { valid: string[]; invalid: string[] } {
     const valid: string[] = [];
     const invalid: string[] = [];
 
@@ -114,7 +114,7 @@ export class UnifiedSecurityService {
     return { valid, invalid };
   }
 
-  private getOrCreateSecureToken(): { valid: boolean; token: string } {
+  public getOrCreateSecureToken(): { valid: boolean; token: string } {
     let token = sessionStorage.getItem('anonymous_token');
     
     if (!token || !this.validateToken(token)) {
@@ -139,7 +139,7 @@ export class UnifiedSecurityService {
     return /^[A-Za-z0-9_-]+$/.test(token);
   }
 
-  private checkRateLimit(action: string, maxAttempts: number, windowMinutes: number): RateLimitResult {
+  public checkRateLimit(action: string, maxAttempts: number, windowMinutes: number): RateLimitResult {
     const now = Date.now();
     const windowMs = windowMinutes * 60 * 1000;
     const key = `${action}_${Math.floor(now / windowMs)}`;

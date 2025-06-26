@@ -28,7 +28,19 @@ export const getOrCreateSecureToken = (): string => {
   return result.token;
 };
 
-// URL validation
+// URL validation - single URL
+export const validateUrl = (url: string): boolean => {
+  if (!url?.trim()) return false;
+  
+  try {
+    const urlObj = new URL(url);
+    return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
+// URL validation - multiple URLs
 export const validateUrls = (urls: string[]): string[] => {
   const service = UnifiedSecurityService.getInstance();
   const result = (service as any).validateUrls(urls);
