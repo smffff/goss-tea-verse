@@ -15,6 +15,28 @@ export interface BetaCodeGenerationResult {
   error?: string;
 }
 
+// Type guard functions for safe type casting
+function isBetaCodeValidationResult(data: any): data is BetaCodeValidationResult {
+  return (
+    data &&
+    typeof data === 'object' &&
+    typeof data.valid === 'boolean' &&
+    (data.error === undefined || typeof data.error === 'string') &&
+    (data.code === undefined || typeof data.code === 'string') &&
+    (data.granted_by === undefined || typeof data.granted_by === 'string')
+  );
+}
+
+function isBetaCodeGenerationResult(data: any): data is BetaCodeGenerationResult {
+  return (
+    data &&
+    typeof data === 'object' &&
+    typeof data.success === 'boolean' &&
+    (data.code === undefined || typeof data.code === 'string') &&
+    (data.error === undefined || typeof data.error === 'string')
+  );
+}
+
 export class BetaCodeService {
   static async validateCode(code: string, useCode: boolean = false): Promise<BetaCodeValidationResult> {
     try {
@@ -33,7 +55,16 @@ export class BetaCodeService {
         };
       }
 
-      return data as BetaCodeValidationResult;
+      // Safe type casting with validation
+      if (!isBetaCodeValidationResult(data)) {
+        console.error('Invalid response format from validate_beta_code:', data);
+        return {
+          valid: false,
+          error: 'Invalid server response format.'
+        };
+      }
+
+      return data;
     } catch (error) {
       console.error('Beta code service error:', error);
       return {
@@ -60,7 +91,16 @@ export class BetaCodeService {
         };
       }
 
-      return data as BetaCodeGenerationResult;
+      // Safe type casting with validation
+      if (!isBetaCodeGenerationResult(data)) {
+        console.error('Invalid response format from generate_beta_code_for_spill:', data);
+        return {
+          success: false,
+          error: 'Invalid server response format.'
+        };
+      }
+
+      return data;
     } catch (error) {
       console.error('Beta code generation service error:', error);
       return {
