@@ -1,6 +1,7 @@
 
 import React from 'react';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import FallbackPage from '@/pages/FallbackPage';
 
 interface ErrorBoundaryWrapperProps {
   children: React.ReactNode;
@@ -14,19 +15,17 @@ const ErrorBoundaryWrapper: React.FC<ErrorBoundaryWrapperProps> = ({
   componentName = 'Component'
 }) => {
   const defaultFallback = (
-    <div className="min-h-[200px] flex items-center justify-center bg-pale-pink border border-vintage-red/30 rounded-lg">
-      <div className="text-center p-6">
-        <div className="text-vintage-red text-4xl mb-4">⚠️</div>
-        <h3 className="text-tabloid-black font-bold mb-2">Oops! Something went wrong</h3>
-        <p className="text-tabloid-black/70 text-sm">
-          The {componentName} encountered an error. Please try refreshing the page.
-        </p>
-      </div>
-    </div>
+    <FallbackPage 
+      error={`The ${componentName} encountered an error and needs to be refreshed.`}
+      onRetry={() => window.location.reload()}
+    />
   );
 
   return (
-    <ErrorBoundary componentName={componentName}>
+    <ErrorBoundary 
+      componentName={componentName}
+      fallback={fallback || defaultFallback}
+    >
       {children}
     </ErrorBoundary>
   );

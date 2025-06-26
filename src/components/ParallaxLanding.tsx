@@ -1,15 +1,50 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BRAND_CONFIG } from '@/lib/config/brandConfig';
-
-// Uncomment components one by one to test which one breaks
-// import EnhancedHeroSection from '@/components/landing/EnhancedHeroSection';
-// import BetaStatsPanel from '@/components/landing/BetaStatsPanel';
+import FallbackPage from '@/pages/FallbackPage';
 
 export default function ParallaxLanding() {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    // Simple loading check
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 100);
+
+    // Fallback if something goes wrong
+    const errorTimer = setTimeout(() => {
+      if (!isLoaded) {
+        console.warn('⚠️ ParallaxLanding taking too long to load');
+        setHasError(true);
+      }
+    }, 5000);
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(errorTimer);
+    };
+  }, [isLoaded]);
+
   const handleEnterClick = () => {
     console.log('Enter button clicked - beta access flow would start here');
   };
+
+  if (hasError) {
+    return <FallbackPage error="Landing page failed to load properly" />;
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1b1b1b] via-[#2a1a2a] to-[#1a2a2a]">
+        <div className="text-center">
+          <div className="text-6xl animate-bounce mb-4">🫖</div>
+          <p className="text-white/80">Brewing the perfect tea...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 
@@ -33,14 +68,13 @@ export default function ParallaxLanding() {
             CTea Newsroom
           </h1>
           <p className="text-xl text-white/80 max-w-2xl">
-            Debug Mode: If you can see this, the stack is fine. 
-            Now we'll reintroduce components one by one to isolate any crashes.
+            Welcome to the hottest gossip spot in crypto! Ready to spill some tea? 🍵
           </p>
           <button
             onClick={handleEnterClick}
             className="bg-gradient-to-r from-[#00D8A4] to-[#FF4FB3] text-white font-bold px-8 py-4 rounded-xl text-xl hover:scale-105 transition-transform"
           >
-            🔧 Debug Mode Active
+            Enter the Teahouse
           </button>
         </div>
       </main>
