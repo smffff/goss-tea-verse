@@ -41,6 +41,14 @@ function isBetaCodeValidationResponse(data: any): data is BetaCodeValidationResp
   return data && typeof data === 'object' && typeof data.valid === 'boolean';
 }
 
+// Safe type conversion helper
+function safeConvertToBetaCodeResponse(data: unknown): BetaCodeValidationResponse | null {
+  if (isBetaCodeValidationResponse(data)) {
+    return data;
+  }
+  return null;
+}
+
 export class EnhancedAuthValidation {
   private static readonly COMMON_PASSWORDS = [
     'password', '123456', 'password123', 'admin', 'qwerty', 'letmein',
@@ -210,16 +218,21 @@ export class EnhancedAuthValidation {
             riskLevel = 'medium';
             recommendations.push('Try other access methods');
           } else if (typeof result === 'object' && result !== null && 'valid' in result) {
-            // New format response - properly type check
-            const validationResult = result as BetaCodeValidationResponse;
-            if (!validationResult.valid) {
+            // New format response - safely convert the type
+            const validationResult = safeConvertToBetaCodeResponse(result);
+            if (validationResult && !validationResult.valid) {
               console.log('❌ Beta code marked as invalid by server');
               threats.push('Invalid beta code');
               securityScore -= 30;
               riskLevel = 'medium';
               recommendations.push('Request a new beta code or try tea spilling');
-            } else {
+            } else if (validationResult) {
               console.log('✅ Beta code validated successfully');
+            } else {
+              console.warn('⚠️ Could not parse server response');
+              threats.push('Server response format error');
+              securityScore -= 20;
+              riskLevel = 'medium';
             }
           } else if (typeof result === 'boolean') {
             // Simple boolean response
