@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -21,6 +22,7 @@ const WalletGatedHero: React.FC<WalletGatedHeroProps> = ({
   onShowBribe,
   onShowSpill
 }) => {
+  const navigate = useNavigate();
   const { wallet, connectWallet } = useWallet();
   const { crossChainUser, isCheckingOGStatus } = useCrossChain();
   const [accessLevel, setAccessLevel] = useState<AccessLevel | null>(null);
@@ -48,6 +50,10 @@ const WalletGatedHero: React.FC<WalletGatedHeroProps> = ({
     } finally {
       setIsConnecting(false);
     }
+  };
+
+  const handleEnterApp = () => {
+    navigate('/feed');
   };
 
   const getThresholdBadge = (amount: number) => {
@@ -99,7 +105,7 @@ const WalletGatedHero: React.FC<WalletGatedHeroProps> = ({
         </Card>
 
         <Button
-          onClick={() => window.location.href = '/feed'}
+          onClick={handleEnterApp}
           className="bg-gradient-to-r from-ctea-teal to-pink-400 hover:from-ctea-teal/80 hover:to-pink-400/80 text-white font-bold text-lg px-8 py-4"
         >
           <Coffee className="w-5 h-5 mr-2" />

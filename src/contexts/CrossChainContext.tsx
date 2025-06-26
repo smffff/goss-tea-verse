@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { CrossChainUser, OGStatus } from '@/types/crossChain';
-import { crossChainService } from '@/services/crossChainService';
+import { web3CrossChainService } from '@/services/web3CrossChainService';
 import { useWallet } from '@/components/WalletProvider';
 import { useToast } from '@/hooks/use-toast';
 
@@ -31,7 +31,11 @@ export const CrossChainProvider: React.FC<CrossChainProviderProps> = ({ children
     setIsCheckingOGStatus(true);
     try {
       console.log('🔄 Refreshing OG status for:', wallet.address);
-      const ogStatus = await crossChainService.getOGStatus(wallet.address);
+      
+      // Ensure we're on Avalanche network
+      await web3CrossChainService.ensureAvalancheNetwork();
+      
+      const ogStatus = await web3CrossChainService.getOGStatus(wallet.address);
       
       setCrossChainUser({
         avalancheAddress: wallet.address,
@@ -50,7 +54,7 @@ export const CrossChainProvider: React.FC<CrossChainProviderProps> = ({ children
       console.error('Failed to refresh OG status:', error);
       toast({
         title: 'OG Check Failed',
-        description: 'Could not verify OG status. Please try again.',
+        description: 'Could not verify OG status. Please ensure you\'re connected to Avalanche network.',
         variant: 'destructive',
       });
     } finally {
@@ -60,12 +64,12 @@ export const CrossChainProvider: React.FC<CrossChainProviderProps> = ({ children
 
   const getOGPerks = (): string[] => {
     if (!crossChainUser?.ogStatus.isOG) return [];
-    return crossChainService.getOGPerks(crossChainUser.ogStatus.tier);
+    return web3CrossChainService.getOGPerks(crossChainUser.ogStatus.tier);
   };
 
   const createOGShareLink = (): string => {
     if (!crossChainUser?.ogStatus.isOG) return '';
-    return crossChainService.createOGShareLink(crossChainUser.ogStatus);
+    return web3CrossChainService.createOGShareLink(crossChainUser.ogStatus);
   };
 
   // Auto-check OG status when wallet connects

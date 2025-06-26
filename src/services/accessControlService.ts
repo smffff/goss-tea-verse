@@ -1,5 +1,5 @@
 
-import { crossChainService } from './crossChainService';
+import { web3CrossChainService } from './web3CrossChainService';
 
 export interface AccessLevel {
   level: 'none' | 'sipper' | 'connoisseur' | 'legend' | 'bribed' | 'submitted';
@@ -21,14 +21,14 @@ class AccessControlService {
     try {
       console.log('🔐 Checking wallet access for:', address);
       
-      const ogStatus = await crossChainService.getOGStatus(address);
+      const ogStatus = await web3CrossChainService.getOGStatus(address);
       
       return {
         level: ogStatus.tier,
         hasAccess: ogStatus.isOG,
         teaBalance: ogStatus.balance,
         accessMethod: 'wallet',
-        perks: crossChainService.getOGPerks(ogStatus.tier)
+        perks: web3CrossChainService.getOGPerks(ogStatus.tier)
       };
     } catch (error) {
       console.error('Failed to check wallet access:', error);

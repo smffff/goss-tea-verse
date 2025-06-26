@@ -1,7 +1,9 @@
 
 import React from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { AuthProvider } from '@/hooks/useAuthProvider';
 import { DemoProvider } from '@/contexts/DemoContext';
+import { WalletProvider } from '@/components/WalletProvider';
 import { CrossChainProvider } from '@/contexts/CrossChainContext';
 import AppLayout from '@/components/AppLayout';
 import AppErrorBoundary from '@/components/AppErrorBoundary';
@@ -61,13 +63,17 @@ function App() {
   return (
     <div className="App">
       <AppErrorBoundary>
-        <DemoProvider>
-          <AuthProvider>
-            <CrossChainProvider>
-              <AppContent />
-            </CrossChainProvider>
-          </AuthProvider>
-        </DemoProvider>
+        <Router>
+          <DemoProvider>
+            <AuthProvider>
+              <WalletProvider>
+                <CrossChainProvider>
+                  <AppContent />
+                </CrossChainProvider>
+              </WalletProvider>
+            </AuthProvider>
+          </DemoProvider>
+        </Router>
       </AppErrorBoundary>
     </div>
   );
