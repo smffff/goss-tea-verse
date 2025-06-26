@@ -11,12 +11,19 @@ import EnhancedMainApp from '@/components/beta/EnhancedMainApp';
 import Admin from '@/pages/Admin';
 import LaunchReadyBanner from '@/components/launch/LaunchReadyBanner';
 
-// Create a client
+// Create a client with better error handling
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
-      retry: 1,
+      retry: (failureCount, error) => {
+        // Don't retry on 4xx errors
+        if (error instanceof Error && error.message.includes('4')) {
+          return false;
+        }
+        return failureCount < 2;
+      },
+      refetchOnWindowFocus: false,
     },
   },
 });

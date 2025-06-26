@@ -43,39 +43,51 @@ export const AccessControlProvider: React.FC<AccessControlProviderProps> = ({ ch
   };
 
   useEffect(() => {
-    // Initialize access level from localStorage
-    const savedLevel = localStorage.getItem('ctea-access-level') as AccessLevel || 'guest';
-    const savedPeekStart = localStorage.getItem('ctea-peek-start');
-    
-    if (savedLevel === 'guest' && savedPeekStart) {
-      const elapsed = Math.floor((Date.now() - parseInt(savedPeekStart)) / 1000);
-      const remaining = Math.max(0, 300 - elapsed);
+    // Initialize access level from localStorage with error handling
+    try {
+      const savedLevel = localStorage.getItem('ctea-access-level') as AccessLevel;
+      const savedPeekStart = localStorage.getItem('ctea-peek-start');
       
-      if (remaining > 0) {
-        setAccessLevelState('guest');
-        setTimeRemaining(remaining);
-      } else {
-        // Preview expired
-        localStorage.removeItem('ctea-access-level');
-        localStorage.removeItem('ctea-peek-start');
-        setAccessLevelState('guest');
+      if (savedLevel && ['guest', 'authenticated', 'beta', 'admin'].includes(savedLevel)) {
+        if (savedLevel === 'guest' && savedPeekStart) {
+          const elapsed = Math.floor((Date.now() - parseInt(savedPeekStart)) / 1000);
+          const remaining = Math.max(0, 300 - elapsed);
+          
+          if (remaining > 0) {
+            setAccessLevelState('guest');
+            setTimeRemaining(remaining);
+          } else {
+            // Preview expired
+            localStorage.removeItem('ctea-access-level');
+            localStorage.removeItem('ctea-peek-start');
+            setAccessLevelState('guest');
+          }
+        } else {
+          setAccessLevelState(savedLevel);
+        }
       }
-    } else {
-      setAccessLevelState(savedLevel);
+    } catch (error) {
+      console.error('Error initializing access control:', error);
+      setAccessLevelState('guest');
     }
   }, []);
 
   useEffect(() => {
     // Timer for guest access
-    if (accessLevel === 'guest' && timeRemaining !== undefined) {
+    if (accessLevel === 'guest' && timeRemaining !== undefined && timeRemaining > 0) {
       const timer = setInterval(() => {
         setTimeRemaining((prev) => {
-          if (prev && prev > 0) {
+          if (prev && prev > 1) {
             return prev - 1;
           } else {
             // Time expired
-            localStorage.removeItem('ctea-access-level');
-            localStorage.removeItem('ctea-peek-start');
+            try {
+              localStorage.removeItem('ctea-access-level');
+              localStorage.removeItem('ctea-peek-start');
+            } catch (error) {
+              console.error('Error clearing localStorage:', error);
+            }
+            
             toast({
               title: "Preview Expired",
               description: "Sign up or use a beta code for continued access!",
@@ -91,15 +103,20 @@ export const AccessControlProvider: React.FC<AccessControlProviderProps> = ({ ch
   }, [accessLevel, timeRemaining, toast]);
 
   const setAccessLevel = (level: AccessLevel) => {
-    setAccessLevelState(level);
-    localStorage.setItem('ctea-access-level', level);
-    
-    if (level === 'guest') {
-      localStorage.setItem('ctea-peek-start', Date.now().toString());
-      setTimeRemaining(300);
-    } else {
-      localStorage.removeItem('ctea-peek-start');
-      setTimeRemaining(undefined);
+    try {
+      console.log('Setting access level to:', level);
+      setAccessLevelState(level);
+      localStorage.setItem('ctea-access-level', level);
+      
+      if (level === 'guest' && !localStorage.getItem('ctea-peek-start')) {
+        localStorage.setItem('ctea-peek-start', Date.now().toString());
+        setTimeRemaining(300);
+      } else if (level !== 'guest') {
+        localStorage.removeItem('ctea-peek-start');
+        setTimeRemaining(undefined);
+      }
+    } catch (error) {
+      console.error('Error setting access level:', error);
     }
   };
 
