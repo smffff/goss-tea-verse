@@ -64,7 +64,7 @@ export class PerformanceService {
           tcp_connect: navigation.connectEnd - navigation.connectStart,
           request_response: navigation.responseEnd - navigation.requestStart,
           dom_processing: navigation.domContentLoadedEventEnd - navigation.responseEnd,
-          load_complete: navigation.loadEventEnd - navigation.navigationStart
+          load_complete: navigation.loadEventEnd - navigation.fetchStart
         };
 
         Object.entries(metrics).forEach(([name, value]) => {
@@ -96,7 +96,7 @@ export class PerformanceService {
     if (typeof window === 'undefined') return;
 
     // Dynamic import to avoid bundling if not needed
-    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+    import('web-vitals').then(({ onCLS, onFID, onFCP, onLCP, onTTFB }) => {
       const reportVital = (vital: any) => {
         this.metrics.set(vital.name, vital.value);
         
@@ -118,11 +118,11 @@ export class PerformanceService {
         }
       };
 
-      getCLS(reportVital);
-      getFID(reportVital);
-      getFCP(reportVital);
-      getLCP(reportVital);
-      getTTFB(reportVital);
+      onCLS(reportVital);
+      onFID(reportVital);
+      onFCP(reportVital);
+      onLCP(reportVital);
+      onTTFB(reportVital);
     }).catch(() => {
       // web-vitals library not available
       console.warn('Web Vitals library not available');
