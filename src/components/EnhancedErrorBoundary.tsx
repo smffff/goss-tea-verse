@@ -1,6 +1,6 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react'
-import { SecureErrorHandler } from '../utils/errorHandler'
+import { handleError } from '../utils/errorHandler'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Button } from './ui/button'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
@@ -31,8 +31,9 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log error securely
-    SecureErrorHandler.logError(error, {
+    // Log error using the available handleError function
+    handleError(error, 'EnhancedErrorBoundary')
+    console.error('Error details:', {
       componentStack: errorInfo.componentStack,
       errorBoundary: true,
       errorId: this.state.errorId
@@ -47,6 +48,13 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
     window.location.reload()
   }
 
+  createUserFriendlyMessage = (error: Error): string => {
+    if (error.message.includes('Network')) return 'Network connection issue. Please check your internet.'
+    if (error.message.includes('Unauthorized')) return 'Authentication required. Please log in again.'
+    if (error.message.includes('404')) return 'The requested resource was not found.'
+    return 'An unexpected error occurred. Please try again.'
+  }
+
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
@@ -54,7 +62,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
       }
 
       const userMessage = this.state.error 
-        ? SecureErrorHandler.createUserFriendlyMessage(this.state.error)
+        ? this.createUserFriendlyMessage(this.state.error)
         : 'Something went wrong'
 
       return (

@@ -3,12 +3,12 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, Share2, Flag, ThumbsUp, ThumbsDown, Coffee } from 'lucide-react';
+import { MessageCircle, Flag, ThumbsUp, ThumbsDown, Coffee } from 'lucide-react';
 import ShareButtons from '@/components/ShareButtons';
 import ReportModal from '@/components/modals/ReportModal';
 import TeaRating from '@/components/TeaRating';
-import { useToast } from '@/hooks/use-toast';
 import { TeaSubmission } from '@/types/teaFeed';
+import { useTeaSubmissionActions } from '@/hooks/useTeaSubmissionActions';
 
 interface EnhancedTeaSubmissionCardProps {
   submission: TeaSubmission;
@@ -24,36 +24,14 @@ const EnhancedTeaSubmissionCard: React.FC<EnhancedTeaSubmissionCardProps> = ({
   viewMode = 'detailed'
 }) => {
   const [showReportModal, setShowReportModal] = useState(false);
-  const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
-  const { toast } = useToast();
-
-  const handleVote = (voteType: 'up' | 'down') => {
-    const newVote = userVote === voteType ? null : voteType;
-    setUserVote(newVote);
-    
-    if (onVote) {
-      onVote(submission.id, voteType);
-    }
-    
-    toast({
-      title: newVote ? `${newVote === 'up' ? 'Upvoted' : 'Downvoted'}!` : 'Vote removed',
-      description: newVote ? 'Thanks for your feedback!' : 'Your vote has been removed',
-    });
-  };
-
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    const diffInDays = Math.floor(diffInHours / 24);
-    return `${diffInDays}d ago`;
-  };
+  const { userVote, handleVote, formatTimeAgo } = useTeaSubmissionActions();
 
   const shareUrl = `${window.location.origin}/feed/${submission.id}`;
   const shareTitle = submission.content.slice(0, 80) + '...';
+
+  const onVoteClick = (voteType: 'up' | 'down') => {
+    handleVote(submission.id, voteType, onVote);
+  };
 
   return (
     <>
@@ -135,7 +113,7 @@ const EnhancedTeaSubmissionCard: React.FC<EnhancedTeaSubmissionCardProps> = ({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => handleVote('up')}
+              onClick={() => onVoteClick('up')}
               className={`border-green-500/30 hover:bg-green-500/10 ${
                 userVote === 'up' ? 'bg-green-500/20 text-green-600' : 'text-green-600'
               }`}
@@ -146,7 +124,7 @@ const EnhancedTeaSubmissionCard: React.FC<EnhancedTeaSubmissionCardProps> = ({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => handleVote('down')}
+              onClick={() => onVoteClick('down')}
               className={`border-red-500/30 hover:bg-red-500/10 ${
                 userVote === 'down' ? 'bg-red-500/20 text-red-600' : 'text-red-600'
               }`}
