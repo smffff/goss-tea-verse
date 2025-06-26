@@ -1,6 +1,6 @@
 
 import { useCallback } from 'react';
-import type { WalletUser } from '@/types/auth';
+import type { WalletUser, AuthResult } from '@/types/auth';
 
 export const useAuthActions = (
   user: WalletUser | null,
@@ -9,18 +9,24 @@ export const useAuthActions = (
   setSession: (session: any) => void
 ) => {
   // Mock sign in/up functions for compatibility
-  const signIn = useCallback(async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string): Promise<AuthResult> => {
     console.log('📧 [AuthActions] Sign in attempt for:', email);
     // This would normally handle email/password auth
     // For now, just return success for wallet-based auth
-    return { data: { user: user }, error: null };
+    return { 
+      success: true, 
+      user: user || undefined
+    };
   }, [user]);
 
-  const signUp = useCallback(async (email: string, password: string) => {
+  const signUp = useCallback(async (email: string, password: string): Promise<AuthResult> => {
     console.log('📝 [AuthActions] Sign up attempt for:', email);
     // This would normally handle email/password registration
     // For now, just return success for wallet-based auth
-    return { data: { user: user }, error: null };
+    return { 
+      success: true, 
+      user: user || undefined
+    };
   }, [user]);
 
   // Disconnect handler

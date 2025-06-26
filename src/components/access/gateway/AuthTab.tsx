@@ -33,8 +33,8 @@ const AuthTab: React.FC<AuthTabProps> = ({
     setError('');
 
     try {
-      const { error: signInError } = await signIn(email, password);
-      if (!signInError) {
+      const result = await signIn(email, password);
+      if (result.success) {
         localStorage.setItem('ctea-access-level', 'authenticated');
         toast({
           title: "Welcome back! ☕",
@@ -42,7 +42,8 @@ const AuthTab: React.FC<AuthTabProps> = ({
         });
         onAccessGranted('authenticated');
       } else {
-        setError(signInError.message);
+        const errorMessage = typeof result.error === 'string' ? result.error : result.error?.message || 'Login failed';
+        setError(errorMessage);
       }
     } catch (error: any) {
       console.error('Login error:', error);
@@ -58,8 +59,8 @@ const AuthTab: React.FC<AuthTabProps> = ({
     setError('');
 
     try {
-      const { error: signUpError } = await signUp(email, password);
-      if (!signUpError) {
+      const result = await signUp(email, password);
+      if (result.success) {
         toast({
           title: "Account Created! 🎉",
           description: "Welcome to CTea! Check your email to verify your account.",
@@ -67,7 +68,8 @@ const AuthTab: React.FC<AuthTabProps> = ({
         localStorage.setItem('ctea-access-level', 'authenticated');
         onAccessGranted('authenticated');
       } else {
-        setError(signUpError.message);
+        const errorMessage = typeof result.error === 'string' ? result.error : result.error?.message || 'Signup failed';
+        setError(errorMessage);
       }
     } catch (error: any) {
       console.error('Signup error:', error);

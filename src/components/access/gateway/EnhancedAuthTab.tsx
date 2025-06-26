@@ -84,9 +84,9 @@ const EnhancedAuthTab: React.FC<EnhancedAuthTabProps> = ({
         return;
       }
 
-      const { error: signInError } = await signIn(email, password);
+      const result = await signIn(email, password);
       
-      if (!signInError) {
+      if (result.success) {
         logSecurityEvent('login_successful', { email: email.substring(0, 3) + '***' }, 'low');
         localStorage.setItem('ctea-access-level', 'authenticated');
         toast({
@@ -97,9 +97,10 @@ const EnhancedAuthTab: React.FC<EnhancedAuthTabProps> = ({
       } else {
         logSecurityEvent('login_failed', { 
           email: email.substring(0, 3) + '***',
-          error: signInError.message 
+          error: typeof result.error === 'string' ? result.error : result.error?.message 
         }, 'medium');
-        setError(signInError.message);
+        const errorMessage = typeof result.error === 'string' ? result.error : result.error?.message || 'Login failed';
+        setError(errorMessage);
       }
     } catch (error: any) {
       console.error('Login error:', error);
@@ -145,9 +146,9 @@ const EnhancedAuthTab: React.FC<EnhancedAuthTabProps> = ({
         return;
       }
 
-      const { error: signUpError } = await signUp(email, password);
+      const result = await signUp(email, password);
       
-      if (!signUpError) {
+      if (result.success) {
         logSecurityEvent('signup_successful', { email: email.substring(0, 3) + '***' }, 'low');
         toast({
           title: "Account Created! 🎉",
@@ -158,9 +159,10 @@ const EnhancedAuthTab: React.FC<EnhancedAuthTabProps> = ({
       } else {
         logSecurityEvent('signup_failed', { 
           email: email.substring(0, 3) + '***',
-          error: signUpError.message 
+          error: typeof result.error === 'string' ? result.error : result.error?.message 
         }, 'medium');
-        setError(signUpError.message);
+        const errorMessage = typeof result.error === 'string' ? result.error : result.error?.message || 'Signup failed';
+        setError(errorMessage);
       }
     } catch (error: any) {
       console.error('Signup error:', error);

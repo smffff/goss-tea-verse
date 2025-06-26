@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, Easing } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface ParallaxElementProps {
@@ -10,7 +11,7 @@ interface ParallaxElementProps {
   offset?: number;
   delay?: number;
   duration?: number;
-  ease?: string; // Changed from any to string
+  ease?: Easing;
 }
 
 const ParallaxElement: React.FC<ParallaxElementProps> = ({

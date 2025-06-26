@@ -14,11 +14,12 @@ function App() {
   );
 
   useEffect(() => {
-    // Check for existing access
-    const existingAccess = localStorage.getItem('ctea-beta-access') === 'granted' ||
-                          localStorage.getItem('ctea_access_method') ||
-                          localStorage.getItem('ENABLE_DEV_ROUTES') === 'true';
+    // Check for existing access - ensure boolean values only
+    const betaAccess = localStorage.getItem('ctea-beta-access') === 'granted';
+    const accessMethod = localStorage.getItem('ctea_access_method') !== null;
+    const devRoutes = localStorage.getItem('ENABLE_DEV_ROUTES') === 'true';
     
+    const existingAccess = betaAccess || accessMethod || devRoutes;
     setHasAccess(existingAccess);
   }, []);
 
