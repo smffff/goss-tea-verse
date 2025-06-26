@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { sanitizeContent } from '@/utils/securityUtils';
+import { UnifiedSecurityService } from '@/services/unifiedSecurityService';
 
 interface SpillData {
   topic: string;
@@ -79,13 +79,37 @@ export const useSpillTeaForm = (
     }
 
     try {
-      console.log('handleSubmit - Sanitizing content before submission');
+      console.log('handleSubmit - Using unified security service for validation');
       
-      // Sanitize all user inputs before submission
+      // Use unified security service for validation
+      const securityCheck = await UnifiedSecurityService.validateSubmissionSecurity(
+        formData.teaText,
+        formData.mediaUrl ? [formData.mediaUrl] : [],
+        'spill_tea'
+      );
+
+      if (!securityCheck.rateLimitCheck.allowed) {
+        toast({
+          title: "Rate Limit Exceeded",
+          description: securityCheck.rateLimitCheck.blockedReason || "Please wait before submitting again.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!securityCheck.contentValidation.valid) {
+        toast({
+          title: "Content Validation Failed",
+          description: `Issues detected: ${securityCheck.contentValidation.threats.join(', ')}`,
+          variant: "destructive"
+        });
+        return;
+      }
+
       const sanitizedData: SpillData = {
         topic: formData.topic,
-        teaText: sanitizeContent(formData.teaText),
-        mediaUrl: formData.mediaUrl?.trim() || undefined
+        teaText: securityCheck.contentValidation.sanitized,
+        mediaUrl: securityCheck.urlValidation.valid[0] || undefined
       };
       
       console.log('handleSubmit - Calling onSubmit with sanitized data:', sanitizedData);

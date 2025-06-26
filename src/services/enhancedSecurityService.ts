@@ -113,7 +113,7 @@ export class EnhancedSecurityService {
       severity,
       timestamp: new Date().toISOString(),
       session_id: this.getSessionId(),
-      user_agent: navigator.userAgent,
+      user_agent: typeof window !== 'undefined' ? navigator.userAgent : 'server',
       ip_address: 'client-side' // Cannot get real IP from client
     };
 
@@ -144,15 +144,17 @@ export class EnhancedSecurityService {
   } {
     const threats: string[] = [];
     let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
+    let securityScore = 100;
     
     if (!content || content.trim().length === 0) {
-      return { valid: false, sanitized: '', threats: ['Empty content'], riskLevel: 'low' };
+      return { valid: false, sanitized: '', threats: ['Empty content'], riskLevel: 'low', securityScore: 0 };
     }
     
     // Basic validation
     if (content.length > 10000) {
       threats.push('Content too long');
       riskLevel = 'medium';
+      securityScore -= 20;
     }
     
     // Check for suspicious patterns
@@ -167,28 +169,39 @@ export class EnhancedSecurityService {
 
     for (const pattern of suspiciousPatterns) {
       if (pattern.test(content)) {
-        threats.push('Suspicious pattern detected');
+        threats.push('Suspicious content pattern detected');
         riskLevel = 'critical';
+        securityScore = 0;
         break;
       }
     }
-    
-    const sanitized = this.sanitizeInput(content);
-    
+
+    // Sanitize content
+    const sanitized = content
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;')
+      .replace(/\//g, '&#x2F;')
+      .replace(/`/g, '&#x60;')
+      .replace(/=/g, '&#x3D;');
+
     return {
       valid: threats.length === 0,
       sanitized,
       threats,
       riskLevel,
-      securityScore: 85
+      securityScore
     };
   }
 
   private validateUrls(urls: string[]): { valid: string[]; invalid: string[] } {
     const valid: string[] = [];
     const invalid: string[] = [];
-    
-    urls.filter(url => url && url.trim()).forEach(url => {
+
+    for (const url of urls) {
+      if (!url?.trim()) continue;
+      
       try {
         const urlObj = new URL(url);
         if (urlObj.protocol === 'http:' || urlObj.protocol === 'https:') {
@@ -199,28 +212,26 @@ export class EnhancedSecurityService {
       } catch {
         invalid.push(url);
       }
-    });
-    
+    }
+
     return { valid, invalid };
   }
 
-  private checkRateLimit(action: string, maxAttempts: number, windowMinutes: number): {
-    allowed: boolean;
-    blockedReason?: string;
-  } {
+  private checkRateLimit(action: string, maxAttempts: number, windowMinutes: number): { allowed: boolean; blockedReason?: string } {
     // Simple client-side rate limiting
     const key = `rate_limit_${action}`;
-    const now = Date.now();
     const stored = localStorage.getItem(key);
     
     if (stored) {
       const data = JSON.parse(stored);
+      const now = Date.now();
       const windowMs = windowMinutes * 60 * 1000;
       
+      if (now - data.timestamp < windowMs && data.count >= maxAttempts) {
+        return { allowed: false, blockedReason: 'Rate limit exceeded' };
+      }
+      
       if (now - data.timestamp < windowMs) {
-        if (data.count >= maxAttempts) {
-          return { allowed: false, blockedReason: 'Rate limit exceeded' };
-        }
         data.count++;
       } else {
         data.count = 1;
@@ -229,105 +240,28 @@ export class EnhancedSecurityService {
       
       localStorage.setItem(key, JSON.stringify(data));
     } else {
-      localStorage.setItem(key, JSON.stringify({ count: 1, timestamp: now }));
+      localStorage.setItem(key, JSON.stringify({ count: 1, timestamp: Date.now() }));
     }
     
     return { allowed: true };
   }
 
-  public getSecurityMetrics(): SecurityMetrics {
-    const now = Date.now();
-    const oneHourAgo = now - (60 * 60 * 1000);
-
-    const recentEvents = this.events.filter(
-      event => new Date(event.timestamp).getTime() > oneHourAgo
-    );
-
-    return {
-      totalEvents: recentEvents.length,
-      criticalEvents: recentEvents.filter(e => e.severity === 'critical').length,
-      blockedAttempts: recentEvents.filter(e => e.event_type.includes('blocked')).length,
-      activeThreats: this.suspiciousSessions.size
-    };
-  }
-
-  public isIPBlocked(ip: string): boolean {
-    return this.blockedIPs.has(ip);
-  }
-
-  public blockIP(ip: string, reason: string): void {
-    this.blockedIPs.add(ip);
-    this.logSecurityEvent('ip_blocked', { ip, reason }, 'warning');
-  }
-
-  public validateInput(input: string, maxLength: number = 1000): boolean {
-    // Basic validation
-    if (!input || input.length > maxLength) {
-      return false;
-    }
-
-    const suspiciousPatterns = [
-      /<script[^>]*>.*?<\/script>/gi,
-      /javascript:/gi,
-      /on\w+\s*=/gi,
-      /eval\s*\(/gi,
-      /union\s+select/gi,
-      /drop\s+table/gi
-    ];
-
-    for (const pattern of suspiciousPatterns) {
-      if (pattern.test(input)) {
-        this.logSecurityEvent('suspicious_input_detected', { 
-          pattern: pattern.source,
-          input: input.substring(0, 100) + '...' 
-        }, 'warning');
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  public sanitizeInput(input: string): string {
-    return input
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#x27;')
-      .replace(/\//g, '&#x2F;');
-  }
-
   private getSessionId(): string {
     let sessionId = sessionStorage.getItem('security_session_id');
     if (!sessionId) {
-      sessionId = Math.random().toString(36).substring(2, 15) + 
-                 Math.random().toString(36).substring(2, 15);
+      sessionId = crypto.randomUUID();
       sessionStorage.setItem('security_session_id', sessionId);
     }
     return sessionId;
   }
 
   private handleCriticalEvent(event: SecurityEvent): void {
-    // Add session to suspicious list
-    if (event.session_id) {
-      this.suspiciousSessions.add(event.session_id);
-    }
-
-    // In a real app, you might want to:
-    // - Send alert to security team
-    // - Temporarily block the session
-    // - Require additional authentication
-    console.warn('[CRITICAL SECURITY EVENT]', event);
-  }
-
-  public clearEvents(): void {
-    this.events = [];
-  }
-
-  public getRecentEvents(count: number = 10): SecurityEvent[] {
-    return this.events.slice(-count);
+    // Log critical event
+    console.error('[CRITICAL SECURITY EVENT]', event);
+    
+    // Could implement additional measures like:
+    // - Block the session
+    // - Send alert to administrators
+    // - Temporarily restrict functionality
   }
 }
-
-// Export singleton instance
-export const securityService = EnhancedSecurityService.getInstance();

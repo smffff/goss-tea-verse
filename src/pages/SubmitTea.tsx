@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -5,7 +6,7 @@ import SubmissionForm from '@/components/SubmissionForm';
 import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { performSubmissionSecurityCheck } from '@/utils/security';
+import { UnifiedSecurityService } from '@/services/unifiedSecurityService';
 import { betaCodeService } from '@/services/betaCodeService';
 
 interface SubmissionData {
@@ -28,30 +29,30 @@ const SubmitTea = () => {
     setIsSubmitting(true);
     
     try {
-      // Perform comprehensive security check - AWAIT the promise
-      const securityCheck = await performSubmissionSecurityCheck(
+      // Use unified security service for comprehensive validation
+      const securityCheck = await UnifiedSecurityService.validateSubmissionSecurity(
         data.tea,
         data.evidence_urls,
         'tea_submission'
       );
 
       // Check rate limiting
-      if (!securityCheck.rateLimitOk) {
-        throw new Error('Rate limit exceeded. Please wait before submitting again.');
+      if (!securityCheck.rateLimitCheck.allowed) {
+        throw new Error(securityCheck.rateLimitCheck.blockedReason || 'Rate limit exceeded. Please wait before submitting again.');
       }
 
       // Validate content security
-      if (!securityCheck.content.isValid) {
-        throw new Error(`Content validation failed: ${securityCheck.content.threats.join(', ')}`);
+      if (!securityCheck.contentValidation.valid) {
+        throw new Error(`Content validation failed: ${securityCheck.contentValidation.threats.join(', ')}`);
       }
 
       const submissionData = {
-        content: securityCheck.content.sanitized,
+        content: securityCheck.contentValidation.sanitized,
         category: data.category || 'general',
-        evidence_urls: securityCheck.urls.length > 0 ? securityCheck.urls : null,
-        anonymous_token: securityCheck.token,
+        evidence_urls: securityCheck.urlValidation.valid.length > 0 ? securityCheck.urlValidation.valid : null,
+        anonymous_token: securityCheck.tokenValidation.token,
         status: 'approved',
-        has_evidence: securityCheck.urls.length > 0,
+        has_evidence: securityCheck.urlValidation.valid.length > 0,
         reactions: { hot: 0, cold: 0, spicy: 0 },
         average_rating: 0,
         rating_count: 0,

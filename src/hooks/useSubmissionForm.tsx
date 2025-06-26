@@ -1,8 +1,7 @@
-
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { track } from '@/utils/analytics';
-import { performSubmissionSecurityCheck } from '@/utils/security';
+import { UnifiedSecurityService } from '@/services/unifiedSecurityService';
 
 interface SubmissionData {
   tea: string;
@@ -71,37 +70,37 @@ export const useSubmissionForm = (
     }
 
     try {
-      // Perform security validation before submission - AWAIT the promise
-      const securityCheck = await performSubmissionSecurityCheck(
+      // Use unified security service for validation
+      const securityCheck = await UnifiedSecurityService.validateSubmissionSecurity(
         formData.tea,
         formData.evidence_urls.filter(url => url.trim()),
         'tea_submission'
       );
 
-      if (!securityCheck.rateLimitOk) {
+      if (!securityCheck.rateLimitCheck.allowed) {
         toast({
           title: "Rate Limit Exceeded",
-          description: "Please wait before submitting again.",
+          description: securityCheck.rateLimitCheck.blockedReason || "Please wait before submitting again.",
           variant: "destructive"
         });
         return;
       }
 
-      if (!securityCheck.content.isValid) {
+      if (!securityCheck.contentValidation.valid) {
         toast({
           title: "Content Validation Failed",
-          description: `Issues detected: ${securityCheck.content.threats.join(', ')}`,
+          description: `Issues detected: ${securityCheck.contentValidation.threats.join(', ')}`,
           variant: "destructive"
         });
         return;
       }
 
       const sanitizedData: SubmissionData = {
-        tea: securityCheck.content.sanitized,
+        tea: securityCheck.contentValidation.sanitized,
         email: formData.email.trim().toLowerCase(),
         wallet: formData.wallet.trim(),
         category: formData.category,
-        evidence_urls: securityCheck.urls,
+        evidence_urls: securityCheck.urlValidation.valid,
         isAnonymous: formData.isAnonymous
       };
       
