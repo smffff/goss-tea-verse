@@ -7,6 +7,8 @@ import AdminDashboard from '../admin/AdminDashboard';
 import SneakPeekTimer from '../access/SneakPeekTimer';
 import VersionTracker from '../access/VersionTracker';
 import LoadingSpinner from '../LoadingSpinner';
+import { SecurityAuditProvider } from '../security/SecurityAuditProvider';
+import EnhancedSecurityMonitor from '../security/EnhancedSecurityMonitor';
 import { AccessControlProvider, useAccessControl } from '../access/AccessControlProvider';
 import { logError, getRandomLoadingMessage, getRandomErrorMessage } from '@/utils/errorUtils';
 import { Button } from '@/components/ui/button';
@@ -91,7 +93,7 @@ const EnhancedMainAppContent: React.FC = () => {
       clearTimeout(emergencyTimeout);
       clearTimeout(forceTimeout);
     };
-  }, [setAccessLevel]); // FIXED: Removed isLoading from dependencies to prevent infinite loop
+  }, [setAccessLevel]); // Fixed: Removed isLoading from dependencies to prevent infinite loop
 
   const handleAccessGranted = (level: AccessLevel) => {
     console.log('✅ Access granted with level:', level);
@@ -259,9 +261,12 @@ const EnhancedMainAppContent: React.FC = () => {
 const EnhancedMainApp: React.FC = () => {
   console.log('🏁 EnhancedMainApp wrapper rendering');
   return (
-    <AccessControlProvider>
-      <EnhancedMainAppContent />
-    </AccessControlProvider>
+    <SecurityAuditProvider>
+      <AccessControlProvider>
+        <EnhancedMainAppContent />
+        <EnhancedSecurityMonitor />
+      </AccessControlProvider>
+    </SecurityAuditProvider>
   );
 };
 

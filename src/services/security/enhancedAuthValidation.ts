@@ -1,0 +1,267 @@
+
+import { supabase } from '@/integrations/supabase/client';
+
+export interface AuthValidationResult {
+  isValid: boolean;
+  securityScore: number;
+  threats: string[];
+  recommendations: string[];
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+}
+
+export interface EmailValidationResult {
+  isValid: boolean;
+  format: boolean;
+  domain: boolean;
+  disposable: boolean;
+  suspicious: boolean;
+}
+
+export interface PasswordValidationResult {
+  isValid: boolean;
+  strength: 'weak' | 'fair' | 'good' | 'strong';
+  score: number;
+  feedback: string[];
+  requirements: {
+    length: boolean;
+    uppercase: boolean;
+    lowercase: boolean;
+    numbers: boolean;
+    symbols: boolean;
+    common: boolean;
+  };
+}
+
+export class EnhancedAuthValidation {
+  private static readonly COMMON_PASSWORDS = [
+    'password', '123456', 'password123', 'admin', 'qwerty', 'letmein',
+    'welcome', 'monkey', '1234567890', 'abc123', 'password1', 'iloveyou'
+  ];
+
+  private static readonly SUSPICIOUS_DOMAINS = [
+    '10minutemail.com', 'guerrillamail.com', 'mailinator.com', 'tempmail.org',
+    'throwaway.email', 'temp-mail.org', 'mohmal.com', 'yopmail.com'
+  ];
+
+  public static validateEmail(email: string): EmailValidationResult {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const format = emailRegex.test(email);
+    
+    const domain = email.split('@')[1]?.toLowerCase() || '';
+    const disposable = this.SUSPICIOUS_DOMAINS.some(d => domain.includes(d));
+    
+    // Check for suspicious patterns
+    const suspicious = 
+      email.includes('+') && email.split('+')[1]?.includes('test') ||
+      /\d{10,}/.test(email) || // Long number sequences
+      /^[a-z]{1,3}@/.test(email) || // Very short usernames
+      domain.includes('test') ||
+      domain.includes('example');
+
+    return {
+      isValid: format && !disposable && !suspicious,
+      format,
+      domain: !!domain,
+      disposable,
+      suspicious
+    };
+  }
+
+  public static validatePassword(password: string): PasswordValidationResult {
+    const requirements = {
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      numbers: /\d/.test(password),
+      symbols: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+      common: !this.COMMON_PASSWORDS.includes(password.toLowerCase())
+    };
+
+    const feedback: string[] = [];
+    let score = 0;
+
+    if (!requirements.length) {
+      feedback.push('Password must be at least 8 characters long');
+    } else {
+      score += 20;
+    }
+
+    if (!requirements.uppercase) {
+      feedback.push('Add uppercase letters (A-Z)');
+    } else {
+      score += 15;
+    }
+
+    if (!requirements.lowercase) {
+      feedback.push('Add lowercase letters (a-z)');
+    } else {
+      score += 15;
+    }
+
+    if (!requirements.numbers) {
+      feedback.push('Add numbers (0-9)');
+    } else {
+      score += 15;
+    }
+
+    if (!requirements.symbols) {
+      feedback.push('Add special characters (!@#$%^&*)');
+    } else {
+      score += 20;
+    }
+
+    if (!requirements.common) {
+      feedback.push('Avoid common passwords');
+      score -= 30;
+    } else {
+      score += 15;
+    }
+
+    // Length bonus
+    if (password.length >= 12) score += 10;
+    if (password.length >= 16) score += 10;
+
+    // Pattern penalties
+    if (/(.)\1{2,}/.test(password)) score -= 10; // Repeated characters
+    if (/123|abc|qwe|asd/i.test(password)) score -= 15; // Sequential patterns
+
+    score = Math.max(0, Math.min(100, score));
+
+    let strength: 'weak' | 'fair' | 'good' | 'strong' = 'weak';
+    if (score >= 80) strength = 'strong';
+    else if (score >= 60) strength = 'good';
+    else if (score >= 40) strength = 'fair';
+
+    return {
+      isValid: score >= 60 && requirements.length && requirements.common,
+      strength,
+      score,
+      feedback: feedback.slice(0, 3), // Limit feedback to 3 items
+      requirements
+    };
+  }
+
+  public static async validateBetaCode(code: string): Promise<AuthValidationResult> {
+    const threats: string[] = [];
+    const recommendations: string[] = [];
+    let securityScore = 100;
+    let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
+
+    try {
+      // Basic format validation
+      if (!code || code.length < 3) {
+        threats.push('Beta code too short');
+        securityScore -= 30;
+        riskLevel = 'medium';
+      }
+
+      // Check for suspicious patterns
+      if (/[<>'"&]/.test(code)) {
+        threats.push('Beta code contains suspicious characters');
+        securityScore -= 50;
+        riskLevel = 'high';
+      }
+
+      // Rate limiting check (client-side preliminary)
+      const lastAttempt = localStorage.getItem('ctea_last_beta_attempt');
+      if (lastAttempt) {
+        const timeSince = Date.now() - parseInt(lastAttempt);
+        if (timeSince < 5000) { // 5 seconds
+          threats.push('Beta code attempts too frequent');
+          securityScore -= 20;
+          riskLevel = 'medium';
+        }
+      }
+
+      localStorage.setItem('ctea_last_beta_attempt', Date.now().toString());
+
+      // Server-side validation
+      const { data: result, error } = await supabase.rpc('validate_beta_code', {
+        p_code: code.trim().toUpperCase()
+      });
+
+      if (error) {
+        threats.push('Server validation failed');
+        securityScore -= 40;
+        riskLevel = 'high';
+      } else if (!result?.valid) {
+        threats.push('Invalid beta code');
+        securityScore -= 30;
+        riskLevel = 'medium';
+        recommendations.push('Try other access methods');
+      }
+
+      return {
+        isValid: threats.length === 0 && result?.valid,
+        securityScore,
+        threats,
+        recommendations,
+        riskLevel
+      };
+    } catch (error) {
+      console.error('Beta code validation error:', error);
+      return {
+        isValid: false,
+        securityScore: 0,
+        threats: ['Validation system error'],
+        recommendations: ['Try again later or use alternative access'],
+        riskLevel: 'critical'
+      };
+    }
+  }
+
+  public static validateAuthSession(): AuthValidationResult {
+    const threats: string[] = [];
+    const recommendations: string[] = [];
+    let securityScore = 100;
+    let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
+
+    try {
+      // Check for session tampering indicators
+      const sessionKeys = Object.keys(localStorage).filter(key => 
+        key.includes('supabase') || key.includes('ctea')
+      );
+
+      if (sessionKeys.length > 10) {
+        threats.push('Excessive session data detected');
+        securityScore -= 20;
+        riskLevel = 'medium';
+      }
+
+      // Check for suspicious timing patterns
+      const accessTimes = JSON.parse(localStorage.getItem('ctea_access_times') || '[]');
+      if (accessTimes.length > 0) {
+        const rapidAccess = accessTimes.filter((time: number) => 
+          Date.now() - time < 1000
+        ).length;
+
+        if (rapidAccess > 5) {
+          threats.push('Rapid access pattern detected');
+          securityScore -= 30;
+          riskLevel = 'high';
+        }
+      }
+
+      // Update access tracking
+      const newAccessTimes = [...accessTimes, Date.now()].slice(-10);
+      localStorage.setItem('ctea_access_times', JSON.stringify(newAccessTimes));
+
+      return {
+        isValid: securityScore >= 50,
+        securityScore,
+        threats,
+        recommendations,
+        riskLevel
+      };
+    } catch (error) {
+      console.error('Session validation error:', error);
+      return {
+        isValid: false,
+        securityScore: 0,
+        threats: ['Session validation failed'],
+        recommendations: ['Clear browser data and try again'],
+        riskLevel: 'critical'
+      };
+    }
+  }
+}

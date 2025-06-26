@@ -3,7 +3,7 @@ import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Eye, User, Crown, Wallet } from 'lucide-react';
 import SneakPeekTab from './SneakPeekTab';
-import AuthTab from './AuthTab';
+import EnhancedAuthTab from './EnhancedAuthTab';
 import BetaCodeTab from './BetaCodeTab';
 import WalletTab from './WalletTab';
 
@@ -52,7 +52,7 @@ const AccessTabsContainer: React.FC<AccessTabsContainerProps> = ({
       </TabsContent>
 
       <TabsContent value="login">
-        <AuthTab 
+        <EnhancedAuthTab 
           onAccessGranted={onAccessGranted}
           isProcessing={isProcessing}
           setIsProcessing={setIsProcessing}
