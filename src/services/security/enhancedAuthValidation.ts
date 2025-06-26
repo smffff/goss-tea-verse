@@ -32,6 +32,11 @@ export interface PasswordValidationResult {
   };
 }
 
+interface BetaCodeValidationResponse {
+  valid: boolean;
+  message?: string;
+}
+
 export class EnhancedAuthValidation {
   private static readonly COMMON_PASSWORDS = [
     'password', '123456', 'password123', 'admin', 'qwerty', 'letmein',
@@ -175,7 +180,7 @@ export class EnhancedAuthValidation {
 
       localStorage.setItem('ctea_last_beta_attempt', Date.now().toString());
 
-      // Server-side validation
+      // Server-side validation with proper type checking
       const { data: result, error } = await supabase.rpc('validate_beta_code', {
         p_code: code.trim().toUpperCase()
       });
@@ -184,15 +189,20 @@ export class EnhancedAuthValidation {
         threats.push('Server validation failed');
         securityScore -= 40;
         riskLevel = 'high';
-      } else if (!result?.valid) {
-        threats.push('Invalid beta code');
-        securityScore -= 30;
-        riskLevel = 'medium';
-        recommendations.push('Try other access methods');
+      } else {
+        // Type-safe checking of the RPC response
+        const validationResult = result as BetaCodeValidationResponse | null;
+        
+        if (!validationResult || !validationResult.valid) {
+          threats.push('Invalid beta code');
+          securityScore -= 30;
+          riskLevel = 'medium';
+          recommendations.push('Try other access methods');
+        }
       }
 
       return {
-        isValid: threats.length === 0 && result?.valid,
+        isValid: threats.length === 0 && (result as BetaCodeValidationResponse)?.valid === true,
         securityScore,
         threats,
         recommendations,
