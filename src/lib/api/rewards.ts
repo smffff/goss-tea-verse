@@ -1,6 +1,14 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
+// Define the expected RPC response type
+interface AwardTokensResponse {
+  success: boolean;
+  new_balance?: number;
+  transaction_id?: string;
+  error?: string;
+}
+
 /**
  * Rewards an early user with Tea tokens if eligible.
  * Uses the existing tea_transactions and wallet_balances tables.
@@ -20,30 +28,53 @@ export async function rewardEarlyUser(wallet_address: string) {
       return { alreadyRewarded: true, amount: existingReward.amount };
     }
 
-    // Use the award_tea_tokens function which handles both transaction and balance updates
+    // Award tokens directly using table operations since RPC may not exist
     const rewardAmount = 100;
-    const { data: result, error } = await supabase.rpc('award_tea_tokens', {
-      p_wallet_address: wallet_address,
-      p_action: 'reward',
-      p_amount: rewardAmount,
-      p_metadata: { reason: 'early_adopter', welcome_bonus: true }
-    });
-
-    if (error) {
-      console.error('Error awarding early user tokens:', error);
-      throw error;
-    }
-
-    if (result && result.success) {
-      return { 
-        rewarded: true, 
+    
+    // Insert transaction record
+    const { data: transaction, error: transactionError } = await supabase
+      .from('tea_transactions')
+      .insert({
+        wallet_address,
+        action: 'reward',
         amount: rewardAmount,
-        new_balance: result.new_balance,
-        transaction_id: result.transaction_id
-      };
-    } else {
-      throw new Error(result?.error || 'Failed to award tokens');
+        status: 'confirmed',
+        metadata: { reason: 'early_adopter', welcome_bonus: true }
+      })
+      .select()
+      .single();
+
+    if (transactionError) {
+      console.error('Error creating transaction:', transactionError);
+      throw transactionError;
     }
+
+    // Update or create wallet balance
+    const { data: balance, error: balanceError } = await supabase
+      .from('wallet_balances')
+      .upsert({
+        wallet_address,
+        tea_balance: rewardAmount,
+        total_earned: rewardAmount,
+        total_spent: 0,
+        last_transaction_at: new Date().toISOString()
+      }, {
+        onConflict: 'wallet_address'
+      })
+      .select()
+      .single();
+
+    if (balanceError) {
+      console.error('Error updating balance:', balanceError);
+      throw balanceError;
+    }
+
+    return { 
+      rewarded: true, 
+      amount: rewardAmount,
+      new_balance: balance.tea_balance,
+      transaction_id: transaction.id
+    };
   } catch (error) {
     console.error('Error in rewardEarlyUser:', error);
     throw error;

@@ -40,10 +40,8 @@ const Auth = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    const { error } = await signUp(email, password, {
-      username,
-      full_name: fullName
-    });
+    // Fix: signUp only takes email and password
+    const { error } = await signUp(email, password);
     
     setIsLoading(false);
   };
