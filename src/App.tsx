@@ -2,6 +2,7 @@
 import React from 'react';
 import { AuthProvider } from '@/hooks/useAuthProvider';
 import { DemoProvider } from '@/contexts/DemoContext';
+import { CrossChainProvider } from '@/contexts/CrossChainContext';
 import AppLayout from '@/components/AppLayout';
 import AppErrorBoundary from '@/components/AppErrorBoundary';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -42,7 +43,9 @@ function App() {
       <AppErrorBoundary>
         <DemoProvider>
           <AuthProvider>
-            <AppContent />
+            <CrossChainProvider>
+              <AppContent />
+            </CrossChainProvider>
           </AuthProvider>
         </DemoProvider>
       </AppErrorBoundary>

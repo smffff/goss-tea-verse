@@ -5,6 +5,8 @@ import Leaderboard from '@/components/Leaderboard';
 import TrendingTopics from '@/components/feed/TrendingTopics';
 import QuickActions from '@/components/feed/QuickActions';
 import CommunityStats from '@/components/feed/CommunityStats';
+import ChainSwitcher from '@/components/crosschain/ChainSwitcher';
+import OGStatusCard from '@/components/crosschain/OGStatusCard';
 import { RevenueSidebar } from '@/components/revenue/RevenueIntegration';
 import PremiumFeatureGate from '@/components/revenue/PremiumFeatureGate';
 import TipJar from '@/components/revenue/TipJar';
@@ -24,6 +26,10 @@ const EnhancedSidebar = () => {
 
   return (
     <div className="space-y-6">
+      {/* Cross-Chain & OG Status */}
+      <OGStatusCard />
+      <ChainSwitcher />
+
       {/* Revenue Components with Error Boundary */}
       <RevenueErrorBoundary>
         <RevenueSidebar />

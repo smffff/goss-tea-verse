@@ -2,29 +2,61 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Crown, Zap, Star, Flame, Shield } from 'lucide-react';
+import { useCrossChain } from '@/contexts/CrossChainContext';
 
 interface OGBadgeProps {
-  type: 'og' | 'meme-lord' | 'drama-king' | 'viral-queen' | 'chaos-agent' | 'mod';
+  type?: 'og' | 'meme-lord' | 'drama-king' | 'viral-queen' | 'chaos-agent' | 'mod';
   size?: 'sm' | 'md' | 'lg';
   showLabel?: boolean;
   animated?: boolean;
+  forceType?: boolean; // Override cross-chain detection
 }
 
 const OGBadge: React.FC<OGBadgeProps> = ({ 
-  type, 
+  type: propType, 
   size = 'md', 
   showLabel = true, 
-  animated = false 
+  animated = false,
+  forceType = false
 }) => {
+  const { crossChainUser } = useCrossChain();
+  
+  // Determine badge type based on OG status or prop
+  const getBadgeType = () => {
+    if (forceType && propType) return propType;
+    
+    if (crossChainUser?.ogStatus.isOG) {
+      // Map OG tiers to badge types
+      switch (crossChainUser.ogStatus.tier) {
+        case 'legend': return 'og';
+        case 'connoisseur': return 'viral-queen';
+        case 'sipper': return 'meme-lord';
+        default: return propType || 'og';
+      }
+    }
+    
+    return propType || 'og';
+  };
+
+  const type = getBadgeType();
+
   const getBadgeConfig = () => {
     switch (type) {
       case 'og':
+        const ogTier = crossChainUser?.ogStatus.tier || 'sipper';
+        const ogBalance = crossChainUser?.ogStatus.balance || 0;
+        
         return {
           icon: <Crown className={`${size === 'sm' ? 'w-3 h-3' : size === 'lg' ? 'w-6 h-6' : 'w-4 h-4'}`} />,
-          label: 'OG',
-          className: 'bg-gradient-to-r from-ctea-yellow to-ctea-orange text-ctea-dark font-bold',
-          description: 'Original Gangster - Early Adopter'
+          label: ogTier === 'legend' ? 'OG LEGEND' : ogTier === 'connoisseur' ? 'OG CONNOISSEUR' : 'OG SIPPER',
+          className: ogTier === 'legend' 
+            ? 'bg-gradient-to-r from-yellow-400 to-orange-400 text-black font-bold' 
+            : ogTier === 'connoisseur'
+            ? 'bg-gradient-to-r from-purple-400 to-pink-400 text-white font-bold'
+            : 'bg-gradient-to-r from-blue-400 to-teal-400 text-white font-bold',
+          description: `OG ${ogTier} - ${ogBalance.toLocaleString()} $TEA on Avalanche`
         };
+      
       case 'meme-lord':
         return {
           icon: <Zap className={`${size === 'sm' ? 'w-3 h-3' : size === 'lg' ? 'w-6 h-6' : 'w-4 h-4'}`} />,
