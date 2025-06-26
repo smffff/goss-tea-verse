@@ -4,10 +4,11 @@ import { motion } from 'framer-motion';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Users, TrendingUp, Coffee, Sparkles } from 'lucide-react';
+import { Users, TrendingUp, Sparkles } from 'lucide-react';
 import WalletGatedHero from './WalletGatedHero';
 import BribeButton from './BribeButton';
 import EnhancedSpillSubmission from './EnhancedSpillSubmission';
+import BrandedTeacupIcon from '@/components/ui/BrandedTeacupIcon';
 import { AccessLevel } from '@/services/accessControlService';
 
 const EnhancedLandingPage: React.FC = () => {
@@ -27,7 +28,6 @@ const EnhancedLandingPage: React.FC = () => {
   React.useEffect(() => {
     const existingAccess = localStorage.getItem('ctea_access_method');
     if (existingAccess) {
-      // User already has some form of access
       setHasAccess(true);
     }
   }, []);
@@ -39,6 +39,31 @@ const EnhancedLandingPage: React.FC = () => {
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-ctea-teal rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-pink-400 rounded-full blur-2xl animate-pulse delay-1000"></div>
         <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-ctea-purple rounded-full blur-xl animate-pulse delay-2000"></div>
+        
+        {/* Floating teacup particles */}
+        {Array.from({ length: 15 }).map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute opacity-20"
+            initial={{ 
+              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200),
+              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
+              rotate: 0 
+            }}
+            animate={{
+              y: [null, -100, null],
+              rotate: [0, 360, 0],
+              opacity: [0.2, 0.5, 0.2]
+            }}
+            transition={{
+              duration: 10 + Math.random() * 10,
+              repeat: Infinity,
+              delay: Math.random() * 5
+            }}
+          >
+            <BrandedTeacupIcon size="md" variant="steaming" />
+          </motion.div>
+        ))}
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-12">
@@ -68,7 +93,7 @@ const EnhancedLandingPage: React.FC = () => {
           
           <Card className="bg-ctea-dark/40 border-pink-400/20 text-center">
             <CardContent className="p-6">
-              <Coffee className="w-8 h-8 text-pink-400 mx-auto mb-2" />
+              <BrandedTeacupIcon size="lg" variant="spilling" className="mx-auto mb-2" />
               <div className="text-2xl font-bold text-white">1,337</div>
               <div className="text-sm text-gray-400">Tea Spills</div>
             </CardContent>
@@ -98,14 +123,15 @@ const EnhancedLandingPage: React.FC = () => {
           transition={{ delay: 0.7 }}
           className="text-center mb-20"
         >
-          <h2 className="text-4xl font-bold text-white mb-8">
-            Where Crypto Twitter Comes to Spill ☕
+          <h2 className="text-4xl font-bold text-white mb-8 flex items-center justify-center gap-3">
+            Where Crypto Twitter Comes to Spill 
+            <BrandedTeacupIcon size="lg" variant="steaming" animated />
           </h2>
           
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             <div className="space-y-4">
               <div className="w-16 h-16 mx-auto bg-gradient-to-r from-ctea-teal to-green-400 rounded-full flex items-center justify-center">
-                <Coffee className="w-8 h-8 text-white" />
+                <BrandedTeacupIcon size="lg" variant="spilling" />
               </div>
               <h3 className="text-xl font-bold text-white">Anonymous Intel</h3>
               <p className="text-gray-400">
@@ -157,10 +183,11 @@ const EnhancedLandingPage: React.FC = () => {
             </Badge>
           </div>
           
-          <p className="text-sm text-gray-500 max-w-2xl mx-auto">
+          <p className="text-sm text-gray-500 max-w-2xl mx-auto flex items-center justify-center gap-2">
             Built for degeneracy, powered by chaos, fueled by your hottest takes.
+            <BrandedTeacupIcon size="xs" />
             <br />
-            Join the revolution. Spill the tea. Stack the clout. 🫖
+            Join the revolution. Spill the tea. Stack the clout.
           </p>
         </motion.div>
       </div>
