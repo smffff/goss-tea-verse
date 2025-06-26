@@ -12,7 +12,7 @@ import { setupGlobalErrorHandler } from "@/utils/errorHandler";
 import { useEffect } from "react";
 
 // Pages
-import Index from "./pages/Index";
+import Landing from "./pages/Landing";
 import SpillTea from "./pages/SpillTea";
 
 const queryClient = new QueryClient();
@@ -34,7 +34,7 @@ function App() {
                 <Sonner />
                 <BrowserRouter>
                   <Routes>
-                    <Route path="/" element={<Index />} />
+                    <Route path="/" element={<Landing />} />
                     <Route path="/spill" element={<SpillTea />} />
                   </Routes>
                 </BrowserRouter>

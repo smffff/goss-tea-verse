@@ -136,7 +136,7 @@ export const getClientIP = async (): Promise<string | null> => {
   }
 };
 
-// Enhanced fingerprinting for security
+// Enhanced fingerprinting for security with browser compatibility
 export const generateBrowserFingerprint = (): string => {
   const components = [
     navigator.userAgent,
@@ -146,7 +146,8 @@ export const generateBrowserFingerprint = (): string => {
     screen.colorDepth,
     new Date().getTimezoneOffset(),
     navigator.hardwareConcurrency || 0,
-    navigator.deviceMemory || 0
+    // Use feature detection for deviceMemory
+    (navigator as any).deviceMemory || 0
   ];
   
   const fingerprint = components.join('|');
