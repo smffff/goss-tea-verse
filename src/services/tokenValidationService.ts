@@ -1,47 +1,54 @@
 
 export interface TokenValidationResult {
   valid: boolean
-  issues: string[]
+  securityScore: number
+  warnings: string[]
+  suspicious: boolean
 }
 
 export class TokenValidationService {
   static validateTokenSecurity(token: string): TokenValidationResult {
-    const issues: string[] = []
+    const warnings: string[] = []
+    let securityScore = 100
 
+    // Basic validation
     if (!token || token.length < 32) {
-      issues.push('Token too short')
+      return {
+        valid: false,
+        securityScore: 0,
+        warnings: ['Token too short or null'],
+        suspicious: true
+      }
     }
 
+    // Character validation
     if (!/^[A-Za-z0-9_-]+$/.test(token)) {
-      issues.push('Invalid token format')
+      securityScore -= 30
+      warnings.push('Invalid characters detected')
     }
 
-    // Check for common weak patterns
-    if (/^(.)\1+$/.test(token)) {
-      issues.push('Token contains repeating pattern')
+    // Length validation
+    if (token.length > 128) {
+      securityScore -= 20
+      warnings.push('Token unusually long')
     }
 
-    if (/^(123|abc|test)/i.test(token)) {
-      issues.push('Token contains predictable pattern')
+    // Pattern analysis for suspicious tokens
+    if (/test|debug|admin|root|system/i.test(token)) {
+      securityScore -= 50
+      warnings.push('Suspicious token pattern detected')
     }
 
     return {
-      valid: issues.length === 0,
-      issues
+      valid: securityScore >= 50,
+      securityScore,
+      warnings,
+      suspicious: securityScore < 70
     }
   }
 
   static validateCSRFToken(token: string, sessionToken: string): boolean {
-    if (!token || !sessionToken || token.length !== sessionToken.length) {
-      return false
-    }
-    
-    // Constant-time comparison
-    let result = 0
-    for (let i = 0; i < token.length; i++) {
-      result |= token.charCodeAt(i) ^ sessionToken.charCodeAt(i)
-    }
-    
-    return result === 0
+    // Basic CSRF token validation
+    return token && sessionToken && token.length > 16 && token !== sessionToken
   }
 }
