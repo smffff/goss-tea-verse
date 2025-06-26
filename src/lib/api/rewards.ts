@@ -1,14 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
-// Define the expected RPC response type
-interface AwardTokensResponse {
-  success: boolean;
-  new_balance?: number;
-  transaction_id?: string;
-  error?: string;
-}
-
 /**
  * Rewards an early user with Tea tokens if eligible.
  * Uses the existing tea_transactions and wallet_balances tables.
@@ -28,11 +20,11 @@ export async function rewardEarlyUser(wallet_address: string) {
       return { alreadyRewarded: true, amount: existingReward.amount };
     }
 
-    // Award tokens directly using table operations since RPC may not exist
+    // Award tokens directly using table operations
     const rewardAmount = 100;
     
     // Insert transaction record
-    const { data: transaction, error: transactionError } = await supabase
+    const transactionResult = await supabase
       .from('tea_transactions')
       .insert({
         wallet_address,
@@ -44,13 +36,13 @@ export async function rewardEarlyUser(wallet_address: string) {
       .select()
       .single();
 
-    if (transactionError) {
-      console.error('Error creating transaction:', transactionError);
-      throw transactionError;
+    if (transactionResult.error) {
+      console.error('Error creating transaction:', transactionResult.error);
+      throw transactionResult.error;
     }
 
     // Update or create wallet balance
-    const { data: balance, error: balanceError } = await supabase
+    const balanceResult = await supabase
       .from('wallet_balances')
       .upsert({
         wallet_address,
@@ -64,16 +56,16 @@ export async function rewardEarlyUser(wallet_address: string) {
       .select()
       .single();
 
-    if (balanceError) {
-      console.error('Error updating balance:', balanceError);
-      throw balanceError;
+    if (balanceResult.error) {
+      console.error('Error updating balance:', balanceResult.error);
+      throw balanceResult.error;
     }
 
     return { 
       rewarded: true, 
       amount: rewardAmount,
-      new_balance: balance.tea_balance,
-      transaction_id: transaction.id
+      new_balance: balanceResult.data?.tea_balance || rewardAmount,
+      transaction_id: transactionResult.data?.id
     };
   } catch (error) {
     console.error('Error in rewardEarlyUser:', error);
