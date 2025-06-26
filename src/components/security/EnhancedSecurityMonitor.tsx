@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Shield, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -48,8 +47,8 @@ const EnhancedSecurityMonitor: React.FC = () => {
     setIsVisible(shouldShow);
   }, []);
 
-  // Completely hidden in production - no DOM output
-  if (!isVisible || process.env.NODE_ENV === 'production') {
+  // Completely hidden in production - no DOM output at all
+  if (process.env.NODE_ENV === 'production' || !isVisible) {
     return null;
   }
 

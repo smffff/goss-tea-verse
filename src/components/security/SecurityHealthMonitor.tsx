@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Shield, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
@@ -90,7 +89,7 @@ const SecurityHealthMonitor: React.FC = () => {
   }, [isVisible]);
 
   // Completely hidden if not in development mode with debug flag
-  if (!isVisible || process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' || !isVisible) {
     return null;
   }
 

@@ -1,4 +1,3 @@
-
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,7 +51,10 @@ class ProductionErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ProductionErrorBoundary caught an error:', error, errorInfo);
+    // Only log in development
+    if (process.env.NODE_ENV === 'development') {
+      console.error('ProductionErrorBoundary caught an error:', error, errorInfo);
+    }
     
     this.setState({
       error,
@@ -83,13 +85,15 @@ class ProductionErrorBoundary extends Component<Props, State> {
         environment: process.env.NODE_ENV
       };
 
-      // Store locally for debugging
-      const existingReports = JSON.parse(localStorage.getItem('ctea_error_reports') || '[]');
-      existingReports.push(errorReport);
-      localStorage.setItem('ctea_error_reports', JSON.stringify(existingReports.slice(-10)));
+      // Store locally for debugging (only in development)
+      if (process.env.NODE_ENV === 'development') {
+        const existingReports = JSON.parse(localStorage.getItem('ctea_error_reports') || '[]');
+        existingReports.push(errorReport);
+        localStorage.setItem('ctea_error_reports', JSON.stringify(existingReports.slice(-10)));
+      }
 
-      // Track with analytics if available
-      if (typeof window !== 'undefined' && window.gtag) {
+      // Track with analytics if available (only in production)
+      if (process.env.NODE_ENV === 'production' && typeof window !== 'undefined' && window.gtag) {
         window.gtag('event', 'exception', {
           description: error.message,
           fatal: true,
@@ -99,11 +103,12 @@ class ProductionErrorBoundary extends Component<Props, State> {
           }
         });
       }
-
-      console.log('🚨 Error Report Generated:', errorReport);
       
     } catch (reportError) {
-      console.error('Failed to report error:', reportError);
+      // Silent error handling in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to report error:', reportError);
+      }
     }
   };
 
@@ -132,7 +137,10 @@ class ProductionErrorBoundary extends Component<Props, State> {
       this.setState({ reportSent: true });
       
       // In a real implementation, this would send to an error tracking service
-      console.log('Error report sent successfully');
+      // Silent in production
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Error report sent successfully');
+      }
       
       // Show success feedback
       setTimeout(() => {
@@ -140,23 +148,30 @@ class ProductionErrorBoundary extends Component<Props, State> {
       }, 3000);
       
     } catch (error) {
-      console.error('Failed to send error report:', error);
+      // Silent error handling in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to send error report:', error);
+      }
       this.setState({ reportSent: false });
     }
   };
 
   private handleCopyError = () => {
-    const errorText = `
-Error ID: ${this.state.errorId}
+    // In production, only copy a sanitized version
+    const errorText = process.env.NODE_ENV === 'production' 
+      ? `Error ID: ${this.state.errorId}\nTime: ${new Date().toISOString()}`
+      : `Error ID: ${this.state.errorId}
 Error: ${this.state.error?.message}
 Stack: ${this.state.error?.stack}
 Component: ${this.state.errorInfo?.componentStack}
 URL: ${window.location.href}
-Time: ${new Date().toISOString()}
-    `.trim();
+Time: ${new Date().toISOString()}`.trim();
 
     navigator.clipboard.writeText(errorText).then(() => {
-      console.log('Error details copied to clipboard');
+      // Silent in production
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Error details copied to clipboard');
+      }
     });
   };
 
@@ -192,10 +207,11 @@ Time: ${new Date().toISOString()}
                   This has been automatically reported to our team.
                 </p>
                 
+                {/* Only show technical details in development */}
                 {process.env.NODE_ENV === 'development' && this.state.error && (
                   <details className="mt-4">
                     <summary className="text-sm text-red-400 cursor-pointer hover:text-red-300">
-                      Technical Details (Development)
+                      Technical Details (Development Only)
                     </summary>
                     <div className="mt-2 p-3 bg-black/30 rounded text-xs font-mono text-gray-300 overflow-auto max-h-32">
                       <div className="text-red-400 font-bold">{this.state.error.message}</div>
