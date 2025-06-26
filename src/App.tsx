@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { WalletProvider } from '@/components/WalletProvider';
@@ -11,6 +10,7 @@ import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 import { useAuth } from '@/hooks/useAuth';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import SpillTea from '@/pages/SpillTea';
+import FloatingSpillCTA from '@/components/ui/FloatingSpillCTA';
 
 // Add new import for admin dashboard
 import AdminBetaDashboard from '@/pages/admin/AdminBetaDashboard';
@@ -57,6 +57,9 @@ function App() {
               } />
               
             </Routes>
+            
+            {/* Floating Spill CTA - appears on all pages except landing */}
+            <FloatingSpillCTA />
           </Router>
         </WalletProvider>
       </ErrorBoundaryWrapper>
