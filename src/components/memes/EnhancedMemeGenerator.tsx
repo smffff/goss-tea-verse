@@ -1,160 +1,151 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Download, Share2, Sparkles, Calendar } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Download, Shuffle, Image as ImageIcon, Zap, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-interface MemeTemplate {
-  id: string;
-  name: string;
-  imageUrl: string;
-  textAreas: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    defaultText: string;
-  }[];
-  campaign?: 'monday-dump' | 'tuesday-tea' | 'general';
-}
-
-const MEME_TEMPLATES: MemeTemplate[] = [
-  {
-    id: 'drake-pointing',
-    name: 'Drake Pointing',
-    imageUrl: '/meme-templates/drake.jpg',
-    textAreas: [
-      { x: 50, y: 20, width: 200, height: 50, defaultText: 'Traditional Finance' },
-      { x: 50, y: 120, width: 200, height: 50, defaultText: 'CTea Gossip Network' }
-    ],
-    campaign: 'monday-dump'
-  },
-  {
-    id: 'distracted-boyfriend',
-    name: 'Distracted Boyfriend',
-    imageUrl: '/meme-templates/distracted.jpg',
-    textAreas: [
-      { x: 10, y: 10, width: 100, height: 30, defaultText: 'Crypto Twitter' },
-      { x: 200, y: 10, width: 100, height: 30, defaultText: 'CTea Newsroom' },
-      { x: 300, y: 10, width: 100, height: 30, defaultText: 'Old Gossip Sites' }
-    ],
-    campaign: 'tuesday-tea'
-  },
-  {
-    id: 'tea-spill',
-    name: 'Tea Spill Classic',
-    imageUrl: '/meme-templates/tea-spill.jpg',
-    textAreas: [
-      { x: 50, y: 200, width: 300, height: 60, defaultText: 'When you hear exclusive alpha on CTea' }
-    ],
-    campaign: 'general'
-  }
-];
-
-const CAMPAIGNS = {
-  'monday-dump': {
-    name: 'Monday Meme Dump',
-    color: 'bg-purple-500/20 text-purple-400',
-    hashtag: '#MondayMemeDump'
-  },
-  'tuesday-tea': {
-    name: 'Tuesday Tea Time',
-    color: 'bg-green-500/20 text-green-400',
-    hashtag: '#TuesdayTeaTime'
-  },
-  'general': {
-    name: 'General Memes',
-    color: 'bg-blue-500/20 text-blue-400',
-    hashtag: '#CTeaMemes'
-  }
-};
-
 const EnhancedMemeGenerator: React.FC = () => {
-  const [selectedTemplate, setSelectedTemplate] = useState<MemeTemplate>(MEME_TEMPLATES[0]);
-  const [textInputs, setTextInputs] = useState<string[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState(0);
+  const [topText, setTopText] = useState('');
+  const [bottomText, setBottomText] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    setTextInputs(selectedTemplate.textAreas.map(area => area.defaultText));
-  }, [selectedTemplate]);
-
-  const generateMeme = async () => {
-    setIsGenerating(true);
-    
-    try {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      // Set canvas size
-      canvas.width = 400;
-      canvas.height = 400;
-
-      // Create gradient background
-      const gradient = ctx.createLinearGradient(0, 0, 400, 400);
-      gradient.addColorStop(0, '#1a1a2e');
-      gradient.addColorStop(1, '#16213e');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, 400, 400);
-
-      // Add template-specific styling
-      ctx.fillStyle = '#00d1c1';
-      ctx.fillRect(0, 0, 400, 50);
-      
-      // Add title
-      ctx.fillStyle = '#000';
-      ctx.font = 'bold 16px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('CTea Newsroom Meme', 200, 30);
-
-      // Add text areas
-      selectedTemplate.textAreas.forEach((area, index) => {
-        if (textInputs[index]) {
-          ctx.fillStyle = '#fff';
-          ctx.strokeStyle = '#000';
-          ctx.lineWidth = 2;
-          ctx.font = 'bold 20px Arial';
-          ctx.textAlign = 'center';
-          
-          const text = textInputs[index];
-          const x = area.x + area.width / 2;
-          const y = area.y + area.height / 2 + 100; // Offset for header
-          
-          ctx.strokeText(text, x, y);
-          ctx.fillText(text, x, y);
-        }
-      });
-
-      // Add campaign branding
-      if (selectedTemplate.campaign) {
-        const campaign = CAMPAIGNS[selectedTemplate.campaign];
-        ctx.fillStyle = '#00d1c1';
-        ctx.font = 'bold 12px Arial';
-        ctx.textAlign = 'right';
-        ctx.fillText(campaign.hashtag, 390, 390);
-      }
-
-      toast({
-        title: "Meme Generated! 🎭",
-        description: "Your viral masterpiece is ready for the crypto-sphere!",
-      });
-    } catch (error) {
-      console.error('Error generating meme:', error);
-      toast({
-        title: "Meme Generation Failed",
-        description: "The meme machine broke. Try again!",
-        variant: "destructive"
-      });
-    } finally {
-      setIsGenerating(false);
+  const memeTemplates = [
+    {
+      id: 'drake-pointing',
+      name: 'Drake Pointing',
+      url: '/placeholder-drake.jpg',
+      topY: 140,
+      bottomY: 400
+    },
+    {
+      id: 'distracted-boyfriend',
+      name: 'Distracted Boyfriend',
+      url: '/placeholder-boyfriend.jpg',
+      topY: 50,
+      bottomY: 350
+    },
+    {
+      id: 'woman-yelling-cat',
+      name: 'Woman Yelling at Cat',
+      url: '/placeholder-cat.jpg',
+      topY: 50,
+      bottomY: 300
+    },
+    {
+      id: 'tea-spill',
+      name: 'CTea Spill',
+      url: '/placeholder-teaspill.jpg',
+      topY: 80,
+      bottomY: 320
     }
+  ];
+
+  const sampleTexts = [
+    { top: 'WHEN DEFI YIELDS ARE HIGH', bottom: 'BUT YOU ALREADY APED INTO MEMES' },
+    { top: 'ME: I\'LL HOLD FOREVER', bottom: 'ALSO ME: *SELLS AT 2X*' },
+    { top: 'BEAR MARKET:', bottom: 'DIAMOND HANDS ACTIVATED' },
+    { top: 'NEW PROTOCOL LAUNCHES', bottom: 'RUGS IN 24 HOURS' }
+  ];
+
+  const generateRandomMeme = () => {
+    const randomSample = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
+    setTopText(randomSample.top);
+    setBottomText(randomSample.bottom);
+    setSelectedTemplate(Math.floor(Math.random() * memeTemplates.length));
+  };
+
+  const drawMeme = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    setIsGenerating(true);
+
+    // Set canvas size
+    canvas.width = 500;
+    canvas.height = 500;
+
+    // Draw background placeholder
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw template placeholder
+    const template = memeTemplates[selectedTemplate];
+    ctx.fillStyle = '#333';
+    ctx.fillRect(50, 50, 400, 400);
+
+    // Add template name
+    ctx.fillStyle = '#666';
+    ctx.font = '16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(template.name, canvas.width / 2, canvas.height / 2);
+
+    // Draw meme text
+    ctx.fillStyle = 'white';
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 3;
+    ctx.font = 'bold 36px Impact, Arial Black, sans-serif';
+    ctx.textAlign = 'center';
+
+    // Top text
+    if (topText) {
+      const words = topText.split(' ');
+      const lines = [];
+      let currentLine = '';
+      
+      for (const word of words) {
+        const testLine = currentLine + (currentLine ? ' ' : '') + word;
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > 400 && currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
+      }
+      lines.push(currentLine);
+
+      lines.forEach((line, index) => {
+        const y = template.topY + (index * 45);
+        ctx.strokeText(line, canvas.width / 2, y);
+        ctx.fillText(line, canvas.width / 2, y);
+      });
+    }
+
+    // Bottom text
+    if (bottomText) {
+      const words = bottomText.split(' ');
+      const lines = [];
+      let currentLine = '';
+      
+      for (const word of words) {
+        const testLine = currentLine + (currentLine ? ' ' : '') + word;
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > 400 && currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
+      }
+      lines.push(currentLine);
+
+      lines.forEach((line, index) => {
+        const y = template.bottomY + (index * 45);
+        ctx.strokeText(line, canvas.width / 2, y);
+        ctx.fillText(line, canvas.width / 2, y);
+      });
+    }
+
+    setIsGenerating(false);
   };
 
   const downloadMeme = () => {
@@ -162,165 +153,102 @@ const EnhancedMemeGenerator: React.FC = () => {
     if (!canvas) return;
 
     const link = document.createElement('a');
-    link.download = `ctea-meme-${selectedTemplate.id}-${Date.now()}.png`;
+    link.download = 'ctea-meme.png';
     link.href = canvas.toDataURL();
     link.click();
 
     toast({
-      title: "Meme Downloaded! 📥",
-      description: "Share it everywhere and spread the CTea chaos!",
+      title: "Meme Downloaded! 🎭",
+      description: "Your CTea meme is ready to spread chaos!",
     });
   };
 
-  const shareMeme = async () => {
-    try {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-
-      canvas.toBlob(async (blob) => {
-        if (!blob) return;
-
-        const file = new File([blob], 'ctea-meme.png', { type: 'image/png' });
-        
-        if (navigator.share && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            title: 'CTea Newsroom Meme',
-            text: `Check out this spicy meme from CTea! ${selectedTemplate.campaign ? CAMPAIGNS[selectedTemplate.campaign].hashtag : '#CTeaMemes'}`,
-            files: [file]
-          });
-        } else {
-          // Fallback to clipboard
-          await navigator.clipboard.write([
-            new ClipboardItem({ 'image/png': blob })
-          ]);
-          toast({
-            title: "Meme Copied! 📋",
-            description: "Paste it wherever the internet needs more chaos!",
-          });
-        }
-      });
-    } catch (error) {
-      console.error('Error sharing meme:', error);
-      toast({
-        title: "Sharing Failed",
-        description: "Manual share mode activated - download and spread the chaos yourself!",
-        variant: "destructive"
-      });
-    }
-  };
+  useEffect(() => {
+    drawMeme();
+  }, [selectedTemplate, topText, bottomText]);
 
   return (
     <Card className="bg-gradient-to-br from-ctea-dark/50 to-black/50 border-ctea-teal/30">
       <CardHeader>
         <CardTitle className="text-white flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-ctea-teal" />
-          Enhanced Meme Generator
+          Viral Meme Generator
+          <Badge className="bg-pink-500/20 text-pink-400">Beta</Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4">
         {/* Template Selection */}
-        <div>
-          <h3 className="text-sm font-medium text-white mb-3">Choose Template</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {MEME_TEMPLATES.map((template) => (
-              <div
-                key={template.id}
-                onClick={() => setSelectedTemplate(template)}
-                className={`
-                  p-3 rounded-lg border cursor-pointer transition-all
-                  ${selectedTemplate.id === template.id 
-                    ? 'border-ctea-teal bg-ctea-teal/10' 
-                    : 'border-gray-600 hover:border-gray-500'
-                  }
-                `}
-              >
-                <h4 className="text-sm font-medium text-white mb-1">{template.name}</h4>
-                {template.campaign && (
-                  <Badge className={CAMPAIGNS[template.campaign].color}>
-                    <Calendar className="w-3 h-3 mr-1" />
-                    {CAMPAIGNS[template.campaign].name}
-                  </Badge>
-                )}
-              </div>
-            ))}
-          </div>
+        <div className="grid grid-cols-2 gap-2">
+          {memeTemplates.map((template, index) => (
+            <Button
+              key={template.id}
+              variant={selectedTemplate === index ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedTemplate(index)}
+              className={`${selectedTemplate === index ? 'bg-ctea-teal text-black' : 'border-gray-600 text-gray-400'}`}
+            >
+              <ImageIcon className="w-3 h-3 mr-1" />
+              {template.name}
+            </Button>
+          ))}
         </div>
 
         {/* Text Inputs */}
-        <div>
-          <h3 className="text-sm font-medium text-white mb-3">Customize Text</h3>
-          <div className="space-y-2">
-            {selectedTemplate.textAreas.map((area, index) => (
-              <Input
-                key={index}
-                value={textInputs[index] || ''}
-                onChange={(e) => {
-                  const newInputs = [...textInputs];
-                  newInputs[index] = e.target.value;
-                  setTextInputs(newInputs);
-                }}
-                placeholder={`Text area ${index + 1}`}
-                className="bg-black/50 border-gray-600 text-white"
-              />
-            ))}
-          </div>
+        <div className="space-y-3">
+          <Textarea
+            placeholder="Top text..."
+            value={topText}
+            onChange={(e) => setTopText(e.target.value.toUpperCase())}
+            className="bg-ctea-darker border-ctea-teal/30 text-white resize-none h-20"
+            maxLength={50}
+          />
+          <Textarea
+            placeholder="Bottom text..."
+            value={bottomText}
+            onChange={(e) => setBottomText(e.target.value.toUpperCase())}
+            className="bg-ctea-darker border-ctea-teal/30 text-white resize-none h-20"
+            maxLength={50}
+          />
         </div>
 
         {/* Canvas Preview */}
-        <div className="text-center">
+        <div className="bg-black/30 p-4 rounded-lg border border-ctea-teal/20">
           <canvas
             ref={canvasRef}
-            className="border border-gray-600 rounded-lg max-w-full h-auto"
-            style={{ maxWidth: '300px' }}
+            className="w-full max-w-sm mx-auto border border-gray-600 rounded"
+            style={{ maxHeight: '300px' }}
           />
         </div>
 
         {/* Actions */}
         <div className="flex gap-2">
           <Button
-            onClick={generateMeme}
-            disabled={isGenerating}
-            className="flex-1 bg-gradient-to-r from-ctea-teal to-green-400 hover:from-green-400 hover:to-ctea-teal text-black font-medium"
+            onClick={generateRandomMeme}
+            className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
           >
-            {isGenerating ? (
-              <>
-                <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin mr-2" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4 mr-2" />
-                Generate Meme
-              </>
-            )}
+            <Shuffle className="w-4 h-4 mr-2" />
+            Random
           </Button>
-          
           <Button
             onClick={downloadMeme}
-            variant="outline"
-            className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-black"
+            disabled={isGenerating || (!topText && !bottomText)}
+            className="flex-1 bg-gradient-to-r from-ctea-teal to-green-400 hover:from-green-400 hover:to-ctea-teal text-black"
           >
-            <Download className="w-4 h-4" />
-          </Button>
-          
-          <Button
-            onClick={shareMeme}
-            variant="outline"
-            className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal hover:text-black"
-          >
-            <Share2 className="w-4 h-4" />
+            <Download className="w-4 h-4 mr-2" />
+            Download
           </Button>
         </div>
 
-        {/* Campaign Info */}
-        {selectedTemplate.campaign && (
-          <div className="p-3 rounded-lg bg-gradient-to-r from-ctea-teal/10 to-green-400/10 border border-ctea-teal/30">
-            <p className="text-sm text-ctea-teal">
-              🎯 <strong>{CAMPAIGNS[selectedTemplate.campaign].name}</strong> campaign active! 
-              Share with {CAMPAIGNS[selectedTemplate.campaign].hashtag} for maximum viral potential.
-            </p>
+        {/* Campaign Integration */}
+        <div className="mt-4 p-3 bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-lg border border-orange-500/30">
+          <div className="flex items-center gap-2 mb-2">
+            <Zap className="w-4 h-4 text-orange-400" />
+            <span className="text-orange-400 font-bold text-sm">Monday Meme Dump</span>
           </div>
-        )}
+          <p className="text-gray-300 text-xs">
+            Share your meme for 2x $TEA rewards! Use #MondayMemeDump
+          </p>
+        </div>
       </CardContent>
     </Card>
   );
