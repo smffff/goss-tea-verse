@@ -1,16 +1,19 @@
 
 import React, { useState, useEffect } from 'react';
 import SimpleBetaLanding from './SimpleBetaLanding';
-import SimpleTeaApp from './SimpleTeaApp';
+import LiveTeaApp from './LiveTeaApp';
 
 const MainApp: React.FC = () => {
   const [hasAccess, setHasAccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing beta access
+    // Check for existing access (beta or general access)
     const betaAccess = localStorage.getItem('ctea-beta-access');
-    setHasAccess(!!betaAccess);
+    const demoMode = localStorage.getItem('ctea-demo-mode');
+    
+    // For live launch, allow demo mode or beta access
+    setHasAccess(!!(betaAccess || demoMode));
     setIsLoading(false);
   }, []);
 
@@ -37,7 +40,7 @@ const MainApp: React.FC = () => {
     return <SimpleBetaLanding onAccessGranted={handleAccessGranted} />;
   }
 
-  return <SimpleTeaApp onLogout={handleLogout} />;
+  return <LiveTeaApp onLogout={handleLogout} />;
 };
 
 export default MainApp;
