@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -62,6 +61,13 @@ const EnhancedAuthTab: React.FC<EnhancedAuthTabProps> = ({
     }
   };
 
+  const getErrorMessage = (error: string | { message: string } | null | undefined): string => {
+    if (!error) return 'Unknown error occurred';
+    if (typeof error === 'string') return error;
+    if (typeof error === 'object' && error.message) return error.message;
+    return 'Unknown error occurred';
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
@@ -97,9 +103,9 @@ const EnhancedAuthTab: React.FC<EnhancedAuthTabProps> = ({
       } else {
         logSecurityEvent('login_failed', { 
           email: email.substring(0, 3) + '***',
-          error: typeof result.error === 'string' ? result.error : result.error?.message 
+          error: getErrorMessage(result.error)
         }, 'medium');
-        const errorMessage = typeof result.error === 'string' ? result.error : result.error?.message || 'Login failed';
+        const errorMessage = getErrorMessage(result.error);
         setError(errorMessage);
       }
     } catch (error: any) {
@@ -159,9 +165,9 @@ const EnhancedAuthTab: React.FC<EnhancedAuthTabProps> = ({
       } else {
         logSecurityEvent('signup_failed', { 
           email: email.substring(0, 3) + '***',
-          error: typeof result.error === 'string' ? result.error : result.error?.message 
+          error: getErrorMessage(result.error)
         }, 'medium');
-        const errorMessage = typeof result.error === 'string' ? result.error : result.error?.message || 'Signup failed';
+        const errorMessage = getErrorMessage(result.error);
         setError(errorMessage);
       }
     } catch (error: any) {

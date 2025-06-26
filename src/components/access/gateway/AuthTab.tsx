@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -27,6 +26,13 @@ const AuthTab: React.FC<AuthTabProps> = ({
   const { toast } = useToast();
   const { signIn, signUp } = useAuth();
 
+  const getErrorMessage = (error: string | { message: string } | null | undefined): string => {
+    if (!error) return 'Unknown error occurred';
+    if (typeof error === 'string') return error;
+    if (typeof error === 'object' && error.message) return error.message;
+    return 'Unknown error occurred';
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
@@ -42,7 +48,7 @@ const AuthTab: React.FC<AuthTabProps> = ({
         });
         onAccessGranted('authenticated');
       } else {
-        const errorMessage = typeof result.error === 'string' ? result.error : result.error?.message || 'Login failed';
+        const errorMessage = getErrorMessage(result.error);
         setError(errorMessage);
       }
     } catch (error: any) {
@@ -68,7 +74,7 @@ const AuthTab: React.FC<AuthTabProps> = ({
         localStorage.setItem('ctea-access-level', 'authenticated');
         onAccessGranted('authenticated');
       } else {
-        const errorMessage = typeof result.error === 'string' ? result.error : result.error?.message || 'Signup failed';
+        const errorMessage = getErrorMessage(result.error);
         setError(errorMessage);
       }
     } catch (error: any) {

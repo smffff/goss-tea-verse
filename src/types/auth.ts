@@ -1,3 +1,4 @@
+
 export interface UserMetadata {
   [key: string]: string | number | boolean | null;
 }
@@ -27,7 +28,7 @@ export interface AuthSession {
 
 export interface AuthResult {
   success: boolean;
-  error?: string;
+  error?: string | { message: string } | null;
   user?: WalletUser;
 }
 
