@@ -34,9 +34,9 @@ export class SecurityService {
     windowMinutes: number = 15
   ): Promise<RateLimitResult> {
     try {
-      // Use existing rate limit function since enhanced one doesn't exist yet
+      // Use correct parameter name for the RPC function
       const { data, error } = await supabase.rpc('check_enhanced_rate_limit', {
-        p_identifier: identifier,
+        p_token: identifier,
         p_action: action,
         p_max_actions: maxActions,
         p_window_minutes: windowMinutes
@@ -55,8 +55,8 @@ export class SecurityService {
         }
       }
 
-      // Type assertion with fallback
-      const result = data as RateLimitResult | null
+      // Proper type handling with unknown first
+      const result = data as unknown as RateLimitResult | null
       if (!result) {
         return {
           allowed: true,
@@ -85,14 +85,14 @@ export class SecurityService {
   // Enhanced security event logging
   static async logSecurityEvent(event: SecurityEvent): Promise<void> {
     try {
-      const { error } = await supabase.from('security_audit_log').insert({
-        event_type: event.event_type,
-        details: event.details,
-        severity: event.severity,
-        user_id: event.user_id,
-        ip_address: event.ip_address,
-        user_agent: event.user_agent,
-        created_at: new Date().toISOString()
+      // Use admin_audit_log table which exists in the database
+      const { error } = await supabase.from('admin_audit_log').insert({
+        admin_email: event.user_id || 'anonymous',
+        action: event.event_type,
+        details: event.details as any, // Cast to match Json type
+        ip_address: event.ip_address || 'unknown',
+        user_agent: event.user_agent || 'unknown',
+        target_table: 'security_log'
       })
 
       if (error) {
