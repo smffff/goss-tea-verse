@@ -8,4 +8,14 @@ interface Window {
     on?: (event: string, handler: (...args: any[]) => void) => void;
     removeListener?: (event: string, handler: (...args: any[]) => void) => void;
   };
+  solana?: {
+    connect: () => Promise<void>;
+    disconnect: () => Promise<void>;
+    publicKey: {
+      toString: () => string;
+    };
+    isPhantom?: boolean;
+    on?: (event: string, handler: (...args: any[]) => void) => void;
+    removeListener?: (event: string, handler: (...args: any[]) => void) => void;
+  };
 }

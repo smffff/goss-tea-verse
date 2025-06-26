@@ -10,7 +10,10 @@ export const BRAND_CONFIG = {
     'Spill Tea. Stack Clout. Stay Shady.',
     'Where Memes, Gossip, and Crypto Collide',
     'Web3\'s Anonymous Crypto Gossip Feed',
-    'The ultimate crypto gossip platform where anonymous intel meets AI-powered insights'
+    'Finally, utility for your meme portfolio.',
+    'Make CTea Great Again.',
+    'Built for gossip. Powered by degeneracy.',
+    'We made apps for dumber sh*t. Why not gossip?'
   ],
   
   // Brand personality
@@ -20,33 +23,36 @@ export const BRAND_CONFIG = {
     style: 'tabloid meets high-tech'
   },
   
-  // Visual identity
+  // Visual identity - Updated to match deployment spec
   colors: {
-    // Primary palette - Vintage tabloid inspired
-    primary: '#cc2b2b', // vintage-red
-    secondary: '#1c1c1c', // tabloid-black
-    accent: '#ff1493', // neon-pink for highlights
-    background: '#fdf7f2', // newsprint
-    surface: '#fef7f7', // pale-pink
+    primary: '#00D8A4',     // neon mint
+    accent: '#FF4FB3',      // hot pink
+    background: '#100C2A',  // deep night blue
+    orange: '#FF9C39',      // retro sunburst
+    text: '#FFFFFF',        // white text
     
-    // Extended palette
+    // Legacy colors for backwards compatibility
+    secondary: '#1c1c1c',
+    surface: '#fef7f7',
     purple: '#9333EA',
     teal: '#10B981',
     yellow: '#F59E0B',
     electricBlue: '#00bfff'
   },
   
-  // Typography
+  // Typography - Updated with retro fonts
   fonts: {
-    headline: ['Anton', 'Oswald', 'Impact', 'sans-serif'],
-    tabloid: ['Oswald', 'Anton', 'Impact', 'sans-serif'],
+    header: ['Press Start 2P', 'Luckiest Guy', 'Oswald', 'Impact', 'sans-serif'],
+    retro: ['Press Start 2P', 'monospace'],
+    headline: ['Luckiest Guy', 'Anton', 'Oswald', 'Impact', 'sans-serif'],
     display: ['Playfair Display', 'DM Serif Display', 'Georgia', 'serif'],
-    body: ['Inter', 'system-ui', 'sans-serif']
+    body: ['Inter', 'Nunito Sans', 'system-ui', 'sans-serif']
   },
   
-  // Iconography
+  // Enhanced iconography
   icons: {
-    primary: '☕', // teacup
+    primary: '🫖', // spilling teacup
+    secondary: '☕', // regular teacup
     reactions: {
       hot: '🔥',
       cold: '🧊',
@@ -57,11 +63,12 @@ export const BRAND_CONFIG = {
       drama: '🎭',
       gossip: '🗣️',
       exclusive: '⭐',
-      verified: '✅'
+      verified: '✅',
+      corn: '🌽'
     }
   },
   
-  // Enhanced social links with Tea Token integration
+  // Enhanced social links
   social: {
     twitter: 'https://twitter.com/cteanews',
     arena: 'https://arena.social/?ref=cteanewsroom',
@@ -75,9 +82,17 @@ export const BRAND_CONFIG = {
   token: {
     name: 'TEA Token',
     symbol: '$TEA',
-    contract: '0x...', // Add actual contract address when deployed
-    network: 'Base',
-    dex: 'Uniswap V3'
+    contract: 'tea.cteanews.sol',
+    network: 'Solana',
+    dex: 'Jupiter'
+  },
+  
+  // Beta access configuration
+  beta: {
+    testCodes: ['TEA2024', 'CTEA-BETA', 'FREN-ZONE', 'SPILL-ZONE', 'CORN-GANG'],
+    reuseLimit: 3,
+    expiryDays: 30,
+    briberWallet: 'tea.cteanews.sol'
   },
   
   // Contact
@@ -85,35 +100,33 @@ export const BRAND_CONFIG = {
     press: 'press@cteanews.com',
     tips: 'tips@cteanews.com',
     general: 'hello@cteanews.com',
-    partnerships: 'partners@cteanews.com'
+    partnerships: 'partners@cteanews.com',
+    admin: 'admin@cteanews.com'
   },
   
   // Site metadata
   meta: {
-    keywords: ['crypto gossip', 'web3 news', 'anonymous intel', 'AI commentary', 'memecoin culture', 'tea token'],
+    keywords: ['crypto gossip', 'web3 news', 'anonymous intel', 'AI commentary', 'memecoin culture', 'tea token', 'corn gang'],
     author: 'CTea Newsroom Team',
-    siteName: 'CTea Newsroom'
+    siteName: 'CTea Newsroom',
+    domain: 'cteanews.com'
   }
 };
+
+export const cteaBrandColors = BRAND_CONFIG.colors;
 
 // Theme configuration
 export const THEME_CONFIG = {
   dark: {
-    background: 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%)',
+    background: `linear-gradient(135deg, ${BRAND_CONFIG.colors.background} 0%, #0a0a0a 100%)`,
     surface: 'rgba(28, 28, 28, 0.8)',
-    text: '#ffffff',
+    text: BRAND_CONFIG.colors.text,
     muted: '#9ca3af'
   },
-  light: {
-    background: 'linear-gradient(135deg, #fdf7f2 0%, #fef7f7 100%)',
-    surface: 'rgba(255, 255, 255, 0.9)',
-    text: '#1c1c1c',
-    muted: '#6b7280'
-  },
   vaporwave: {
-    background: 'linear-gradient(135deg, #ff6b9d 0%, #b983ff 50%, #00d4aa 100%)',
+    background: `linear-gradient(135deg, ${BRAND_CONFIG.colors.accent} 0%, ${BRAND_CONFIG.colors.primary} 50%, ${BRAND_CONFIG.colors.orange} 100%)`,
     surface: 'rgba(255, 255, 255, 0.1)',
-    text: '#ffffff',
-    accent: '#ff1493'
+    text: BRAND_CONFIG.colors.text,
+    accent: BRAND_CONFIG.colors.accent
   }
 };
