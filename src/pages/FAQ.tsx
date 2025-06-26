@@ -1,265 +1,259 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import Layout from '@/components/Layout';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { HelpCircle, Coffee, Zap, Shield, Trophy, MessageCircle, Bot, Coins, Users, Lock } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Search, MessageCircle, Shield, Coins, Users, Zap } from 'lucide-react';
+import { BrandHeader } from '@/components/brand/BrandElements';
 
 const FAQ = () => {
-  const faqs = [
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const faqCategories = [
     {
       category: 'Getting Started',
-      icon: Coffee,
+      icon: Users,
+      color: 'text-vintage-red',
       questions: [
         {
           question: 'What is CTea Newsroom?',
-          answer: 'CTea Newsroom is where crypto gossip meets AI-powered reactions. Share anonymous tea, get roasted by our AI bot CTeaBot, and earn street cred through our leaderboard system. Think Wendy Williams meets GitHub Copilot.'
+          answer: 'CTea Newsroom is Web3\'s premier anonymous crypto gossip platform. We\'re where crypto\'s most scandalous stories surface first — think Gossip Girl meets crypto Twitter, but with AI commentary and token rewards.'
         },
         {
-          question: 'Do I need to create an account?',
-          answer: 'Nope! Everything is anonymous. We use secure tokens to track your submissions and reactions without requiring personal information. Just start spilling tea immediately.'
+          question: 'How do I start spilling tea?',
+          answer: 'Simply visit our platform, click "Spill Tea," and share your crypto intel anonymously. You can choose to submit completely anonymously or connect your wallet for TEA token rewards. Our AI, CTeaBot, will add witty commentary to make your submission even spicier.'
         },
         {
-          question: 'How do I submit tea?',
-          answer: 'Click "Spill Tea" in the navigation, choose a topic category, write your gossip (with optional media links), and hit submit. Your tea appears in the feed instantly!'
+          question: 'Is it really anonymous?',
+          answer: 'Yes! We use advanced cryptographic techniques to ensure submissions cannot be traced back to you. Even we can\'t identify anonymous submitters. Your privacy and safety are our top priorities.'
         },
         {
-          question: 'Is my identity really protected?',
-          answer: 'Yes! We use secure cryptographic tokens instead of personal data. No emails, names, or tracking cookies. Your identity is protected while still allowing us to track your contributions for the leaderboard.'
+          question: 'What kind of content can I submit?',
+          answer: 'We welcome crypto-related gossip, insider intel, market rumors, project drama, and industry tea. Content must be relevant to crypto/Web3 and follow our community guidelines. No doxxing, harassment, or illegal content.'
         }
       ]
     },
     {
-      category: 'AI & Moderation',
-      icon: Bot,
+      category: 'TEA Token',
+      icon: Coins,
+      color: 'text-neon-pink',
       questions: [
+        {
+          question: 'What is the TEA token?',
+          answer: 'TEA is our native utility token that powers the CTea ecosystem. Earn TEA by submitting quality content, voting on submissions, and engaging with the community. Use TEA for governance, premium features, and reputation staking.'
+        },
+        {
+          question: 'How do I earn TEA tokens?',
+          answer: 'Multiple ways: Submit quality tea (50-500 TEA), vote accurately on submissions (5-25 TEA), engage daily (10-50 TEA), refer friends (100 TEA), become a top weekly spiller (1,000 TEA), and moderate content (25-100 TEA).'
+        },
+        {
+          question: 'Where can I buy TEA tokens?',
+          answer: 'TEA tokens are available on decentralized exchanges on the Base network. You can also earn them by participating in the platform. Check our Tokenomics page for current exchange listings.'
+        },
+        {
+          question: 'What can I do with TEA tokens?',
+          answer: 'Stake for higher credibility scores, access premium features, participate in governance votes, tip quality creators, verify your identity for exclusive access, and earn revenue share from platform success.'
+        }
+      ]
+    },
+    {
+      category: 'Platform Features',
+      icon: Zap,
+      color: 'text-teal-400',
+      questions: [
+        {
+          question: 'How does the voting system work?',
+          answer: 'Community members vote on submissions using 🔥 (hot) or 🧊 (cold) reactions. Hot submissions rise to the top and earn more rewards, while cold submissions get buried. Your voting accuracy affects your credibility score.'
+        },
         {
           question: 'What is CTeaBot?',
-          answer: 'CTeaBot is our emotionally intelligent AI that roasts, analyzes, and reacts to your tea with sass, insight, and dark humor. Think of it as your brutally honest crypto-savvy friend who always has the perfect comeback.'
+          answer: 'CTeaBot is our AI commentary engine that adds witty, intelligent responses to every submission. Trained on crypto culture and blessed with unlimited sass, CTeaBot makes even dry intel entertaining and provides additional context.'
         },
         {
-          question: 'What are the different AI modes?',
-          answer: 'CTeaBot has four personalities: 🌶️ SPICY (hot takes and drama), 🧠 SMART (analytical insights), 😂 MEME (internet chaos), and ⚡ WISE (brutal honesty). Each mode provides different commentary styles.'
+          question: 'How does the credibility system work?',
+          answer: 'Your credibility score is based on submission quality, voting accuracy, community engagement, and TEA token stakes. Higher credibility users earn more rewards and have more influence in governance decisions.'
         },
         {
-          question: 'How does AI moderation work?',
-          answer: 'We use OpenAI\'s content safety API to automatically scan submissions for harmful content. Clean content is approved instantly, while flagged content gets reviewed. The system assigns risk scores and categorizes potential issues.'
-        },
-        {
-          question: 'What content gets flagged?',
-          answer: 'Harmful content like harassment, hate speech, or illegal activities gets flagged. We want spicy tea, not harmful behavior. The goal is fun drama, not real harm.'
-        },
-        {
-          question: 'Can I request different AI commentary styles?',
-          answer: 'Yes! You can choose which AI mode responds to your content. Each mode has a unique personality and commentary style to match your preferences.'
+          question: 'Can I edit or delete my submissions?',
+          answer: 'Anonymous submissions cannot be edited or deleted to maintain integrity. Wallet-connected submissions can be edited within 10 minutes of posting. This policy prevents manipulation while allowing quick fixes.'
         }
       ]
     },
     {
-      category: 'Tokenomics & Rewards',
-      icon: Coins,
+      category: 'Privacy & Security',
+      icon: Shield,
+      color: 'text-purple-400',
       questions: [
         {
-          question: 'What are $TEA tokens?',
-          answer: '$TEA is our platform utility token used for rewards, staking, content boosting, and governance voting. You earn them for quality submissions and community engagement.'
+          question: 'How do you protect my identity?',
+          answer: 'We use zero-knowledge proofs, encrypted submissions, and decentralized storage. Anonymous submissions are completely untraceable, even by us. We never store IP addresses or identifying information for anonymous users.'
         },
         {
-          question: 'How do I earn tokens?',
-          answer: 'Earn 5 $TEA for approved submissions, 2 $TEA for helpful upvotes, and 1 $TEA for community engagement. Tokens are awarded automatically when content is approved.'
+          question: 'What if someone tries to doxx me?',
+          answer: 'Doxxing is strictly prohibited and results in immediate bans. We have automated detection systems and a rapid response team. If you feel threatened, contact our moderation team immediately through Discord or email.'
         },
         {
-          question: 'Can I stake my tokens?',
-          answer: 'Yes! You can stake $TEA tokens to earn passive rewards and unlock exclusive platform features. Staking also gives you governance rights.'
+          question: 'How do you prevent fake news?',
+          answer: 'Community voting, AI analysis, credibility scoring, and human moderation work together to surface quality content. We don\'t claim to be a news source — we\'re a gossip platform where the community decides what\'s credible.'
         },
         {
-          question: 'What can I do with my tokens?',
-          answer: 'Use $TEA for content boosting, staking rewards, governance voting, and platform features.'
+          question: 'What data do you collect?',
+          answer: 'For anonymous users: none. For wallet-connected users: wallet address, submission history, and engagement metrics. We never sell data and use minimal analytics. See our Privacy Policy for full details.'
         }
       ]
     },
     {
-      category: 'Scoring & Leaderboard',
-      icon: Trophy,
-      questions: [
-        {
-          question: 'How does the scoring system work?',
-          answer: 'You earn points for activity: 5 points per tea submitted, 2 points per emoji reaction you give, plus bonus points for high engagement on your posts. The more the community reacts to your tea, the more bonus points you get!'
-        },
-        {
-          question: 'What are the different leaderboard periods?',
-          answer: 'We track rankings for Weekly (last 7 days), Monthly (last 30 days), and All-Time. This lets both new and veteran tea spillers compete fairly.'
-        },
-        {
-          question: 'How are usernames generated?',
-          answer: 'We automatically generate fun usernames like "SpicyTeaSpiller42" based on your anonymous token. Your avatar is also randomly generated using DiceBear.'
-        },
-        {
-          question: 'How do I climb the leaderboard?',
-          answer: 'Submit quality content that gets community engagement, react to other posts, and participate regularly. High-quality submissions with lots of reactions earn the most points.'
-        }
-      ]
-    },
-    {
-      category: 'Community & Voting',
+      category: 'Community & Governance',
       icon: Users,
+      color: 'text-yellow-400',
       questions: [
         {
-          question: 'What are the emoji reactions?',
-          answer: 'You can react with: 🔥 Hot (spicy tea), 🥶 Cold (boring/fake), and 🌶️ Spicy (extra dramatic). Your reactions help score posts and contribute to your own leaderboard points.'
+          question: 'How is the platform governed?',
+          answer: 'TEA token holders participate in governance decisions through our DAO. Major platform changes, feature additions, and policy updates are voted on by the community. Higher stakes = more voting power.'
         },
         {
-          question: 'How does community voting work?',
-          answer: 'Users vote on content credibility and relevance using emoji reactions. This helps surface the best submissions and maintain content quality through community curation.'
+          question: 'How do I report inappropriate content?',
+          answer: 'Every submission has a report button. Our moderation team reviews reports within 24 hours. Repeated violations result in credibility penalties or bans. The community also helps moderate through voting.'
         },
         {
-          question: 'Can I report harmful content?',
-          answer: 'Yes! We have moderation tools and community reporting. Harmful content gets flagged and removed. We want spicy tea, not harmful harassment.'
+          question: 'Can I become a moderator?',
+          answer: 'Yes! Active community members with high credibility scores can apply to become moderators. Moderators earn TEA rewards and help maintain platform quality. Applications open quarterly.'
         },
         {
           question: 'How do I join the community?',
-          answer: 'Start by submitting tea and engaging with other posts. Join our Discord for deeper community discussions and stay updated on platform developments.'
-        }
-      ]
-    },
-    {
-      category: 'Privacy & Safety',
-      icon: Shield,
-      questions: [
-        {
-          question: 'How anonymous am I really?',
-          answer: 'Very anonymous. We use secure cryptographic tokens instead of personal data. No emails, names, or tracking cookies. Your identity is protected while still allowing us to track your contributions for the leaderboard.'
-        },
-        {
-          question: 'What if someone posts harmful content?',
-          answer: 'We have moderation tools and community reporting. Harmful content gets flagged and removed. We want spicy tea, not harmful harassment. The goal is fun drama, not real harm.'
-        },
-        {
-          question: 'Can I delete my submissions?',
-          answer: 'Since everything is anonymous, there\'s no traditional "account deletion." However, you can report your own posts if needed, and moderators can help remove content.'
-        },
-        {
-          question: 'Is my data secure?',
-          answer: 'Yes! We use industry-standard encryption and security practices. Your data is protected with Row Level Security (RLS) policies and secure authentication systems.'
-        }
-      ]
-    },
-    {
-      category: 'Technical & Web3',
-      icon: Zap,
-      questions: [
-        {
-          question: 'Is this really Web3?',
-          answer: 'We\'re Web3-adjacent! While we focus on crypto gossip and have tokenization in our roadmap, the core app works without needing a wallet. Think of it as the gateway drug to full Web3 participation.'
-        },
-        {
-          question: 'Will there be tokens or NFTs?',
-          answer: 'That\'s in our roadmap! We\'re exploring $TEA tokens for governance and rewards, plus NFT badges for top contributors. For now, we\'re perfecting the core gossip experience.'
-        },
-        {
-          question: 'Can I integrate this with other apps?',
-          answer: 'We\'re building API access for developers who want to integrate CTea feeds into their own apps. Stay tuned for announcements!'
-        },
-        {
-          question: 'What blockchain do you use?',
-          answer: 'We\'re currently building on Ethereum and exploring Layer 2 solutions for scalability. Our token system is designed to be cross-chain compatible.'
+          answer: 'Join our Discord server, follow us on Twitter/X, and start participating on the platform. The more you engage, the more you\'ll be recognized by other community members. We\'re a welcoming bunch of crypto degenerates!'
         }
       ]
     }
   ];
 
+  const filteredFAQs = faqCategories.map(category => ({
+    ...category,
+    questions: category.questions.filter(q => 
+      q.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      q.answer.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  })).filter(category => category.questions.length > 0);
+
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 animate-glow flex items-center justify-center gap-3">
-            <HelpCircle className="w-10 h-10 text-ctea-teal" />
-            Frequently Asked Questions
-          </h1>
-          <p className="text-lg sm:text-xl text-gray-300 mb-8">
-            Everything you need to know about spilling tea and earning clout
-          </p>
-        </div>
+    <Layout pageTitle="FAQ" pageDescription="Frequently asked questions about CTea Newsroom - Your guide to the ultimate crypto gossip platform">
+      <div className="min-h-screen bg-gradient-to-br from-newsprint via-pale-pink to-vintage-red-50">
+        {/* Hero Section */}
+        <section className="py-20">
+          <div className="container mx-auto px-4 text-center">
+            <BrandHeader showLogo={true} showTagline={false} logoSize="lg" />
+            <h1 className="text-4xl md:text-6xl font-headline font-bold text-vintage-red uppercase tracking-wider mb-4">
+              FAQ
+            </h1>
+            <p className="text-lg md:text-xl text-tabloid-black/70 mt-6 max-w-3xl mx-auto leading-relaxed">
+              Got questions about spilling tea, earning tokens, or protecting your anonymity? 
+              We've got answers. Everything you need to know about the gossip game.
+            </p>
+          </div>
+        </section>
+
+        {/* Search Section */}
+        <section className="py-8">
+          <div className="container mx-auto px-4">
+            <Card className="border-vintage-red/20 bg-white/80 backdrop-blur-sm max-w-2xl mx-auto">
+              <CardContent className="p-6">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-tabloid-black/50 w-5 h-5" />
+                  <input
+                    type="text"
+                    placeholder="Search frequently asked questions..."
+                    className="w-full pl-10 pr-4 py-3 border border-vintage-red/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-vintage-red/20 bg-white"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
 
         {/* FAQ Categories */}
-        <div className="space-y-8">
-          {faqs.map((category, categoryIndex) => {
-            const IconComponent = category.icon;
-            return (
-              <Card key={categoryIndex} className="bg-ctea-dark/30 border-ctea-teal/20">
-                <div className="p-6">
-                  <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
-                    <IconComponent className="w-6 h-6 text-ctea-teal" />
-                    {category.category}
-                  </h2>
-                  
-                  <Accordion type="single" collapsible className="space-y-2">
-                    {category.questions.map((faq, faqIndex) => (
-                      <AccordionItem 
-                        key={faqIndex} 
-                        value={`${categoryIndex}-${faqIndex}`}
-                        className="border-ctea-teal/20"
-                      >
-                        <AccordionTrigger className="text-white hover:text-ctea-teal text-left">
-                          {faq.question}
-                        </AccordionTrigger>
-                        <AccordionContent className="text-gray-300 pt-2">
-                          {faq.answer}
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
-                </div>
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            {filteredFAQs.length === 0 ? (
+              <Card className="border-vintage-red/20 bg-white/80 backdrop-blur-sm text-center">
+                <CardContent className="p-8">
+                  <div className="text-6xl mb-4">🤔</div>
+                  <h3 className="text-xl font-bold text-tabloid-black mb-2">No results found</h3>
+                  <p className="text-tabloid-black/70">
+                    Try a different search term or browse all categories below.
+                  </p>
+                </CardContent>
               </Card>
-            );
-          })}
-        </div>
+            ) : (
+              <div className="space-y-8">
+                {filteredFAQs.map((category, categoryIndex) => (
+                  <Card key={categoryIndex} className="border-vintage-red/20 bg-white/80 backdrop-blur-sm">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-3 text-2xl font-headline text-tabloid-black">
+                        <category.icon className={`w-8 h-8 ${category.color}`} />
+                        {category.category}
+                        <Badge variant="outline" className="ml-auto">
+                          {category.questions.length} questions
+                        </Badge>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Accordion type="single" collapsible className="w-full">
+                        {category.questions.map((faq, faqIndex) => (
+                          <AccordionItem key={faqIndex} value={`${categoryIndex}-${faqIndex}`}>
+                            <AccordionTrigger className="text-left font-semibold text-tabloid-black hover:text-vintage-red">
+                              {faq.question}
+                            </AccordionTrigger>
+                            <AccordionContent className="text-tabloid-black/70 leading-relaxed">
+                              {faq.answer}
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
 
-        {/* Contact Section */}
-        <Card className="bg-gradient-to-r from-ctea-purple/20 to-ctea-pink/20 border-ctea-purple/30 mt-8">
-          <div className="p-6 text-center">
-            <MessageCircle className="w-8 h-8 text-ctea-purple mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Still Have Questions?</h3>
-            <p className="text-gray-300 mb-4">
-              Can't find what you're looking for? We're here to help!
+        {/* Still Have Questions */}
+        <section className="py-20 bg-gradient-to-r from-vintage-red/5 to-neon-pink/5">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-4xl font-headline text-vintage-red mb-6">
+              Still Have Questions?
+            </h2>
+            <p className="text-lg text-tabloid-black/70 mb-8 max-w-2xl mx-auto">
+              Can't find what you're looking for? Our community and team are here to help. 
+              Join our Discord or reach out directly — we don't bite (much).
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a 
-                href="/contact" 
-                className="bg-ctea-purple hover:bg-ctea-purple/80 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button 
+                size="lg" 
+                className="bg-vintage-red hover:bg-vintage-red-600 text-white font-bold px-8 py-3"
+                onClick={() => window.open('https://discord.gg/cteanewsroom', '_blank')}
               >
-                Contact Us
-              </a>
-              <a 
-                href="https://discord.gg/cteanewsroom" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="border border-ctea-purple text-ctea-purple hover:bg-ctea-purple/10 px-6 py-2 rounded-lg font-medium transition-colors"
-              >
+                <MessageCircle className="w-5 h-5 mr-2" />
                 Join Discord
-              </a>
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-vintage-red text-vintage-red hover:bg-vintage-red hover:text-white font-bold px-8 py-3"
+                onClick={() => window.open('mailto:hello@cteanews.com?subject=FAQ Question', '_blank')}
+              >
+                Email Support
+              </Button>
             </div>
           </div>
-        </Card>
-
-        {/* Built by Attribution */}
-        <div className="text-center mt-8 p-4">
-          <p className="text-gray-500 text-sm">
-            Built with ☕ by{' '}
-            <a 
-              href="https://ladyinvisible.co" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-ctea-teal hover:text-ctea-purple transition-colors"
-            >
-              Lady Invisible
-            </a>
-            {' '}— Founder of emotionally intelligent apps for humans, not bots.
-          </p>
-        </div>
+        </section>
       </div>
     </Layout>
   );
 };
 
 export default FAQ;
-

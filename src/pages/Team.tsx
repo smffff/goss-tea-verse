@@ -1,303 +1,309 @@
+
 import React from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
-  Users, 
-  Coffee, 
-  Zap, 
-  Shield, 
-  Bot, 
-  TrendingUp,
-  Github,
-  Twitter,
-  Linkedin,
-  Globe,
-  Heart,
-  Star
+  Twitter, 
+  Linkedin, 
+  Github, 
+  ExternalLink,
+  Coffee,
+  Users,
+  Zap,
+  Code
 } from 'lucide-react';
+import { BrandHeader } from '@/components/brand/BrandElements';
 
 const Team = () => {
-  const teamMembers = [
+  const coreTeam = [
     {
-      name: 'Lady Invisible',
-      role: 'Founder & CEO',
-      avatar: '/ctea-logo-icon.png',
-      bio: 'Building emotionally intelligent apps for humans, not bots. Former AI researcher turned crypto chaos architect. Believes in the power of anonymous truth-telling and community-driven innovation.',
-      expertise: ['AI/ML', 'Web3', 'Product Strategy', 'Community Building'],
+      name: 'LadyInvsible',
+      role: 'Founder & Lead Developer',
+      bio: 'Visionary builder combining emotional intelligence with memecoin degeneracy. Former Web2 product lead turned crypto native.',
+      avatar: '👩‍💻',
+      skills: ['Product Strategy', 'Full-Stack Development', 'Community Building', 'Tokenomics'],
       social: {
-        twitter: 'https://twitter.com/ladyinvisible',
-        github: 'https://github.com/ladyinvisible',
-        website: 'https://ladyinvisible.co',
-        linkedin: 'https://linkedin.com/in/ladyinvisible'
+        twitter: 'https://x.com/ladyinvsible',
+        arena: 'https://arena.social/?ref=LadyInvsible',
+        linktree: 'https://linktr.ee/ladyinvsible'
       },
-      isFounder: true
-    },
-    {
-      name: 'Coming Soon',
-      role: 'CTO & Technical Lead',
-      avatar: '/assets/placeholder.svg',
-      bio: 'We\'re looking for a brilliant technical mind to join our mission. Someone who can architect scalable systems, lead development teams, and share our passion for building the future of crypto information sharing.',
-      expertise: ['System Architecture', 'Blockchain Development', 'Team Leadership', 'DevOps'],
-      social: {},
-      isHiring: true
-    },
-    {
-      name: 'Coming Soon',
-      role: 'Head of Community',
-      avatar: '/assets/placeholder.svg',
-      bio: 'We need a community champion who can grow and nurture our global tea-spilling community. Someone who understands crypto culture, can moderate with empathy, and build meaningful relationships.',
-      expertise: ['Community Management', 'Content Moderation', 'Growth Marketing', 'Crypto Culture'],
-      social: {},
-      isHiring: true
-    },
-    {
-      name: 'Coming Soon',
-      role: 'Head of Marketing',
-      avatar: '/assets/placeholder.svg',
-      bio: 'Looking for a marketing wizard who can craft compelling narratives, build brand awareness, and drive user acquisition in the crypto space. Must love memes and understand Web3 culture.',
-      expertise: ['Brand Strategy', 'Growth Marketing', 'Content Creation', 'Web3 Marketing'],
-      social: {},
-      isHiring: true
+      achievements: [
+        '5+ years in crypto/DeFi',
+        'Built multiple successful dApps',
+        'Expert in community-driven platforms',
+        'AI/ML integration specialist'
+      ]
     }
   ];
 
   const advisors = [
     {
-      name: 'Crypto OG',
-      role: 'Strategic Advisor',
-      avatar: '/assets/placeholder.svg',
-      bio: 'Veteran crypto entrepreneur with deep connections in the space. Providing strategic guidance and industry insights.',
-      expertise: ['Crypto Strategy', 'Network Building', 'Investment'],
-      social: {}
+      name: 'CTeaBot',
+      role: 'AI Commentary Specialist',
+      bio: 'Our resident AI gossip expert. Trained on the spiciest crypto drama and blessed with unlimited sass.',
+      avatar: '🤖',
+      skills: ['Content Analysis', 'Wit Generation', 'Trend Prediction', 'Community Engagement'],
+      achievements: [
+        'Processes 1000+ submissions daily',
+        '95% accuracy in trend prediction',
+        'Beloved by the community',
+        'Master of crypto humor'
+      ]
     },
     {
-      name: 'AI Expert',
-      role: 'AI Advisor',
-      avatar: '/assets/placeholder.svg',
-      bio: 'Leading AI researcher specializing in natural language processing and content moderation. Advising on our AI systems.',
-      expertise: ['AI/ML', 'NLP', 'Content Moderation', 'Ethics'],
-      social: {}
+      name: 'The Community',
+      role: 'Collective Intelligence',
+      bio: 'The real MVPs. Thousands of anonymous tea spillers, voters, and community members who make CTea the ultimate gossip destination.',
+      avatar: '👥',
+      skills: ['Intel Gathering', 'Quality Curation', 'Trend Discovery', 'Community Moderation'],
+      achievements: [
+        '10,000+ active community members',
+        '50,000+ tea submissions',
+        '1M+ community votes',
+        'Global 24/7 coverage'
+      ]
     }
   ];
 
   const values = [
     {
-      title: 'Transparency',
-      description: 'Open development, clear communication, and public audit trails.',
-      icon: Shield
+      icon: Coffee,
+      title: 'Anonymous First',
+      description: 'We protect our community\'s privacy above all else. Your identity is sacred.'
     },
     {
-      title: 'Innovation',
-      description: 'Pushing boundaries in AI, Web3, and community governance.',
-      icon: Zap
+      icon: Users,
+      title: 'Community Driven',
+      description: 'Every major decision goes through community governance. You have a voice.'
     },
     {
-      title: 'Community',
-      description: 'Building for and with our community, not just for profit.',
-      icon: Users
+      icon: Zap,
+      title: 'Quality Over Speed',
+      description: 'We build features right the first time, prioritizing user experience over rush releases.'
     },
     {
-      title: 'Privacy',
-      description: 'Anonymous by design, secure by default.',
-      icon: Shield
+      icon: Code,
+      title: 'Open & Transparent',
+      description: 'Our development process is transparent. Community feedback shapes our roadmap.'
     }
   ];
 
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-16">
+    <Layout pageTitle="Team" pageDescription="Meet the team behind CTea Newsroom - The builders creating Web3's premier gossip platform">
+      <div className="min-h-screen bg-gradient-to-br from-newsprint via-pale-pink to-vintage-red-50">
         {/* Hero Section */}
-        <div className="text-center mb-16">
-          <div className="flex items-center justify-center mb-6">
-            <div className="p-4 bg-gradient-to-br from-ctea-teal/20 to-ctea-purple/20 rounded-full border border-ctea-teal/30">
-              <Users className="w-8 h-8 text-ctea-teal" />
-            </div>
+        <section className="py-20">
+          <div className="container mx-auto px-4 text-center">
+            <BrandHeader showLogo={true} showTagline={false} logoSize="lg" />
+            <h1 className="text-4xl md:text-6xl font-headline font-bold text-vintage-red uppercase tracking-wider mb-4">
+              Meet the Team
+            </h1>
+            <p className="text-lg md:text-xl text-tabloid-black/70 mt-6 max-w-3xl mx-auto leading-relaxed">
+              The builders, dreamers, and degenerates creating the future of crypto gossip. 
+              From anonymous founders to AI companions — we're all about that tea life.
+            </p>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 animate-glow">
-            Meet the Team
-          </h1>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            The brilliant minds behind CTea Newsroom. We're building the future of 
-            crypto information sharing, one spicy take at a time.
-          </p>
-        </div>
+        </section>
 
-        {/* Team Members */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold text-white mb-8 text-center">Core Team</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {teamMembers.map((member, index) => (
-              <Card key={index} className="bg-gradient-to-br from-ctea-dark/50 to-ctea-darker/50 border-white/10">
-                <CardHeader>
-                  <div className="flex items-start gap-4">
-                    <img 
-                      src={member.avatar} 
-                      alt={member.name}
-                      className="w-20 h-20 rounded-full border-2 border-ctea-teal/30"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <CardTitle className="text-xl font-bold text-white">
-                          {member.name}
-                        </CardTitle>
-                        {member.isFounder && (
-                          <Badge className="bg-ctea-teal/20 text-ctea-teal border-ctea-teal/30">
-                            Founder
+        {/* Core Team */}
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-headline text-vintage-red text-center mb-12">
+              Core Team
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+              {coreTeam.map((member, index) => (
+                <Card key={index} className="border-vintage-red/20 bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow">
+                  <CardHeader className="text-center">
+                    <div className="text-6xl mb-4 animate-float">{member.avatar}</div>
+                    <CardTitle className="text-xl font-headline text-tabloid-black">
+                      {member.name}
+                    </CardTitle>
+                    <Badge variant="outline" className="border-vintage-red text-vintage-red mx-auto">
+                      {member.role}
+                    </Badge>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <p className="text-tabloid-black/70 mb-4 leading-relaxed">
+                      {member.bio}
+                    </p>
+                    
+                    {/* Skills */}
+                    <div className="mb-4">
+                      <h4 className="font-bold text-tabloid-black mb-2">Expertise</h4>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        {member.skills.map((skill, skillIndex) => (
+                          <Badge key={skillIndex} variant="secondary" className="text-xs">
+                            {skill}
                           </Badge>
-                        )}
-                        {member.isHiring && (
-                          <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
-                            Hiring
-                          </Badge>
-                        )}
+                        ))}
                       </div>
-                      <p className="text-ctea-teal font-semibold">{member.role}</p>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-300 mb-4">{member.bio}</p>
-                  
-                  <div className="mb-4">
-                    <h4 className="text-white font-semibold mb-2">Expertise</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {member.expertise.map((skill, skillIndex) => (
-                        <Badge key={skillIndex} variant="outline" className="border-ctea-teal/30 text-ctea-teal">
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
 
-                  {Object.keys(member.social).length > 0 && (
-                    <div className="flex gap-2">
-                      {member.social.twitter && (
-                        <a href={member.social.twitter} target="_blank" rel="noopener noreferrer">
-                          <Button variant="outline" size="sm" className="border-ctea-teal/30 text-ctea-teal">
+                    {/* Achievements */}
+                    <div className="mb-4">
+                      <h4 className="font-bold text-tabloid-black mb-2">Achievements</h4>
+                      <ul className="text-sm text-tabloid-black/70 space-y-1">
+                        {member.achievements.map((achievement, achIndex) => (
+                          <li key={achIndex}>• {achievement}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Social Links */}
+                    {member.social && (
+                      <div className="flex justify-center gap-2">
+                        {member.social.twitter && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-vintage-red text-vintage-red hover:bg-vintage-red hover:text-white"
+                            onClick={() => window.open(member.social.twitter, '_blank')}
+                          >
                             <Twitter className="w-4 h-4" />
                           </Button>
-                        </a>
-                      )}
-                      {member.social.github && (
-                        <a href={member.social.github} target="_blank" rel="noopener noreferrer">
-                          <Button variant="outline" size="sm" className="border-ctea-teal/30 text-ctea-teal">
-                            <Github className="w-4 h-4" />
+                        )}
+                        {member.social.arena && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-neon-pink text-neon-pink hover:bg-neon-pink hover:text-white"
+                            onClick={() => window.open(member.social.arena, '_blank')}
+                          >
+                            <Users className="w-4 h-4" />
                           </Button>
-                        </a>
-                      )}
-                      {member.social.website && (
-                        <a href={member.social.website} target="_blank" rel="noopener noreferrer">
-                          <Button variant="outline" size="sm" className="border-ctea-teal/30 text-ctea-teal">
-                            <Globe className="w-4 h-4" />
+                        )}
+                        {member.social.linktree && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-teal-400 text-teal-400 hover:bg-teal-400 hover:text-white"
+                            onClick={() => window.open(member.social.linktree, '_blank')}
+                          >
+                            <ExternalLink className="w-4 h-4" />
                           </Button>
-                        </a>
-                      )}
-                      {member.social.linkedin && (
-                        <a href={member.social.linkedin} target="_blank" rel="noopener noreferrer">
-                          <Button variant="outline" size="sm" className="border-ctea-teal/30 text-ctea-teal">
-                            <Linkedin className="w-4 h-4" />
-                          </Button>
-                        </a>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Advisors */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold text-white mb-8 text-center">Advisors</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {advisors.map((advisor, index) => (
-              <Card key={index} className="bg-gradient-to-br from-ctea-dark/30 to-ctea-darker/30 border-ctea-teal/20">
-                <CardHeader>
-                  <div className="flex items-start gap-4">
-                    <img 
-                      src={advisor.avatar} 
-                      alt={advisor.name}
-                      className="w-16 h-16 rounded-full border-2 border-ctea-teal/30"
-                    />
-                    <div>
-                      <CardTitle className="text-lg font-bold text-white">{advisor.name}</CardTitle>
-                      <p className="text-ctea-teal font-semibold">{advisor.role}</p>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-300 mb-4">{advisor.bio}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {advisor.expertise.map((skill, skillIndex) => (
-                      <Badge key={skillIndex} variant="outline" className="border-ctea-teal/30 text-ctea-teal text-xs">
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Values */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold text-white mb-8 text-center">Our Values</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {values.map((value, index) => {
-              const Icon = value.icon;
-              return (
-                <Card key={index} className="bg-gradient-to-br from-ctea-teal/10 to-ctea-purple/10 border-ctea-teal/30 text-center">
-                  <CardContent className="p-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-ctea-teal/20 to-ctea-purple/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Icon className="w-6 h-6 text-ctea-teal" />
-                    </div>
-                    <h3 className="text-lg font-bold text-white mb-2">{value.title}</h3>
-                    <p className="text-gray-300 text-sm">{value.description}</p>
+                        )}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
-              );
-            })}
+              ))}
+            </div>
           </div>
-        </div>
+        </section>
+
+        {/* Special Team Members */}
+        <section className="py-16 bg-gradient-to-r from-vintage-red/5 to-neon-pink/5">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-headline text-vintage-red text-center mb-12">
+              Our Extended Family
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {advisors.map((member, index) => (
+                <Card key={index} className="border-vintage-red/20 bg-white/80 backdrop-blur-sm">
+                  <CardHeader className="text-center">
+                    <div className="text-6xl mb-4 animate-bounce-subtle">{member.avatar}</div>
+                    <CardTitle className="text-xl font-headline text-tabloid-black">
+                      {member.name}
+                    </CardTitle>
+                    <Badge variant="outline" className="border-neon-pink text-neon-pink mx-auto">
+                      {member.role}
+                    </Badge>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-tabloid-black/70 mb-4 leading-relaxed text-center">
+                      {member.bio}
+                    </p>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="font-bold text-tabloid-black mb-2">Skills</h4>
+                        <div className="space-y-1">
+                          {member.skills.map((skill, skillIndex) => (
+                            <Badge key={skillIndex} variant="secondary" className="text-xs mr-1 mb-1">
+                              {skill}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-bold text-tabloid-black mb-2">Stats</h4>
+                        <ul className="text-sm text-tabloid-black/70 space-y-1">
+                          {member.achievements.map((achievement, achIndex) => (
+                            <li key={achIndex} className="text-xs">• {achievement}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Team Values */}
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-headline text-vintage-red text-center mb-12">
+              How We Work
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {values.map((value, index) => (
+                <Card key={index} className="border-vintage-red/20 bg-white/80 backdrop-blur-sm text-center hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <value.icon className="w-8 h-8 text-vintage-red mx-auto mb-4" />
+                    <CardTitle className="text-lg font-headline text-tabloid-black">
+                      {value.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-tabloid-black/70 text-sm leading-relaxed">
+                      {value.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
 
         {/* Join Us Section */}
-        <Card className="bg-gradient-to-br from-ctea-dark/50 to-ctea-darker/50 border-ctea-teal/30">
-          <CardContent className="p-8 text-center">
-            <div className="flex items-center justify-center mb-4">
-              <div className="p-3 bg-gradient-to-br from-ctea-teal/20 to-ctea-purple/20 rounded-full border border-ctea-teal/30">
-                <Heart className="w-6 h-6 text-ctea-teal" />
-              </div>
-            </div>
-            <h2 className="text-2xl font-bold text-white mb-4">Join Our Mission</h2>
-            <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-              We're looking for passionate individuals who want to build the future of crypto information sharing. 
-              If you're excited about AI, Web3, and community building, we'd love to hear from you.
+        <section className="py-20 bg-gradient-to-r from-teal-400/5 to-purple-400/5">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-4xl font-headline text-vintage-red mb-6">
+              Want to Join the Team?
+            </h2>
+            <p className="text-lg text-tabloid-black/70 mb-8 max-w-2xl mx-auto">
+              We're always looking for talented builders, community managers, and crypto natives 
+              who share our vision of creating the ultimate gossip platform.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a 
-                href="/contact" 
-                className="bg-gradient-ctea text-white px-6 py-3 rounded-lg font-bold hover:opacity-90 transition-opacity"
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button 
+                size="lg" 
+                className="bg-vintage-red hover:bg-vintage-red-600 text-white font-bold px-8 py-3"
+                onClick={() => window.open('mailto:hello@cteanews.com?subject=Joining CTea Team', '_blank')}
               >
-                Get in Touch
-              </a>
-              <a 
-                href="https://discord.gg/cteanewsroom" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="border border-ctea-teal text-ctea-teal px-6 py-3 rounded-lg font-bold hover:bg-ctea-teal/10 transition-colors"
+                <Users className="w-5 h-5 mr-2" />
+                Get In Touch
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-vintage-red text-vintage-red hover:bg-vintage-red hover:text-white font-bold px-8 py-3"
+                onClick={() => window.open('https://discord.gg/cteanewsroom', '_blank')}
               >
                 Join Discord
-              </a>
+              </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </div>
     </Layout>
   );
 };
 
-export default Team; 
+export default Team;

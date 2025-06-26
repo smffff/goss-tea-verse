@@ -1,5 +1,5 @@
 
-import { Home, Coffee, TrendingUp, Trophy, Info, HelpCircle, Users, Map, DollarSign, Settings, User } from 'lucide-react';
+import { Home, Coffee, TrendingUp, Trophy, Info, HelpCircle, Users, Map, DollarSign, Settings, User, Coins, UsersIcon } from 'lucide-react';
 
 export interface NavigationItem {
   path: string;
@@ -46,6 +46,12 @@ export const secondaryNavigationItems: NavigationItem[] = [
     description: 'Learn about CTea Newsroom'
   },
   { 
+    path: '/tokenomics', 
+    label: 'Tokenomics', 
+    icon: Coins,
+    description: 'TEA token utility and economics'
+  },
+  { 
     path: '/roadmap', 
     label: 'Roadmap', 
     icon: Map,
@@ -54,19 +60,23 @@ export const secondaryNavigationItems: NavigationItem[] = [
   { 
     path: '/team', 
     label: 'Team', 
-    icon: Users,
+    icon: UsersIcon,
     description: 'Meet the team behind CTea'
   },
   { 
-    path: '/investors', 
-    label: 'Investors', 
-    icon: DollarSign,
-    description: 'Investment information'
+    path: '/faq', 
+    label: 'FAQ', 
+    icon: HelpCircle,
+    description: 'Frequently asked questions'
   }
 ];
 
 // Footer navigation items
 export const footerNavigationItems: NavigationItem[] = [
+  { path: '/about', label: 'About', icon: Info },
+  { path: '/tokenomics', label: 'Tokenomics', icon: Coins },
+  { path: '/roadmap', label: 'Roadmap', icon: Map },
+  { path: '/team', label: 'Team', icon: UsersIcon },
   { path: '/faq', label: 'FAQ', icon: HelpCircle },
   { path: '/contact', label: 'Contact', icon: User },
   { path: '/privacy', label: 'Privacy', icon: Info },

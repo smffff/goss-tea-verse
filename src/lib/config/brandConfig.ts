@@ -53,23 +53,46 @@ export const BRAND_CONFIG = {
       tea: '☕',
       spill: '🫖',
       eyes: '👀',
-      crown: '👑'
+      crown: '👑',
+      drama: '🎭',
+      gossip: '🗣️',
+      exclusive: '⭐',
+      verified: '✅'
     }
   },
   
-  // Social links
+  // Enhanced social links with Tea Token integration
   social: {
-    twitter: 'https://twitter.com/cteanewsroom',
+    twitter: 'https://twitter.com/cteanews',
     arena: 'https://arena.social/?ref=cteanewsroom',
     discord: 'https://discord.gg/cteanewsroom',
-    github: 'https://github.com/cteanewsroom'
+    github: 'https://github.com/cteanewsroom',
+    telegram: 'https://t.me/cteanewsroom',
+    linktree: 'https://linktr.ee/cteanewsroom'
+  },
+  
+  // Tea Token Configuration
+  token: {
+    name: 'TEA Token',
+    symbol: '$TEA',
+    contract: '0x...', // Add actual contract address when deployed
+    network: 'Base',
+    dex: 'Uniswap V3'
   },
   
   // Contact
   contact: {
     press: 'press@cteanews.com',
     tips: 'tips@cteanews.com',
-    general: 'hello@cteanews.com'
+    general: 'hello@cteanews.com',
+    partnerships: 'partners@cteanews.com'
+  },
+  
+  // Site metadata
+  meta: {
+    keywords: ['crypto gossip', 'web3 news', 'anonymous intel', 'AI commentary', 'memecoin culture', 'tea token'],
+    author: 'CTea Newsroom Team',
+    siteName: 'CTea Newsroom'
   }
 };
 
@@ -86,5 +109,11 @@ export const THEME_CONFIG = {
     surface: 'rgba(255, 255, 255, 0.9)',
     text: '#1c1c1c',
     muted: '#6b7280'
+  },
+  vaporwave: {
+    background: 'linear-gradient(135deg, #ff6b9d 0%, #b983ff 50%, #00d4aa 100%)',
+    surface: 'rgba(255, 255, 255, 0.1)',
+    text: '#ffffff',
+    accent: '#ff1493'
   }
 };

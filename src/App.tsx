@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +13,11 @@ import { useEffect } from "react";
 // Pages
 import Landing from "./pages/Landing";
 import SpillTea from "./pages/SpillTea";
+import About from "./pages/About";
+import Tokenomics from "./pages/Tokenomics";
+import Roadmap from "./pages/Roadmap";
+import Team from "./pages/Team";
+import FAQ from "./pages/FAQ";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +40,13 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Landing />} />
                     <Route path="/spill" element={<SpillTea />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/tokenomics" element={<Tokenomics />} />
+                    <Route path="/roadmap" element={<Roadmap />} />
+                    <Route path="/team" element={<Team />} />
+                    <Route path="/faq" element={<FAQ />} />
+                    {/* Existing routes */}
+                    <Route path="*" element={<Landing />} />
                   </Routes>
                 </BrowserRouter>
               </TooltipProvider>
