@@ -8,13 +8,15 @@ interface SubmissionModalProps {
   onClose: () => void;
   onSubmit: (data: any) => Promise<void>;
   isLoading?: boolean;
+  isSubmitting?: boolean;
 }
 
 const SubmissionModal: React.FC<SubmissionModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
-  isLoading = false
+  isLoading = false,
+  isSubmitting = false
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -25,7 +27,7 @@ const SubmissionModal: React.FC<SubmissionModalProps> = ({
         <SubmissionForm
           onClose={onClose}
           onSubmit={onSubmit}
-          isLoading={isLoading}
+          isLoading={isLoading || isSubmitting}
         />
       </DialogContent>
     </Dialog>

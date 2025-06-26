@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import ParallaxElement from './ParallaxElement';
@@ -25,14 +26,14 @@ const FloatingEmoji: React.FC<FloatingEmojiProps> = ({
       direction="up"
       delay={delay}
       className={`absolute pointer-events-none ${className}`}
-      style={{
-        left: `${position.x}%`,
-        top: `${position.y}%`,
-        fontSize: `${size}px`,
-        zIndex: 1
-      }}
     >
       <motion.div
+        style={{
+          left: `${position.x}%`,
+          top: `${position.y}%`,
+          fontSize: `${size}px`,
+          zIndex: 1
+        }}
         animate={{
           y: [-10, 10, -10],
           rotate: [0, 5, -5, 0]
@@ -81,4 +82,4 @@ const FloatingEmojis: React.FC = () => {
   );
 };
 
-export default FloatingEmojis; 
+export default FloatingEmojis;

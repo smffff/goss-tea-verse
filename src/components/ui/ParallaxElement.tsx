@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -10,7 +11,7 @@ interface ParallaxElementProps {
   offset?: number;
   delay?: number;
   duration?: number;
-  ease?: string;
+  ease?: any; // Accept any easing type to fix the build error
 }
 
 const ParallaxElement: React.FC<ParallaxElementProps> = ({
@@ -59,7 +60,7 @@ const ParallaxElement: React.FC<ParallaxElementProps> = ({
       transition={{
         duration,
         delay,
-        ease
+        ease: ease as any
       }}
       viewport={{ once: true, margin: '-100px' }}
     >
@@ -68,4 +69,4 @@ const ParallaxElement: React.FC<ParallaxElementProps> = ({
   );
 };
 
-export default ParallaxElement; 
+export default ParallaxElement;

@@ -1,5 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Coffee, Eye, Sparkles } from 'lucide-react';
@@ -27,7 +29,11 @@ const BuildModeBanner: React.FC = () => {
   }, []);
   if (!visible) return null;
   return (
-    <div className="fixed top-0 left-0 w-full z-50 flex items-center justify-center bg-gradient-to-r from-pink-400 via-purple-400 to-teal-300 text-white py-2 px-4 shadow-lg animate-fadeInUp">
+    <motion.div 
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      className="fixed top-0 left-0 w-full z-50 flex items-center justify-center bg-gradient-to-r from-pink-400 via-purple-400 to-teal-300 text-white py-2 px-4 shadow-lg"
+    >
       <span className="font-bold text-shadow-glow text-base flex items-center gap-2">
         ⚠️ The tea's still brewing — occasional bugs may occur.
       </span>
@@ -40,6 +46,42 @@ const BuildModeBanner: React.FC = () => {
       >
         Dismiss
       </button>
+    </motion.div>
+  );
+};
+
+// Enhanced Parallax Background inspired by your reference images
+const ParallaxBackground: React.FC = () => {
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      {/* Cyberpunk Grid Floor */}
+      <ParallaxElement speed={0.1} direction="down" className="absolute bottom-0 left-0 w-full h-1/2">
+        <div className="w-full h-full bg-gradient-to-t from-purple-900/30 to-transparent">
+          <div className="cyber-grid w-full h-full opacity-30"></div>
+        </div>
+      </ParallaxElement>
+
+      {/* Floating Orbs inspired by your designs */}
+      <ParallaxElement speed={0.3} direction="up" className="absolute top-20 left-10">
+        <div className="w-32 h-32 bg-gradient-to-r from-pink-400/60 to-purple-400/60 rounded-full blur-3xl animate-pulse"></div>
+      </ParallaxElement>
+      
+      <ParallaxElement speed={0.5} direction="down" className="absolute bottom-20 right-10">
+        <div className="w-40 h-40 bg-gradient-to-r from-purple-400/60 to-teal-300/60 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      </ParallaxElement>
+      
+      <ParallaxElement speed={0.2} direction="up" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <div className="w-60 h-60 bg-gradient-to-r from-teal-300/40 to-yellow-400/40 rounded-full blur-3xl animate-pulse delay-2000"></div>
+      </ParallaxElement>
+
+      {/* Additional atmospheric elements */}
+      <ParallaxElement speed={0.4} direction="left" className="absolute top-1/4 right-1/4">
+        <div className="w-24 h-24 bg-gradient-to-r from-yellow-400/50 to-orange-400/50 rounded-full blur-2xl animate-pulse delay-500"></div>
+      </ParallaxElement>
+
+      <ParallaxElement speed={0.6} direction="right" className="absolute bottom-1/4 left-1/4">
+        <div className="w-36 h-36 bg-gradient-to-r from-green-400/40 to-teal-400/40 rounded-full blur-3xl animate-pulse delay-1500"></div>
+      </ParallaxElement>
     </div>
   );
 };
@@ -111,30 +153,21 @@ const Landing = () => {
       <FloatingBadges />
       <FloatingEmojis />
 
-      {/* Hero Section with Enhanced Parallax */}
-      <section className={`relative min-h-screen flex items-center justify-center overflow-hidden bg-vaporwave transition-all duration-700 ${heroVisible ? 'animate-fadeInUp' : 'opacity-0 translate-y-8'}`}>
-        {/* Enhanced Vaporwave background overlays with parallax */}
-        <ParallaxElement speed={0.3} direction="up" className="absolute inset-0 opacity-30 pointer-events-none">
-          <div className="absolute top-20 left-10 w-32 h-32 bg-pink-400 rounded-full blur-3xl animate-pulse"></div>
-        </ParallaxElement>
+      {/* Hero Section with Enhanced Parallax Background */}
+      <section className={`relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-purple-900 via-pink-900 to-orange-900 transition-all duration-700 ${heroVisible ? 'animate-fadeInUp' : 'opacity-0 translate-y-8'}`}>
         
-        <ParallaxElement speed={0.5} direction="down" className="absolute inset-0 opacity-30 pointer-events-none">
-          <div className="absolute bottom-20 right-10 w-40 h-40 bg-purple-400 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </ParallaxElement>
-        
-        <ParallaxElement speed={0.2} direction="up" className="absolute inset-0 opacity-30 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-teal-300 rounded-full blur-3xl animate-pulse delay-2000"></div>
-        </ParallaxElement>
+        {/* Enhanced Parallax Background */}
+        <ParallaxBackground />
 
         <div className="relative z-base text-center px-4 max-w-6xl mx-auto flex flex-col items-center">
           {/* Teacup Icon with Enhanced Parallax */}
           <ParallaxElement speed={0.4} direction="up" delay={0.2} className="mb-6">
-            <div className="animate-float" style={{ zIndex: 2 }}>
-              <TeaCup className="w-32 h-32 md:w-48 md:h-48 mx-auto drop-shadow-2xl" animated />
+            <div className="animate-float drop-shadow-2xl">
+              <TeaCup className="w-32 h-32 md:w-48 md:h-48 mx-auto" animated />
             </div>
           </ParallaxElement>
 
-          {/* Main Headline with Parallax */}
+          {/* Main Headline with Enhanced Parallax */}
           <ParallaxElement speed={0.6} direction="up" delay={0.4}>
             <h1 className="text-5xl md:text-8xl font-headline font-bold text-white mb-6 leading-tight text-shadow-glow uppercase tracking-wider animate-pulse-glow">
               CTea Newsroom
@@ -203,7 +236,7 @@ const Landing = () => {
                   speed={0.2}
                   direction="up"
                   delay={1.6 + index * 0.1}
-                  className="text-center p-8 bg-pale-pink rounded-xl border-3 border-vintage-red/30 hover:border-vintage-red/60 transition-all shadow-xl hover:shadow-2xl transform hover:scale-105 duration-300"
+                  className="text-center p-8 bg-pale-pink/90 backdrop-blur-sm rounded-xl border-3 border-vintage-red/30 hover:border-vintage-red/60 transition-all shadow-xl hover:shadow-2xl transform hover:scale-105 duration-300"
                 >
                   <div className="text-5xl mb-4 animate-float">{item.icon}</div>
                   <div className={`w-16 h-16 bg-gradient-to-r ${item.color} rounded-full flex items-center justify-center text-white font-tabloid text-2xl mx-auto mb-6 shadow-lg`}>
@@ -218,7 +251,7 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Leaderboard Teaser Section with Parallax */}
+      {/* Leaderboard Teaser Section with Enhanced Parallax */}
       <ParallaxElement speed={0.3} direction="up">
         <section className="py-20 bg-gradient-to-r from-pale-pink to-newsprint relative z-base">
           <div className="container mx-auto px-4">
