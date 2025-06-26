@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 
 interface ParallaxOptions {
@@ -96,4 +97,4 @@ export const useScrollDirection = () => {
   }, [lastScrollY]);
 
   return scrollDirection;
-}; 
+};
