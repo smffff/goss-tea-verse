@@ -35,6 +35,7 @@ export const performSubmissionSecurityCheck = async (
 };
 
 export const validateContentSecurity = (content: string) => {
+  const { ContentSanitizer } = require('./enhancedSecurityUtils');
   const { sanitized, threats, riskLevel } = ContentSanitizer.sanitizeContent(content);
   return {
     isValid: threats.length === 0 && riskLevel !== 'critical',

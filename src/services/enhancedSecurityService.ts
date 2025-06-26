@@ -47,8 +47,19 @@ export class EnhancedSecurityService {
         };
       }
 
-      // Handle the response data safely
-      const result = data as any;
+      // Handle the response data safely with proper typing
+      if (!data || typeof data !== 'object') {
+        // Fallback to client-side validation
+        const clientResult = ContentSanitizer.sanitizeContent(content);
+        return {
+          valid: clientResult.threats.length === 0,
+          sanitized: clientResult.sanitized,
+          threats: clientResult.threats,
+          riskLevel: clientResult.riskLevel
+        };
+      }
+
+      const result = data as Record<string, any>;
       return {
         valid: result?.valid || false,
         sanitized: result?.sanitized || content,
@@ -97,10 +108,18 @@ export class EnhancedSecurityService {
         };
       }
 
-      // Handle the response data safely
-      const result = data as any;
+      // Handle the response data safely with proper typing
+      if (!data || typeof data !== 'object') {
+        return {
+          allowed: true, // Fail open for availability
+          currentCount: 0,
+          maxActions
+        };
+      }
+
+      const result = data as Record<string, any>;
       return {
-        allowed: result?.allowed || true,
+        allowed: result?.allowed !== false,
         currentCount: result?.current_count || 0,
         maxActions: result?.max_actions || maxActions,
         remaining: result?.remaining,
