@@ -8,6 +8,7 @@ import AppErrorBoundary from '@/components/AppErrorBoundary';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import LaunchReadyApp from '@/components/launch/LaunchReadyApp';
 import DemoModeGate from '@/components/demo/DemoModeGate';
+import EnhancedLandingPage from '@/components/landing/EnhancedLandingPage';
 import { useAuth } from '@/hooks/useAuthProvider';
 
 function AppContent() {
