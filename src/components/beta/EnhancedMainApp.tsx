@@ -8,19 +8,23 @@ import SneakPeekTimer from '../access/SneakPeekTimer';
 import VersionTracker from '../access/VersionTracker';
 import LoadingSpinner from '../LoadingSpinner';
 import { AccessControlProvider, useAccessControl } from '../access/AccessControlProvider';
-import { logError, getRandomLoadingMessage } from '@/utils/errorUtils';
+import { logError, getRandomLoadingMessage, getRandomErrorMessage } from '@/utils/errorUtils';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle, Coffee, RefreshCw } from 'lucide-react';
 import type { AccessLevel } from '../access/AccessControlProvider';
 
 const EnhancedMainAppContent: React.FC = () => {
   const { accessLevel, setAccessLevel, upgradeAccess } = useAccessControl();
   const [isLoading, setIsLoading] = useState(true);
   const [initError, setInitError] = useState<string | null>(null);
+  const [showEmergencyAccess, setShowEmergencyAccess] = useState(false);
+  const [loadingSteps, setLoadingSteps] = useState(0);
 
   useEffect(() => {
     const initializeApp = async () => {
       try {
         console.log('🚀 Starting CTea app initialization...');
-        console.log('🔍 Current access level from provider:', accessLevel);
+        setLoadingSteps(1);
         
         // Check for existing access on mount
         const savedLevel = localStorage.getItem('ctea-access-level') as AccessLevel;
@@ -36,6 +40,9 @@ const EnhancedMainAppContent: React.FC = () => {
           currentAccessLevel: accessLevel 
         });
         
+        setLoadingSteps(2);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         // Determine initial access level with validation
         if (savedLevel && ['guest', 'authenticated', 'beta', 'admin'].includes(savedLevel)) {
           console.log('✅ Using saved access level:', savedLevel);
@@ -48,36 +55,43 @@ const EnhancedMainAppContent: React.FC = () => {
           setAccessLevel('guest');
         }
         
-        // Add a reasonable delay to prevent flash and allow React to settle
-        console.log('⏳ Waiting for app to settle...');
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        setLoadingSteps(3);
+        await new Promise(resolve => setTimeout(resolve, 800));
         
-        console.log('✅ App initialization complete, hiding loading screen');
+        console.log('✅ App initialization complete');
         setIsLoading(false);
       } catch (error) {
         console.error('💥 App initialization error:', error);
         logError(error, 'EnhancedMainApp initialization');
-        setInitError('Oops! Give me a min I\'m not a dev I\'m just a lady ok 💅');
+        setInitError(getRandomErrorMessage());
         setIsLoading(false);
       }
     };
 
-    // Add timeout protection
-    const initTimeout = setTimeout(() => {
+    // Emergency timeout - show emergency access after 5 seconds
+    const emergencyTimeout = setTimeout(() => {
       if (isLoading) {
-        console.warn('⚠️ App initialization taking too long, forcing load');
-        setInitError('This is taking longer than my patience allows... forcing load 🙄');
+        console.warn('⚠️ Emergency timeout triggered');
+        setShowEmergencyAccess(true);
+      }
+    }, 5000);
+
+    // Force timeout - stop loading after 10 seconds
+    const forceTimeout = setTimeout(() => {
+      if (isLoading) {
+        console.warn('⚠️ Force timeout - stopping loading');
+        setInitError('Loading took too long. Activating emergency access! 🚨');
         setIsLoading(false);
       }
-    }, 8000); // Increased timeout
+    }, 10000);
 
     initializeApp();
 
     return () => {
-      console.log('🧹 Cleaning up initialization timeout');
-      clearTimeout(initTimeout);
+      clearTimeout(emergencyTimeout);
+      clearTimeout(forceTimeout);
     };
-  }, [setAccessLevel, isLoading]);
+  }, [setAccessLevel]); // FIXED: Removed isLoading from dependencies to prevent infinite loop
 
   const handleAccessGranted = (level: AccessLevel) => {
     console.log('✅ Access granted with level:', level);
@@ -87,7 +101,6 @@ const EnhancedMainAppContent: React.FC = () => {
   const handleLogout = () => {
     console.log('👋 Logging out...');
     try {
-      // Clean up all access-related localStorage
       const keysToRemove = [
         'ctea-beta-access',
         'ctea-demo-mode', 
@@ -104,8 +117,6 @@ const EnhancedMainAppContent: React.FC = () => {
       setAccessLevel('guest');
     } catch (error) {
       logError(error, 'EnhancedMainApp logout');
-      // Force refresh as fallback
-      console.log('🔄 Logout cleanup failed, forcing page refresh');
       window.location.reload();
     }
   };
@@ -121,21 +132,82 @@ const EnhancedMainAppContent: React.FC = () => {
     }
   };
 
-  console.log('🎯 Render decision - isLoading:', isLoading, 'accessLevel:', accessLevel, 'peekStart:', localStorage.getItem('ctea-peek-start'));
+  const handleEmergencyAccess = () => {
+    console.log('🚨 Emergency access activated');
+    try {
+      localStorage.setItem('ctea-access-level', 'beta');
+      localStorage.setItem('ctea-demo-mode', 'true');
+      localStorage.setItem('ctea-beta-code', 'EMERGENCY');
+      setAccessLevel('beta');
+      setIsLoading(false);
+      setShowEmergencyAccess(false);
+    } catch (error) {
+      console.error('Emergency access failed:', error);
+      window.location.reload();
+    }
+  };
 
-  // Show loading state with error fallback
+  const handleForceRefresh = () => {
+    console.log('🔄 Force refresh triggered');
+    window.location.reload();
+  };
+
+  const getLoadingMessage = () => {
+    switch (loadingSteps) {
+      case 1: return "Checking your vibe... 💅";
+      case 2: return "Brewing the tea... ☕";
+      case 3: return "Almost ready bestie... ✨";
+      default: return getRandomLoadingMessage();
+    }
+  };
+
+  // Show loading state with emergency options
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
-          <LoadingSpinner size="lg" variant="tea" message={getRandomLoadingMessage()} />
-          {initError && (
-            <p className="text-red-400 text-sm mt-4 bg-red-500/10 border border-red-500/20 rounded p-3">
-              {initError}
-            </p>
+          <LoadingSpinner size="lg" variant="tea" message={getLoadingMessage()} />
+          
+          {showEmergencyAccess && (
+            <div className="mt-6 p-4 bg-orange-500/10 border border-orange-500/30 rounded-lg">
+              <AlertTriangle className="w-6 h-6 text-orange-400 mx-auto mb-2" />
+              <p className="text-orange-300 text-sm mb-3">
+                Taking longer than my patience allows... 😤
+              </p>
+              <div className="space-y-2">
+                <Button
+                  onClick={handleEmergencyAccess}
+                  className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                >
+                  <Coffee className="w-4 h-4 mr-2" />
+                  Emergency Access (Skip This Drama)
+                </Button>
+                <Button
+                  onClick={handleForceRefresh}
+                  variant="outline"
+                  className="w-full border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Refresh & Pray 🙏
+                </Button>
+              </div>
+            </div>
           )}
-          <p className="text-xs text-gray-500 mt-2">
-            If this takes forever, refresh and we'll pretend this never happened 💀
+
+          {initError && (
+            <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded">
+              <p className="text-red-400 text-sm">{initError}</p>
+              <Button
+                onClick={handleEmergencyAccess}
+                className="mt-2 w-full bg-red-500 hover:bg-red-600 text-white"
+              >
+                Access Anyway (I Don't Care Anymore)
+              </Button>
+            </div>
+          )}
+          
+          <p className="text-xs text-gray-500 mt-4">
+            Beta life hits different but we're serving looks anyway 💅
           </p>
         </div>
       </div>

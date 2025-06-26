@@ -10,7 +10,10 @@ export const getRandomErrorMessage = (): string => {
     "Plot twist: I googled 'how to fix this' and even Stack Overflow is confused",
     "Breaking news: Local woman breaks code, more at 11",
     "Error level: crying in the club but make it technical",
-    "The code said 'no ❤️' and honestly, fair enough"
+    "The code said 'no ❤️' and honestly, fair enough",
+    "Currently debugging with the power of friendship and caffeine",
+    "The servers are in their feelings right now, please stand by",
+    "Technical difficulties aka me vs. technology and technology is winning"
   ];
   
   return messages[Math.floor(Math.random() * messages.length)];
@@ -27,7 +30,9 @@ export const getRandomLoadingMessage = (): string => {
     "One sec, gotta untangle these digital Christmas lights",
     "Loading faster than my will to debug on a Friday",
     "Plot twist: I have no idea what I'm doing but we're here anyway",
-    "Patience grasshopper, Rome wasn't coded in a day"
+    "Patience grasshopper, Rome wasn't coded in a day",
+    "Channeling my inner developer energy (it's chaotic)",
+    "Processing... or pretending to, honestly not sure which"
   ];
   
   return messages[Math.floor(Math.random() * messages.length)];
