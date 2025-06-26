@@ -5,7 +5,8 @@
 import { UnifiedSecurityService } from './unifiedSecurityService';
 import { EnhancedSecurityService } from './enhancedSecurityService';
 import { betaCodeService } from './betaCodeService';
-import { teaTokenService } from './teaTokenService';
+// Fix: Import TeaTokenService instead of teaTokenService
+import { TeaTokenService } from './teaTokenService';
 
 // Main service factory - single entry point for all services
 export class ServiceFactory {
@@ -26,8 +27,9 @@ export class ServiceFactory {
     return betaCodeService;
   }
 
+  // Fix: Use TeaTokenService instead of teaTokenService
   static get teaTokens() {
-    return teaTokenService;
+    return TeaTokenService;
   }
 }
 
@@ -35,7 +37,8 @@ export class ServiceFactory {
 export { UnifiedSecurityService } from './unifiedSecurityService';
 export { EnhancedSecurityService } from './enhancedSecurityService';
 export { betaCodeService } from './betaCodeService';
-export { teaTokenService } from './teaTokenService';
+// Fix: Export TeaTokenService instead of teaTokenService
+export { TeaTokenService } from './teaTokenService';
 
 // Service interfaces for dependency injection
 export interface ISecurityService {

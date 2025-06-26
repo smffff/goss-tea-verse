@@ -16,13 +16,13 @@ export {
 // URL validation utilities
 export { validateUrl as validateSingleUrl, sanitizeUrl } from './urlValidation';
 
-// Time utilities
+// Time utilities - fixed imports
 export { formatTimeAgo, formatDate, isRecent } from './timeUtils';
 
-// Analytics utilities
+// Analytics utilities - fixed imports
 export { track, identify, page } from './analytics';
 
-// Error handling utilities
+// Error handling utilities - fixed imports
 export { handleError, createErrorBoundary } from './errorHandler';
 
 // Common utility functions
