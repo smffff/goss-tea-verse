@@ -103,7 +103,7 @@ const EnhancedSecurityMonitor: React.FC = () => {
           {activeThreats.length > 0 && (
             <div className="space-y-1">
               <div className="text-xs font-medium text-gray-700">Recent Threats:</div>
-              {activeThreats.slice(-3).map((threat, index) => (
+              {activeThreats.slice(-2).map((threat, index) => (
                 <div key={index} className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
                   {threat}
                 </div>

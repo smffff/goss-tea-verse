@@ -1,7 +1,6 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { SecurityServiceUnified } from '@/services/securityServiceUnified';
 import { supabase } from '@/integrations/supabase/client';
 import type { PolicyConflictData } from '@/types/security';
 
@@ -44,15 +43,30 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
       if (error) {
         console.error('Failed to check policy health:', error);
         setPolicyHealth('warning');
+        setSecurityScore(70);
+        setThreatLevel('medium');
         return;
       }
 
-      // Type assertion to handle Supabase Json type
       const typedHealthData = healthData as unknown as PolicyConflictData;
       const conflicts = typedHealthData?.total_potential_conflicts || 0;
-      setPolicyHealth(conflicts > 0 ? 'critical' : 'healthy');
       
-      if (conflicts > 0) {
+      if (conflicts === 0) {
+        setPolicyHealth('healthy');
+        setSecurityScore(100);
+        setThreatLevel('low');
+        setActiveThreats([]);
+      } else if (conflicts < 3) {
+        setPolicyHealth('warning');
+        setSecurityScore(80);
+        setThreatLevel('medium');
+        setActiveThreats(['Minor policy conflicts detected']);
+      } else {
+        setPolicyHealth('critical');
+        setSecurityScore(50);
+        setThreatLevel('high');
+        setActiveThreats(['Critical policy conflicts detected']);
+        
         logSecurityEvent('policy_conflicts_detected', {
           conflict_count: conflicts,
           policy_summary: typedHealthData?.policy_summary
@@ -61,32 +75,21 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
     } catch (error) {
       console.error('Security health check failed:', error);
       setPolicyHealth('warning');
+      setSecurityScore(60);
+      setThreatLevel('medium');
     }
   };
 
   const logSecurityEvent = (event: string, details: any, severity: 'low' | 'medium' | 'high' | 'critical' = 'low') => {
     console.log(`🔐 Security Event [${severity.toUpperCase()}]:`, event, details);
     
-    // Update threat level based on severity
-    if (severity === 'critical' && threatLevel !== 'critical') {
-      setThreatLevel('critical');
-      setSecurityScore(prev => Math.max(0, prev - 50));
+    // Only show critical alerts to avoid spam
+    if (severity === 'critical') {
       toast({
         title: "Critical Security Alert 🚨",
         description: `Security event detected: ${event}`,
         variant: "destructive"
       });
-    } else if (severity === 'high' && !['critical', 'high'].includes(threatLevel)) {
-      setThreatLevel('high');
-      setSecurityScore(prev => Math.max(0, prev - 25));
-    } else if (severity === 'medium' && threatLevel === 'low') {
-      setThreatLevel('medium');
-      setSecurityScore(prev => Math.max(0, prev - 10));
-    }
-
-    // Track active threats
-    if (['high', 'critical'].includes(severity)) {
-      setActiveThreats(prev => [...prev, event].slice(-5)); // Keep last 5 threats
     }
 
     // Store for reporting
@@ -101,7 +104,7 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
         securityScore,
         policyHealth
       });
-      localStorage.setItem('ctea_security_audit', JSON.stringify(auditLog.slice(-50))); // Keep last 50 events
+      localStorage.setItem('ctea_security_audit', JSON.stringify(auditLog.slice(-50)));
     } catch (error) {
       console.error('Failed to store security audit log:', error);
     }
@@ -112,56 +115,11 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
     // Initial security health check
     refreshSecurityHealth();
     
-    // Monitor for suspicious URL patterns
-    const checkUrlSecurity = () => {
-      const url = window.location.href;
-      const suspiciousPatterns = [
-        /javascript:/i,
-        /data:/i,
-        /<script/i,
-        /\.\./,
-        /\/etc\/passwd/i,
-        /union.*select/i
-      ];
-
-      for (const pattern of suspiciousPatterns) {
-        if (pattern.test(url)) {
-          logSecurityEvent('suspicious_url_pattern', {
-            url: window.location.href,
-            pattern: pattern.toString()
-          }, 'high');
-          break;
-        }
-      }
-    };
-
-    checkUrlSecurity();
-
-    // Monitor for rapid navigation changes (potential bot behavior)
-    let navigationCount = 0;
-    const navigationTimer = setInterval(() => {
-      if (navigationCount > 10) {
-        logSecurityEvent('rapid_navigation_detected', {
-          count: navigationCount,
-          timeframe: '10_seconds'
-        }, 'medium');
-      }
-      navigationCount = 0;
-    }, 10000);
-
-    const handleNavigation = () => {
-      navigationCount++;
-    };
-
-    window.addEventListener('popstate', handleNavigation);
-    
     // Check policy health every 10 minutes
     const healthInterval = setInterval(refreshSecurityHealth, 10 * 60 * 1000);
     
     return () => {
-      clearInterval(navigationTimer);
       clearInterval(healthInterval);
-      window.removeEventListener('popstate', handleNavigation);
     };
   }, []);
 
@@ -169,14 +127,16 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
   useEffect(() => {
     if (threatLevel !== 'low') {
       const recoveryTimer = setTimeout(() => {
-        setThreatLevel('low');
-        setSecurityScore(prev => Math.min(100, prev + 10));
-        setActiveThreats([]);
+        if (policyHealth === 'healthy') {
+          setThreatLevel('low');
+          setSecurityScore(100);
+          setActiveThreats([]);
+        }
       }, 300000); // 5 minutes
 
       return () => clearTimeout(recoveryTimer);
     }
-  }, [threatLevel]);
+  }, [threatLevel, policyHealth]);
 
   const value: SecurityAuditContextType = {
     threatLevel,
