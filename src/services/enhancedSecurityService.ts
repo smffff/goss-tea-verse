@@ -61,11 +61,11 @@ export class EnhancedSecurityService {
 
       const result = data as Record<string, any>;
       return {
-        valid: result?.valid || false,
-        sanitized: result?.sanitized || content,
-        threats: result?.errors || [],
-        riskLevel: result?.risk_level || 'medium',
-        securityScore: result?.security_score || 0.5
+        valid: Boolean(result?.valid),
+        sanitized: String(result?.sanitized || content),
+        threats: Array.isArray(result?.errors) ? result.errors : [],
+        riskLevel: (result?.risk_level as 'low' | 'medium' | 'high' | 'critical') || 'medium',
+        securityScore: typeof result?.security_score === 'number' ? result.security_score : 0.5
       };
     } catch (error) {
       console.error('Content validation service error:', error);
@@ -119,13 +119,13 @@ export class EnhancedSecurityService {
 
       const result = data as Record<string, any>;
       return {
-        allowed: result?.allowed !== false,
-        currentCount: result?.current_count || 0,
-        maxActions: result?.max_actions || maxActions,
-        remaining: result?.remaining,
-        resetTime: result?.reset_time,
-        blockedReason: result?.blocked_reason,
-        securityViolation: result?.security_violation
+        allowed: Boolean(result?.allowed !== false),
+        currentCount: Number(result?.current_count) || 0,
+        maxActions: Number(result?.max_actions) || maxActions,
+        remaining: typeof result?.remaining === 'number' ? result.remaining : undefined,
+        resetTime: typeof result?.reset_time === 'string' ? result.reset_time : undefined,
+        blockedReason: typeof result?.blocked_reason === 'string' ? result.blocked_reason : undefined,
+        securityViolation: typeof result?.security_violation === 'boolean' ? result.security_violation : undefined
       };
     } catch (error) {
       console.error('Rate limit service error:', error);
