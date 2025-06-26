@@ -12,7 +12,7 @@ interface TeaTransaction {
   transaction_hash?: string
   block_number?: number
   status: 'pending' | 'confirmed' | 'failed'
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
   created_at: string
 }
 
@@ -32,7 +32,7 @@ interface UseTeaTokensReturn {
   balance: WalletBalance | null
   transactions: TeaTransaction[]
   isLoading: boolean
-  awardTokens: (walletAddress: string, action: string, amount: number, spillId?: string, metadata?: Record<string, any>) => Promise<boolean>
+  awardTokens: (walletAddress: string, action: TeaTransaction['action'], amount: number, spillId?: string, metadata?: Record<string, unknown>) => Promise<boolean>
   getBalance: (walletAddress: string) => Promise<void>
   getTransactions: (walletAddress: string, limit?: number) => Promise<void>
   refreshBalance: () => Promise<void>
@@ -44,7 +44,7 @@ export function useTeaTokens(walletAddress?: string): UseTeaTokensReturn {
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
 
-  const getBalance = useCallback(async (address: string) => {
+  const getBalance = useCallback(async (address: string): Promise<void> => {
     if (!address) return
 
     try {
@@ -78,12 +78,12 @@ export function useTeaTokens(walletAddress?: string): UseTeaTokensReturn {
       } else {
         setBalance(data)
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error fetching balance:', error)
     }
   }, [toast])
 
-  const getTransactions = useCallback(async (address: string, limit: number = 20) => {
+  const getTransactions = useCallback(async (address: string, limit: number = 20): Promise<void> => {
     if (!address) return
 
     try {
@@ -104,17 +104,17 @@ export function useTeaTokens(walletAddress?: string): UseTeaTokensReturn {
       } else {
         setTransactions(data || [])
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error fetching transactions:', error)
     }
   }, [toast])
 
   const awardTokens = useCallback(async (
     walletAddress: string,
-    action: string,
+    action: TeaTransaction['action'],
     amount: number,
     spillId?: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<boolean> => {
     try {
       const { data, error } = await supabase.rpc('award_tea_tokens', {
@@ -151,7 +151,7 @@ export function useTeaTokens(walletAddress?: string): UseTeaTokensReturn {
         const newTransaction: TeaTransaction = {
           id: data.transaction_id,
           wallet_address: walletAddress,
-          action: action as any,
+          action,
           amount,
           spill_id: spillId,
           status: 'confirmed',
@@ -176,7 +176,7 @@ export function useTeaTokens(walletAddress?: string): UseTeaTokensReturn {
         })
         return false
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error awarding tokens:', error)
       toast({
         title: "Token Award Error",

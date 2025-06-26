@@ -73,8 +73,9 @@ export const usePerformanceMonitor = (pageName: string) => {
       let clsValue = 0;
       const observer = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
-          if (!entry.hadRecentInput) {
-            clsValue += (entry as any).value;
+          // Use type guard for LayoutShift
+          if (!entry.hadRecentInput && 'value' in entry) {
+            clsValue += (entry as PerformanceEntry & { value: number }).value;
           }
         }
         metricsRef.current.cumulativeLayoutShift = clsValue;
