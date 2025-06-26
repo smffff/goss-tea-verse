@@ -165,6 +165,68 @@
   }
 }
 
+/* New Viral Animations */
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+@keyframes rainbow {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+@keyframes sparkle {
+  0%, 100% { 
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  50% { 
+    opacity: 1;
+    transform: scale(1) rotate(180deg);
+  }
+}
+
+@keyframes neon-flicker {
+  0%, 100% { 
+    text-shadow: 
+      0 0 5px #ff6b9d,
+      0 0 10px #ff6b9d,
+      0 0 15px #ff6b9d,
+      0 0 20px #ff6b9d;
+  }
+  50% { 
+    text-shadow: 
+      0 0 2px #ff6b9d,
+      0 0 5px #ff6b9d,
+      0 0 8px #ff6b9d,
+      0 0 12px #ff6b9d;
+  }
+}
+
+@keyframes matrix-rain {
+  0% { transform: translateY(-100vh); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes glitch {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes wave {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(10px); }
+}
+
 /* Utility Classes */
 .animate-teacup-shake {
   animation: teacup-shake 2s ease-in-out infinite;
@@ -207,6 +269,39 @@
 
 .animate-splash {
   animation: splash 1.5s ease-out infinite;
+}
+
+/* New Viral Animation Classes */
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+
+.animate-rainbow {
+  animation: rainbow 3s linear infinite;
+}
+
+.animate-sparkle {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.animate-neon-flicker {
+  animation: neon-flicker 2s ease-in-out infinite;
+}
+
+.animate-matrix-rain {
+  animation: matrix-rain 3s linear infinite;
+}
+
+.animate-glitch {
+  animation: glitch 0.3s ease-in-out infinite;
+}
+
+.animate-heartbeat {
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+.animate-wave {
+  animation: wave 2s ease-in-out infinite;
 }
 
 /* Animation Delays */
@@ -266,7 +361,7 @@
 /* Loading States */
 .skeleton {
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
+  background-size: 200px 100%;
   animation: shimmer 1.5s infinite;
 }
 
@@ -300,4 +395,63 @@
 
 .bg-vaporwave {
   background: linear-gradient(135deg, #ff6b9d 0%, #b983ff 50%, #00d4aa 100%);
+}
+
+/* New Viral Effects */
+.neon-border {
+  border: 2px solid transparent;
+  background: linear-gradient(45deg, #ff6b9d, #b983ff, #00d4aa) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+}
+
+.cyber-grid {
+  background-image: 
+    linear-gradient(rgba(0, 212, 170, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 170, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+.holographic {
+  background: linear-gradient(
+    45deg,
+    #ff6b9d,
+    #b983ff,
+    #00d4aa,
+    #ff6b9d
+  );
+  background-size: 400% 400%;
+  animation: rainbow 3s ease infinite;
+}
+
+.particle-field {
+  position: relative;
+  overflow: hidden;
+}
+
+.particle-field::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(255, 107, 157, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(185, 131, 255, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(0, 212, 170, 0.3) 0%, transparent 50%);
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Z-index utilities */
+.z-floating-badges { z-index: 100; }
+.z-base { z-index: 10; }
+.z-overlay { z-index: 50; }
+.z-modal { z-index: 1000; }
+.z-tooltip { z-index: 2000; }
+
+/* Sticky CTA spacing */
+.pb-sticky-cta {
+  padding-bottom: 80px;
 }
