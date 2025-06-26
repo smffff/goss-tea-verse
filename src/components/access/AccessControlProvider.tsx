@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { logError } from '@/utils/errorUtils';
 
@@ -42,6 +42,19 @@ export const AccessControlProvider: React.FC<AccessControlProviderProps> = ({ ch
     beta: 3,
     admin: 4
   };
+
+  // Memoize the upgrade access function to prevent re-renders
+  const upgradeAccess = useCallback(() => {
+    toast({
+      title: "Upgrade Your Access ✨",
+      description: "Sign up or enter a beta code for unlimited access to all the tea!",
+    });
+  }, [toast]);
+
+  // Memoize the permission check function
+  const checkPermission = useCallback((requiredLevel: AccessLevel): boolean => {
+    return accessHierarchy[accessLevel] >= accessHierarchy[requiredLevel];
+  }, [accessLevel]);
 
   useEffect(() => {
     // Initialize access level from localStorage with robust error handling
@@ -127,7 +140,7 @@ export const AccessControlProvider: React.FC<AccessControlProviderProps> = ({ ch
     }
   }, [accessLevel, timeRemaining, toast]);
 
-  const setAccessLevel = (level: AccessLevel) => {
+  const setAccessLevel = useCallback((level: AccessLevel) => {
     try {
       console.log('Setting access level to:', level);
       setAccessLevelState(level);
@@ -148,18 +161,7 @@ export const AccessControlProvider: React.FC<AccessControlProviderProps> = ({ ch
         variant: "destructive"
       });
     }
-  };
-
-  const upgradeAccess = () => {
-    toast({
-      title: "Upgrade Your Access ✨",
-      description: "Sign up or enter a beta code for unlimited access to all the tea!",
-    });
-  };
-
-  const checkPermission = (requiredLevel: AccessLevel): boolean => {
-    return accessHierarchy[accessLevel] >= accessHierarchy[requiredLevel];
-  };
+  }, [toast]);
 
   const value: AccessControlState = {
     accessLevel,

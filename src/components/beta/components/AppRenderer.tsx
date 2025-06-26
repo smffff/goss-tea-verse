@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import EnhancedAccessGateway from '../../access/EnhancedAccessGateway';
 import LiveTeaApp from '../LiveTeaApp';
 import SneakPeekApp from '../SneakPeekApp';
@@ -24,14 +24,22 @@ export const AppRenderer: React.FC<AppRendererProps> = ({
 }) => {
   const { upgradeAccess } = useAccessControl();
 
+  // Memoize localStorage checks to prevent re-renders
+  const peekStartTime = useMemo(() => {
+    return localStorage.getItem('ctea-peek-start');
+  }, [accessLevel]); // Only re-check when accessLevel changes
+
+  const isGuestWithoutPeek = accessLevel === 'guest' && !peekStartTime;
+  const isGuestWithPeek = accessLevel === 'guest' && peekStartTime;
+
   // Show access gateway if no access or guest without peek
-  if (accessLevel === 'guest' && !localStorage.getItem('ctea-peek-start')) {
+  if (isGuestWithoutPeek) {
     console.log('🔐 Showing access gateway');
     return <EnhancedAccessGateway onAccessGranted={onAccessGranted} />;
   }
 
   // Show sneak peek mode with timer
-  if (accessLevel === 'guest' && localStorage.getItem('ctea-peek-start')) {
+  if (isGuestWithPeek) {
     console.log('👀 Showing sneak peek mode');
     return (
       <>
