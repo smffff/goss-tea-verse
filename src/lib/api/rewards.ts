@@ -1,11 +1,12 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
 
-type UserReward = Database['public']['Tables']['user_rewards']['Row'];
+type TeaTransaction = Database['public']['Tables']['tea_transactions']['Row'];
 
 /**
  * Rewards an early user with Tea tokens if eligible and returns the result.
- * This prevents duplicate rewards by checking the `user_rewards` table.
+ * This prevents duplicate rewards by checking the `tea_transactions` table.
  *
  * @param wallet_address The user's wallet address.
  * @returns An object indicating if the user was rewarded and the amount.
@@ -19,10 +20,10 @@ export async function rewardEarlyUser(
 
   // Step 1: Check if user already claimed the early user reward
   const { data: existing, error: checkError } = await supabase
-    .from('user_rewards')
+    .from('tea_transactions')
     .select('id')
     .eq('wallet_address', wallet_address)
-    .eq('reward_type', 'early_user')
+    .eq('action', 'early_user_reward')
     .maybeSingle();
 
   if (checkError) {
@@ -37,10 +38,15 @@ export async function rewardEarlyUser(
   const rewardAmount = 100;
 
   // Step 2: Insert the new reward record
-  const { error: insertError } = await supabase.from('user_rewards').insert({
+  const { error: insertError } = await supabase.from('tea_transactions').insert({
     wallet_address,
-    reward_type: 'early_user',
+    action: 'early_user_reward',
     amount: rewardAmount,
+    status: 'confirmed',
+    metadata: {
+      reward_type: 'early_user',
+      description: 'Welcome bonus for early adopters'
+    }
   });
 
   if (insertError) {
@@ -52,7 +58,7 @@ export async function rewardEarlyUser(
   // First, get the current balance to increment it.
   const { data: balanceRow, error: balanceError } = await supabase
     .from('wallet_balances')
-    .select('balance')
+    .select('tea_balance')
     .eq('wallet_address', wallet_address)
     .maybeSingle();
 
@@ -61,11 +67,12 @@ export async function rewardEarlyUser(
     throw balanceError;
   }
 
-  const currentBalance = (balanceRow?.balance || 0) as number;
+  const currentBalance = (balanceRow?.tea_balance || 0) as number;
 
   const { error: updateError } = await supabase.from('wallet_balances').upsert({
     wallet_address,
-    balance: currentBalance + rewardAmount,
+    tea_balance: currentBalance + rewardAmount,
+    total_earned: (balanceRow?.total_earned || 0) + rewardAmount,
     last_transaction_at: new Date().toISOString(),
   });
 
@@ -79,13 +86,12 @@ export async function rewardEarlyUser(
 
 /**
  * Gets wallet balance from the `wallet_balances` table.
- * This is adapted for the new schema with a `balance` column but returns
- * `tea_balance` for compatibility with the rest of the application.
+ * This is adapted for the new schema with a `tea_balance` column.
  */
 export async function getWalletBalance(wallet_address: string) {
   const { data, error } = await supabase
     .from('wallet_balances')
-    .select('balance')
+    .select('tea_balance')
     .eq('wallet_address', wallet_address)
     .single();
 
@@ -98,19 +104,19 @@ export async function getWalletBalance(wallet_address: string) {
   // Return a compatible structure for useAuth hook
   return {
     wallet_address,
-    tea_balance: data?.balance || 0,
+    tea_balance: data?.tea_balance || 0,
   };
 }
 
 /**
- * Gets recent transactions for a wallet from the `user_rewards` table.
+ * Gets recent transactions for a wallet from the `tea_transactions` table.
  */
 export async function getWalletTransactions(
   wallet_address: string,
   limit = 10
-): Promise<UserReward[]> {
+): Promise<TeaTransaction[]> {
   const { data, error } = await supabase
-    .from('user_rewards')
+    .from('tea_transactions')
     .select('*')
     .eq('wallet_address', wallet_address)
     .order('created_at', { ascending: false })
