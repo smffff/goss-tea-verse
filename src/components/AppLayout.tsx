@@ -28,12 +28,12 @@ const AppLayout: React.FC = () => {
           <Route path="/auth" element={<Auth />} />
           <Route path="/feed" element={<Feed />} />
           <Route path="/spill" element={
-            <ProtectedRoute requireVerifiedEmail={false}>
+            <ProtectedRoute requireAuth={true}>
               <SpillTea />
             </ProtectedRoute>
           } />
           <Route path="/submit" element={
-            <ProtectedRoute requireVerifiedEmail={true}>
+            <ProtectedRoute requireAuth={true}>
               <SubmitTea />
             </ProtectedRoute>
           } />
