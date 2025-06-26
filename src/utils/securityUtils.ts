@@ -1,3 +1,4 @@
+
 /**
  * Secure token generation and validation utilities
  */
@@ -22,10 +23,11 @@ export const validateAnonymousToken = (token: string): boolean => {
   return base64urlPattern.test(token);
 };
 
-// Get or create a secure anonymous token with expiration
+// Enhanced token creation with expiry tracking
 export const getOrCreateSecureToken = (): string => {
   const tokenKey = 'ctea_anonymous_token';
   const expiryKey = 'ctea_token_expiry';
+  const createdKey = 'ctea_token_created';
   
   // Check if token exists and is not expired
   const existingToken = localStorage.getItem(tokenKey);
@@ -39,15 +41,17 @@ export const getOrCreateSecureToken = (): string => {
   
   // Generate new token with 24-hour expiry
   const newToken = generateSecureAnonymousToken();
-  const newExpiry = new Date().getTime() + (24 * 60 * 60 * 1000); // 24 hours
+  const now = new Date().getTime();
+  const newExpiry = now + (24 * 60 * 60 * 1000); // 24 hours
   
   localStorage.setItem(tokenKey, newToken);
   localStorage.setItem(expiryKey, newExpiry.toString());
+  localStorage.setItem(createdKey, now.toString());
   
   return newToken;
 };
 
-// Content sanitization utilities
+// Enhanced content sanitization utilities
 export const sanitizeContent = (content: string): string => {
   if (!content) return '';
   
@@ -61,28 +65,92 @@ export const sanitizeContent = (content: string): string => {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#x27;')
-    .replace(/`/g, '&#x60;');
+    .replace(/`/g, '&#x60;')
+    .replace(/=/g, '&#x3D;')
+    .replace(/\//g, '&#x2F;');
+  
+  // Remove potentially dangerous protocols
+  sanitized = sanitized.replace(/(javascript|data|vbscript):/gi, '');
   
   return sanitized.trim();
 };
 
-// URL validation utility
+// Enhanced URL validation utility
 export const validateUrl = (url: string): boolean => {
   if (!url) return false;
   
   try {
     const urlObj = new URL(url);
     // Only allow http and https protocols
-    return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+    if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
+      return false;
+    }
+    
+    // Block localhost and private IP ranges in production
+    if (process.env.NODE_ENV === 'production') {
+      const hostname = urlObj.hostname.toLowerCase();
+      
+      // Block localhost
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return false;
+      }
+      
+      // Block private IP ranges
+      const privateRanges = [
+        /^10\./,
+        /^172\.(1[6-9]|2[0-9]|3[01])\./,
+        /^192\.168\./,
+        /^169\.254\./ // Link-local
+      ];
+      
+      for (const range of privateRanges) {
+        if (range.test(hostname)) {
+          return false;
+        }
+      }
+    }
+    
+    return true;
   } catch {
     return false;
   }
 };
 
-// Sanitize and validate evidence URLs
+// Sanitize and validate evidence URLs with enhanced security
 export const sanitizeUrls = (urls: string[]): string[] => {
   return urls
     .map(url => url.trim())
     .filter(url => url && validateUrl(url))
     .slice(0, 5); // Limit to 5 URLs maximum
+};
+
+// IP address utilities
+export const getClientIP = async (): Promise<string | null> => {
+  try {
+    // Use a public IP service (consider implementing your own for privacy)
+    const response = await fetch('https://api.ipify.org?format=json');
+    const data = await response.json();
+    return data.ip;
+  } catch {
+    return null;
+  }
+};
+
+// Enhanced fingerprinting for security
+export const generateBrowserFingerprint = (): string => {
+  const components = [
+    navigator.userAgent,
+    navigator.language,
+    screen.width,
+    screen.height,
+    screen.colorDepth,
+    new Date().getTimezoneOffset(),
+    navigator.hardwareConcurrency || 0,
+    navigator.deviceMemory || 0
+  ];
+  
+  const fingerprint = components.join('|');
+  
+  // Create a hash of the fingerprint
+  return btoa(fingerprint).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
 };
