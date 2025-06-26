@@ -7,12 +7,14 @@ import { useAuth } from '@/hooks/useAuth';
 import BrandedTeacupIcon from '@/components/ui/BrandedTeacupIcon';
 import AccessTabsContainer from './gateway/AccessTabsContainer';
 
+type TabType = 'peek' | 'login' | 'beta' | 'wallet';
+
 interface EnhancedAccessGatewayProps {
   onAccessGranted: (accessLevel: 'guest' | 'authenticated' | 'beta' | 'admin') => void;
 }
 
 const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({ onAccessGranted }) => {
-  const [activeTab, setActiveTab] = useState<'peek' | 'login' | 'beta' | 'wallet'>('peek');
+  const [activeTab, setActiveTab] = useState<TabType>('peek');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
   const { user } = useAuth();
@@ -23,6 +25,10 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({ onAccessG
       onAccessGranted('authenticated');
     }
   }, [user, onAccessGranted]);
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab as TabType);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black flex items-center justify-center p-4">
@@ -53,7 +59,7 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({ onAccessG
           <CardContent className="space-y-6">
             <AccessTabsContainer
               activeTab={activeTab}
-              setActiveTab={setActiveTab}
+              setActiveTab={handleTabChange}
               onAccessGranted={onAccessGranted}
               isProcessing={isProcessing}
               setIsProcessing={setIsProcessing}

@@ -19,35 +19,45 @@ const EnhancedMainAppContent: React.FC = () => {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        console.log('🚀 Initializing CTea app...');
+        console.log('🚀 Starting CTea app initialization...');
+        console.log('🔍 Current access level from provider:', accessLevel);
         
         // Check for existing access on mount
         const savedLevel = localStorage.getItem('ctea-access-level') as AccessLevel;
         const betaAccess = localStorage.getItem('ctea-beta-access');
         const demoMode = localStorage.getItem('ctea-demo-mode');
+        const peekStart = localStorage.getItem('ctea-peek-start');
         
-        console.log('Found existing access:', { savedLevel, betaAccess, demoMode });
+        console.log('📱 Found existing storage:', { 
+          savedLevel, 
+          betaAccess, 
+          demoMode, 
+          peekStart,
+          currentAccessLevel: accessLevel 
+        });
         
         // Determine initial access level with validation
         if (savedLevel && ['guest', 'authenticated', 'beta', 'admin'].includes(savedLevel)) {
-          console.log('Using saved access level:', savedLevel);
+          console.log('✅ Using saved access level:', savedLevel);
           setAccessLevel(savedLevel);
         } else if (betaAccess || demoMode) {
-          console.log('Upgrading to beta access from legacy storage');
+          console.log('🔄 Upgrading to beta access from legacy storage');
           setAccessLevel('beta');
         } else {
-          console.log('No existing access found, defaulting to guest');
+          console.log('🆕 No existing access found, defaulting to guest');
           setAccessLevel('guest');
         }
         
-        // Reasonable delay to prevent flash and allow React to settle
-        await new Promise(resolve => setTimeout(resolve, 800));
+        // Add a reasonable delay to prevent flash and allow React to settle
+        console.log('⏳ Waiting for app to settle...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
-        console.log('✅ App initialization complete');
+        console.log('✅ App initialization complete, hiding loading screen');
         setIsLoading(false);
       } catch (error) {
+        console.error('💥 App initialization error:', error);
         logError(error, 'EnhancedMainApp initialization');
-        setInitError('Failed to initialize app - probably just me being dramatic 🎭');
+        setInitError('Oops! Give me a min I\'m not a dev I\'m just a lady ok 💅');
         setIsLoading(false);
       }
     };
@@ -56,17 +66,21 @@ const EnhancedMainAppContent: React.FC = () => {
     const initTimeout = setTimeout(() => {
       if (isLoading) {
         console.warn('⚠️ App initialization taking too long, forcing load');
+        setInitError('This is taking longer than my patience allows... forcing load 🙄');
         setIsLoading(false);
       }
-    }, 5000);
+    }, 8000); // Increased timeout
 
     initializeApp();
 
-    return () => clearTimeout(initTimeout);
+    return () => {
+      console.log('🧹 Cleaning up initialization timeout');
+      clearTimeout(initTimeout);
+    };
   }, [setAccessLevel, isLoading]);
 
   const handleAccessGranted = (level: AccessLevel) => {
-    console.log('✅ Access granted:', level);
+    console.log('✅ Access granted with level:', level);
     setAccessLevel(level);
   };
 
@@ -84,18 +98,20 @@ const EnhancedMainAppContent: React.FC = () => {
       
       keysToRemove.forEach(key => {
         localStorage.removeItem(key);
+        console.log(`🗑️ Removed ${key} from localStorage`);
       });
       
       setAccessLevel('guest');
     } catch (error) {
       logError(error, 'EnhancedMainApp logout');
       // Force refresh as fallback
+      console.log('🔄 Logout cleanup failed, forcing page refresh');
       window.location.reload();
     }
   };
 
   const handleTimeExpired = () => {
-    console.log('⏰ Time expired, resetting to guest');
+    console.log('⏰ Sneak peek time expired, resetting to guest');
     try {
       localStorage.removeItem('ctea-access-level');
       localStorage.removeItem('ctea-peek-start');
@@ -104,6 +120,8 @@ const EnhancedMainAppContent: React.FC = () => {
       logError(error, 'EnhancedMainApp time expiry');
     }
   };
+
+  console.log('🎯 Render decision - isLoading:', isLoading, 'accessLevel:', accessLevel, 'peekStart:', localStorage.getItem('ctea-peek-start'));
 
   // Show loading state with error fallback
   if (isLoading) {
@@ -116,6 +134,9 @@ const EnhancedMainAppContent: React.FC = () => {
               {initError}
             </p>
           )}
+          <p className="text-xs text-gray-500 mt-2">
+            If this takes forever, refresh and we'll pretend this never happened 💀
+          </p>
         </div>
       </div>
     );
@@ -123,11 +144,13 @@ const EnhancedMainAppContent: React.FC = () => {
 
   // Show access gateway if no access or guest without peek
   if (accessLevel === 'guest' && !localStorage.getItem('ctea-peek-start')) {
+    console.log('🔐 Showing access gateway');
     return <EnhancedAccessGateway onAccessGranted={handleAccessGranted} />;
   }
 
   // Show sneak peek mode with timer
   if (accessLevel === 'guest' && localStorage.getItem('ctea-peek-start')) {
+    console.log('👀 Showing sneak peek mode');
     return (
       <>
         <SneakPeekTimer 
@@ -142,6 +165,7 @@ const EnhancedMainAppContent: React.FC = () => {
 
   // Show admin dashboard
   if (accessLevel === 'admin') {
+    console.log('👑 Showing admin dashboard');
     return (
       <>
         <AdminDashboard onLogout={handleLogout} />
@@ -151,6 +175,7 @@ const EnhancedMainAppContent: React.FC = () => {
   }
 
   // Show full app for authenticated/beta users
+  console.log('🎉 Showing full app for level:', accessLevel);
   return (
     <>
       <LiveTeaApp onLogout={handleLogout} />
@@ -160,6 +185,7 @@ const EnhancedMainAppContent: React.FC = () => {
 };
 
 const EnhancedMainApp: React.FC = () => {
+  console.log('🏁 EnhancedMainApp wrapper rendering');
   return (
     <AccessControlProvider>
       <EnhancedMainAppContent />
