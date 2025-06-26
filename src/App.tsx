@@ -7,7 +7,7 @@ import { WalletProvider } from '@/components/WalletProvider';
 import { AuthProvider } from '@/hooks/useAuth';
 import { SecurityProvider } from '@/components/SecurityProvider';
 import FeatureFlagProvider from '@/contexts/FeatureFlagContext';
-import MainApp from '@/components/beta/MainApp';
+import EnhancedMainApp from '@/components/beta/EnhancedMainApp';
 import Admin from '@/pages/Admin';
 import LaunchReadyBanner from '@/components/launch/LaunchReadyBanner';
 
@@ -35,14 +35,14 @@ const App: React.FC = () => {
                   {isProduction && <LaunchReadyBanner />}
                   
                   <Routes>
-                    {/* Main App Route */}
-                    <Route path="/" element={<MainApp />} />
+                    {/* Main App Route - Enhanced Access Control */}
+                    <Route path="/" element={<EnhancedMainApp />} />
                     
                     {/* Admin Route */}
                     <Route path="/admin" element={<Admin />} />
                     
                     {/* All other routes redirect to main app */}
-                    <Route path="*" element={<MainApp />} />
+                    <Route path="*" element={<EnhancedMainApp />} />
                   </Routes>
                   
                   <Toaster />
