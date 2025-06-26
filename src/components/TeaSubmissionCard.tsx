@@ -1,48 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card } from '@/components/ui/card';
-import SubmissionHeader from '@/components/SubmissionHeader';
-import SubmissionContent from '@/components/SubmissionContent';
-import SubmissionMetrics from '@/components/submission/SubmissionMetrics';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Heart, MessageCircle, Share2, Flag, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { TeaSubmission } from '@/types/teaFeed';
 import SubmissionMedia from '@/components/submission/SubmissionMedia';
-import SubmissionActions from '@/components/submission/SubmissionActions';
-import EvidenceLinks from '@/components/EvidenceLinks';
-import ReactionButtons from '@/components/ReactionButtons';
-import AICommentary from '@/components/AICommentary';
-import AICommentarySelector from '@/components/AICommentarySelector';
-import CommentSection from '@/components/CommentSection';
-import ReportModal from '@/components/ReportModal';
-import ShareButtons from '@/components/ShareButtons';
-
-interface TeaSubmission {
-  id: string;
-  content: string;
-  category: string;
-  evidence_urls: string[] | null;
-  reactions: { hot: number; cold: number; spicy: number };
-  created_at: string;
-  average_rating: number;
-  rating_count: number;
-  has_evidence: boolean;
-  boost_score?: number;
-  credibility_score?: number;
-}
-
-interface AIComment {
-  id: string;
-  content: string;
-  type: 'spicy' | 'smart' | 'memy' | 'savage';
-  submission_id: string;
-  created_at: string;
-}
 
 interface TeaSubmissionCardProps {
   submission: TeaSubmission;
-  aiComments: AIComment[];
+  aiComments: any[];
   isExpanded: boolean;
   onReaction: (submissionId: string, reactionType: 'hot' | 'cold' | 'spicy') => void;
-  onToggleComments: (submissionId: string) => void;
-  onGenerateAI: (submission: TeaSubmission, type: 'spicy' | 'smart' | 'memy' | 'savage') => void;
-  onBoostUpdated?: (submissionId: string, newBoost: number) => void;
+  onToggleComments: () => void;
+  onGenerateAI: () => void;
+  onVote: (submissionId: string, voteType: 'up' | 'down') => void;
 }
 
 const TeaSubmissionCard: React.FC<TeaSubmissionCardProps> = ({
@@ -52,119 +23,145 @@ const TeaSubmissionCard: React.FC<TeaSubmissionCardProps> = ({
   onReaction,
   onToggleComments,
   onGenerateAI,
-  onBoostUpdated
+  onVote
 }) => {
-  const [showAISelector, setShowAISelector] = useState(false);
-  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
-  const [showReportModal, setShowReportModal] = useState(false);
-
-  const handleAIGeneration = async (type: 'spicy' | 'smart' | 'memy' | 'savage') => {
-    setIsGeneratingAI(true);
-    setShowAISelector(false);
-    try {
-      await onGenerateAI(submission, type);
-    } finally {
-      setIsGeneratingAI(false);
-    }
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
-  const handleBoostUpdated = (newBoost: number) => {
-    if (onBoostUpdated) {
-      onBoostUpdated(submission.id, newBoost);
-    }
+  const getTotalReactions = () => {
+    return submission.reactions.hot + submission.reactions.cold + submission.reactions.spicy;
   };
-
-  // Separate image URLs from other evidence URLs
-  const imageUrls = submission.evidence_urls?.filter(url => 
-    url.match(/\.(jpg|jpeg|png|gif|webp)$/i)
-  ) || [];
-  
-  const otherEvidenceUrls = submission.evidence_urls?.filter(url => 
-    !url.match(/\.(jpg|jpeg|png|gif|webp)$/i)
-  ) || [];
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-ctea-dark/80 to-ctea-darker/90 border-ctea-teal/30 neon-border hover:border-ctea-teal/50 transition-all duration-300">
-      <SubmissionHeader submission={submission} />
-      <SubmissionContent content={submission.content} />
-      
-      <SubmissionMetrics
-        ratingCount={submission.rating_count}
-        hasEvidence={submission.has_evidence}
-        boostScore={submission.boost_score}
-        credibilityScore={submission.credibility_score}
-      />
-      
-      <SubmissionMedia imageUrls={imageUrls} />
-      <EvidenceLinks evidenceUrls={otherEvidenceUrls} />
-      
-      <ReactionButtons 
-        reactions={submission.reactions}
-        onReaction={(type) => onReaction(submission.id, type)}
-      />
-
-      <div className="my-2">
-        <ShareButtons
-          url={window.location.origin + '/feed/' + submission.id}
-          title={submission.content.slice(0, 80) + '...'}
-          variant="minimal"
-          className="w-full"
-        />
+    <Card className="bg-gray-800/50 border-gray-700 p-6 hover:bg-gray-800/70 transition-colors">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="text-teal-400 border-teal-400/30">
+            {submission.category}
+          </Badge>
+          {submission.is_verified && (
+            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+              ✓ Verified
+            </Badge>
+          )}
+        </div>
+        <span className="text-sm text-gray-400">
+          {formatDate(submission.created_at)}
+        </span>
       </div>
 
-      <SubmissionActions
-        submissionId={submission.id}
-        content={submission.content}
-        category={submission.category}
-        currentBoost={submission.boost_score || 0}
-        onToggleComments={() => onToggleComments(submission.id)}
-        onShowAISelector={() => setShowAISelector(!showAISelector)}
-        onShowReport={() => setShowReportModal(true)}
-        onBoostUpdated={handleBoostUpdated}
-        isGeneratingAI={isGeneratingAI}
-      />
+      {/* Content */}
+      <div className="mb-4">
+        <p className="text-white leading-relaxed">{submission.content}</p>
+      </div>
 
-      {showAISelector && (
-        <div className="mt-4 p-4 bg-ctea-darker/50 rounded-lg border border-ctea-teal/20">
-          <h4 className="text-white font-medium mb-3">Choose AI Commentary Style:</h4>
-          <AICommentarySelector 
-            onSelectType={handleAIGeneration}
-            isGenerating={isGeneratingAI}
-          />
+      {/* Media */}
+      {submission.evidence_urls && submission.evidence_urls.length > 0 && (
+        <SubmissionMedia imageUrls={submission.evidence_urls} />
+      )}
+
+      {/* AI Commentary */}
+      {submission.ai_reaction && (
+        <div className="mb-4 p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-purple-400 text-sm font-medium">🤖 AI Take</span>
+          </div>
+          <p className="text-gray-300 text-sm">{submission.ai_reaction}</p>
         </div>
       )}
 
-      {(aiComments.length > 0 || isGeneratingAI) && (
-        <div className="mt-4 space-y-3">
-          {isGeneratingAI && (
-            <AICommentary
-              content=""
-              type="spicy"
-              isGenerating={true}
-            />
-          )}
-          {aiComments.map((comment) => (
-            <AICommentary
-              key={comment.id}
-              content={comment.content}
-              type={comment.type}
-              onRegenerate={() => handleAIGeneration(comment.type)}
-            />
-          ))}
-        </div>
-      )}
+      {/* Stats */}
+      <div className="flex items-center gap-4 mb-4 text-sm text-gray-400">
+        <span>Reactions: {getTotalReactions()}</span>
+        <span>Rating: {submission.average_rating.toFixed(1)}/10</span>
+        {submission.verification_score > 0 && (
+          <span>Credibility: {submission.verification_score}%</span>
+        )}
+      </div>
 
-      {isExpanded && (
-        <div className="mt-4">
-          <CommentSection submissionId={submission.id} />
+      {/* Actions */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {/* Reaction Buttons */}
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-orange-400 hover:bg-orange-400/10"
+            onClick={() => onReaction(submission.id, 'hot')}
+          >
+            🔥 {submission.reactions.hot}
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-blue-400 hover:bg-blue-400/10"
+            onClick={() => onReaction(submission.id, 'cold')}
+          >
+            🧊 {submission.reactions.cold}
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-red-400 hover:bg-red-400/10"
+            onClick={() => onReaction(submission.id, 'spicy')}
+          >
+            🌶️ {submission.reactions.spicy}
+          </Button>
         </div>
-      )}
 
-      <ReportModal
-        isOpen={showReportModal}
-        onClose={() => setShowReportModal(false)}
-        submissionId={submission.id}
-      />
+        <div className="flex items-center gap-2">
+          {/* Vote Buttons */}
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-green-400 hover:bg-green-400/10"
+            onClick={() => onVote(submission.id, 'up')}
+          >
+            <ThumbsUp className="w-4 h-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-red-400 hover:bg-red-400/10"
+            onClick={() => onVote(submission.id, 'down')}
+          >
+            <ThumbsDown className="w-4 h-4" />
+          </Button>
+
+          {/* Other Actions */}
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-gray-400 hover:bg-gray-700"
+            onClick={onToggleComments}
+          >
+            <MessageCircle className="w-4 h-4 mr-1" />
+            Comments
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-gray-400 hover:bg-gray-700"
+          >
+            <Share2 className="w-4 h-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-gray-400 hover:bg-gray-700"
+          >
+            <Flag className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
     </Card>
   );
 };
