@@ -10,10 +10,9 @@ import { SecurityProvider } from "@/components/SecurityProvider";
 import { EnhancedErrorBoundary } from "@/components/EnhancedErrorBoundary";
 import { setupGlobalErrorHandler } from "@/utils/errorHandler";
 import { useEffect, useState } from "react";
-import BetaGate from "@/components/BetaGate";
+import ConsolidatedApp from "@/components/ConsolidatedApp";
 
 // Pages
-import Landing from "./pages/Landing";
 import Feed from "./pages/Feed";
 import SpillTea from "./pages/SpillTea";
 import About from "./pages/About";
@@ -23,7 +22,16 @@ import Team from "./pages/Team";
 import FAQ from "./pages/FAQ";
 import MemeOps from "./pages/MemeOps";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
   const [hasBetaAccess, setHasBetaAccess] = useState(false);
@@ -46,7 +54,7 @@ function App() {
   if (isCheckingAccess) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-orange-500 flex items-center justify-center">
-        <div className="text-white text-2xl font-bold">Loading...</div>
+        <div className="text-white text-2xl font-bold animate-pulse">Loading the tea...</div>
       </div>
     );
   }
@@ -58,7 +66,7 @@ function App() {
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            <BetaGate onAccessGranted={handleAccessGranted} />
+            <ConsolidatedApp onAccessGranted={handleAccessGranted} />
           </TooltipProvider>
         </QueryClientProvider>
       </EnhancedErrorBoundary>
@@ -76,7 +84,7 @@ function App() {
                 <Sonner />
                 <BrowserRouter>
                   <Routes>
-                    <Route path="/" element={<Landing />} />
+                    <Route path="/" element={<ConsolidatedApp onAccessGranted={handleAccessGranted} />} />
                     <Route path="/feed" element={<Feed />} />
                     <Route path="/spill" element={<SpillTea />} />
                     <Route path="/about" element={<About />} />
@@ -85,8 +93,7 @@ function App() {
                     <Route path="/team" element={<Team />} />
                     <Route path="/faq" element={<FAQ />} />
                     <Route path="/memeops" element={<MemeOps />} />
-                    {/* Existing routes */}
-                    <Route path="*" element={<Landing />} />
+                    <Route path="*" element={<ConsolidatedApp onAccessGranted={handleAccessGranted} />} />
                   </Routes>
                 </BrowserRouter>
               </TooltipProvider>
