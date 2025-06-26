@@ -419,6 +419,33 @@ export type Database = {
         }
         Relationships: []
       }
+      security_audit_log: {
+        Row: {
+          created_at: string | null
+          details: Json | null
+          event_type: string
+          function_name: string | null
+          id: number
+          role_name: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json | null
+          event_type: string
+          function_name?: string | null
+          id?: number
+          role_name?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json | null
+          event_type?: string
+          function_name?: string | null
+          id?: number
+          role_name?: string | null
+        }
+        Relationships: []
+      }
       security_audit_trail: {
         Row: {
           created_at: string | null
@@ -1007,6 +1034,15 @@ export type Database = {
           status: string
         }[]
       }
+      get_security_status: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          function_name: string
+          has_secure_search_path: boolean
+          is_security_definer: boolean
+          public_execute_revoked: boolean
+        }[]
+      }
       get_tweetable_submissions: {
         Args: { p_limit?: number }
         Returns: {
@@ -1092,6 +1128,10 @@ export type Database = {
           user_context?: string
           violation_details?: Json
         }
+        Returns: undefined
+      }
+      run_security_hardening_script: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       secure_gossip_submission: {

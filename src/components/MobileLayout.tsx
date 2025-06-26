@@ -1,22 +1,16 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Coffee, TrendingUp, Users, Plus, Award, Home } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useUserProgression } from '@/hooks/useUserProgression';
-import AnimatedLogo from '@/components/AnimatedLogo';
+import { BrandLogo } from '@/components/brand/BrandElements';
+import { mobileNavigationItems } from '@/components/navigation/NavigationItems';
+import { BRAND_CONFIG } from '@/lib/config/brandConfig';
 
 const MobileLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const { progression, currentLevel } = useUserProgression();
-
-  const navItems = [
-    { path: '/feed', label: 'Feed', icon: TrendingUp },
-    { path: '/spill', label: 'Spill', icon: Plus },
-    { path: '/', label: 'Home', icon: Home },
-    { path: '/leaderboard', label: 'Top', icon: Award },
-    { path: '/about', label: 'About', icon: Users },
-  ];
 
   const isActivePath = (path: string) => {
     if (path === '/') {
@@ -26,20 +20,22 @@ const MobileLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black">
+    <div className="min-h-screen bg-gradient-to-br from-tabloid-black-900 via-tabloid-black-800 to-black">
       {/* Top Bar */}
-      <div className="bg-ctea-dark/90 backdrop-blur-lg border-b border-ctea-teal/20 p-4">
+      <div className="bg-tabloid-black-900/90 backdrop-blur-lg border-b border-vintage-red/20 p-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
-            <AnimatedLogo variant="subtle" size="sm" />
-            <span className="font-bold text-lg text-white">CTEA NEWS</span>
+            <BrandLogo size="sm" variant="subtle" />
+            <span className="font-bold text-lg text-white font-headline">
+              {BRAND_CONFIG.name}
+            </span>
           </Link>
           
           <div className="flex items-center space-x-2">
-            <Badge className="bg-ctea-teal/20 text-ctea-teal border border-ctea-teal/30 text-xs">
+            <Badge className="bg-vintage-red/20 text-vintage-red border border-vintage-red/30 text-xs">
               L{currentLevel.level}
             </Badge>
-            <Badge className="bg-ctea-yellow/20 text-ctea-yellow border border-ctea-yellow/30 text-xs">
+            <Badge className="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 text-xs">
               {progression.tea_points}
             </Badge>
           </div>
@@ -52,9 +48,9 @@ const MobileLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-ctea-dark/95 backdrop-blur-lg border-t border-ctea-teal/20 p-2 z-50">
+      <div className="fixed bottom-0 left-0 right-0 bg-tabloid-black-900/95 backdrop-blur-lg border-t border-vintage-red/20 p-2 z-50">
         <div className="flex items-center justify-around">
-          {navItems.map((item) => {
+          {mobileNavigationItems.map((item) => {
             const Icon = item.icon;
             const isActive = isActivePath(item.path);
             
@@ -65,7 +61,7 @@ const MobileLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                   size="sm"
                   className={`flex flex-col items-center space-y-1 h-auto py-2 px-3 transition-all duration-200 ${
                     isActive 
-                      ? 'text-ctea-teal bg-ctea-teal/10 scale-110' 
+                      ? 'text-vintage-red bg-vintage-red/10 scale-110' 
                       : 'text-gray-400 hover:text-white hover:scale-105'
                   }`}
                 >

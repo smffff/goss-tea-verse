@@ -1,128 +1,140 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Coffee, Twitter, MessageCircle, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ExternalLink, Heart, Code } from 'lucide-react';
+import { BrandLogo } from '@/components/brand/BrandElements';
+import { footerNavigationItems } from '@/components/navigation/NavigationItems';
+import { BRAND_CONFIG } from '@/lib/config/brandConfig';
+import TipButton from '@/components/TipButton';
 
 const UnifiedFooter = () => {
-  const currentYear = new Date().getFullYear();
-
-  const footerLinks = {
-    main: [
-      { href: '/', label: 'Home' },
-      { href: '/feed', label: 'Tea Feed' },
-      { href: '/leaderboard', label: 'Leaderboard' },
-      { href: '/about', label: 'About' },
-    ],
-    legal: [
-      { href: '/privacy', label: 'Privacy Policy' },
-      { href: '/terms', label: 'Terms of Service' },
-      { href: '/contact', label: 'Contact' },
-    ],
-    social: [
-      { 
-        href: 'https://twitter.com/cteaplatform', 
-        label: 'Twitter',
-        icon: Twitter,
-        external: true 
-      },
-      { 
-        href: 'https://discord.gg/ctea', 
-        label: 'Discord',
-        icon: MessageCircle,
-        external: true 
-      },
-      { 
-        href: 'mailto:hello@cteanews.com?subject=CTea Newsroom Feedback', 
-        label: 'Feedback',
-        icon: Mail,
-        external: true 
-      },
-    ]
-  };
-
-  const handleExternalLink = (url: string) => {
+  const openLink = (url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
+  const currentYear = new Date().getFullYear();
+
+  const footerSections = [
+    {
+      title: 'Navigation',
+      links: footerNavigationItems
+    },
+    {
+      title: 'Community',
+      links: [
+        { name: 'Twitter', href: BRAND_CONFIG.social.twitter, external: true },
+        { name: 'Arena Social', href: BRAND_CONFIG.social.arena, external: true },
+        { name: 'Discord', href: BRAND_CONFIG.social.discord, external: true },
+        { name: 'GitHub', href: BRAND_CONFIG.social.github, external: true }
+      ]
+    },
+    {
+      title: 'Contact',
+      links: [
+        { name: 'Press Inquiries', href: `mailto:${BRAND_CONFIG.contact.press}`, external: true },
+        { name: 'Submit Tips', href: `mailto:${BRAND_CONFIG.contact.tips}`, external: true },
+        { name: 'General Contact', href: `mailto:${BRAND_CONFIG.contact.general}`, external: true }
+      ]
+    }
+  ];
+
   return (
-    <footer className="bg-black border-t border-gray-800 py-12">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Brand */}
-          <div className="md:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
-              <img 
-                src="/ctea-logo-icon.svg" 
-                alt="CTea Newsroom Logo" 
-                className="w-6 h-6"
-              />
-              <span className="text-xl font-bold text-white">CTea Newsroom</span>
-            </div>
-            <p className="text-gray-400 mb-4 max-w-md">
-              Where memes, gossip, and crypto collide. Spill tea, get paid, and watch the community decide what's hot or cold.
+    <footer className="bg-tabloid-black-900 border-t border-vintage-red/20">
+      <div className="container mx-auto px-4 py-12">
+        {/* Main Footer Content */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+          {/* Brand Section */}
+          <div className="lg:col-span-1">
+            <Link to="/" className="flex items-center gap-2 mb-4">
+              <BrandLogo size="lg" showText />
+            </Link>
+            <p className="text-gray-400 text-sm leading-relaxed mb-4">
+              {BRAND_CONFIG.description}
             </p>
-            <div className="flex gap-3">
-              {footerLinks.social.map((social) => {
-                const Icon = social.icon;
-                return (
-                  <Button
-                    key={social.label}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleExternalLink(social.href)}
-                    className="text-gray-400 hover:text-white transition-colors p-2"
-                    aria-label={social.label}
-                  >
-                    <Icon className="w-5 h-5" />
-                  </Button>
-                );
-              })}
+            <div className="flex items-center gap-2 text-sm text-vintage-red">
+              <span>☕</span>
+              <span>{BRAND_CONFIG.tagline}</span>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-white font-bold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
-              {footerLinks.main.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    to={link.href}
-                    className="text-gray-400 hover:text-white transition-colors duration-200 block"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Footer Sections */}
+          {footerSections.map((section) => (
+            <div key={section.title}>
+              <h3 className="text-white font-semibold mb-3 text-sm font-headline uppercase tracking-wider">
+                {section.title}
+              </h3>
+              <ul className="space-y-2">
+                {section.links.map((link) => (
+                  <li key={link.name}>
+                    {link.external ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openLink(link.href)}
+                        className="text-gray-400 hover:text-vintage-red text-sm justify-start p-0 h-auto font-normal"
+                      >
+                        {link.name}
+                        <ExternalLink className="w-3 h-3 ml-1" />
+                      </Button>
+                    ) : (
+                      <Link
+                        to={link.href}
+                        className="text-gray-400 hover:text-vintage-red text-sm transition-colors duration-200 block"
+                      >
+                        {link.name}
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
 
-          {/* Legal */}
-          <div>
-            <h3 className="text-white font-bold mb-4">Legal & Support</h3>
-            <ul className="space-y-2">
-              {footerLinks.legal.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    to={link.href}
-                    className="text-gray-400 hover:text-white transition-colors duration-200 block"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+        {/* Developer Attribution */}
+        <div className="border-t border-vintage-red/20 pt-8 mb-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="flex items-center gap-2">
+                <Code className="w-5 h-5 text-vintage-red" />
+                <span className="text-gray-300">Built with</span>
+                <Heart className="w-4 h-4 text-red-400" />
+                <span className="text-gray-300">by</span>
+                <span className="text-vintage-red font-semibold">ladyinvsible</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => openLink('https://arena.social/?ref=LadyInvsible')}
+                  className="text-gray-400 hover:text-blue-400 transition-colors duration-200"
+                  aria-label="Arena Social"
+                >
+                  Arena
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => openLink('https://x.com/ladyinvsible')}
+                  className="text-gray-400 hover:text-blue-400 transition-colors duration-200"
+                  aria-label="Twitter"
+                >
+                  Twitter
+                </Button>
+              </div>
+            </div>
+            <TipButton variant="default" />
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <div className="text-gray-400 text-sm mb-4 md:mb-0">
-            © {currentYear} CTea Newsroom. Built with ☕ by Lady Invisible.
+        <div className="border-t border-vintage-red/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-gray-400 text-sm">
+            © {currentYear} {BRAND_CONFIG.name}. All rights reserved.
           </div>
-          <div className="text-gray-400 text-sm text-center md:text-right">
-            Emotional intelligence meets memecoin culture
+          <div className="text-gray-400 text-sm italic">
+            Emotional intelligence meets memecoin culture ☕
           </div>
         </div>
       </div>
