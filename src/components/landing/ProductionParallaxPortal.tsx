@@ -17,7 +17,6 @@ const ProductionParallaxPortal: React.FC = () => {
 
   // Vaporwave background parallax transforms
   const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
-  const midgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
 
   return (
     <div ref={containerRef} className="relative overflow-hidden">
@@ -50,7 +49,7 @@ const ProductionParallaxPortal: React.FC = () => {
       {/* Floating Vaporwave Elements */}
       <motion.div 
         className="fixed inset-0 z-5 pointer-events-none"
-        style={{ y: midgroundY }}
+        style={{ y: useTransform(scrollYProgress, [0, 1], ['0%', '50%']) }}
       >
         {/* Floating geometric shapes */}
         <motion.div

@@ -2,7 +2,7 @@
 import React from 'react';
 import ParallaxLandingPage from './ParallaxLandingPage';
 
-const Landing = () => {
+const Landing: React.FC = () => {
   return <ParallaxLandingPage />;
 };
 
