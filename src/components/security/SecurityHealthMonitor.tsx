@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Shield, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
@@ -33,7 +34,7 @@ const SecurityHealthMonitor: React.FC = () => {
         }
 
         // Type assertion to handle Supabase Json type
-        const typedConflictData = conflictData as PolicyConflictData;
+        const typedConflictData = conflictData as unknown as PolicyConflictData;
         const conflicts = typedConflictData?.total_potential_conflicts || 0;
         const totalPolicies = typedConflictData?.policy_summary?.length || 0;
         

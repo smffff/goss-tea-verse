@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { SecurityServiceUnified } from '@/services/securityServiceUnified';
@@ -47,7 +48,7 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
       }
 
       // Type assertion to handle Supabase Json type
-      const typedHealthData = healthData as PolicyConflictData;
+      const typedHealthData = healthData as unknown as PolicyConflictData;
       const conflicts = typedHealthData?.total_potential_conflicts || 0;
       setPolicyHealth(conflicts > 0 ? 'critical' : 'healthy');
       
