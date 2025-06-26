@@ -8,13 +8,15 @@ interface BrandedTeacupIconProps {
   variant?: 'default' | 'spilling' | 'bounce' | 'steam' | 'glow';
   className?: string;
   showText?: boolean;
+  animated?: boolean;
 }
 
 const BrandedTeacupIcon: React.FC<BrandedTeacupIconProps> = ({
   size = 'md',
   variant = 'default',
   className,
-  showText = false
+  showText = false,
+  animated = false
 }) => {
   const sizes = {
     sm: 'w-8 h-8',
@@ -31,29 +33,54 @@ const BrandedTeacupIcon: React.FC<BrandedTeacupIconProps> = ({
   };
 
   const getAnimation = () => {
+    if (!animated && variant === 'default') return {};
+    
     switch (variant) {
       case 'bounce':
         return {
           y: [0, -10, 0],
-          transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+          transition: { 
+            duration: 2, 
+            repeat: Infinity, 
+            ease: [0.4, 0, 0.6, 1] 
+          }
         };
       case 'spilling':
         return {
           rotate: [0, 15, -5, 0],
-          transition: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+          transition: { 
+            duration: 3, 
+            repeat: Infinity, 
+            ease: [0.4, 0, 0.6, 1] 
+          }
         };
       case 'steam':
         return {
           scale: [1, 1.05, 1],
-          transition: { duration: 2.5, repeat: Infinity, ease: "easeInOut" }
+          transition: { 
+            duration: 2.5, 
+            repeat: Infinity, 
+            ease: [0.4, 0, 0.6, 1] 
+          }
         };
       case 'glow':
         return {
           filter: ['brightness(1)', 'brightness(1.3)', 'brightness(1)'],
-          transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+          transition: { 
+            duration: 2, 
+            repeat: Infinity, 
+            ease: [0.4, 0, 0.6, 1] 
+          }
         };
       default:
-        return {};
+        return animated ? {
+          scale: [1, 1.05, 1],
+          transition: { 
+            duration: 2, 
+            repeat: Infinity, 
+            ease: [0.4, 0, 0.6, 1] 
+          }
+        } : {};
     }
   };
 
@@ -93,7 +120,11 @@ const BrandedTeacupIcon: React.FC<BrandedTeacupIconProps> = ({
                 y: [0, -5, 0],
                 opacity: [0.3, 0.7, 0.3]
               }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              transition={{ 
+                duration: 2, 
+                repeat: Infinity, 
+                ease: [0.4, 0, 0.6, 1] 
+              }}
             >
               <path
                 d="M45 20 Q47 15 45 10 Q43 15 45 20"

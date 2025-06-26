@@ -50,6 +50,7 @@ const SneakPeekApp: React.FC<SneakPeekAppProps> = ({ onUpgrade }) => {
           content: 'Test is this thing finally freaking on. Today is the day we find out if this actually works or if we\'re just spinning our wheels in the crypto mud. The community has been waiting...',
           category: 'general',
           created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
           reactions: { hot: 5, cold: 1, spicy: 3 },
           author: 'Anonymous',
           evidence_urls: [],
@@ -59,7 +60,10 @@ const SneakPeekApp: React.FC<SneakPeekAppProps> = ({ onUpgrade }) => {
           anonymous_token: 'preview',
           verification_score: 0,
           has_evidence: false,
-          is_verified: false
+          is_verified: false,
+          evidence_credibility_score: 0,
+          flag_count: 0,
+          ai_rated: false
         }
       ]);
     } finally {
