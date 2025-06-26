@@ -3,18 +3,16 @@ import React, { useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import EnhancedHeroPanel from '@/components/landing/EnhancedHeroPanel';
+import EnhancedHeroSection from '@/components/landing/EnhancedHeroSection';
 import EnhancedChaosPanel from '@/components/landing/EnhancedChaosPanel';
 import TokenPanel from '@/components/landing/TokenPanel';
 import TestimonialsPanel from '@/components/landing/TestimonialsPanel';
 import BuzzwordsPanel from '@/components/landing/BuzzwordsPanel';
-import EnhancedAccessModal from '@/components/landing/EnhancedAccessModal';
+import EnhancedAccessFlow from '@/components/landing/EnhancedAccessFlow';
 import FloatingElements from '@/components/landing/FloatingElements';
 
 const ParallaxLanding: React.FC = () => {
   const [showAccessModal, setShowAccessModal] = useState(false);
-  const [accessCode, setAccessCode] = useState('');
-  const [selectedPath, setSelectedPath] = useState<'spill' | 'bribe' | 'code' | null>(null);
   const { scrollYProgress } = useScroll();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -25,13 +23,7 @@ const ParallaxLanding: React.FC = () => {
   const foregroundY = useTransform(scrollYProgress, [0, 1], ['0%', '45%']);
   const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0.8]);
 
-  const handleAccessPath = (path: 'spill' | 'bribe' | 'code') => {
-    setSelectedPath(path);
-    setShowAccessModal(true);
-  };
-
-  const handleAccessSubmit = () => {
-    // Access granted, navigate to feed
+  const handleAccessSuccess = () => {
     setShowAccessModal(false);
     toast({
       title: "🎉 Welcome to CTea Newsroom!",
@@ -48,7 +40,6 @@ const ParallaxLanding: React.FC = () => {
       navigate('/feed');
     } else {
       setShowAccessModal(true);
-      setSelectedPath(null); // Let them choose their path
     }
   };
 
@@ -60,39 +51,62 @@ const ParallaxLanding: React.FC = () => {
         style={{ y: backgroundY, opacity }}
       >
         <div className="w-full h-full relative">
-          {/* Animated grid */}
-          <div 
-            className="w-full h-full animate-pulse"
+          {/* Animated neon grid */}
+          <motion.div 
+            className="w-full h-full"
+            animate={{
+              backgroundPosition: ['0px 0px', '100px 100px']
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
             style={{
               backgroundImage: `
-                linear-gradient(rgba(255, 107, 157, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 212, 170, 0.1) 1px, transparent 1px),
-                linear-gradient(rgba(255, 149, 0, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 149, 0, 0.05) 1px, transparent 1px)
+                linear-gradient(rgba(255, 107, 157, 0.2) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(0, 212, 170, 0.2) 2px, transparent 2px),
+                linear-gradient(rgba(255, 149, 0, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 149, 0, 0.1) 1px, transparent 1px)
               `,
-              backgroundSize: '50px 50px, 50px 50px, 100px 100px, 100px 100px'
+              backgroundSize: '100px 100px, 100px 100px, 50px 50px, 50px 50px'
             }}
           />
           
-          {/* Floating geometric shapes */}
+          {/* Enhanced floating geometric shapes */}
           <motion.div
-            className="absolute top-1/4 left-1/4 w-32 h-32 border-4 border-[#FF6B9D] opacity-20"
+            className="absolute top-1/4 left-1/4 w-40 h-40 border-4 opacity-30"
             animate={{
               rotate: [0, 360],
-              scale: [1, 1.1, 1]
+              scale: [1, 1.2, 1],
+              borderColor: ['#FF6B9D', '#00D4AA', '#FF9500', '#FF6B9D']
             }}
-            transition={{ duration: 20, repeat: Infinity }}
-            style={{ clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' }}
+            transition={{ duration: 25, repeat: Infinity }}
+            style={{ 
+              clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
+              filter: 'drop-shadow(0 0 20px currentColor)'
+            }}
           />
           
           <motion.div
-            className="absolute bottom-1/3 right-1/4 w-24 h-24 bg-[#00D4AA] opacity-10 rounded-full"
+            className="absolute bottom-1/3 right-1/4 w-32 h-32 opacity-20 rounded-full"
             animate={{
-              x: [0, 50, 0],
-              y: [0, -30, 0],
-              scale: [1, 1.2, 1]
+              x: [0, 60, 0],
+              y: [0, -40, 0],
+              scale: [1, 1.4, 1],
+              backgroundColor: ['#00D4AA', '#FF6B9D', '#FF9500', '#00D4AA']
             }}
-            transition={{ duration: 15, repeat: Infinity }}
+            transition={{ duration: 18, repeat: Infinity }}
+            style={{ filter: 'blur(1px)' }}
+          />
+          
+          {/* Neon scan lines */}
+          <motion.div
+            className="absolute inset-0 pointer-events-none opacity-30"
+            animate={{
+              backgroundPosition: ['0px 0px', '0px 200vh']
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+            style={{
+              backgroundImage: 'linear-gradient(transparent 97%, rgba(0, 212, 170, 0.8) 98%, transparent 100%)',
+              backgroundSize: '100% 100px'
+            }}
           />
         </div>
       </motion.div>
@@ -104,27 +118,47 @@ const ParallaxLanding: React.FC = () => {
       >
         <FloatingElements />
         
-        {/* Additional retro elements */}
+        {/* Additional retro elements with glow effects */}
         <motion.div
-          className="absolute top-1/3 right-1/5 text-6xl opacity-20"
+          className="absolute top-1/3 right-1/5 text-7xl opacity-25 filter drop-shadow-lg"
           animate={{
-            rotate: [0, 15, -15, 0],
-            scale: [1, 1.1, 1]
+            rotate: [0, 20, -20, 0],
+            scale: [1, 1.2, 1],
+            textShadow: [
+              '0 0 20px rgba(255, 107, 157, 0.8)',
+              '0 0 40px rgba(0, 212, 170, 0.8)',
+              '0 0 20px rgba(255, 149, 0, 0.8)',
+              '0 0 20px rgba(255, 107, 157, 0.8)'
+            ]
           }}
-          transition={{ duration: 8, repeat: Infinity }}
+          transition={{ duration: 12, repeat: Infinity }}
         >
           📺
         </motion.div>
         
         <motion.div
-          className="absolute bottom-1/4 left-1/5 text-4xl opacity-30"
+          className="absolute bottom-1/4 left-1/5 text-5xl opacity-40 filter drop-shadow-lg"
           animate={{
-            y: [0, -20, 0],
-            rotate: [0, 360]
+            y: [0, -30, 0],
+            rotate: [0, 360],
+            scale: [1, 1.3, 1]
           }}
-          transition={{ duration: 12, repeat: Infinity }}
+          transition={{ duration: 15, repeat: Infinity }}
         >
           🎯
+        </motion.div>
+        
+        {/* Floating meme coins */}
+        <motion.div
+          className="absolute top-1/2 left-1/6 text-4xl opacity-35"
+          animate={{
+            y: [0, -50, 0],
+            x: [0, 30, 0],
+            rotate: [0, 180, 360]
+          }}
+          transition={{ duration: 20, repeat: Infinity }}
+        >
+          🪙
         </motion.div>
       </motion.div>
 
@@ -133,32 +167,39 @@ const ParallaxLanding: React.FC = () => {
         className="relative z-10"
         style={{ y: foregroundY }}
       >
-        <EnhancedHeroPanel onEnterClick={handleEnterClick} />
-        <EnhancedChaosPanel onAccessPath={handleAccessPath} />
+        <EnhancedHeroSection onEnterClick={handleEnterClick} />
+        <EnhancedChaosPanel onAccessPath={() => setShowAccessModal(true)} />
         <TokenPanel />
         <TestimonialsPanel />
         <BuzzwordsPanel />
       </motion.div>
 
-      {/* Enhanced Access Modal */}
-      <EnhancedAccessModal
+      {/* Enhanced Access Flow Modal */}
+      <EnhancedAccessFlow
         isOpen={showAccessModal}
         onClose={() => setShowAccessModal(false)}
-        selectedPath={selectedPath}
-        accessCode={accessCode}
-        onAccessCodeChange={setAccessCode}
-        onSubmit={handleAccessSubmit}
+        onSuccess={handleAccessSuccess}
       />
 
-      {/* Retro scan lines effect */}
-      <div className="fixed inset-0 pointer-events-none z-50 opacity-20">
+      {/* Enhanced retro effects */}
+      <div className="fixed inset-0 pointer-events-none z-40">
+        {/* CRT screen curvature effect */}
+        <div 
+          className="absolute inset-0 opacity-5"
+          style={{
+            background: 'radial-gradient(ellipse at center, transparent 0%, transparent 70%, rgba(0,0,0,0.3) 100%)',
+            borderRadius: '20px'
+          }}
+        />
+        
+        {/* Moving scan line */}
         <motion.div
-          className="w-full h-1 bg-gradient-to-r from-transparent via-[#00D4AA] to-transparent"
+          className="w-full h-2 bg-gradient-to-r from-transparent via-[#00D4AA] to-transparent opacity-40 blur-sm"
           animate={{
-            y: [0, window.innerHeight || 800]
+            y: [0, window.innerHeight || 800, 0]
           }}
           transition={{
-            duration: 3,
+            duration: 4,
             repeat: Infinity,
             ease: "linear"
           }}
