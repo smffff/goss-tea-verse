@@ -1,9 +1,9 @@
-
 import type { Config } from "tailwindcss";
 import { tailwindColors } from "./src/lib/config/tailwind/colors";
 import { tailwindFonts } from "./src/lib/config/tailwind/fonts";
 import { tailwindKeyframes, tailwindAnimations } from "./src/lib/config/tailwind/animations";
 import { tailwindBackgroundImages, tailwindBackdropBlur, tailwindBoxShadow } from "./src/lib/config/tailwind/effects";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
@@ -37,5 +37,5 @@ export default {
       boxShadow: tailwindBoxShadow,
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindcssAnimate],
 } satisfies Config;

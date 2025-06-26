@@ -1,12 +1,7 @@
-
 import React from 'react';
 import TestimonialCarousel from '@/components/TestimonialCarousel';
 
-interface SocialProofSectionProps {
-  // No props needed as testimonials are handled internally
-}
-
-const SocialProofSection: React.FC<SocialProofSectionProps> = () => {
+const SocialProofSection: React.FC = () => {
   return (
     <section className="py-16 sm:py-24 bg-gradient-to-br from-ctea-darker to-ctea-dark">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">

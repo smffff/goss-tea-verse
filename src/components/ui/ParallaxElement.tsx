@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -11,7 +10,7 @@ interface ParallaxElementProps {
   offset?: number;
   delay?: number;
   duration?: number;
-  ease?: any; // Accept any easing type to fix the build error
+  ease?: string; // Changed from any to string
 }
 
 const ParallaxElement: React.FC<ParallaxElementProps> = ({
@@ -26,26 +25,17 @@ const ParallaxElement: React.FC<ParallaxElementProps> = ({
 }) => {
   const { scrollYProgress } = useScroll();
   
-  const getTransform = () => {
-    const baseTransform = scrollYProgress.get();
-    const transformValue = baseTransform * speed * 100 + offset;
-    
-    switch (direction) {
-      case 'up':
-        return useTransform(scrollYProgress, [0, 1], [offset, -transformValue]);
-      case 'down':
-        return useTransform(scrollYProgress, [0, 1], [offset, transformValue]);
-      case 'left':
-        return useTransform(scrollYProgress, [0, 1], [offset, -transformValue]);
-      case 'right':
-        return useTransform(scrollYProgress, [0, 1], [offset, transformValue]);
-      default:
-        return useTransform(scrollYProgress, [0, 1], [offset, -transformValue]);
-    }
-  };
+  // Calculate transform values based on direction
+  const transformValue = speed * 100;
+  
+  const yUp = useTransform(scrollYProgress, [0, 1], [offset, -transformValue]);
+  const yDown = useTransform(scrollYProgress, [0, 1], [offset, transformValue]);
+  const xLeft = useTransform(scrollYProgress, [0, 1], [offset, -transformValue]);
+  const xRight = useTransform(scrollYProgress, [0, 1], [offset, transformValue]);
 
-  const y = direction === 'up' || direction === 'down' ? getTransform() : 0;
-  const x = direction === 'left' || direction === 'right' ? getTransform() : 0;
+  // Determine which transform to use based on direction
+  const y = direction === 'up' ? yUp : direction === 'down' ? yDown : 0;
+  const x = direction === 'left' ? xLeft : direction === 'right' ? xRight : 0;
 
   return (
     <motion.div
@@ -60,7 +50,7 @@ const ParallaxElement: React.FC<ParallaxElementProps> = ({
       transition={{
         duration,
         delay,
-        ease: ease as any
+        ease
       }}
       viewport={{ once: true, margin: '-100px' }}
     >

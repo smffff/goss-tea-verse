@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion, MotionValue, useTransform } from 'framer-motion';
 import BrandedTeacupIcon from '@/components/ui/BrandedTeacupIcon';
@@ -139,45 +138,147 @@ const ParallaxFloatingObjects: React.FC<ParallaxFloatingObjectsProps> = ({ scrol
     }
   ];
 
+  // Create individual transforms for each object
+  const teacupRocket1Y = useTransform(scrollProgress, [0, 1], ['20vh', '-10vh']);
+  const teacupRocket1X = useTransform(scrollProgress, [0, 1], ['10vw', '30vw']);
+  const teacupRocket1Rotate = useTransform(scrollProgress, [0, 1], [0, 360]);
+
+  const teacupRocket2Y = useTransform(scrollProgress, [0, 1], ['70vh', '20vh']);
+
+  const teaToken1Y = useTransform(scrollProgress, [0, 1], ['25vh', '-15vh']);
+
+  const teaToken2Y = useTransform(scrollProgress, [0, 1], ['80vh', '20vh']);
+
+  const quote1Y = useTransform(scrollProgress, [0, 1], ['15vh', '-5vh']);
+
+  const quote2Y = useTransform(scrollProgress, [0, 1], ['60vh', '25vh']);
+
+  const ogBadge1Y = useTransform(scrollProgress, [0, 1], ['45vh', '20vh']);
+
+  const ladyInvisibleY = useTransform(scrollProgress, [0, 1], ['85vh', '45vh']);
+
   return (
     <div className="fixed inset-0 z-5 pointer-events-none">
-      {floatingObjects.map((obj) => {
-        const y = useTransform(
-          scrollProgress,
-          [0, 1],
-          [`${obj.y}vh`, `${obj.y - (obj.speed * 100)}vh`]
-        );
-        
-        const x = obj.orbit 
-          ? useTransform(
-              scrollProgress,
-              [0, 1],
-              [`${obj.x}vw`, `${obj.x + 20}vw`]
-            )
-          : `${obj.x}vw`;
+      {/* Teacup Rocket 1 */}
+      <motion.div
+        className="absolute will-change-transform"
+        style={{
+          x: teacupRocket1X,
+          y: teacupRocket1Y,
+          scale: 1.2,
+          rotate: teacupRocket1Rotate
+        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.1 }}
+      >
+        {floatingObjects[0].element}
+      </motion.div>
 
-        const rotate = obj.orbit
-          ? useTransform(scrollProgress, [0, 1], [0, 360])
-          : 0;
+      {/* Teacup Rocket 2 */}
+      <motion.div
+        className="absolute will-change-transform"
+        style={{
+          x: '85vw',
+          y: teacupRocket2Y,
+          scale: 1
+        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        {floatingObjects[1].element}
+      </motion.div>
 
-        return (
-          <motion.div
-            key={obj.id}
-            className="absolute will-change-transform"
-            style={{
-              x,
-              y,
-              scale: obj.scale,
-              rotate: obj.orbit ? rotate : undefined
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: Math.random() * 2 }}
-          >
-            {obj.element}
-          </motion.div>
-        );
-      })}
+      {/* TEA Token 1 */}
+      <motion.div
+        className="absolute will-change-transform"
+        style={{
+          x: '75vw',
+          y: teaToken1Y,
+          scale: 1
+        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+      >
+        {floatingObjects[2].element}
+      </motion.div>
+
+      {/* TEA Token 2 */}
+      <motion.div
+        className="absolute will-change-transform"
+        style={{
+          x: '20vw',
+          y: teaToken2Y,
+          scale: 0.8
+        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.7 }}
+      >
+        {floatingObjects[3].element}
+      </motion.div>
+
+      {/* Quote 1 */}
+      <motion.div
+        className="absolute will-change-transform"
+        style={{
+          x: '60vw',
+          y: quote1Y,
+          scale: 1
+        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.9 }}
+      >
+        {floatingObjects[4].element}
+      </motion.div>
+
+      {/* Quote 2 */}
+      <motion.div
+        className="absolute will-change-transform"
+        style={{
+          x: '15vw',
+          y: quote2Y,
+          scale: 0.9
+        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.1 }}
+      >
+        {floatingObjects[5].element}
+      </motion.div>
+
+      {/* OG Badge 1 */}
+      <motion.div
+        className="absolute will-change-transform"
+        style={{
+          x: '90vw',
+          y: ogBadge1Y,
+          scale: 1
+        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.3 }}
+      >
+        {floatingObjects[6].element}
+      </motion.div>
+
+      {/* Lady Invisible */}
+      <motion.div
+        className="absolute will-change-transform"
+        style={{
+          x: '40vw',
+          y: ladyInvisibleY,
+          scale: 1
+        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5 }}
+      >
+        {floatingObjects[7].element}
+      </motion.div>
     </div>
   );
 };

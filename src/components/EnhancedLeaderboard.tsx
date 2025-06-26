@@ -159,7 +159,7 @@ const EnhancedLeaderboard = () => {
               key={p}
               variant={period === p ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setPeriod(p as any)}
+              onClick={() => setPeriod(p as 'weekly' | 'monthly' | 'all-time')}
               className={period === p ? 'bg-ctea-teal' : 'border-ctea-teal/30 text-ctea-teal hover:bg-ctea-teal/10'}
             >
               {p === 'all-time' ? 'All Time' : p.charAt(0).toUpperCase() + p.slice(1)}

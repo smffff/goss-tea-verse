@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -46,11 +45,7 @@ const BoostAnalytics: React.FC = () => {
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchBoostStats();
-  }, [timeRange]);
-
-  const fetchBoostStats = async () => {
+  const fetchBoostStats = useCallback(async () => {
     setIsLoading(true);
     try {
       // Mock data since boost_transactions table doesn't exist
@@ -106,7 +101,11 @@ const BoostAnalytics: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchBoostStats();
+  }, [fetchBoostStats, timeRange]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
