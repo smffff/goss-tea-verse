@@ -6,7 +6,7 @@ import SubmissionForm from '@/components/SubmissionForm';
 import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { UnifiedSecurityService } from '@/services/unifiedSecurityService';
+import { SecurityServiceUnified } from '@/services/securityServiceUnified';
 import { betaCodeService } from '@/services/betaCodeService';
 
 interface SubmissionData {
@@ -30,20 +30,30 @@ const SubmitTea = () => {
     
     try {
       // Use unified security service for comprehensive validation
-      const securityCheck = await UnifiedSecurityService.validateSubmissionSecurity(
+      const securityCheck = await SecurityServiceUnified.validateSubmissionSecurity(
         data.tea,
         data.evidence_urls,
         'tea_submission'
       );
 
-      // Check rate limiting
-      if (!securityCheck.rateLimitCheck.allowed) {
-        throw new Error(securityCheck.rateLimitCheck.blockedReason || 'Rate limit exceeded. Please wait before submitting again.');
+      // Check overall security validation
+      if (!securityCheck.overallValid) {
+        let errorMessage = 'Submission failed security validation';
+        
+        if (!securityCheck.rateLimitCheck.allowed) {
+          errorMessage = securityCheck.rateLimitCheck.blockedReason || 'Rate limit exceeded. Please wait before submitting again.';
+        } else if (!securityCheck.contentValidation.valid) {
+          errorMessage = `Content validation failed: ${securityCheck.contentValidation.threats.join(', ')}`;
+        } else if (securityCheck.urlValidation.invalid.length > 0) {
+          errorMessage = 'Some evidence URLs are invalid or suspicious';
+        }
+        
+        throw new Error(errorMessage);
       }
 
-      // Validate content security
-      if (!securityCheck.contentValidation.valid) {
-        throw new Error(`Content validation failed: ${securityCheck.contentValidation.threats.join(', ')}`);
+      // Check if content has critical security risks
+      if (securityCheck.contentValidation.riskLevel === 'critical') {
+        throw new Error('Content contains critical security threats and cannot be submitted');
       }
 
       const submissionData = {
@@ -51,7 +61,7 @@ const SubmitTea = () => {
         category: data.category || 'general',
         evidence_urls: securityCheck.urlValidation.valid.length > 0 ? securityCheck.urlValidation.valid : null,
         anonymous_token: securityCheck.tokenValidation.token,
-        status: 'approved',
+        status: securityCheck.contentValidation.riskLevel === 'high' ? 'pending' : 'approved',
         has_evidence: securityCheck.urlValidation.valid.length > 0,
         reactions: { hot: 0, cold: 0, spicy: 0 },
         average_rating: 0,
