@@ -68,24 +68,6 @@ const TokenPage = () => {
     }
   ];
 
-  const soapTokenInfo = {
-    title: '$SOAP Token',
-    description: 'Credibility and reputation token that tracks your standing in the community',
-    features: [
-      'Credibility tracking and scoring',
-      'Feature unlocking based on reputation',
-      'Moderation rights and privileges',
-      'Community governance participation',
-      'Dynamic supply based on activity'
-    ],
-    earning: [
-      'Earn through quality submissions',
-      'Build reputation over time',
-      'Community recognition',
-      'Consistent engagement'
-    ]
-  };
-
   const tokenomics = [
     {
       category: 'Community Rewards',
@@ -172,52 +154,6 @@ const TokenPage = () => {
                 </div>
               );
             })}
-          </div>
-        </div>
-      </section>
-
-      {/* SOAP Token Section */}
-      <section className="py-16 bg-gradient-to-br from-ctea-teal/10 to-ctea-purple/10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              {soapTokenInfo.title}
-            </h2>
-            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-              {soapTokenInfo.description}
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-ctea-dark/30 rounded-lg p-6 border border-ctea-teal/20">
-              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <Shield className="w-5 h-5 text-ctea-teal" />
-                Features & Benefits
-              </h3>
-              <div className="space-y-3">
-                {soapTokenInfo.features.map((feature, index) => (
-                  <div key={index} className="flex items-center gap-3 text-gray-300">
-                    <div className="w-2 h-2 bg-ctea-teal rounded-full"></div>
-                    {feature}
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="bg-ctea-dark/30 rounded-lg p-6 border border-ctea-teal/20">
-              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <Award className="w-5 h-5 text-ctea-teal" />
-                How to Earn
-              </h3>
-              <div className="space-y-3">
-                {soapTokenInfo.earning.map((method, index) => (
-                  <div key={index} className="flex items-center gap-3 text-gray-300">
-                    <div className="w-2 h-2 bg-ctea-teal rounded-full"></div>
-                    {method}
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </section>

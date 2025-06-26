@@ -63,10 +63,6 @@ const FAQ = () => {
           answer: '$TEA is our platform utility token used for rewards, staking, content boosting, and governance voting. You earn them for quality submissions and community engagement.'
         },
         {
-          question: 'What are $SOAP tokens?',
-          answer: '$SOAP tokens track your credibility and reputation on the platform. They unlock features, moderation rights, and community governance participation.'
-        },
-        {
           question: 'How do I earn tokens?',
           answer: 'Earn 5 $TEA for approved submissions, 2 $TEA for helpful upvotes, and 1 $TEA for community engagement. Tokens are awarded automatically when content is approved.'
         },
@@ -76,7 +72,7 @@ const FAQ = () => {
         },
         {
           question: 'What can I do with my tokens?',
-          answer: 'Use $TEA for content boosting, staking rewards, governance voting, and platform features. $SOAP tokens unlock credibility-based features and moderation rights.'
+          answer: 'Use $TEA for content boosting, staking rewards, governance voting, and platform features.'
         }
       ]
     },
