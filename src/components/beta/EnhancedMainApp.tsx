@@ -33,26 +33,22 @@ const EnhancedMainAppContent: React.FC = () => {
         'ctea-peek-start'
       ];
       
-      keysToRemove.forEach(key => {
-        localStorage.removeItem(key);
-        console.log(`🗑️ Removed ${key} from localStorage`);
-      });
-      
+      keysToRemove.forEach(key => localStorage.removeItem(key));
       setAccessLevel('guest');
     } catch (error) {
-      logError(error, 'EnhancedMainApp logout');
+      logError(error, 'Logout error');
       window.location.reload();
     }
   };
 
   const handleTimeExpired = () => {
-    console.log('⏰ Sneak peek time expired, resetting to guest');
+    console.log('⏰ Sneak peek time expired');
     try {
       localStorage.removeItem('ctea-access-level');
       localStorage.removeItem('ctea-peek-start');
       setAccessLevel('guest');
     } catch (error) {
-      logError(error, 'EnhancedMainApp time expiry');
+      logError(error, 'Time expiry error');
     }
   };
 
@@ -61,7 +57,6 @@ const EnhancedMainAppContent: React.FC = () => {
     try {
       localStorage.setItem('ctea-access-level', 'beta');
       localStorage.setItem('ctea-demo-mode', 'true');
-      localStorage.setItem('ctea-beta-code', 'EMERGENCY');
       setAccessLevel('beta');
       setIsLoading(false);
       setShowEmergencyAccess(false);
@@ -76,37 +71,24 @@ const EnhancedMainAppContent: React.FC = () => {
     window.location.reload();
   };
 
-  const handleInitialized = () => {
-    setIsLoading(false);
-  };
-
-  const handleInitError = (error: string) => {
-    setInitError(error);
-    setIsLoading(false);
-  };
-
-  const handleEmergencyTimeout = () => {
-    setShowEmergencyAccess(true);
-  };
-
-  const handleForceTimeout = (error: string) => {
-    setInitError(error);
-    setIsLoading(false);
-  };
-
-  // Show loading state with emergency options
   if (isLoading) {
     return (
       <>
         <AppInitializer
-          onInitialized={handleInitialized}
-          onError={handleInitError}
+          onInitialized={() => setIsLoading(false)}
+          onError={(error) => {
+            setInitError(error);
+            setIsLoading(false);
+          }}
           onLoadingSteps={setLoadingSteps}
         />
         <AppTimeouts
           isLoading={isLoading}
-          onEmergencyTimeout={handleEmergencyTimeout}
-          onForceTimeout={handleForceTimeout}
+          onEmergencyTimeout={() => setShowEmergencyAccess(true)}
+          onForceTimeout={(error) => {
+            setInitError(error);
+            setIsLoading(false);
+          }}
         />
         <LoadingScreen
           loadingSteps={loadingSteps}
@@ -130,7 +112,7 @@ const EnhancedMainAppContent: React.FC = () => {
 };
 
 const EnhancedMainApp: React.FC = () => {
-  console.log('🏁 EnhancedMainApp wrapper rendering');
+  console.log('🏁 EnhancedMainApp rendering');
   return (
     <SecurityAuditProvider>
       <AccessControlProvider>

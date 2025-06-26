@@ -1,7 +1,7 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useAccessControl } from '../../access/AccessControlProvider';
-import { logError, getRandomLoadingMessage, getRandomErrorMessage } from '@/utils/errorUtils';
+import { logError, getRandomErrorMessage } from '@/utils/errorUtils';
 import type { AccessLevel } from '../../access/AccessControlProvider';
 
 interface AppInitializerProps {
@@ -23,23 +23,17 @@ export const AppInitializer: React.FC<AppInitializerProps> = ({
         console.log('🚀 Starting CTea app initialization...');
         onLoadingSteps(1);
         
-        // Check for existing access on mount
+        // Check for existing access
         const savedLevel = localStorage.getItem('ctea-access-level') as AccessLevel;
         const betaAccess = localStorage.getItem('ctea-beta-access');
         const demoMode = localStorage.getItem('ctea-demo-mode');
-        const peekStart = localStorage.getItem('ctea-peek-start');
         
-        console.log('📱 Found existing storage:', { 
-          savedLevel, 
-          betaAccess, 
-          demoMode, 
-          peekStart
-        });
+        console.log('📱 Found existing storage:', { savedLevel, betaAccess, demoMode });
         
         onLoadingSteps(2);
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 300));
         
-        // Determine initial access level with validation
+        // Determine initial access level
         if (savedLevel && ['guest', 'authenticated', 'beta', 'admin'].includes(savedLevel)) {
           console.log('✅ Using saved access level:', savedLevel);
           setAccessLevel(savedLevel);
@@ -52,13 +46,13 @@ export const AppInitializer: React.FC<AppInitializerProps> = ({
         }
         
         onLoadingSteps(3);
-        await new Promise(resolve => setTimeout(resolve, 800));
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         console.log('✅ App initialization complete');
         onInitialized();
       } catch (error) {
         console.error('💥 App initialization error:', error);
-        logError(error, 'EnhancedMainApp initialization');
+        logError(error, 'App initialization');
         onError(getRandomErrorMessage());
       }
     };
@@ -66,5 +60,5 @@ export const AppInitializer: React.FC<AppInitializerProps> = ({
     initializeApp();
   }, [setAccessLevel, onInitialized, onError, onLoadingSteps]);
 
-  return null; // This component doesn't render anything
+  return null;
 };

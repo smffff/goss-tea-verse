@@ -13,20 +13,18 @@ export const AppTimeouts: React.FC<AppTimeoutsProps> = ({
   onForceTimeout
 }) => {
   useEffect(() => {
+    if (!isLoading) return;
+
     // Emergency timeout - show emergency access after 5 seconds
     const emergencyTimeout = setTimeout(() => {
-      if (isLoading) {
-        console.warn('⚠️ Emergency timeout triggered');
-        onEmergencyTimeout();
-      }
+      console.warn('⚠️ Emergency timeout triggered');
+      onEmergencyTimeout();
     }, 5000);
 
     // Force timeout - stop loading after 10 seconds
     const forceTimeout = setTimeout(() => {
-      if (isLoading) {
-        console.warn('⚠️ Force timeout - stopping loading');
-        onForceTimeout('Loading took too long. Activating emergency access! 🚨');
-      }
+      console.warn('⚠️ Force timeout - stopping loading');
+      onForceTimeout('Loading took too long. Activating emergency access! 🚨');
     }, 10000);
 
     return () => {
@@ -35,5 +33,5 @@ export const AppTimeouts: React.FC<AppTimeoutsProps> = ({
     };
   }, [isLoading, onEmergencyTimeout, onForceTimeout]);
 
-  return null; // This component doesn't render anything
+  return null;
 };
