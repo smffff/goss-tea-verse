@@ -49,9 +49,9 @@ export class SecurityServiceUnified {
   ): Promise<ComprehensiveSecurityResult> {
     const instance = this.getInstance();
     
-    // Server-side content validation using the new unified function
+    // Use existing content validation function with proper type casting
     const { data: contentResult, error: contentError } = await supabase.rpc(
-      'validate_content_ultimate_secure',
+      'validate_content_ultimate',
       { content, max_length: 1000 }
     );
 
@@ -60,12 +60,15 @@ export class SecurityServiceUnified {
       throw new Error('Content validation failed');
     }
     
+    // Type cast the result properly
+    const validationData = contentResult as any;
+    
     const contentValidation: SecurityValidationResult = {
-      valid: contentResult.valid,
-      sanitized: contentResult.sanitized,
-      threats: contentResult.errors || [],
-      riskLevel: contentResult.risk_level,
-      securityScore: contentResult.security_score
+      valid: validationData?.valid || false,
+      sanitized: validationData?.sanitized || content,
+      threats: validationData?.errors || [],
+      riskLevel: validationData?.risk_level || 'low',
+      securityScore: validationData?.security_score || 0
     };
 
     // URL validation
@@ -74,9 +77,9 @@ export class SecurityServiceUnified {
     // Token validation and generation
     const tokenValidation = instance.getOrCreateSecureToken();
     
-    // Server-side rate limit check
+    // Use existing rate limit function with proper type casting
     const { data: rateLimitResult, error: rateLimitError } = await supabase.rpc(
-      'check_rate_limit_unified',
+      'check_rate_limit_ultimate',
       { 
         p_token: tokenValidation.token, 
         p_action: action, 
@@ -90,13 +93,16 @@ export class SecurityServiceUnified {
       throw new Error('Rate limit check failed');
     }
     
+    // Type cast the rate limit result properly
+    const rateLimitData = rateLimitResult as any;
+    
     const rateLimitCheck: RateLimitResult = {
-      allowed: rateLimitResult.allowed,
-      currentCount: rateLimitResult.current_count,
-      maxActions: rateLimitResult.max_actions,
-      resetTime: rateLimitResult.reset_time ? new Date(rateLimitResult.reset_time) : undefined,
-      blockedReason: rateLimitResult.blocked_reason,
-      securityViolation: rateLimitResult.security_violation
+      allowed: rateLimitData?.allowed || false,
+      currentCount: rateLimitData?.current_count || 0,
+      maxActions: rateLimitData?.max_actions || 5,
+      resetTime: rateLimitData?.reset_time ? new Date(rateLimitData.reset_time) : undefined,
+      blockedReason: rateLimitData?.blocked_reason,
+      securityViolation: rateLimitData?.security_violation || false
     };
     
     return {
