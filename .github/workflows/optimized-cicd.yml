@@ -1,0 +1,264 @@
+name: Optimized CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '18'
+  CACHE_KEY_PREFIX: 'ctea-v1'
+
+jobs:
+  lint-and-test:
+    name: Code Quality & Testing
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ env.CACHE_KEY_PREFIX }}-${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ env.CACHE_KEY_PREFIX }}-${{ runner.os }}-node-
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run ESLint
+      run: npm run lint
+      continue-on-error: false
+
+    - name: Run TypeScript check
+      run: npx tsc --noEmit
+
+    - name: Run automated test suite
+      run: |
+        chmod +x scripts/automated-testing.sh
+        ./scripts/automated-testing.sh
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results
+        path: test-report.md
+
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run npm audit
+      run: npm audit --audit-level=high
+      continue-on-error: true
+
+    - name: Run security hardening check
+      run: |
+        if [ -f "scripts/test-security-quick.sh" ]; then
+          chmod +x scripts/test-security-quick.sh
+          ./scripts/test-security-quick.sh
+        fi
+
+  build-and-deploy:
+    name: Build & Deploy
+    needs: [lint-and-test, security-audit]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.ref == 'refs/heads/main'
+
+    strategy:
+      matrix:
+        environment: [staging, production]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build application
+      run: npm run build
+      env:
+        NODE_ENV: production
+
+    - name: Optimize build
+      run: |
+        # Compress assets
+        find dist -name "*.js" -exec gzip -k {} \;
+        find dist -name "*.css" -exec gzip -k {} \;
+        
+        # Generate build report
+        du -sh dist/ > build-size.txt
+        echo "Build completed at $(date)" >> build-size.txt
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-${{ matrix.environment }}
+        path: |
+          dist/
+          build-size.txt
+
+    - name: Deploy to Vercel (Staging)
+      if: matrix.environment == 'staging'
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-args: '--prod'
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        working-directory: ./
+
+    - name: Deploy to Vercel (Production)
+      if: matrix.environment == 'production' && github.event_name == 'push'
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-args: '--prod'
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        working-directory: ./
+
+    - name: Run post-deployment tests
+      if: matrix.environment == 'production'
+      run: |
+        # Wait for deployment to be ready
+        sleep 30
+        
+        # Basic health check
+        if command -v curl &> /dev/null; then
+          curl -f https://ctea-newsroom.vercel.app/ || exit 1
+        fi
+
+  performance-monitoring:
+    name: Performance Monitoring
+    needs: [build-and-deploy]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 10
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Lighthouse CI
+      uses: treosh/lighthouse-ci-action@v9
+      with:
+        urls: |
+          https://ctea-newsroom.vercel.app/
+        uploadArtifacts: true
+        temporaryPublicStorage: true
+
+    - name: Performance budget check
+      run: |
+        # Check bundle size limits
+        if [ -f "dist/assets/index-*.js" ]; then
+          size=$(stat -c%s dist/assets/index-*.js | head -1)
+          max_size=$((1024 * 1024))  # 1MB limit
+          
+          if [ $size -gt $max_size ]; then
+            echo "❌ Bundle size exceeded: ${size} bytes (max: ${max_size})"
+            exit 1
+          else
+            echo "✅ Bundle size OK: ${size} bytes"
+          fi
+        fi
+
+  notify-deployment:
+    name: Deployment Notification
+    needs: [build-and-deploy, performance-monitoring]
+    runs-on: ubuntu-latest
+    if: always() && github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Discord notification
+      uses: Ilshidur/action-discord@master
+      env:
+        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      with:
+        args: |
+          🚀 **CTea Newsroom Deployment**
+          
+          **Status**: ${{ needs.build-and-deploy.result == 'success' && needs.performance-monitoring.result == 'success' && '✅ Success' || '❌ Failed' }}
+          **Branch**: ${{ github.ref_name }}
+          **Commit**: ${{ github.sha }}
+          **Author**: ${{ github.actor }}
+          
+          **Performance**: ${{ needs.performance-monitoring.result == 'success' && '✅ Passed' || '⚠️ Check required' }}
+          
+          [View Deployment](https://ctea-newsroom.vercel.app/)
+
+  weekly-maintenance:
+    name: Weekly Maintenance
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Update dependencies
+      run: |
+        npm audit fix
+        npm update
+
+    - name: Run security hardening
+      run: |
+        if [ -f "scripts/deploy-security.sh" ]; then
+          chmod +x scripts/deploy-security.sh
+          ./scripts/deploy-security.sh
+        fi
+
+    - name: Create maintenance report
+      run: |
+        echo "# Weekly Maintenance Report - $(date)" > maintenance-report.md
+        echo "" >> maintenance-report.md
+        echo "## Dependency Updates" >> maintenance-report.md
+        npm outdated >> maintenance-report.md || true
+        echo "" >> maintenance-report.md
+        echo "## Security Audit" >> maintenance-report.md
+        npm audit >> maintenance-report.md || true
+
+    - name: Upload maintenance report
+      uses: actions/upload-artifact@v3
+      with:
+        name: maintenance-report
+        path: maintenance-report.md

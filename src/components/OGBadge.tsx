@@ -42,7 +42,7 @@ const OGBadge: React.FC<OGBadgeProps> = ({
 
   const getBadgeConfig = () => {
     switch (type) {
-      case 'og':
+      case 'og': {
         const ogTier = crossChainUser?.ogStatus.tier || 'sipper';
         const ogBalance = crossChainUser?.ogStatus.balance || 0;
         
@@ -56,6 +56,7 @@ const OGBadge: React.FC<OGBadgeProps> = ({
             : 'bg-gradient-to-r from-blue-400 to-teal-400 text-white font-bold',
           description: `OG ${ogTier} - ${ogBalance.toLocaleString()} $TEA on Avalanche`
         };
+      }
       
       case 'meme-lord':
         return {

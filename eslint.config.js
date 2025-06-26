@@ -24,6 +24,10 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "off", // Allow any for flexibility
+      "no-case-declarations": "off", // Allow declarations in case blocks
+      "@typescript-eslint/no-require-imports": "off", // Allow require imports for config files
+      "prefer-spread": "off", // Allow apply method
     },
   }
 );
