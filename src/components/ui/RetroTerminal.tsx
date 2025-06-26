@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -70,7 +71,7 @@ const RetroTerminal: React.FC<RetroTerminalProps> = ({
               exit={{ opacity: 0 }}
               className="flex items-start space-x-2"
             >
-              <span className="text-green-400 text-xs">></span>
+              <span className="text-green-400 text-xs">{'>'}</span>
               <span 
                 className="text-green-300"
                 style={{ color: getRandomColor() }}
@@ -88,7 +89,7 @@ const RetroTerminal: React.FC<RetroTerminalProps> = ({
             animate={{ opacity: 1 }}
             className="flex items-start space-x-2"
           >
-            <span className="text-green-400 text-xs animate-pulse">></span>
+            <span className="text-green-400 text-xs animate-pulse">{'>'}</span>
             <span className="text-green-300">
               {currentMessage}
               <span className="animate-pulse">█</span>
@@ -109,4 +110,4 @@ const RetroTerminal: React.FC<RetroTerminalProps> = ({
   );
 };
 
-export default RetroTerminal; 
+export default RetroTerminal;
