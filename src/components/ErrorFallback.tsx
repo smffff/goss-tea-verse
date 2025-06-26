@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -33,6 +34,20 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
     window.location.reload();
   };
 
+  const funnyErrorMessages = [
+    "Oops! Give me a min I'm not a dev I'm just a lady ok 💅",
+    "Well this is awkward... the code decided to take a mental health day",
+    "Houston we have a problem (and by Houston I mean my JavaScript)",
+    "Error 404: My coding skills not found (but we're working on it!)",
+    "The audacity of this code to break when I need it most 😤",
+    "This is why we can't have nice things... or functional code apparently",
+    "Plot twist: I googled 'how to fix this' and even Stack Overflow is confused",
+    "Breaking news: Local woman breaks code, more at 11",
+    "Error level: crying in the club but make it technical",
+    "The code said 'no ❤️' and honestly, fair enough"
+  ];
+
+  const randomMessage = funnyErrorMessages[Math.floor(Math.random() * funnyErrorMessages.length)];
   const errorDetails = `Error ID: ${errorId}\nComponent: ${componentName}\nError: ${error.message}\n\nStack Trace:\n${error.stack || 'No stack trace'}`;
 
   return (
@@ -47,10 +62,10 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
           
           <div>
             <h2 className="text-2xl font-bold text-white mb-2">
-              Oops! Something went wrong
+              {randomMessage}
             </h2>
             <p className="text-gray-400 mb-2">
-              We encountered an unexpected error. Don't worry, your data is safe.
+              Beta testing = debugging in real time with style ✨
             </p>
             <p className="text-sm text-gray-500">
               Error ID: {errorId}
@@ -67,6 +82,9 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
                 Component: {componentName}
               </p>
             )}
+            <p className="text-xs text-gray-500 mt-2">
+              Don't worry bestie, your data is safe 💖
+            </p>
           </div>
 
           {/* Action Buttons */}
@@ -93,7 +111,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
             className="w-full bg-ctea-teal hover:bg-ctea-teal/80"
           >
             <RefreshCw className="w-4 h-4 mr-2" />
-            Reload Page
+            Refresh & Pray 🙏
           </Button>
 
           <Button
@@ -102,8 +120,12 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
             className="w-full border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
           >
             <MessageSquare className="w-4 h-4 mr-2" />
-            Report This Error
+            Roast My Code (Report Error)
           </Button>
+
+          <p className="text-xs text-gray-500 italic">
+            "It's not a bug, it's a feature" - Every developer ever 💀
+          </p>
         </div>
       </Card>
 

@@ -71,7 +71,8 @@ const EnhancedMainAppContent: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-3 border-ctea-teal/30 border-t-ctea-teal rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white text-lg">Loading the hottest tea...</p>
+          <p className="text-white text-lg">Give me a min I'm not a dev I'm just a lady ok 💅</p>
+          <p className="text-gray-400 text-sm mt-2">Setting up the chaos... please stand by ✨</p>
         </div>
       </div>
     );

@@ -26,6 +26,21 @@ const FallbackPage: React.FC<FallbackPageProps> = ({ onRetry, error }) => {
     window.location.reload();
   };
 
+  const funnyPageMessages = [
+    "Give me a min I'm not a dev I'm just a lady ok 💅",
+    "The website is having main character energy and decided to take a break",
+    "Currently debugging with the power of friendship and caffeine",
+    "This page ghosted us harder than my last situationship",
+    "Error 503: Service temporarily unavailable (just like my motivation)",
+    "The servers are in their feelings right now, please stand by",
+    "Loading failed successfully - task failed successfully vibes",
+    "The code is on a mental health break, we respect that",
+    "Oopsie daisy! Something went sideways faster than my life plans",
+    "Technical difficulties aka me vs. technology and technology is winning"
+  ];
+
+  const randomMessage = funnyPageMessages[Math.floor(Math.random() * funnyPageMessages.length)];
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-ctea-darker via-ctea-dark to-black">
       <Card className="max-w-md w-full p-8 bg-ctea-dark/90 border-ctea-teal/30 backdrop-blur-lg">
@@ -38,10 +53,10 @@ const FallbackPage: React.FC<FallbackPageProps> = ({ onRetry, error }) => {
           
           <div>
             <h1 className="text-3xl font-bold text-white mb-2">
-              🫖 Tea's Getting Cold!
+              {randomMessage}
             </h1>
             <p className="text-gray-400 mb-4">
-              The CTea Newsroom is taking a quick break. Don't worry, the gossip will be back shortly!
+              Beta life is messy but we're serving looks anyway ✨
             </p>
             {error && (
               <p className="text-sm text-red-400 bg-red-900/20 border border-red-500/30 rounded p-2">
@@ -57,7 +72,7 @@ const FallbackPage: React.FC<FallbackPageProps> = ({ onRetry, error }) => {
               className="w-full bg-ctea-teal hover:bg-ctea-teal/80 text-white"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
-              Refresh the Tea
+              Try Again (With Love)
             </Button>
             
             <Button
@@ -66,25 +81,27 @@ const FallbackPage: React.FC<FallbackPageProps> = ({ onRetry, error }) => {
               className="w-full border-ctea-purple/30 text-ctea-purple hover:bg-ctea-purple/10"
             >
               <Home className="w-4 h-4 mr-2" />
-              Back to Teahouse
+              Take Me Home Country Roads
             </Button>
           </div>
 
-          {/* Fun Message */}
+          {/* Fun Messages */}
           <div className="text-sm text-gray-500 space-y-2">
-            <p>💡 Try refreshing the page or check your connection</p>
-            <p>🚀 Still not working? The tea might be extra hot today!</p>
+            <p>💡 This is beta software, expect some spicy chaos</p>
+            <p>🚀 Thanks for testing! You're the real MVP</p>
+            <p>☕ The developer is probably stress-eating cookies right now</p>
           </div>
 
           {/* Debug Info */}
           <details className="text-left">
             <summary className="text-xs text-gray-600 cursor-pointer hover:text-gray-400">
-              Debug Info
+              Debug Info (For The Brave)
             </summary>
             <div className="text-xs text-gray-600 mt-2 p-2 bg-gray-900/50 rounded">
               <p>Timestamp: {new Date().toISOString()}</p>
               <p>User Agent: {navigator.userAgent.substring(0, 50)}...</p>
               <p>URL: {window.location.href}</p>
+              <p className="mt-1 italic">*Definitely not the developer's fault* 👀</p>
             </div>
           </details>
         </div>

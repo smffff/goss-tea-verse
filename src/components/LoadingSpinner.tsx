@@ -9,7 +9,7 @@ interface LoadingSpinnerProps {
 }
 
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ 
-  message = "Brewing the hottest tea...", 
+  message, 
   size = 'md',
   variant = 'tea'
 }) => {
@@ -25,17 +25,20 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     lg: 'gap-4 text-lg'
   };
 
-  const teaMessages = [
-    "Brewing the hottest tea...",
-    "Spilling the latest gossip...",
-    "Stirring up drama...",
-    "Heating up the tea kettle...",
-    "Gathering the juiciest intel..."
+  const funnyMessages = [
+    "Give me a min I'm not a dev I'm just a lady ok",
+    "Hold up, the hamsters powering this thing need a coffee break ☕",
+    "Loading... please don't judge my spaghetti code",
+    "Trying to make this work with duct tape and determination",
+    "Buffering like it's 2005... sorry bestie",
+    "The tea is brewing but the code is still percolating",
+    "One sec, gotta untangle these digital Christmas lights",
+    "Loading faster than my will to debug on a Friday",
+    "Plot twist: I have no idea what I'm doing but we're here anyway",
+    "Patience grasshopper, Rome wasn't coded in a day"
   ];
 
-  const displayMessage = message === "Brewing the hottest tea..." ? 
-    teaMessages[Math.floor(Math.random() * teaMessages.length)] : 
-    message;
+  const displayMessage = message || funnyMessages[Math.floor(Math.random() * funnyMessages.length)];
 
   return (
     <div className={`flex flex-col items-center justify-center ${containerClasses[size]}`}>
@@ -63,7 +66,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
       
       {size === 'lg' && (
         <p className="text-tabloid-black/50 text-sm mt-2 font-medium">
-          Good drama takes time to brew properly ☕
+          Beta life hits different 💅✨
         </p>
       )}
     </div>
