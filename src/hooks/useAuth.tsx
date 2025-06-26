@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useWallet } from '@/components/WalletProvider';
@@ -55,9 +54,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [processingReward, setProcessingReward] = useState(false);
   const { toast } = useToast();
 
-  // Mock admin check - in production this would check user roles
-  const isAdmin = user?.email === 'admin@cteanews.com' || user?.email === 'stephanie@taskbytask.net';
-  const isModerator = isAdmin; // For now, admins are also moderators
+  // Enhanced admin/moderator check based on verification level
+  const isAdmin = user?.verification_level === 'admin';
+  const isModerator = user?.verification_level === 'moderator' || isAdmin;
 
   // Refresh wallet balance
   const refreshBalance = useCallback(async () => {
@@ -114,13 +113,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!mounted) return;
 
         const userData: WalletUser = {
-          id: profile.wallet_address, // Use wallet address as ID
+          id: profile.wallet_address,
           wallet_address: profile.wallet_address,
           token_balance: balance.tea_balance,
           anonymous_token: profile.anonymous_token,
           verification_level: profile.verification_level,
           is_verified: profile.is_verified,
-          email_confirmed_at: new Date().toISOString(), // Mock confirmed for wallet users
+          email_confirmed_at: new Date().toISOString(),
           last_sign_in_at: new Date().toISOString(),
           user_metadata: {},
           app_metadata: {}

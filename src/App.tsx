@@ -11,8 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import SpillTea from '@/pages/SpillTea';
 import FloatingSpillCTA from '@/components/ui/FloatingSpillCTA';
-
-// Add new import for admin dashboard
+import Profile from '@/pages/Profile';
 import AdminBetaDashboard from '@/pages/admin/AdminBetaDashboard';
 
 function App() {
@@ -56,6 +55,7 @@ function App() {
                 isAdmin ? <AdminBetaDashboard /> : <div>Access Denied</div>
               } />
               
+              <Route path="/profile" element={<Profile />} />
             </Routes>
             
             {/* Floating Spill CTA - appears on all pages except landing */}

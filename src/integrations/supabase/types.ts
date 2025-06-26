@@ -816,6 +816,7 @@ export type Database = {
           anonymous_token: string
           created_at: string | null
           id: string
+          identity_visibility: string | null
           is_verified: boolean | null
           reputation_score: number | null
           updated_at: string | null
@@ -827,6 +828,7 @@ export type Database = {
           anonymous_token?: string
           created_at?: string | null
           id?: string
+          identity_visibility?: string | null
           is_verified?: boolean | null
           reputation_score?: number | null
           updated_at?: string | null
@@ -838,6 +840,7 @@ export type Database = {
           anonymous_token?: string
           created_at?: string | null
           id?: string
+          identity_visibility?: string | null
           is_verified?: boolean | null
           reputation_score?: number | null
           updated_at?: string | null
@@ -1216,6 +1219,10 @@ export type Database = {
           p_relevance?: number
         }
         Returns: Json
+      }
+      is_admin_or_moderator: {
+        Args: { user_wallet: string }
+        Returns: boolean
       }
       is_admin_secure: {
         Args: Record<PropertyKey, never>
