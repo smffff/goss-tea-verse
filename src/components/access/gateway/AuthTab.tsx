@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -5,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import AccessLevelIndicator from '../AccessLevelIndicator';
+import { getErrorMessage } from '@/utils/authErrorHandler';
 
 interface AuthTabProps {
   onAccessGranted: (level: 'guest' | 'authenticated' | 'beta' | 'admin') => void;
@@ -25,13 +27,6 @@ const AuthTab: React.FC<AuthTabProps> = ({
   const [password, setPassword] = useState('');
   const { toast } = useToast();
   const { signIn, signUp } = useAuth();
-
-  const getErrorMessage = (error: string | { message: string } | null | undefined): string => {
-    if (!error) return 'Unknown error occurred';
-    if (typeof error === 'string') return error;
-    if (typeof error === 'object' && error.message) return error.message;
-    return 'Unknown error occurred';
-  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

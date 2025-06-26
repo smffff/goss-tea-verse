@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { useSecurityAudit } from '@/components/security/SecurityAuditProvider';
 import { EnhancedAuthValidation } from '@/services/security/enhancedAuthValidation';
 import AccessLevelIndicator from '../AccessLevelIndicator';
 import { Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
+import { getErrorMessage } from '@/utils/authErrorHandler';
 
 interface EnhancedAuthTabProps {
   onAccessGranted: (level: 'guest' | 'authenticated' | 'beta' | 'admin') => void;
@@ -33,40 +34,33 @@ const EnhancedAuthTab: React.FC<EnhancedAuthTabProps> = ({
   const { signIn, signUp } = useAuth();
   const { logSecurityEvent } = useSecurityAudit();
 
-  const validateEmail = (emailValue: string) => {
+  const validateEmail = useCallback((emailValue: string) => {
     const validation = EnhancedAuthValidation.validateEmail(emailValue);
     setEmailValidation(validation);
     return validation.isValid;
-  };
+  }, []);
 
-  const validatePassword = (passwordValue: string) => {
+  const validatePassword = useCallback((passwordValue: string) => {
     const validation = EnhancedAuthValidation.validatePassword(passwordValue);
     setPasswordValidation(validation);
     return validation.isValid;
-  };
+  }, []);
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setEmail(value);
     if (value.length > 3) {
       validateEmail(value);
     }
-  };
+  }, [validateEmail]);
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setPassword(value);
     if (value.length > 0) {
       validatePassword(value);
     }
-  };
-
-  const getErrorMessage = (error: string | { message: string } | null | undefined): string => {
-    if (!error) return 'Unknown error occurred';
-    if (typeof error === 'string') return error;
-    if (typeof error === 'object' && error.message) return error.message;
-    return 'Unknown error occurred';
-  };
+  }, [validatePassword]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +68,6 @@ const EnhancedAuthTab: React.FC<EnhancedAuthTabProps> = ({
     setError('');
 
     try {
-      // Enhanced validation
       const emailValid = validateEmail(email);
       const sessionValid = EnhancedAuthValidation.validateAuthSession();
 
@@ -123,7 +116,6 @@ const EnhancedAuthTab: React.FC<EnhancedAuthTabProps> = ({
     setError('');
 
     try {
-      // Enhanced validation
       const emailValid = validateEmail(email);
       const passwordValid = validatePassword(password);
       const sessionValid = EnhancedAuthValidation.validateAuthSession();
@@ -179,12 +171,12 @@ const EnhancedAuthTab: React.FC<EnhancedAuthTabProps> = ({
     }
   };
 
-  const getValidationIcon = (validation: any, isValid: boolean) => {
+  const getValidationIcon = useCallback((validation: any, isValid: boolean) => {
     if (!validation) return null;
     return isValid ? 
       <CheckCircle className="w-4 h-4 text-green-500" /> : 
       <AlertCircle className="w-4 h-4 text-red-500" />;
-  };
+  }, []);
 
   return (
     <div className="space-y-4">

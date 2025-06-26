@@ -14,16 +14,19 @@ function App() {
   );
 
   useEffect(() => {
-    // Check for existing access - ensure boolean values only
+    // Check for existing access - ensure boolean values only with strict equality
     const betaAccess = localStorage.getItem('ctea-beta-access') === 'granted';
     const accessMethod = localStorage.getItem('ctea_access_method') !== null;
     const devRoutes = localStorage.getItem('ENABLE_DEV_ROUTES') === 'true';
     
-    const existingAccess = betaAccess || accessMethod || devRoutes;
+    const existingAccess = Boolean(betaAccess || accessMethod || devRoutes);
+    console.log('Access check:', { betaAccess, accessMethod, devRoutes, existingAccess });
+    
     setHasAccess(existingAccess);
   }, []);
 
   const handleAccessGranted = () => {
+    console.log('Access granted');
     setHasAccess(true);
   };
 

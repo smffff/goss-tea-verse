@@ -1,7 +1,10 @@
 
 import React from 'react';
-import { motion, useScroll, useTransform, Easing } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { cn } from '@/lib/utils';
+
+// Define easing types
+type EasingType = "linear" | "easeIn" | "easeOut" | "easeInOut" | "circIn" | "circOut" | "circInOut" | "backIn" | "backOut" | "backInOut" | "anticipate";
 
 interface ParallaxElementProps {
   children: React.ReactNode;
@@ -11,7 +14,7 @@ interface ParallaxElementProps {
   offset?: number;
   delay?: number;
   duration?: number;
-  ease?: Easing;
+  ease?: EasingType;
 }
 
 const ParallaxElement: React.FC<ParallaxElementProps> = ({
@@ -26,17 +29,27 @@ const ParallaxElement: React.FC<ParallaxElementProps> = ({
 }) => {
   const { scrollYProgress } = useScroll();
   
-  // Calculate transform values based on direction
-  const transformValue = speed * 100;
+  // Calculate transform values based on direction - memoized to prevent recalculation
+  const transformValue = React.useMemo(() => speed * 100, [speed]);
   
-  const yUp = useTransform(scrollYProgress, [0, 1], [offset, -transformValue]);
-  const yDown = useTransform(scrollYProgress, [0, 1], [offset, transformValue]);
-  const xLeft = useTransform(scrollYProgress, [0, 1], [offset, -transformValue]);
-  const xRight = useTransform(scrollYProgress, [0, 1], [offset, transformValue]);
+  // Create transforms based on direction
+  const yTransform = useTransform(
+    scrollYProgress, 
+    [0, 1], 
+    direction === 'up' ? [offset, -transformValue] : 
+    direction === 'down' ? [offset, transformValue] : [0, 0]
+  );
+  
+  const xTransform = useTransform(
+    scrollYProgress, 
+    [0, 1], 
+    direction === 'left' ? [offset, -transformValue] : 
+    direction === 'right' ? [offset, transformValue] : [0, 0]
+  );
 
-  // Determine which transform to use based on direction
-  const y = direction === 'up' ? yUp : direction === 'down' ? yDown : 0;
-  const x = direction === 'left' ? xLeft : direction === 'right' ? xRight : 0;
+  // Use the appropriate transform based on direction
+  const y = direction === 'up' || direction === 'down' ? yTransform : 0;
+  const x = direction === 'left' || direction === 'right' ? xTransform : 0;
 
   return (
     <motion.div
