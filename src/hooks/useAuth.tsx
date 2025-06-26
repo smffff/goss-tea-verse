@@ -51,7 +51,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<WalletUser | null>(null);
   const [session, setSession] = useState<AuthSession | null>(null);
   const [loading, setLoading] = useState(false);
-  const [processingReward, setProcessingReward] = useState(false);
   const { toast } = useToast();
 
   // Enhanced admin/moderator check based on verification level
