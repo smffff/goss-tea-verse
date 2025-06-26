@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,10 @@ const SpillTea = () => {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Get wallet address from user profile or fallback to anonymous token
+  const walletAddress = (user as any)?.wallet_address || (user as any)?.anonymous_token;
+  const userId = user?.id;
+
   const handleSubmit = async (data: any) => {
     setIsSubmitting(true);
     
@@ -33,7 +38,7 @@ const SpillTea = () => {
         content_length: data.teaText.length,
         has_media: !!data.mediaUrl,
         topic: data.topic,
-        wallet_connected: !!user?.wallet_address
+        wallet_connected: !!walletAddress
       });
       
       // Navigate to feed after submission
@@ -87,17 +92,17 @@ const SpillTea = () => {
               onClose={() => navigate('/feed')}
               onSubmit={handleSubmit}
               isLoading={isSubmitting}
-              walletAddress={user?.wallet_address}
-              userId={user?.id}
+              walletAddress={walletAddress}
+              userId={userId}
             />
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Wallet Balance */}
-            {user?.wallet_address && (
+            {walletAddress && (
               <WalletBalance 
-                walletAddress={user.wallet_address}
+                walletAddress={walletAddress}
                 className="sticky top-4"
               />
             )}
@@ -148,7 +153,7 @@ const SpillTea = () => {
                     <li>• 1 $TEA for community engagement</li>
                   </ul>
                 </div>
-                {!user?.wallet_address && (
+                {!walletAddress && (
                   <Button
                     variant="outline"
                     size="sm"

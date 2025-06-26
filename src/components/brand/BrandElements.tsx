@@ -67,7 +67,7 @@ export const BrandHeader: React.FC<BrandHeaderProps> = ({
   return (
     <div className={cn('text-center space-y-4', className)}>
       {showLogo && (
-        <BrandLogo size={logoSize} variant="float" showText />
+        <BrandLogo size={logoSize} variant="bounce" showText />
       )}
       <h1 className="text-4xl md:text-6xl font-headline font-bold text-vintage-red uppercase tracking-wider">
         {BRAND_CONFIG.name}

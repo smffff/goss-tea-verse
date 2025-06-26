@@ -1,4 +1,12 @@
+
 import { useEffect, useRef } from 'react';
+
+// Extend Window interface for gtag
+declare global {
+  interface Window {
+    gtag?: (command: string, targetId: string, config?: Record<string, any>) => void;
+  }
+}
 
 interface PerformanceMetrics {
   pageLoadTime: number;
@@ -73,9 +81,14 @@ export const usePerformanceMonitor = (pageName: string) => {
       let clsValue = 0;
       const observer = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
-          // Use type guard for LayoutShift
-          if (!entry.hadRecentInput && 'value' in entry) {
-            clsValue += (entry as PerformanceEntry & { value: number }).value;
+          // Type assertion for layout shift entries
+          const layoutShiftEntry = entry as PerformanceEntry & {
+            hadRecentInput?: boolean;
+            value?: number;
+          };
+          
+          if (!layoutShiftEntry.hadRecentInput && layoutShiftEntry.value) {
+            clsValue += layoutShiftEntry.value;
           }
         }
         metricsRef.current.cumulativeLayoutShift = clsValue;
@@ -90,15 +103,22 @@ export const usePerformanceMonitor = (pageName: string) => {
     const trackFID = () => {
       const observer = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
-          metricsRef.current.firstInputDelay = entry.processingStart - entry.startTime;
+          // Type assertion for first input entries
+          const fidEntry = entry as PerformanceEntry & {
+            processingStart?: number;
+          };
           
-          console.log(`[Performance] FID: ${metricsRef.current.firstInputDelay.toFixed(2)}ms`);
-          
-          if (window.gtag) {
-            window.gtag('event', 'first_input_delay', {
-              page_name: pageName,
-              fid_time: metricsRef.current.firstInputDelay
-            });
+          if (fidEntry.processingStart) {
+            metricsRef.current.firstInputDelay = fidEntry.processingStart - entry.startTime;
+            
+            console.log(`[Performance] FID: ${metricsRef.current.firstInputDelay.toFixed(2)}ms`);
+            
+            if (window.gtag) {
+              window.gtag('event', 'first_input_delay', {
+                page_name: pageName,
+                fid_time: metricsRef.current.firstInputDelay
+              });
+            }
           }
         }
       });
@@ -154,4 +174,4 @@ export const useComponentPerformance = (componentName: string) => {
       return renderTime;
     }
   };
-}; 
+};
