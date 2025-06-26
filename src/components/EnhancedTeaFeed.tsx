@@ -7,6 +7,9 @@ import { RefreshCw, Coffee } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useEnhancedFeedState } from '@/hooks/useEnhancedFeedState';
 import { useEnhancedRealTime } from '@/hooks/useEnhancedRealTime';
+import SponsoredContent from '@/components/revenue/SponsoredContent';
+import { CryptoAffiliateBanner } from '@/components/revenue/RevenueIntegration';
+import { useRevenue } from '@/components/revenue/RevenueProvider';
 
 const EnhancedTeaFeed = () => {
   const {
@@ -19,6 +22,7 @@ const EnhancedTeaFeed = () => {
   } = useEnhancedFeedState();
 
   const { toast } = useToast();
+  const { sponsoredContentEnabled, showAffiliateLinks } = useRevenue();
 
   // Set up real-time updates
   useEnhancedRealTime({ setSubmissions });
@@ -63,6 +67,11 @@ const EnhancedTeaFeed = () => {
         </Button>
       </div>
 
+      {/* Affiliate Banner */}
+      {showAffiliateLinks && (
+        <CryptoAffiliateBanner className="mb-6" />
+      )}
+
       {/* Feed Content */}
       {submissions.length === 0 ? (
         <div className="text-center py-12">
@@ -72,13 +81,27 @@ const EnhancedTeaFeed = () => {
         </div>
       ) : (
         <div className="space-y-6">
-          {submissions.map((submission) => (
-            <EnhancedTeaSubmissionCard
-              key={submission.id}
-              submission={submission}
-              onReaction={handleReaction}
-              onVote={handleVote}
-            />
+          {submissions.map((submission, index) => (
+            <React.Fragment key={submission.id}>
+              <EnhancedTeaSubmissionCard
+                submission={submission}
+                onReaction={handleReaction}
+                onVote={handleVote}
+              />
+              
+              {/* Insert sponsored content every 3rd submission */}
+              {sponsoredContentEnabled && index > 0 && (index + 1) % 3 === 0 && (
+                <SponsoredContent
+                  title="Master DeFi Trading"
+                  description="Learn advanced strategies from crypto pros. Get 50% off our premium course."
+                  ctaText="Learn More"
+                  ctaLink="https://example.com/defi-course"
+                  sponsor="CryptoAcademy Pro"
+                  placement="feed"
+                  className="my-4"
+                />
+              )}
+            </React.Fragment>
           ))}
         </div>
       )}
