@@ -1,91 +1,288 @@
 
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Coffee } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Coffee, Send, Key, Crown, Sparkles } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { motion } from 'framer-motion';
 import BrandedTeacupIcon from '@/components/ui/BrandedTeacupIcon';
-import AccessTabsContainer from './gateway/AccessTabsContainer';
-
-type TabType = 'peek' | 'login' | 'beta' | 'wallet';
+import { EnhancedAuthValidation } from '@/services/security/enhancedAuthValidation';
+import type { AccessLevel } from './AccessControlProvider';
 
 interface EnhancedAccessGatewayProps {
-  onAccessGranted: (accessLevel: 'guest' | 'authenticated' | 'beta' | 'admin') => void;
+  onAccessGranted: (level: AccessLevel) => void;
 }
 
-const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({ onAccessGranted }) => {
-  const [activeTab, setActiveTab] = useState<TabType>('peek');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState('');
-  const { user } = useAuth();
+const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
+  onAccessGranted
+}) => {
+  const [activeTab, setActiveTab] = useState<'code' | 'spill'>('spill');
+  const [betaCode, setBetaCode] = useState('');
+  const [spillContent, setSpillContent] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
-  useEffect(() => {
-    if (user) {
-      console.log('User authenticated, granting access');
-      onAccessGranted('authenticated');
+  const handleBetaCodeSubmit = useCallback(async () => {
+    if (!betaCode.trim()) {
+      toast({
+        title: "Code Required",
+        description: "Please enter a beta access code",
+        variant: "destructive"
+      });
+      return;
     }
-  }, [user, onAccessGranted]);
 
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab as TabType);
-  };
+    setIsLoading(true);
+    
+    try {
+      const validation = await EnhancedAuthValidation.validateBetaCode(betaCode);
+      
+      if (validation.isValid) {
+        localStorage.setItem('ctea-access-level', 'beta');
+        localStorage.setItem('ctea-beta-code', betaCode);
+        
+        toast({
+          title: "Access Granted! 🎉",
+          description: "Welcome to CTea Newsroom!",
+        });
+        
+        onAccessGranted('beta');
+      } else {
+        toast({
+          title: "Invalid Code",
+          description: "This code is not valid or has expired",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Verification Failed",
+        description: "Could not verify code. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [betaCode, onAccessGranted, toast]);
+
+  const handleSpillSubmit = useCallback(async () => {
+    if (!spillContent.trim()) {
+      toast({
+        title: "Content Required",
+        description: "Please share some tea to get access!",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      // Simulate processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Generate access code
+      const accessCode = `TEA-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+      
+      localStorage.setItem('ctea-access-level', 'guest');
+      localStorage.setItem('ctea-peek-start', Date.now().toString());
+      localStorage.setItem('ctea-spill-code', accessCode);
+      
+      toast({
+        title: "Tea Accepted! ☕",
+        description: `Your preview access is ready! Code: ${accessCode}`,
+        duration: 8000,
+      });
+      
+      onAccessGranted('guest');
+    } catch (error) {
+      toast({
+        title: "Submission Failed",
+        description: "Could not process your tea. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [spillContent, onAccessGranted, toast]);
+
+  const handleSneak = useCallback(() => {
+    localStorage.setItem('ctea-access-level', 'guest');
+    localStorage.setItem('ctea-peek-start', Date.now().toString());
+    
+    toast({
+      title: "Welcome to CTea! 👀",
+      description: "You have 5 minutes to explore!",
+    });
+    
+    onAccessGranted('guest');
+  }, [onAccessGranted, toast]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black flex items-center justify-center p-4">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-ctea-teal rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-ctea-purple rounded-full blur-2xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-pink-500 rounded-full blur-xl animate-pulse delay-2000"></div>
-      </div>
-
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-2xl relative z-10"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="w-full max-w-md space-y-6"
       >
-        <Card className="bg-ctea-dark/90 border-ctea-teal/30 backdrop-blur-sm">
-          <CardHeader className="text-center">
-            <div className="w-16 h-16 mx-auto bg-gradient-to-r from-ctea-teal to-pink-400 rounded-full flex items-center justify-center mb-4">
-              <Coffee className="w-8 h-8 text-white" />
-            </div>
-            <CardTitle className="text-2xl text-white flex items-center justify-center gap-2">
+        {/* Header */}
+        <div className="text-center space-y-4">
+          <BrandedTeacupIcon size="xl" variant="bounce" />
+          
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">
               CTea Newsroom
-              <BrandedTeacupIcon size="sm" animated />
-            </CardTitle>
-            <p className="text-gray-400">Choose Your Access Level ☕</p>
+            </h1>
+            <p className="text-ctea-teal font-semibold">
+              Beta 1.2 is LIVE!
+            </p>
+            <p className="text-gray-400 text-sm">
+              Where Crypto Twitter Comes to Spill
+            </p>
+          </div>
+
+          <div className="flex items-center justify-center gap-2">
+            <Badge className="bg-ctea-teal/20 text-ctea-teal border-ctea-teal/50">
+              🔒 Secured
+            </Badge>
+            <Badge className="bg-pink-400/20 text-pink-400 border-pink-400/50">
+              👥 Gated
+            </Badge>
+            <Badge className="bg-green-400/20 text-green-400 border-green-400/50">
+              ⚡ Ready
+            </Badge>
+          </div>
+        </div>
+
+        {/* Access Methods */}
+        <Card className="bg-ctea-dark/60 border-ctea-teal/30 backdrop-blur-sm">
+          <CardHeader>
+            <div className="flex space-x-1">
+              <Button
+                onClick={() => setActiveTab('spill')}
+                variant={activeTab === 'spill' ? 'default' : 'ghost'}
+                className={activeTab === 'spill' ? 'bg-ctea-teal text-white' : 'text-gray-400'}
+                size="sm"
+              >
+                <Coffee className="w-4 h-4 mr-2" />
+                Spill Tea
+              </Button>
+              <Button
+                onClick={() => setActiveTab('code')}
+                variant={activeTab === 'code' ? 'default' : 'ghost'}
+                className={activeTab === 'code' ? 'bg-ctea-teal text-white' : 'text-gray-400'}
+                size="sm"
+              >
+                <Key className="w-4 h-4 mr-2" />
+                Beta Code
+              </Button>
+            </div>
           </CardHeader>
 
-          <CardContent className="space-y-6">
-            <AccessTabsContainer
-              activeTab={activeTab}
-              setActiveTab={handleTabChange}
-              onAccessGranted={onAccessGranted}
-              isProcessing={isProcessing}
-              setIsProcessing={setIsProcessing}
-              error={error}
-              setError={setError}
-            />
-
-            {error && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-red-400 text-sm text-center bg-red-500/10 border border-red-500/20 rounded p-2"
+          <CardContent className="space-y-4">
+            {activeTab === 'spill' && (
+              <motion.div
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                className="space-y-4"
               >
-                {error}
-              </motion.p>
+                <div>
+                  <label className="text-white text-sm font-medium mb-2 block">
+                    What's the hottest crypto tea? ☕
+                  </label>
+                  <Textarea
+                    placeholder="Spill the tea... Which project is sus? Who's dumping? Share your alpha!"
+                    value={spillContent}
+                    onChange={(e) => setSpillContent(e.target.value)}
+                    className="bg-white/10 border-white/20 text-white placeholder:text-white/50 resize-none"
+                    rows={4}
+                    maxLength={500}
+                  />
+                  <div className="text-xs text-white/60 text-right mt-1">
+                    {spillContent.length}/500
+                  </div>
+                </div>
+
+                <Button
+                  onClick={handleSpillSubmit}
+                  disabled={isLoading || !spillContent.trim()}
+                  className="w-full bg-gradient-to-r from-ctea-teal to-pink-400 hover:from-pink-400 hover:to-ctea-teal text-white font-bold"
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                      Brewing Code...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 mr-2" />
+                      Spill & Get Access
+                    </>
+                  )}
+                </Button>
+              </motion.div>
             )}
 
-            {/* Help Section */}
-            <div className="pt-4 border-t border-ctea-teal/20 text-center">
-              <p className="text-xs text-gray-400 mb-2">New to CTea?</p>
-              <p className="text-xs text-ctea-teal">
-                Start with a sneak peek, then upgrade for full gossip access!
-              </p>
+            {activeTab === 'code' && (
+              <motion.div
+                initial={{ x: 20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                className="space-y-4"
+              >
+                <div>
+                  <label className="text-white text-sm font-medium mb-2 block">
+                    Enter Beta Access Code 🔑
+                  </label>
+                  <Input
+                    placeholder="TEA-XXXXX"
+                    value={betaCode}
+                    onChange={(e) => setBetaCode(e.target.value.toUpperCase())}
+                    className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                    maxLength={20}
+                  />
+                </div>
+
+                <Button
+                  onClick={handleBetaCodeSubmit}
+                  disabled={isLoading || !betaCode.trim()}
+                  className="w-full bg-gradient-to-r from-ctea-teal to-pink-400 hover:from-pink-400 hover:to-ctea-teal text-white font-bold"
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                      Verifying...
+                    </>
+                  ) : (
+                    <>
+                      <Crown className="w-4 h-4 mr-2" />
+                      Unlock Full Access
+                    </>
+                  )}
+                </Button>
+              </motion.div>
+            )}
+
+            <div className="pt-4 border-t border-white/10">
+              <Button
+                onClick={handleSneak}
+                variant="outline"
+                className="w-full border-white/20 text-white/80 hover:bg-white/10"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Just Take a Peek (5 min preview)
+              </Button>
             </div>
           </CardContent>
         </Card>
+
+        {/* Footer */}
+        <div className="text-center text-xs text-gray-500">
+          <p>On-chain gossip meets meme warfare.</p>
+          <p>CTea News is where rumors get receipts.</p>
+        </div>
       </motion.div>
     </div>
   );

@@ -1,9 +1,11 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Heart, MessageCircle, Share2, Flag, Clock } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { MessageCircle, Flag, Share2, ExternalLink } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useToast } from '@/hooks/use-toast';
 import { TeaSubmission } from '@/types/teaFeed';
 
 interface LiveTeaSubmissionCardProps {
@@ -15,163 +17,189 @@ const LiveTeaSubmissionCard: React.FC<LiveTeaSubmissionCardProps> = ({
   submission,
   onReaction
 }) => {
-  const [userReaction, setUserReaction] = useState<string | null>(null);
+  const [hasReacted, setHasReacted] = useState(false);
+  const { toast } = useToast();
+
+  const handleReaction = (type: 'hot' | 'cold' | 'spicy') => {
+    if (hasReacted) {
+      toast({
+        title: "Already Reacted",
+        description: "You can only react once per submission",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    onReaction(submission.id, type);
+    setHasReacted(true);
+    
+    const emoji = type === 'hot' ? '🔥' : type === 'spicy' ? '🌶️' : '🧊';
+    toast({
+      title: `Reacted with ${emoji}`,
+      description: "Your reaction has been recorded!",
+    });
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'CTea Newsroom - Hot Tea Alert!',
+        text: submission.content.slice(0, 100) + '...',
+        url: window.location.href
+      });
+    } else {
+      navigator.clipboard.writeText(`${submission.content.slice(0, 100)}... - CTea Newsroom`);
+      toast({
+        title: "Copied to Clipboard",
+        description: "Tea link copied to share!",
+      });
+    }
+  };
 
   const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
     const now = new Date();
-    const created = new Date(dateString);
-    const diffInMinutes = Math.floor((now.getTime() - created.getTime()) / (1000 * 60));
-    
-    if (diffInMinutes < 1) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
-    return `${Math.floor(diffInMinutes / 1440)}d ago`;
-  };
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-  const handleReaction = (reactionType: 'hot' | 'cold' | 'spicy') => {
-    if (userReaction === reactionType) return; // Prevent duplicate reactions
-    
-    setUserReaction(reactionType);
-    onReaction(submission.id, reactionType);
-  };
-
-  const getTotalReactions = () => {
-    return submission.reactions.hot + submission.reactions.cold + submission.reactions.spicy;
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    return `${Math.floor(diffInSeconds / 86400)}d ago`;
   };
 
   return (
-    <Card className="bg-ctea-dark/60 border-ctea-teal/30 hover:border-ctea-teal/50 transition-all duration-300">
-      <CardContent className="p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-ctea-teal border-ctea-teal/30">
-              {submission.category}
-            </Badge>
-            {submission.is_verified && (
-              <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                ✓ Verified
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Card className="bg-ctea-dark/60 border-ctea-teal/20 hover:border-ctea-teal/40 transition-all duration-300">
+        <CardContent className="p-6">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-ctea-teal to-pink-400 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">
+                  {submission.author ? submission.author[0].toUpperCase() : 'A'}
+                </span>
+              </div>
+              <div>
+                <p className="text-white font-medium">
+                  {submission.author || 'Anonymous Tea Spiller'}
+                </p>
+                <p className="text-gray-400 text-sm">
+                  {formatTimeAgo(submission.created_at)}
+                </p>
+              </div>
+            </div>
+            
+            {submission.category && (
+              <Badge className="bg-ctea-teal/20 text-ctea-teal border-ctea-teal/50">
+                #{submission.category}
               </Badge>
             )}
           </div>
-          <div className="flex items-center gap-1 text-sm text-gray-400">
-            <Clock className="w-3 h-3" />
-            {formatTimeAgo(submission.created_at)}
-          </div>
-        </div>
 
-        {/* Content */}
-        <div className="mb-4">
-          <p className="text-white leading-relaxed">{submission.content}</p>
-        </div>
-
-        {/* Evidence/Media */}
-        {submission.evidence_urls && submission.evidence_urls.length > 0 && (
+          {/* Content */}
           <div className="mb-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {submission.evidence_urls.slice(0, 2).map((url, index) => (
-                <img
-                  key={index}
-                  src={url}
-                  alt={`Evidence ${index + 1}`}
-                  className="w-full h-32 object-cover rounded-lg border border-ctea-teal/20 hover:border-ctea-teal/40 transition-colors"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              ))}
+            <p className="text-white leading-relaxed">
+              {submission.content}
+            </p>
+          </div>
+
+          {/* Evidence */}
+          {submission.evidence_urls && submission.evidence_urls.length > 0 && (
+            <div className="mb-4">
+              <div className="flex items-center gap-2 text-sm text-gray-400 mb-2">
+                <ExternalLink className="w-4 h-4" />
+                Evidence provided
+              </div>
+              <div className="bg-ctea-darker/50 rounded p-3">
+                <a
+                  href={submission.evidence_urls[0]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-ctea-teal hover:text-pink-400 text-sm truncate block"
+                >
+                  {submission.evidence_urls[0]}
+                </a>
+              </div>
             </div>
-          </div>
-        )}
-
-        {/* AI Commentary */}
-        {submission.ai_reaction && (
-          <div className="mb-4 p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-purple-400 text-sm font-medium">🤖 AI Take</span>
-            </div>
-            <p className="text-gray-300 text-sm">{submission.ai_reaction}</p>
-          </div>
-        )}
-
-        {/* Reactions */}
-        <div className="flex items-center gap-4 mb-4 p-3 bg-ctea-darker/50 rounded-lg">
-          <button
-            onClick={() => handleReaction('hot')}
-            className={`flex items-center gap-2 transition-colors ${
-              userReaction === 'hot' 
-                ? 'text-orange-400 scale-110' 
-                : 'text-orange-400/70 hover:text-orange-400'
-            }`}
-            disabled={userReaction !== null}
-          >
-            🔥 <span className="font-medium">{submission.reactions.hot}</span>
-          </button>
-          <button
-            onClick={() => handleReaction('spicy')}
-            className={`flex items-center gap-2 transition-colors ${
-              userReaction === 'spicy' 
-                ? 'text-red-400 scale-110' 
-                : 'text-red-400/70 hover:text-red-400'
-            }`}
-            disabled={userReaction !== null}
-          >
-            🌶️ <span className="font-medium">{submission.reactions.spicy}</span>
-          </button>
-          <button
-            onClick={() => handleReaction('cold')}
-            className={`flex items-center gap-2 transition-colors ${
-              userReaction === 'cold' 
-                ? 'text-blue-400 scale-110' 
-                : 'text-blue-400/70 hover:text-blue-400'
-            }`}
-            disabled={userReaction !== null}
-          >
-            🧊 <span className="font-medium">{submission.reactions.cold}</span>
-          </button>
-        </div>
-
-        {/* Stats */}
-        <div className="flex items-center justify-between text-sm text-gray-400 mb-4">
-          <div className="flex items-center gap-4">
-            <span>Total reactions: {getTotalReactions()}</span>
-            {submission.verification_score > 0 && (
-              <span>Credibility: {submission.verification_score}%</span>
-            )}
-          </div>
-          {submission.average_rating > 0 && (
-            <span>Rating: {submission.average_rating.toFixed(1)}/10</span>
           )}
-        </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            variant="ghost"
-            className="text-gray-400 hover:bg-gray-700 hover:text-white"
-          >
-            <MessageCircle className="w-4 h-4 mr-1" />
-            Comment
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="text-gray-400 hover:bg-gray-700 hover:text-white"
-          >
-            <Share2 className="w-4 h-4 mr-1" />
-            Share
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="text-gray-400 hover:bg-gray-700 hover:text-red-400"
-          >
-            <Flag className="w-4 h-4" />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          {/* Reactions */}
+          <div className="flex items-center gap-4 mb-4 p-3 bg-ctea-darker/30 rounded-lg">
+            <button
+              onClick={() => handleReaction('hot')}
+              disabled={hasReacted}
+              className={`flex items-center gap-2 px-3 py-1 rounded-full transition-all ${
+                hasReacted
+                  ? 'bg-gray-600/50 text-gray-400 cursor-not-allowed'
+                  : 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 hover:scale-105'
+              }`}
+            >
+              🔥 <span className="font-bold">{submission.reactions.hot}</span>
+            </button>
+            
+            <button
+              onClick={() => handleReaction('spicy')}
+              disabled={hasReacted}
+              className={`flex items-center gap-2 px-3 py-1 rounded-full transition-all ${
+                hasReacted
+                  ? 'bg-gray-600/50 text-gray-400 cursor-not-allowed'
+                  : 'bg-red-500/20 text-red-400 hover:bg-red-500/30 hover:scale-105'
+              }`}
+            >
+              🌶️ <span className="font-bold">{submission.reactions.spicy}</span>
+            </button>
+            
+            <button
+              onClick={() => handleReaction('cold')}
+              disabled={hasReacted}
+              className={`flex items-center gap-2 px-3 py-1 rounded-full transition-all ${
+                hasReacted
+                  ? 'bg-gray-600/50 text-gray-400 cursor-not-allowed'
+                  : 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 hover:scale-105'
+              }`}
+            >
+              🧊 <span className="font-bold">{submission.reactions.cold}</span>
+            </button>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-gray-400 hover:text-white hover:bg-white/10"
+              >
+                <MessageCircle className="w-4 h-4 mr-1" />
+                Comment
+              </Button>
+              
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleShare}
+                className="text-gray-400 hover:text-ctea-teal hover:bg-ctea-teal/10"
+              >
+                <Share2 className="w-4 h-4 mr-1" />
+                Share
+              </Button>
+            </div>
+
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-gray-500 hover:text-red-400 hover:bg-red-400/10"
+            >
+              <Flag className="w-4 h-4" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 
