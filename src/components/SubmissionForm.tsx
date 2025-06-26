@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -96,12 +95,12 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
           variant: "destructive"
         });
 
-        // Log security violation
+        // Log security violation - Fixed severity level
         await EnhancedSecurityService.logSecurityEvent('submission_blocked', {
           reasons: errors,
           content_length: data.tea.length,
           risk_level: securityCheck.contentValidation.riskLevel
-        }, 'high');
+        }, 'error');
 
         return;
       }
@@ -115,12 +114,12 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
 
       await onSubmit(sanitizedData);
 
-      // Log successful submission
+      // Log successful submission - Fixed severity level  
       await EnhancedSecurityService.logSecurityEvent('secure_submission_created', {
         content_length: sanitizedData.tea.length,
         evidence_count: sanitizedData.evidence_urls.length,
         security_score: securityCheck.contentValidation.securityScore
-      }, 'low');
+      }, 'info');
 
     } catch (error) {
       console.error('Submission error:', error);
@@ -130,11 +129,11 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
         variant: "destructive"
       });
 
-      // Log submission error
+      // Log submission error - Fixed severity level
       await EnhancedSecurityService.logSecurityEvent('submission_error', {
         error: error instanceof Error ? error.message : 'Unknown error',
         content_length: data.tea.length
-      }, 'medium');
+      }, 'warning');
     }
   };
 
