@@ -127,31 +127,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(userData);
         setSession({ user: userData });
 
-        // Award early user reward (only once per wallet)
-        if (!processingReward) {
-          setProcessingReward(true);
-          
-          try {
-            const rewardResult = await rewardEarlyUser(wallet.address);
-            
-            if (!mounted) return;
+        // Award early user reward. The new `rewardEarlyUser` function handles
+        // the check internally to prevent duplicate rewards.
+        try {
+          const rewardResult = await rewardEarlyUser(wallet.address);
 
-            if (rewardResult.rewarded) {
-              toast({
-                title: "Welcome Bonus! 🎉",
-                description: `You've received ${rewardResult.amount} $TEA tokens as an early adopter reward!`,
-              });
-
-              // Update balance after reward
-              userData.token_balance = rewardResult.new_balance || balance.tea_balance + rewardResult.amount;
-              setUser({...userData});
-              setSession({ user: {...userData} });
-            }
-          } catch (rewardError) {
-            console.warn('Reward error (likely already rewarded):', rewardError);
-          } finally {
-            setProcessingReward(false);
+          if (mounted && rewardResult.rewarded) {
+            toast({
+              title: "Welcome Bonus! 🎉",
+              description: `You've received ${rewardResult.amount} $TEA tokens for being an early adopter!`,
+            });
+            // Refresh balance to show the new reward
+            await refreshBalance();
           }
+        } catch (rewardError: any) {
+          console.warn('Could not process early user reward:', rewardError.message);
         }
 
       } catch (error: any) {
@@ -179,14 +169,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       mounted = false;
     };
-  }, [wallet.isConnected, wallet.address, user, processingReward, toast]);
+  }, [wallet.isConnected, wallet.address, user, toast, refreshBalance]);
 
   // Handle wallet disconnection
   useEffect(() => {
     if (!wallet.isConnected) {
       setUser(null);
       setSession(null);
-      setProcessingReward(false);
     }
   }, [wallet.isConnected]);
 
@@ -195,7 +184,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     disconnectWallet();
     setUser(null);
     setSession(null);
-    setProcessingReward(false);
   }, [disconnectWallet]);
 
   // Sign out handler (same as disconnect for wallet auth)
