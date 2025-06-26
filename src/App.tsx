@@ -1,107 +1,77 @@
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { SecurityProvider } from '@/contexts/SecurityContext';
+import { WalletProvider } from '@/components/WalletProvider';
+import LandingPage from '@/pages/LandingPage';
+import Feed from '@/pages/Feed';
+import SubmitTea from '@/pages/SubmitTea';
+import Auth from '@/pages/Auth';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import AdminDashboard from '@/pages/AdminDashboard';
+import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
+import { useAuth } from '@/hooks/useAuth';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import SpillTea from '@/pages/SpillTea';
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/hooks/useAuth";
-import { WalletProvider } from "@/components/WalletProvider";
-import { SecurityProvider } from "@/components/SecurityProvider";
-import { EnhancedErrorBoundary } from "@/components/EnhancedErrorBoundary";
-import { setupGlobalErrorHandler } from "@/utils/errorHandler";
-import { useEffect, useState } from "react";
-import ConsolidatedApp from "@/components/ConsolidatedApp";
-
-// Pages
-import Feed from "./pages/Feed";
-import SpillTea from "./pages/SpillTea";
-import About from "./pages/About";
-import Tokenomics from "./pages/Tokenomics";
-import Roadmap from "./pages/Roadmap";
-import Team from "./pages/Team";
-import FAQ from "./pages/FAQ";
-import MemeOps from "./pages/MemeOps";
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+// Add new import for admin dashboard
+import AdminBetaDashboard from '@/pages/admin/AdminBetaDashboard';
 
 function App() {
-  const [hasBetaAccess, setHasBetaAccess] = useState(false);
-  const [isCheckingAccess, setIsCheckingAccess] = useState(true);
+  const { isLoading, session, isAdmin } = useAuth();
+  const [isBetaAccessGranted, setIsBetaAccessGranted] = useState(false);
 
   useEffect(() => {
-    // Setup global error handling
-    setupGlobalErrorHandler();
-    
-    // Check for existing beta access
-    const betaAccess = localStorage.getItem('ctea-beta-access');
-    setHasBetaAccess(!!betaAccess);
-    setIsCheckingAccess(false);
-  }, []);
+    const hasBetaAccess = localStorage.getItem('ctea-beta-access') === 'granted';
+    setIsBetaAccessGranted(hasBetaAccess);
+  }, [session]);
 
   const handleAccessGranted = () => {
-    setHasBetaAccess(true);
+    setIsBetaAccessGranted(true);
   };
 
-  if (isCheckingAccess) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-orange-500 flex items-center justify-center">
-        <div className="text-white text-2xl font-bold animate-pulse">Loading the tea...</div>
-      </div>
-    );
-  }
-
-  if (!hasBetaAccess) {
-    return (
-      <EnhancedErrorBoundary>
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <ConsolidatedApp onAccessGranted={handleAccessGranted} />
-          </TooltipProvider>
-        </QueryClientProvider>
-      </EnhancedErrorBoundary>
-    );
+  if (isLoading) {
+    return <LoadingSpinner />;
   }
 
   return (
-    <EnhancedErrorBoundary>
-      <QueryClientProvider client={queryClient}>
+    <div className="App">
+      <ErrorBoundaryWrapper componentName="App">
         <SecurityProvider>
-          <AuthProvider>
-            <WalletProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <BrowserRouter>
-                  <Routes>
-                    <Route path="/" element={<ConsolidatedApp onAccessGranted={handleAccessGranted} />} />
-                    <Route path="/feed" element={<Feed />} />
-                    <Route path="/spill" element={<SpillTea />} />
-                    <Route path="/about" element={<About />} />
-                    <Route path="/tokenomics" element={<Tokenomics />} />
-                    <Route path="/roadmap" element={<Roadmap />} />
-                    <Route path="/team" element={<Team />} />
-                    <Route path="/faq" element={<FAQ />} />
-                    <Route path="/memeops" element={<MemeOps />} />
-                    <Route path="*" element={<ConsolidatedApp onAccessGranted={handleAccessGranted} />} />
-                  </Routes>
-                </BrowserRouter>
-              </TooltipProvider>
-            </WalletProvider>
-          </AuthProvider>
+          <WalletProvider>
+            <Router>
+              <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/feed" element={<Feed />} />
+                <Route path="/spill" element={
+                  <ProtectedRoute requireVerifiedEmail={false}>
+                    <SpillTea />
+                  </ProtectedRoute>
+                } />
+                <Route path="/submit" element={
+                  <ProtectedRoute requireVerifiedEmail={true}>
+                    <SubmitTea />
+                  </ProtectedRoute>
+                } />
+                
+                {/* Admin Routes */}
+                <Route path="/admin" element={
+                  <ProtectedRoute requireAdmin={true}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/beta" element={
+                  <ProtectedRoute requireAdmin={true}>
+                    <AdminBetaDashboard />
+                  </ProtectedRoute>
+                } />
+                
+              </Routes>
+            </Router>
+          </WalletProvider>
         </SecurityProvider>
-      </QueryClientProvider>
-    </EnhancedErrorBoundary>
+      </ErrorBoundaryWrapper>
+    </div>
   );
 }
 

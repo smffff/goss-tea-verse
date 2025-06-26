@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -7,6 +6,7 @@ import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { performSubmissionSecurityCheck } from '@/utils/security';
+import { BetaCodeService } from '@/services/betaCodeService';
 
 interface SubmissionData {
   tea: string;
@@ -72,6 +72,21 @@ const SubmitTea = () => {
 
       if (!result || result.length === 0) {
         throw new Error('Submission failed: No data returned');
+      }
+
+      // Generate beta code for successful submission
+      try {
+        const codeResult = await BetaCodeService.generateCodeForSpill(result[0].id);
+        if (codeResult.success && codeResult.code) {
+          toast({
+            title: "Tea Spilled Successfully! 🫖",
+            description: `Your access code is: ${codeResult.code}`,
+            duration: 10000,
+          });
+        }
+      } catch (codeError) {
+        console.log('Beta code generation failed:', codeError);
+        // Don't fail the submission if code generation fails
       }
 
       toast({

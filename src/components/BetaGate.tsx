@@ -1,13 +1,15 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Sparkles, Lock, Coffee, Users, TrendingUp, Zap } from 'lucide-react';
+import { Sparkles, Lock, Coffee, Users, TrendingUp, Zap, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import ParallaxElement from '@/components/ui/ParallaxElement';
 import ViralCTA from '@/components/ui/ViralCTA';
+import { BetaCodeService } from '@/services/betaCodeService';
+import { useToast } from '@/hooks/use-toast';
 
 interface BetaGateProps {
   onAccessGranted: () => void;
@@ -17,17 +19,10 @@ const BetaGate: React.FC<BetaGateProps> = ({ onAccessGranted }) => {
   const [betaCode, setBetaCode] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState('');
-
-  const validateBetaCode = async (code: string): Promise<boolean> => {
-    try {
-      // Simple validation - in production you might want to check against a database table
-      const validCodes = ['CTEA2024', 'BETA-ACCESS', 'EARLY-BIRD'];
-      return validCodes.includes(code.toUpperCase());
-    } catch (error) {
-      console.error('Beta code validation error:', error);
-      return false;
-    }
-  };
+  const [showSpillForm, setShowSpillForm] = useState(false);
+  const [spillContent, setSpillContent] = useState('');
+  const [isSpilling, setIsSpilling] = useState(false);
+  const { toast } = useToast();
 
   const handleBetaSubmit = async () => {
     if (!betaCode.trim()) {
@@ -39,13 +34,18 @@ const BetaGate: React.FC<BetaGateProps> = ({ onAccessGranted }) => {
     setError('');
 
     try {
-      const isValid = await validateBetaCode(betaCode);
+      const result = await BetaCodeService.validateCode(betaCode, true);
       
-      if (isValid) {
+      if (result.valid) {
         localStorage.setItem('ctea-beta-access', 'granted');
+        localStorage.setItem('ctea-beta-code', result.code || betaCode);
+        toast({
+          title: "Access Granted! ☕",
+          description: "Welcome to CTea Newsroom Beta!",
+        });
         onAccessGranted();
       } else {
-        setError('Invalid beta code. Please check your code and try again.');
+        setError(result.error || 'Invalid beta code. Please check your code and try again.');
       }
     } catch (error) {
       console.error('Beta verification error:', error);
@@ -53,6 +53,52 @@ const BetaGate: React.FC<BetaGateProps> = ({ onAccessGranted }) => {
     } finally {
       setIsVerifying(false);
     }
+  };
+
+  const handleSpillTea = async () => {
+    if (!spillContent.trim()) {
+      setError('Please enter some tea to spill!');
+      return;
+    }
+
+    setIsSpilling(true);
+    setError('');
+
+    try {
+      // First create a mock submission ID (in real app this would come from actual submission)
+      const mockSubmissionId = crypto.randomUUID();
+      
+      // Generate beta code for the spill
+      const result = await BetaCodeService.generateCodeForSpill(mockSubmissionId);
+      
+      if (result.success && result.code) {
+        localStorage.setItem('ctea-beta-access', 'granted');
+        localStorage.setItem('ctea-beta-code', result.code);
+        toast({
+          title: "Tea Spilled Successfully! 🫖",
+          description: `Your access code is: ${result.code}`,
+        });
+        onAccessGranted();
+      } else {
+        setError(result.error || 'Failed to generate access code');
+      }
+    } catch (error) {
+      console.error('Spill tea error:', error);
+      setError('Failed to spill tea. Please try again.');
+    } finally {
+      setIsSpilling(false);
+    }
+  };
+
+  const handleBribe = () => {
+    // For now, just give them a code - in production this would handle payment
+    const testCodes = BetaCodeService.getTestCodes();
+    const randomCode = testCodes[Math.floor(Math.random() * testCodes.length)];
+    setBetaCode(randomCode);
+    toast({
+      title: "Bribe Accepted! 💰",
+      description: `Here's your access code: ${randomCode}`,
+    });
   };
 
   return (
@@ -100,23 +146,102 @@ const BetaGate: React.FC<BetaGateProps> = ({ onAccessGranted }) => {
                 CTea Newsroom
               </h1>
               <p className="text-xl md:text-2xl text-gray-300 font-light">
-                Where Gossip Meets Intelligence
+                Where Crypto Twitter Comes to Spill ☕
               </p>
             </motion.div>
 
-            {/* Beta Access Card */}
+            {/* Beta Access Options */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.4 }}
+              className="grid md:grid-cols-3 gap-6 mb-8"
             >
-              <Card className="bg-ctea-dark/80 border-ctea-teal/30 backdrop-blur-lg max-w-md mx-auto mb-8">
+              {/* Spill Tea Option */}
+              <Card className="bg-ctea-dark/80 border-ctea-teal/30 backdrop-blur-lg cursor-pointer hover:border-ctea-teal/60 transition-all" onClick={() => setShowSpillForm(!showSpillForm)}>
                 <CardHeader className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-ctea-teal to-ctea-purple rounded-full flex items-center justify-center">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-ctea-teal to-green-400 rounded-full flex items-center justify-center">
+                    <Coffee className="w-8 h-8 text-white" />
+                  </div>
+                  <CardTitle className="text-xl text-white">🫖 Spill Your Tea</CardTitle>
+                  <p className="text-gray-400 text-sm">Share gossip, get access</p>
+                </CardHeader>
+              </Card>
+
+              {/* Bribe Option */}
+              <Card className="bg-ctea-dark/80 border-pink-400/30 backdrop-blur-lg cursor-pointer hover:border-pink-400/60 transition-all" onClick={handleBribe}>
+                <CardHeader className="text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full flex items-center justify-center">
+                    <Sparkles className="w-8 h-8 text-white" />
+                  </div>
+                  <CardTitle className="text-xl text-white">💸 Bribe the Gatekeepers</CardTitle>
+                  <p className="text-gray-400 text-sm">Send tip, unlock access</p>
+                </CardHeader>
+              </Card>
+
+              {/* Code Entry Option */}
+              <Card className="bg-ctea-dark/80 border-yellow-400/30 backdrop-blur-lg">
+                <CardHeader className="text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center">
                     <Lock className="w-8 h-8 text-white" />
                   </div>
-                  <CardTitle className="text-2xl text-white">Beta Access Required</CardTitle>
-                  <p className="text-gray-400">Enter your exclusive beta code to continue</p>
+                  <CardTitle className="text-xl text-white">🔑 Enter Access Code</CardTitle>
+                  <p className="text-gray-400 text-sm">Already have a code?</p>
+                </CardHeader>
+              </Card>
+            </motion.div>
+
+            {/* Spill Tea Form */}
+            <AnimatePresence>
+              {showSpillForm && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mb-8 overflow-hidden"
+                >
+                  <Card className="bg-ctea-dark/80 border-ctea-teal/30 backdrop-blur-lg max-w-md mx-auto">
+                    <CardHeader>
+                      <CardTitle className="text-white text-center">Share Your Tea ☕</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <textarea
+                        value={spillContent}
+                        onChange={(e) => setSpillContent(e.target.value)}
+                        placeholder="What's the hot gossip? Share your crypto tea..."
+                        className="w-full bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-500 focus:border-ctea-teal rounded-lg p-3 min-h-[100px] resize-none"
+                        maxLength={500}
+                      />
+                      <div className="text-xs text-gray-400 text-right">
+                        {spillContent.length}/500 characters
+                      </div>
+                      <ViralCTA
+                        variant="spill"
+                        size="md"
+                        onClick={handleSpillTea}
+                        className="w-full"
+                        showParticles={false}
+                        shakeOnHover={false}
+                        disabled={isSpilling || !spillContent.trim()}
+                      >
+                        {isSpilling ? 'Spilling Tea...' : 'Spill & Get Access'}
+                      </ViralCTA>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Beta Code Entry */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+            >
+              <Card className="bg-ctea-dark/80 border-ctea-teal/30 backdrop-blur-lg max-w-md mx-auto">
+                <CardHeader>
+                  <CardTitle className="text-2xl text-white text-center">Beta Access</CardTitle>
+                  <p className="text-gray-400 text-center">Enter your exclusive beta code</p>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -124,18 +249,17 @@ const BetaGate: React.FC<BetaGateProps> = ({ onAccessGranted }) => {
                       type="text"
                       placeholder="Enter beta code..."
                       value={betaCode}
-                      onChange={(e) => setBetaCode(e.target.value)}
-                      className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-500 focus:border-ctea-teal"
+                      onChange={(e) => setBetaCode(e.target.value.toUpperCase())}
+                      className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-500 focus:border-ctea-teal text-center font-mono"
                       onKeyPress={(e) => e.key === 'Enter' && handleBetaSubmit()}
                     />
                     {error && (
-                      <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="text-red-400 text-sm"
-                      >
-                        {error}
-                      </motion.p>
+                      <Alert className="border-red-500 bg-red-500/10">
+                        <AlertCircle className="w-4 h-4 text-red-400" />
+                        <AlertDescription className="text-red-400">
+                          {error}
+                        </AlertDescription>
+                      </Alert>
                     )}
                   </div>
                   <ViralCTA
@@ -145,6 +269,7 @@ const BetaGate: React.FC<BetaGateProps> = ({ onAccessGranted }) => {
                     className="w-full"
                     showParticles={false}
                     shakeOnHover={false}
+                    disabled={isVerifying}
                   >
                     {isVerifying ? 'Verifying...' : 'Access The Tea'}
                   </ViralCTA>
@@ -156,18 +281,18 @@ const BetaGate: React.FC<BetaGateProps> = ({ onAccessGranted }) => {
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto"
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto mt-12"
             >
               <div className="bg-ctea-dark/40 backdrop-blur border border-ctea-teal/20 rounded-lg p-6 text-center">
                 <Users className="w-8 h-8 text-ctea-teal mx-auto mb-3" />
                 <h3 className="text-white font-semibold mb-2">Community Driven</h3>
-                <p className="text-gray-400 text-sm">Join thousands of gossip enthusiasts</p>
+                <p className="text-gray-400 text-sm">Join crypto's hottest gossip network</p>
               </div>
               <div className="bg-ctea-dark/40 backdrop-blur border border-pink-400/20 rounded-lg p-6 text-center">
                 <TrendingUp className="w-8 h-8 text-pink-400 mx-auto mb-3" />
-                <h3 className="text-white font-semibold mb-2">Trending Stories</h3>
-                <p className="text-gray-400 text-sm">Stay ahead of the curve</p>
+                <h3 className="text-white font-semibold mb-2">Trending Alpha</h3>
+                <p className="text-gray-400 text-sm">Stay ahead with insider intel</p>
               </div>
               <div className="bg-ctea-dark/40 backdrop-blur border border-ctea-purple/20 rounded-lg p-6 text-center">
                 <Sparkles className="w-8 h-8 text-ctea-purple mx-auto mb-3" />

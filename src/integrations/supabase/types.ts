@@ -81,6 +81,39 @@ export type Database = {
         }
         Relationships: []
       }
+      beta_codes: {
+        Row: {
+          code: string
+          created_at: string | null
+          granted_by: string | null
+          id: string
+          metadata: Json | null
+          used: boolean | null
+          used_at: string | null
+          user_token: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          granted_by?: string | null
+          id?: string
+          metadata?: Json | null
+          used?: boolean | null
+          used_at?: string | null
+          user_token?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          granted_by?: string | null
+          id?: string
+          metadata?: Json | null
+          used?: boolean | null
+          used_at?: string | null
+          user_token?: string | null
+        }
+        Relationships: []
+      }
       chat_rooms: {
         Row: {
           created_at: string | null
@@ -1118,6 +1151,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      generate_beta_code_for_spill: {
+        Args: { p_submission_id: string; p_user_token: string }
+        Returns: Json
+      }
       get_current_user_verification_level: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1317,6 +1354,10 @@ export type Database = {
       validate_anonymous_token_enhanced: {
         Args: { token: string }
         Returns: boolean
+      }
+      validate_beta_code: {
+        Args: { p_code: string; p_user_token?: string }
+        Returns: Json
       }
       validate_content: {
         Args: { content: string }
