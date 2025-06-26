@@ -30,6 +30,12 @@ export const mainNavigationItems: NavigationItem[] = [
     description: 'Submit anonymous crypto gossip'
   },
   { 
+    path: '/memeops', 
+    label: 'MemeOps', 
+    icon: Trophy,
+    description: 'Weekly meme campaign and rewards'
+  },
+  { 
     path: '/leaderboard', 
     label: 'Spillerboard', 
     icon: Trophy,

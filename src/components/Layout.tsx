@@ -7,6 +7,7 @@ interface LayoutProps {
   className?: string;
   showNavigation?: boolean;
   showFooter?: boolean;
+  showBreadcrumb?: boolean;
   showFeedback?: boolean;
   submissionId?: string;
   pageTitle?: string;
@@ -19,6 +20,7 @@ const Layout: React.FC<LayoutProps> = ({
   className = '',
   showNavigation = true,
   showFooter = true,
+  showBreadcrumb = true,
   pageTitle,
   pageDescription,
   variant = 'default'
@@ -28,6 +30,7 @@ const Layout: React.FC<LayoutProps> = ({
       className={className}
       showNavigation={showNavigation}
       showFooter={showFooter}
+      showBreadcrumb={showBreadcrumb}
       pageTitle={pageTitle}
       pageDescription={pageDescription}
       variant={variant}

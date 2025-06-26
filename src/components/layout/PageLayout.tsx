@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import UnifiedNavigation from '@/components/UnifiedNavigation';
 import UnifiedFooter from '@/components/UnifiedFooter';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import Breadcrumb from '@/components/navigation/Breadcrumb';
 import { BRAND_CONFIG } from '@/lib/config/brandConfig';
 
 interface PageLayoutProps {
@@ -11,6 +12,7 @@ interface PageLayoutProps {
   className?: string;
   showNavigation?: boolean;
   showFooter?: boolean;
+  showBreadcrumb?: boolean;
   pageTitle?: string;
   pageDescription?: string;
   variant?: 'default' | 'landing' | 'app' | 'minimal';
@@ -21,6 +23,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   className = '',
   showNavigation = true,
   showFooter = true,
+  showBreadcrumb = true,
   pageTitle,
   pageDescription,
   variant = 'default'
@@ -35,6 +38,12 @@ const PageLayout: React.FC<PageLayoutProps> = ({
       const metaDescription = document.querySelector('meta[name="description"]');
       if (metaDescription) {
         metaDescription.setAttribute('content', pageDescription);
+      } else {
+        // Create meta description if it doesn't exist
+        const meta = document.createElement('meta');
+        meta.name = 'description';
+        meta.content = pageDescription;
+        document.head.appendChild(meta);
       }
     }
   }, [pageTitle, pageDescription]);
@@ -57,7 +66,12 @@ const PageLayout: React.FC<PageLayoutProps> = ({
       <div className={cn(getLayoutClasses(), 'flex flex-col')}>
         {showNavigation && <UnifiedNavigation />}
         
-        <main className={cn('flex-1', className)}>
+        <main className={cn('flex-1', className)} role="main">
+          {showBreadcrumb && showNavigation && (
+            <div className="container mx-auto px-4 py-4">
+              <Breadcrumb />
+            </div>
+          )}
           {children}
         </main>
         

@@ -18,6 +18,7 @@ import Tokenomics from "./pages/Tokenomics";
 import Roadmap from "./pages/Roadmap";
 import Team from "./pages/Team";
 import FAQ from "./pages/FAQ";
+import MemeOps from "./pages/MemeOps";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ function App() {
                     <Route path="/roadmap" element={<Roadmap />} />
                     <Route path="/team" element={<Team />} />
                     <Route path="/faq" element={<FAQ />} />
+                    <Route path="/memeops" element={<MemeOps />} />
                     {/* Existing routes */}
                     <Route path="*" element={<Landing />} />
                   </Routes>
