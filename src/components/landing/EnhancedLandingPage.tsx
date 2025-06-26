@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Users, TrendingUp, Sparkles } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Users, TrendingUp, Sparkles, Settings, Code } from 'lucide-react';
 import WalletGatedHero from './WalletGatedHero';
 import BribeButton from './BribeButton';
 import EnhancedSpillSubmission from './EnhancedSpillSubmission';
@@ -17,11 +17,19 @@ const EnhancedLandingPage: React.FC = () => {
   const [hasAccess, setHasAccess] = useState(false);
   const [accessLevel, setAccessLevel] = useState<AccessLevel | null>(null);
 
+  const hasBetaAccess = localStorage.getItem('ctea-beta-access') === 'granted';
+  const isDevelopment = process.env.NODE_ENV === 'development';
+
   const handleAccessGranted = (access: AccessLevel) => {
     setAccessLevel(access);
     setHasAccess(true);
     setShowBribeModal(false);
     setShowSpillModal(false);
+  };
+
+  const enableDevRoutes = () => {
+    localStorage.setItem('ENABLE_DEV_ROUTES', 'true');
+    window.location.href = '/dev/feed';
   };
 
   // Check for existing access on load
@@ -34,6 +42,27 @@ const EnhancedLandingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black relative overflow-hidden">
+      {/* Development Mode Banner */}
+      {isDevelopment && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-b border-yellow-500/30 p-2">
+          <div className="container mx-auto flex items-center justify-between">
+            <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/50">
+              🛠️ DEVELOPMENT MODE
+            </Badge>
+            {(hasBetaAccess || isDevelopment) && (
+              <Button
+                onClick={enableDevRoutes}
+                size="sm"
+                className="bg-gradient-to-r from-ctea-teal to-green-400 hover:from-green-400 hover:to-ctea-teal text-black font-bold"
+              >
+                <Code className="w-4 h-4 mr-2" />
+                Access Dev Routes
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Animated Background */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-ctea-teal rounded-full blur-3xl animate-pulse"></div>
@@ -66,7 +95,7 @@ const EnhancedLandingPage: React.FC = () => {
         ))}
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 py-12">
+      <div className={`relative z-10 container mx-auto px-4 ${isDevelopment ? 'pt-20' : 'py-12'}`}>
         {/* Main Hero Section */}
         <div className="min-h-screen flex items-center justify-center">
           <WalletGatedHero
@@ -75,6 +104,34 @@ const EnhancedLandingPage: React.FC = () => {
             onShowSpill={() => setShowSpillModal(true)}
           />
         </div>
+
+        {/* Beta Access Notice for Development */}
+        {isDevelopment && (hasBetaAccess || hasAccess) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-12"
+          >
+            <Card className="bg-gradient-to-r from-ctea-teal/20 to-green-400/20 border-ctea-teal/50">
+              <CardContent className="p-6 text-center">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <Settings className="w-6 h-6 text-ctea-teal" />
+                  <h3 className="text-xl font-bold text-white">Beta User Detected!</h3>
+                </div>
+                <p className="text-gray-300 mb-4">
+                  You have beta access to CTea Newsroom. Want to explore the development features?
+                </p>
+                <Button
+                  onClick={enableDevRoutes}
+                  className="bg-gradient-to-r from-ctea-teal to-green-400 hover:from-green-400 hover:to-ctea-teal text-black font-bold"
+                >
+                  <Code className="w-4 h-4 mr-2" />
+                  Enter Development Environment
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Community Stats */}
         <motion.div
