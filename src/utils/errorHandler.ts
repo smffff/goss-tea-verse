@@ -73,8 +73,8 @@ export class SecureErrorHandler {
     }
 
     try {
-      // Send to logging service (implement your preferred service)
-      await this.sendToLoggingService({
+      // Simple fallback logging - just console in production for now
+      console.warn('Error logged:', {
         ...errorDetails,
         context,
         timestamp: new Date().toISOString(),
@@ -83,27 +83,6 @@ export class SecureErrorHandler {
       })
     } catch (loggingError) {
       console.error('Failed to log error:', loggingError)
-    }
-  }
-
-  private static async sendToLoggingService(errorData: any): Promise<void> {
-    // Implementation depends on your logging service
-    // For now, we'll use Supabase edge function
-    try {
-      const response = await fetch('/api/log-error', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(errorData)
-      })
-      
-      if (!response.ok) {
-        throw new Error(`Logging failed: ${response.status}`)
-      }
-    } catch (error) {
-      // Fallback logging
-      console.warn('Error logging service unavailable:', error)
     }
   }
 

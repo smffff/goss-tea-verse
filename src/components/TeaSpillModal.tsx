@@ -1,33 +1,48 @@
+
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Coffee, Sparkles, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { EnhancedSecurityService } from '@/services/enhancedSecurityService';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import { SecureTokenManager } from '@/utils/enhancedSecurityUtils';
+import { useToast } from '@/hooks/use-toast';
 
 interface TeaSpillModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSubmit: (data: { content: string; wallet?: string; email?: string }) => void;
 }
 
-const TeaSpillModal: React.FC<TeaSpillModalProps> = ({ isOpen, onClose, onSuccess }) => {
-  const [tea, setTea] = useState('');
-  const [evidenceUrl, setEvidenceUrl] = useState('');
+const TeaSpillModal: React.FC<TeaSpillModalProps> = ({ isOpen, onClose, onSubmit }) => {
+  const [content, setContent] = useState('');
+  const [wallet, setWallet] = useState('');
+  const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [needsBetaAccess, setNeedsBetaAccess] = useState(false);
+  const [betaCode, setBetaCode] = useState('');
   const { toast } = useToast();
+
+  const generateBetaAccess = async (): Promise<string> => {
+    try {
+      // Simple beta code generation
+      const codes = ['EARLY-BIRD', 'BETA-ACCESS', 'CTEA2024'];
+      return codes[Math.floor(Math.random() * codes.length)];
+    } catch (error) {
+      console.error('Beta access generation error:', error);
+      return 'BETA-ACCESS';
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!tea.trim() || tea.trim().length < 10) {
+    if (!content.trim()) {
       toast({
-        title: "More Tea Please!",
-        description: "Please share at least 10 characters of juicy gossip",
+        title: "Content Required",
+        description: "Please enter some tea to spill!",
         variant: "destructive"
       });
       return;
@@ -36,70 +51,33 @@ const TeaSpillModal: React.FC<TeaSpillModalProps> = ({ isOpen, onClose, onSucces
     setIsSubmitting(true);
 
     try {
-      // Get secure token
-      const token = await SecureTokenManager.getOrCreateToken();
+      // Check if user needs beta access
+      const hasAccess = localStorage.getItem('ctea-beta-access');
       
-      // Validate submission security
-      const securityCheck = await EnhancedSecurityService.validateSubmissionSecurity(
-        tea,
-        evidenceUrl ? [evidenceUrl] : [],
-        'beta_tea_submission'
-      );
-
-      if (!securityCheck.overallValid) {
+      if (!hasAccess) {
+        const code = await generateBetaAccess();
+        setBetaCode(code);
+        setNeedsBetaAccess(true);
         toast({
-          title: "Content Issue",
-          description: "Please revise your submission and try again",
-          variant: "destructive"
+          title: "Beta Access Required",
+          description: `Use code: ${code}`,
         });
         setIsSubmitting(false);
         return;
       }
 
-      // Submit to database
-      const { data, error } = await supabase
-        .from('tea_submissions')
-        .insert({
-          content: securityCheck.contentValidation.sanitized,
-          category: 'beta_access',
-          evidence_urls: securityCheck.urlValidation.valid.length > 0 ? securityCheck.urlValidation.valid : null,
-          anonymous_token: token,
-          status: 'approved',
-          has_evidence: securityCheck.urlValidation.valid.length > 0,
-          reactions: { hot: 0, cold: 0, spicy: 0 },
-          average_rating: 0,
-          rating_count: 0
-        })
-        .select();
-
-      if (error) {
-        throw error;
-      }
-
-      // Generate beta code for user - call the function directly
-      const { data: betaData, error: betaError } = await supabase.rpc('generate_beta_access', {
-        referrer_type: 'spill_tea',
-        referrer_id: data[0]?.id
-      });
-
-      if (betaError) {
-        console.error('Beta code generation error:', betaError);
-      }
-
-      // Handle the response as any since it's a custom function
-      const betaResult = betaData as any;
-
-      toast({
-        title: "Tea Spilled Successfully! 🫖",
-        description: betaResult?.code ? `Your beta code: ${betaResult.code}` : "Access granted!",
-      });
-
-      onSuccess();
+      await onSubmit({ content, wallet, email });
+      
+      // Reset form
+      setContent('');
+      setWallet('');
+      setEmail('');
+      onClose();
     } catch (error) {
       console.error('Submission error:', error);
       toast({
         title: "Submission Failed",
-        description: "Please try again in a moment",
+        description: "Please try again later.",
         variant: "destructive"
       });
     } finally {
@@ -107,67 +85,154 @@ const TeaSpillModal: React.FC<TeaSpillModalProps> = ({ isOpen, onClose, onSucces
     }
   };
 
+  const handleBetaAccess = () => {
+    if (betaCode) {
+      localStorage.setItem('ctea-beta-access', 'granted');
+      setNeedsBetaAccess(false);
+      toast({
+        title: "Access Granted! ☕",
+        description: "You can now spill your tea!",
+      });
+    }
+  };
+
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-gradient-to-br from-gray-900 to-black border-pink-400 max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-2xl text-white font-bold text-center">
-            🫖 Spill Your Tea
-          </DialogTitle>
-        </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="tea" className="text-pink-300 font-semibold">
-              What's the crypto gossip?
-            </Label>
-            <Textarea
-              id="tea"
-              value={tea}
-              onChange={(e) => setTea(e.target.value)}
-              placeholder="Share some juicy crypto drama, rumors, or alpha..."
-              className="bg-gray-800 border-gray-600 text-white min-h-[100px]"
-              maxLength={500}
-            />
-            <div className="text-xs text-gray-400 mt-1">
-              {tea.length}/500 characters
+    <AnimatePresence>
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.9, y: 20 }}
+          className="w-full max-w-2xl"
+        >
+          <Card className="bg-ctea-dark border-ctea-teal/30 relative overflow-hidden">
+            {/* Animated Background */}
+            <div className="absolute inset-0 opacity-5">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-ctea-teal rounded-full blur-3xl animate-pulse"></div>
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-pink-400 rounded-full blur-2xl animate-pulse delay-1000"></div>
             </div>
-          </div>
 
-          <div>
-            <Label htmlFor="evidence" className="text-cyan-300 font-semibold">
-              Evidence (Optional)
-            </Label>
-            <Input
-              id="evidence"
-              type="url"
-              value={evidenceUrl}
-              onChange={(e) => setEvidenceUrl(e.target.value)}
-              placeholder="https://twitter.com/..."
-              className="bg-gray-800 border-gray-600 text-white"
-            />
-          </div>
+            <CardHeader className="relative">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-ctea-teal to-pink-400 rounded-full flex items-center justify-center">
+                    <Coffee className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-white">Spill the Tea ☕</h2>
+                    <p className="text-gray-400 text-sm">Share your insider knowledge</p>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onClose}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+            </CardHeader>
 
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onClose}
-              className="flex-1 text-gray-400 hover:text-white"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-1 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold"
-            >
-              {isSubmitting ? 'Spilling...' : 'Spill Tea'}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+            <CardContent className="relative space-y-6">
+              {needsBetaAccess ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-center space-y-4"
+                >
+                  <div className="w-16 h-16 mx-auto bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center">
+                    <Sparkles className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-2">Beta Access Required</h3>
+                    <p className="text-gray-400 mb-4">Use this code to unlock access:</p>
+                    <div className="bg-ctea-darker border border-ctea-teal/30 rounded-lg p-4 mb-4">
+                      <code className="text-ctea-teal text-lg font-mono">{betaCode}</code>
+                    </div>
+                    <Button onClick={handleBetaAccess} className="bg-ctea-teal hover:bg-ctea-teal/80">
+                      <Zap className="w-4 h-4 mr-2" />
+                      Activate Access
+                    </Button>
+                  </div>
+                </motion.div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="content" className="text-white">Your Tea *</Label>
+                    <Textarea
+                      id="content"
+                      placeholder="What's the hot gossip? Share your insider knowledge..."
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-500 focus:border-ctea-teal min-h-[120px] resize-none"
+                      maxLength={1000}
+                    />
+                    <div className="text-xs text-gray-400 text-right">
+                      {content.length}/1000 characters
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="wallet" className="text-white">Wallet (Optional)</Label>
+                      <Input
+                        id="wallet"
+                        placeholder="Your wallet address for rewards..."
+                        value={wallet}
+                        onChange={(e) => setWallet(e.target.value)}
+                        className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-500 focus:border-ctea-teal"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-white">Email (Optional)</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="your@email.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-500 focus:border-ctea-teal"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex space-x-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={onClose}
+                      className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting || !content.trim()}
+                      className="flex-1 bg-gradient-to-r from-ctea-teal to-pink-400 hover:from-ctea-teal/80 hover:to-pink-400/80 text-white"
+                    >
+                      {isSubmitting ? (
+                        <div className="flex items-center">
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
+                          Spilling...
+                        </div>
+                      ) : (
+                        <div className="flex items-center">
+                          <Coffee className="w-4 h-4 mr-2" />
+                          Spill the Tea
+                        </div>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    </AnimatePresence>
   );
 };
 

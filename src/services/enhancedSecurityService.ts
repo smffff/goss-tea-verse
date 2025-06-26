@@ -1,207 +1,176 @@
-import { supabase } from '@/integrations/supabase/client'
-import { SecureTokenManager, ContentSanitizer } from '@/utils/enhancedSecurityUtils'
-
-export interface SecurityValidationResult {
-  valid: boolean;
-  sanitized: string;
-  threats: string[];
-  riskLevel: 'low' | 'medium' | 'high' | 'critical';
-  securityScore?: number;
+interface SecurityEvent {
+  event_type: string;
+  details: Record<string, unknown>;
+  severity: 'info' | 'warning' | 'error' | 'critical';
+  timestamp: string;
+  session_id?: string;
+  user_agent?: string;
+  ip_address?: string;
 }
 
-export interface RateLimitResult {
-  allowed: boolean;
-  currentCount: number;
-  maxActions: number;
-  remaining?: number;
-  resetTime?: string;
-  blockedReason?: string;
-  securityViolation?: boolean;
+interface SecurityConfig {
+  maxLoginAttempts: number;
+  lockoutDuration: number;
+  sessionTimeout: number;
+  rateLimitWindow: number;
+  rateLimitMax: number;
+}
+
+interface SecurityMetrics {
+  totalEvents: number;
+  criticalEvents: number;
+  blockedAttempts: number;
+  activeThreats: number;
 }
 
 export class EnhancedSecurityService {
-  /**
-   * Server-side content validation with comprehensive security checks
-   */
-  static async validateContentSecurely(
-    content: string,
-    maxLength: number = 1000
-  ): Promise<SecurityValidationResult> {
-    try {
-      const { data, error } = await supabase.rpc('validate_unified_security', {
-        content,
-        max_length: maxLength
-      });
+  private static instance: EnhancedSecurityService;
+  private events: SecurityEvent[] = [];
+  private blockedIPs: Set<string> = new Set();
+  private suspiciousSessions: Set<string> = new Set();
 
-      if (error) {
-        console.error('Server-side validation error:', error);
-        const clientResult = ContentSanitizer.sanitizeContent(content);
-        return {
-          valid: clientResult.threats.length === 0,
-          sanitized: clientResult.sanitized,
-          threats: clientResult.threats,
-          riskLevel: clientResult.riskLevel
-        };
-      }
+  private config: SecurityConfig = {
+    maxLoginAttempts: 5,
+    lockoutDuration: 15 * 60 * 1000, // 15 minutes
+    sessionTimeout: 30 * 60 * 1000, // 30 minutes
+    rateLimitWindow: 60 * 1000, // 1 minute
+    rateLimitMax: 100
+  };
 
-      if (!data || typeof data !== 'object') {
-        const clientResult = ContentSanitizer.sanitizeContent(content);
-        return {
-          valid: clientResult.threats.length === 0,
-          sanitized: clientResult.sanitized,
-          threats: clientResult.threats,
-          riskLevel: clientResult.riskLevel
-        };
-      }
+  public static getInstance(): EnhancedSecurityService {
+    if (!EnhancedSecurityService.instance) {
+      EnhancedSecurityService.instance = new EnhancedSecurityService();
+    }
+    return EnhancedSecurityService.instance;
+  }
 
-      const result = data as any;
-      return {
-        valid: Boolean(result?.valid),
-        sanitized: String(result?.sanitized || content),
-        threats: Array.isArray(result?.errors) ? result.errors : [],
-        riskLevel: (['low', 'medium', 'high', 'critical'].includes(result?.risk_level) ? result.risk_level : 'medium') as 'low' | 'medium' | 'high' | 'critical',
-        securityScore: typeof result?.security_score === 'number' ? result.security_score : undefined
-      };
-    } catch (error) {
-      console.error('Content validation service error:', error);
-      const clientResult = ContentSanitizer.sanitizeContent(content);
-      return {
-        valid: clientResult.threats.length === 0,
-        sanitized: clientResult.sanitized,
-        threats: clientResult.threats,
-        riskLevel: clientResult.riskLevel
-      };
+  public logSecurityEvent(
+    eventType: string,
+    details: Record<string, unknown> = {},
+    severity: 'info' | 'warning' | 'error' | 'critical' = 'info'
+  ): void {
+    const event: SecurityEvent = {
+      event_type: eventType,
+      details,
+      severity,
+      timestamp: new Date().toISOString(),
+      session_id: this.getSessionId(),
+      user_agent: navigator.userAgent,
+      ip_address: 'client-side' // Cannot get real IP from client
+    };
+
+    this.events.push(event);
+    
+    // Keep only recent events (last 1000)
+    if (this.events.length > 1000) {
+      this.events = this.events.slice(-1000);
+    }
+
+    // Console log for development
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[SECURITY] ${severity.toUpperCase()}: ${eventType}`, details);
+    }
+
+    // Handle critical events
+    if (severity === 'critical') {
+      this.handleCriticalEvent(event);
     }
   }
 
-  /**
-   * Server-side rate limiting with enhanced threat detection
-   */
-  static async checkRateLimitSecurely(
-    action: string,
-    maxActions: number = 10,
-    windowMinutes: number = 60
-  ): Promise<RateLimitResult> {
-    try {
-      const token = await SecureTokenManager.getOrCreateToken();
-      
-      const { data, error } = await supabase.rpc('check_enhanced_rate_limit', {
-        p_token: token,
-        p_action: action,
-        p_max_actions: maxActions,
-        p_window_minutes: windowMinutes
-      });
+  public getSecurityMetrics(): SecurityMetrics {
+    const now = Date.now();
+    const oneHourAgo = now - (60 * 60 * 1000);
 
-      if (error) {
-        console.error('Server-side rate limit error:', error);
-        return {
-          allowed: true, // Fail open for availability
-          currentCount: 0,
-          maxActions
-        };
-      }
-
-      if (!data || typeof data !== 'object') {
-        return {
-          allowed: true, // Fail open for availability
-          currentCount: 0,
-          maxActions
-        };
-      }
-
-      const result = data as any;
-      return {
-        allowed: Boolean(result?.allowed !== false),
-        currentCount: Number(result?.current_count) || 0,
-        maxActions: Number(result?.max_actions) || maxActions,
-        remaining: typeof result?.remaining === 'number' ? result.remaining : undefined,
-        resetTime: typeof result?.reset_time === 'string' ? result.reset_time : undefined,
-        blockedReason: typeof result?.blocked_reason === 'string' ? result.blocked_reason : undefined,
-        securityViolation: typeof result?.security_violation === 'boolean' ? result.security_violation : undefined
-      };
-    } catch (error) {
-      console.error('Rate limit service error:', error);
-      return {
-        allowed: true, // Fail open for availability
-        currentCount: 0,
-        maxActions
-      };
-    }
-  }
-
-  /**
-   * Comprehensive submission security check
-   */
-  static async validateSubmissionSecurity(
-    content: string,
-    evidenceUrls: string[] = [],
-    action: string = 'submission'
-  ): Promise<{
-    contentValidation: SecurityValidationResult;
-    rateLimitCheck: RateLimitResult;
-    urlValidation: { valid: string[]; invalid: string[] };
-    overallValid: boolean;
-  }> {
-    const [contentValidation, rateLimitCheck] = await Promise.all([
-      this.validateContentSecurely(content),
-      this.checkRateLimitSecurely(action, 3, 60) // Max 3 submissions per hour
-    ]);
-
-    const validUrls = ContentSanitizer.validateUrls(evidenceUrls);
-    const invalidUrls = evidenceUrls.filter(url => !validUrls.includes(url));
-
-    const overallValid = 
-      contentValidation.valid &&
-      rateLimitCheck.allowed &&
-      contentValidation.riskLevel !== 'critical';
+    const recentEvents = this.events.filter(
+      event => new Date(event.timestamp).getTime() > oneHourAgo
+    );
 
     return {
-      contentValidation,
-      rateLimitCheck,
-      urlValidation: { valid: validUrls, invalid: invalidUrls },
-      overallValid
+      totalEvents: recentEvents.length,
+      criticalEvents: recentEvents.filter(e => e.severity === 'critical').length,
+      blockedAttempts: recentEvents.filter(e => e.event_type.includes('blocked')).length,
+      activeThreats: this.suspiciousSessions.size
     };
   }
 
-  /**
-   * Rotate authentication token for enhanced security
-   */
-  static async rotateToken(): Promise<{ success: boolean; newToken?: string }> {
-    try {
-      SecureTokenManager.clearToken();
-      const newToken = await SecureTokenManager.getOrCreateToken();
-      
-      console.log('[Security] Token rotated for security');
-      return { success: true, newToken };
-    } catch (error) {
-      console.error('Token rotation service error:', error);
-      return { success: false };
-    }
+  public isIPBlocked(ip: string): boolean {
+    return this.blockedIPs.has(ip);
   }
 
-  /**
-   * Log security events for monitoring
-   */
-  static async logSecurityEvent(
-    eventType: string,
-    details: Record<string, unknown>,
-    severity: 'low' | 'medium' | 'high' | 'critical' = 'low'
-  ): Promise<void> {
-    try {
-      const { error } = await supabase.from('admin_audit_log').insert({
-        admin_email: 'system',
-        action: eventType,
-        details: details as any,
-        target_table: 'security_log',
-        ip_address: 'unknown',
-        user_agent: navigator.userAgent || 'unknown'
-      });
+  public blockIP(ip: string, reason: string): void {
+    this.blockedIPs.add(ip);
+    this.logSecurityEvent('ip_blocked', { ip, reason }, 'warning');
+  }
 
-      if (error) {
-        console.error('Security event logging failed:', error);
-      }
-    } catch (error) {
-      console.error('Security logging service error:', error);
+  public validateInput(input: string, maxLength: number = 1000): boolean {
+    // Basic validation
+    if (!input || input.length > maxLength) {
+      return false;
     }
+
+    // Check for suspicious patterns
+    const suspiciousPatterns = [
+      /<script[^>]*>.*?<\/script>/gi,
+      /javascript:/gi,
+      /on\w+\s*=/gi,
+      /eval\s*\(/gi,
+      /union\s+select/gi,
+      /drop\s+table/gi
+    ];
+
+    for (const pattern of suspiciousPatterns) {
+      if (pattern.test(input)) {
+        this.logSecurityEvent('suspicious_input_detected', { 
+          pattern: pattern.source,
+          input: input.substring(0, 100) + '...' 
+        }, 'warning');
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  public sanitizeInput(input: string): string {
+    return input
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;')
+      .replace(/\//g, '&#x2F;');
+  }
+
+  private getSessionId(): string {
+    let sessionId = sessionStorage.getItem('security_session_id');
+    if (!sessionId) {
+      sessionId = Math.random().toString(36).substring(2, 15) + 
+                 Math.random().toString(36).substring(2, 15);
+      sessionStorage.setItem('security_session_id', sessionId);
+    }
+    return sessionId;
+  }
+
+  private handleCriticalEvent(event: SecurityEvent): void {
+    // Add session to suspicious list
+    if (event.session_id) {
+      this.suspiciousSessions.add(event.session_id);
+    }
+
+    // In a real app, you might want to:
+    // - Send alert to security team
+    // - Temporarily block the session
+    // - Require additional authentication
+    console.warn('[CRITICAL SECURITY EVENT]', event);
+  }
+
+  public clearEvents(): void {
+    this.events = [];
+  }
+
+  public getRecentEvents(count: number = 10): SecurityEvent[] {
+    return this.events.slice(-count);
   }
 }
+
+// Export singleton instance
+export const securityService = EnhancedSecurityService.getInstance();

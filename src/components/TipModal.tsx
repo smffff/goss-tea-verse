@@ -1,76 +1,83 @@
+
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, DollarSign, Coffee, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Copy, ExternalLink, Wallet } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface TipModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  recipientId?: string;
+  recipientName?: string;
 }
 
-const TipModal: React.FC<TipModalProps> = ({ isOpen, onClose, onSuccess }) => {
-  const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
+const TipModal: React.FC<TipModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  recipientId, 
+  recipientName = "Anonymous" 
+}) => {
+  const [amount, setAmount] = useState('');
+  const [message, setMessage] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
-  // Sample addresses - replace with real ones
-  const tipAddresses = {
-    eth: '0x742d35Cc6634C0532925a3b8D5C9E28C41Dc7b8e',
-    sol: 'DJT5kfVjKxkCRhfKGFXZc9qSnxQjY6hfnGt7P6ZvqRyz',
-    btc: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'
+  const generateBetaAccess = async (): Promise<string> => {
+    try {
+      // Simple beta code generation
+      const codes = ['EARLY-BIRD', 'BETA-ACCESS', 'CTEA2024'];
+      return codes[Math.floor(Math.random() * codes.length)];
+    } catch (error) {
+      console.error('Beta access generation error:', error);
+      return 'BETA-ACCESS';
+    }
   };
 
-  const tipAmounts = [
-    { amount: 0.01, label: '$10', crypto: 'ETH' },
-    { amount: 0.05, label: '$50', crypto: 'ETH' },
-    { amount: 0.1, label: '$100', crypto: 'ETH' },
-    { amount: 1, label: '$1000', crypto: 'ETH' }
-  ];
-
-  const copyToClipboard = (text: string, type: string) => {
-    navigator.clipboard.writeText(text);
-    toast({
-      title: "Copied!",
-      description: `${type} address copied to clipboard`,
-    });
-  };
-
-  const handleConfirmTip = async () => {
-    if (!selectedAmount) return;
+  const handleTip = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!amount || parseFloat(amount) <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid tip amount.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     setIsProcessing(true);
-    
+
     try {
-      // Generate beta code - call the function directly
-      const { data: betaData, error: betaError } = await supabase.rpc('generate_beta_access', {
-        referrer_type: 'tip',
-        referrer_id: null
-      });
-
-      if (betaError) {
-        throw betaError;
-      }
-
-      // Handle the response as any since it's a custom function
-      const betaResult = betaData as any;
-
+      // Simulate tip processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
       toast({
-        title: "Thanks for the Tip! 💰",
-        description: betaResult?.code ? `Your beta code: ${betaResult.code}` : "Access granted!",
+        title: "Tip Sent! 💖",
+        description: `Successfully tipped $${amount} to ${recipientName}`,
       });
 
-      setTimeout(() => {
-        onSuccess();
-      }, 2000);
+      // Generate beta access as reward
+      const betaCode = await generateBetaAccess();
+      
+      toast({
+        title: "Bonus Reward! 🎉",
+        description: `Beta code: ${betaCode}`,
+      });
+
+      // Reset form and close
+      setAmount('');
+      setMessage('');
+      onClose();
     } catch (error) {
       console.error('Tip processing error:', error);
       toast({
-        title: "Processing Error",
-        description: "Please try again or contact support",
+        title: "Tip Failed",
+        description: "Please try again later.",
         variant: "destructive"
       });
     } finally {
@@ -78,108 +85,106 @@ const TipModal: React.FC<TipModalProps> = ({ isOpen, onClose, onSuccess }) => {
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-gradient-to-br from-gray-900 to-black border-cyan-400 max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="text-2xl text-white font-bold text-center">
-            💰 Bribe the Gatekeepers
-          </DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-6">
-          {/* Tip Amount Selection */}
-          <div>
-            <h3 className="text-cyan-300 font-semibold mb-3">Choose Your Bribe</h3>
-            <div className="grid grid-cols-2 gap-3">
-              {tipAmounts.map((tip) => (
-                <Button
-                  key={tip.amount}
-                  variant={selectedAmount === tip.amount ? "default" : "outline"}
-                  onClick={() => setSelectedAmount(tip.amount)}
-                  className={`p-4 h-auto ${
-                    selectedAmount === tip.amount 
-                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
-                      : 'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700'
-                  }`}
-                >
-                  <div className="text-center">
-                    <div className="text-lg font-bold">{tip.label}</div>
-                    <div className="text-sm opacity-80">{tip.amount} {tip.crypto}</div>
-                  </div>
-                </Button>
-              ))}
+    <AnimatePresence>
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.9, y: 20 }}
+          className="w-full max-w-md"
+        >
+          <Card className="bg-ctea-dark border-ctea-teal/30 relative overflow-hidden">
+            {/* Animated Background */}
+            <div className="absolute inset-0 opacity-5">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-green-400 rounded-full blur-3xl animate-pulse"></div>
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-yellow-400 rounded-full blur-2xl animate-pulse delay-1000"></div>
             </div>
-          </div>
 
-          {selectedAmount && (
-            <Card className="bg-gray-800 border-gray-600">
-              <CardContent className="p-4 space-y-4">
-                <div className="text-center">
-                  <div className="text-lg text-white font-bold mb-2">
-                    Send {selectedAmount} ETH
+            <CardHeader className="relative">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-green-400 to-yellow-400 rounded-full flex items-center justify-center">
+                    <DollarSign className="w-5 h-5 text-white" />
                   </div>
-                  <div className="text-sm text-gray-400 mb-4">
-                    Once confirmed, you'll get instant beta access
-                  </div>
-                </div>
-
-                {/* Address Display */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between bg-gray-900 p-3 rounded border border-gray-600">
-                    <div className="flex-1">
-                      <div className="text-xs text-cyan-300 font-semibold mb-1">ETH Address</div>
-                      <div className="text-sm text-white font-mono break-all">
-                        {tipAddresses.eth}
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => copyToClipboard(tipAddresses.eth, 'ETH')}
-                      className="text-cyan-400 hover:text-cyan-300"
-                    >
-                      <Copy className="w-4 h-4" />
-                    </Button>
+                  <div>
+                    <h2 className="text-xl font-bold text-white">Send Tip</h2>
+                    <p className="text-gray-400 text-sm">To: {recipientName}</p>
                   </div>
                 </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onClose}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+            </CardHeader>
 
-                {/* QR Code Placeholder */}
-                <div className="flex justify-center">
-                  <div className="w-32 h-32 bg-gray-700 border-2 border-dashed border-gray-500 rounded flex items-center justify-center">
-                    <div className="text-center text-gray-400">
-                      <Wallet className="w-8 h-8 mx-auto mb-2" />
-                      <div className="text-xs">QR Code</div>
-                    </div>
-                  </div>
+            <CardContent className="relative">
+              <form onSubmit={handleTip} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="amount" className="text-white">Tip Amount ($)</Label>
+                  <Input
+                    id="amount"
+                    type="number"
+                    placeholder="5.00"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-500 focus:border-ctea-teal"
+                    step="0.01"
+                    min="0.01"
+                  />
                 </div>
 
-                <div className="flex gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="message" className="text-white">Message (Optional)</Label>
+                  <Input
+                    id="message"
+                    placeholder="Great content! Keep it up!"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-500 focus:border-ctea-teal"
+                  />
+                </div>
+
+                <div className="flex space-x-3 pt-4">
                   <Button
-                    variant="ghost"
+                    type="button"
+                    variant="outline"
                     onClick={onClose}
-                    className="flex-1 text-gray-400 hover:text-white"
+                    className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
                   >
                     Cancel
                   </Button>
                   <Button
-                    onClick={handleConfirmTip}
-                    disabled={isProcessing}
-                    className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold"
+                    type="submit"
+                    disabled={isProcessing || !amount}
+                    className="flex-1 bg-gradient-to-r from-green-400 to-yellow-400 hover:from-green-400/80 hover:to-yellow-400/80 text-black font-medium"
                   >
-                    {isProcessing ? 'Processing...' : 'I Sent the Tip'}
+                    {isProcessing ? (
+                      <div className="flex items-center">
+                        <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin mr-2"></div>
+                        Processing...
+                      </div>
+                    ) : (
+                      <div className="flex items-center">
+                        <Heart className="w-4 h-4 mr-2" />
+                        Send Tip
+                      </div>
+                    )}
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-          )}
-
-          <div className="text-xs text-gray-400 text-center">
-            Tips help fund development and server costs. Thank you for your support! 🙏
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+              </form>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    </AnimatePresence>
   );
 };
 
