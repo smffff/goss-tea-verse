@@ -1,7 +1,7 @@
 
 import type { Config } from "tailwindcss";
 
-const config: Config = {
+export default {
   darkMode: ["class"],
   content: [
     "./pages/**/*.{ts,tsx}",
@@ -19,12 +19,6 @@ const config: Config = {
       },
     },
     extend: {
-      fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Playfair Display', 'DM Serif Display', 'Georgia', 'serif'],
-        tabloid: ['Anton', 'Oswald', 'Impact', 'sans-serif'], // New tabloid font
-        headline: ['Oswald', 'Anton', 'Impact', 'sans-serif'], // New headline font
-      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -59,50 +53,24 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // CTea Tabloid Colors - Standardized Vintage Red Palette
-        'newsprint': '#fdf7f2',
-        'vintage-red': {
-          DEFAULT: '#cc2b2b',
-          50: '#fef7f7',
-          100: '#fee2e2',
-          200: '#fecaca',
-          300: '#fca5a5',
-          400: '#f87171',
-          500: '#cc2b2b',
-          600: '#b02525',
-          700: '#991b1b',
-          800: '#7f1d1d',
-          900: '#651b1b',
+        'ctea': {
+          teal: '#00d1c1',
+          purple: '#8b5cf6',
+          pink: '#ff61a6',
+          yellow: '#f59e0b',
+          orange: '#f97316',
+          dark: '#1a1a2e',
+          darker: '#16213e',
         },
-        'tabloid-black': {
-          DEFAULT: '#1c1c1c',
-          50: '#f9fafb',
-          100: '#f3f4f6',
-          200: '#e5e7eb',
-          300: '#d1d5db',
-          400: '#9ca3af',
-          500: '#6b7280',
-          600: '#4b5563',
-          700: '#374151',
-          800: '#1f2937',
-          900: '#1c1c1c',
-        },
-        'pale-pink': '#fef7f7',
-        // Neon accents for highlights only
-        'neon-pink': '#ff1493',
-        'electric-blue': '#00bfff',
+        'vintage-red': '#c41e3a',
+        'tabloid-black': '#2c2c2c',
+        'pale-pink': '#fef7f0',
+        'newsprint': '#f8f8f0',
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
-      },
-      zIndex: {
-        'modal': '50',
-        'sticky-cta': '40',
-        'floating-badges': '30',
-        'navigation': '20',
-        'base': '10',
       },
       keyframes: {
         "accordion-down": {
@@ -113,66 +81,15 @@ const config: Config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-        glow: {
-          '0%, 100%': {
-            textShadow: '0 0 20px rgba(204, 43, 43, 0.5)',
-          },
-          '50%': {
-            textShadow: '0 0 30px rgba(204, 43, 43, 0.8)',
-          },
-        },
-        float: {
-          '0%, 100%': {
-            transform: 'translateY(0px)',
-          },
-          '50%': {
-            transform: 'translateY(-10px)',
-          },
-        },
-        shimmer: {
-          '0%': {
-            backgroundPosition: '-200% 0',
-          },
-          '100%': {
-            backgroundPosition: '200% 0',
-          },
-        },
-        // New teacup shake animation
-        'teacup-shake': {
-          '0%, 100%': { transform: 'rotate(0deg) scale(1)' },
-          '25%': { transform: 'rotate(-2deg) scale(1.05)' },
-          '75%': { transform: 'rotate(2deg) scale(1.05)' },
-        },
-        // Tabloid headline pulse
-        'headline-pulse': {
-          '0%, 100%': { 
-            textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
-            transform: 'scale(1)' 
-          },
-          '50%': { 
-            textShadow: '4px 4px 8px rgba(0,0,0,0.5)',
-            transform: 'scale(1.02)' 
-          },
-        },
-        // Breaking news ticker
-        'breaking-news': {
-          '0%': { transform: 'translateX(100%)' },
-          '100%': { transform: 'translateX(-100%)' },
-        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        glow: "glow 2s ease-in-out infinite",
-        float: "float 3s ease-in-out infinite",
-        shimmer: "shimmer 1.5s infinite",
-        'teacup-shake': 'teacup-shake 0.8s ease-in-out infinite',
-        'headline-pulse': 'headline-pulse 3s ease-in-out infinite',
-        'breaking-news': 'breaking-news 15s linear infinite',
+      },
+      backgroundImage: {
+        'gradient-ctea': 'linear-gradient(135deg, #00d1c1 0%, #8b5cf6 50%, #ff61a6 100%)',
       },
     },
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
-
-export default config;

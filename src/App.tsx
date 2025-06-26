@@ -12,6 +12,7 @@ import { useEffect } from "react";
 
 // Pages
 import Landing from "./pages/Landing";
+import Feed from "./pages/Feed";
 import SpillTea from "./pages/SpillTea";
 import About from "./pages/About";
 import Tokenomics from "./pages/Tokenomics";
@@ -40,6 +41,7 @@ function App() {
                 <BrowserRouter>
                   <Routes>
                     <Route path="/" element={<Landing />} />
+                    <Route path="/feed" element={<Feed />} />
                     <Route path="/spill" element={<SpillTea />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/tokenomics" element={<Tokenomics />} />
