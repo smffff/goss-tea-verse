@@ -1,49 +1,31 @@
 
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useSecureAuth } from '@/hooks/useSecureAuth';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requireAdmin?: boolean;
-  requireModerator?: boolean;
-  requireVerifiedEmail?: boolean;
+  requireAuth?: boolean;
+  fallback?: string;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
-  requireAdmin = false, 
-  requireModerator = false,
-  requireVerifiedEmail = false
+  requireAuth = true,
+  fallback = '/auth'
 }) => {
-  const { 
-    isAuthenticated, 
-    isAdmin, 
-    isModerator, 
-    isVerified,
-    sessionExpiry 
-  } = useSecureAuth();
+  const { user, loading } = useAuth();
 
-  // Check if session is expired
-  if (sessionExpiry && Date.now() > sessionExpiry) {
-    return <Navigate to="/auth" replace />;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-ctea-teal/30 border-t-ctea-teal rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  if (requireVerifiedEmail && !isVerified) {
-    return <Navigate to="/auth?verify=true" replace />;
-  }
-
-  if (requireAdmin && !isAdmin) {
-    return <Navigate to="/" replace />;
-  }
-
-  if (requireModerator && !isModerator) {
-    return <Navigate to="/" replace />;
+  if (requireAuth && !user) {
+    return <Navigate to={fallback} replace />;
   }
 
   return <>{children}</>;
