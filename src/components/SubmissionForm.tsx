@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -37,8 +38,8 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
     setData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setData(prev => ({ ...prev, isAnonymous: e.target.checked }));
+  const handleCheckboxChange = (checked: boolean) => {
+    setData(prev => ({ ...prev, isAnonymous: checked }));
   };
 
   const handleSelectChange = (value: string) => {

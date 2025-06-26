@@ -28,8 +28,8 @@ const SubmitTea = () => {
     setIsSubmitting(true);
     
     try {
-      // Perform comprehensive security check
-      const securityCheck = performSubmissionSecurityCheck(
+      // Perform comprehensive security check - AWAIT the promise
+      const securityCheck = await performSubmissionSecurityCheck(
         data.tea,
         data.evidence_urls,
         'tea_submission'

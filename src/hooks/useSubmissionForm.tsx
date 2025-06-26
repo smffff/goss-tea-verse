@@ -71,8 +71,8 @@ export const useSubmissionForm = (
     }
 
     try {
-      // Perform security validation before submission
-      const securityCheck = performSubmissionSecurityCheck(
+      // Perform security validation before submission - AWAIT the promise
+      const securityCheck = await performSubmissionSecurityCheck(
         formData.tea,
         formData.evidence_urls.filter(url => url.trim()),
         'tea_submission'
