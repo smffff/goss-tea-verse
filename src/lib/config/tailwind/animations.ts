@@ -72,6 +72,39 @@ export const tailwindKeyframes = {
       transform: "scale(0) rotate(360deg)",
     },
   },
+  "orbit": {
+    "0%": { transform: "rotate(0deg) translateX(50px) rotate(0deg)" },
+    "100%": { transform: "rotate(360deg) translateX(50px) rotate(-360deg)" },
+  },
+  "drift": {
+    "0%, 100%": { transform: "translateX(0) translateY(0)" },
+    "33%": { transform: "translateX(30px) translateY(-20px)" },
+    "66%": { transform: "translateX(-20px) translateY(30px)" },
+  },
+  "bubble-rise": {
+    "0%": { 
+      opacity: "0",
+      transform: "translateY(100vh) scale(0.1)",
+    },
+    "10%": { 
+      opacity: "1",
+      transform: "translateY(90vh) scale(0.5)",
+    },
+    "90%": { 
+      opacity: "1",
+      transform: "translateY(10vh) scale(1)",
+    },
+    "100%": { 
+      opacity: "0",
+      transform: "translateY(0vh) scale(0.1)",
+    },
+  },
+  "parallax-float": {
+    "0%, 100%": { transform: "translateY(0px) translateX(0px) rotate(0deg)" },
+    "25%": { transform: "translateY(-20px) translateX(10px) rotate(5deg)" },
+    "50%": { transform: "translateY(-10px) translateX(-15px) rotate(-3deg)" },
+    "75%": { transform: "translateY(-30px) translateX(5px) rotate(2deg)" },
+  },
 };
 
 export const tailwindAnimations = {
@@ -87,4 +120,8 @@ export const tailwindAnimations = {
   "steam": "steam 2s ease-out infinite",
   "wink": "wink 4s ease-in-out infinite",
   "splash": "splash 1.5s ease-out infinite",
+  "orbit": "orbit 8s linear infinite",
+  "drift": "drift 6s ease-in-out infinite",
+  "bubble-rise": "bubble-rise 15s linear infinite",
+  "parallax-float": "parallax-float 8s ease-in-out infinite",
 };
