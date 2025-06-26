@@ -27,5 +27,12 @@ export interface TeaSubmission {
   relevance?: number;
   ai_rated: boolean;
   reaction?: string;
+  ai_reaction?: string;
   moderator_notes?: string;
+  boost_score?: number;
+  author?: string;
+  is_viral?: boolean;
+  visible?: boolean;
+  tweeted?: boolean;
+  tweet_id?: string;
 }

@@ -117,7 +117,7 @@ export function useTeaTokens(walletAddress?: string): UseTeaTokensReturn {
         action: t.transaction_type as TeaTransaction['action'],
         amount: t.amount,
         status: 'confirmed' as const,
-        metadata: t.metadata || {},
+        metadata: (t.metadata && typeof t.metadata === 'object') ? t.metadata as Record<string, unknown> : {},
         created_at: t.created_at
       }))
 
