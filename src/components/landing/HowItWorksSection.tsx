@@ -209,7 +209,12 @@ const HowItWorksSection: React.FC = () => {
             <span className="text-lg font-bold" style={{ fontFamily: "'Anton', 'Impact', sans-serif" }}>
               Ready to cause some chaos?
             </span>
-            <BrandedTeacupIcon size="md" animated className="animate-bounce" style={{ animationDelay: '0.5s' }} />
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+            >
+              <BrandedTeacupIcon size="md" animated className="animate-bounce" />
+            </motion.div>
           </div>
         </motion.div>
       </div>
