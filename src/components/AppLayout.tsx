@@ -12,6 +12,7 @@ import FloatingSpillCTA from '@/components/ui/FloatingSpillCTA';
 import Profile from '@/pages/Profile';
 import AdminBetaDashboard from '@/pages/admin/AdminBetaDashboard';
 import NotFound from '@/pages/NotFound';
+import LaunchShowcase from '@/pages/LaunchShowcase';
 import { useAuth } from '@/hooks/useAuthProvider';
 
 const AppLayout: React.FC = () => {
@@ -37,6 +38,9 @@ const AppLayout: React.FC = () => {
               <SubmitTea />
             </ProtectedRoute>
           } />
+          
+          {/* Launch Dashboard - New Feature */}
+          <Route path="/launch" element={<LaunchShowcase />} />
           
           {/* Admin Routes */}
           <Route path="/admin/beta" element={
