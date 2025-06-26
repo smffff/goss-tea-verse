@@ -59,13 +59,13 @@ export class EnhancedSecurityService {
         };
       }
 
-      const result = data as Record<string, any>;
+      const result = data as any;
       return {
         valid: Boolean(result?.valid),
         sanitized: String(result?.sanitized || content),
         threats: Array.isArray(result?.errors) ? result.errors : [],
-        riskLevel: (result?.risk_level as 'low' | 'medium' | 'high' | 'critical') || 'medium',
-        securityScore: typeof result?.security_score === 'number' ? result.security_score : 0.5
+        riskLevel: (['low', 'medium', 'high', 'critical'].includes(result?.risk_level) ? result.risk_level : 'medium') as 'low' | 'medium' | 'high' | 'critical',
+        securityScore: typeof result?.security_score === 'number' ? result.security_score : undefined
       };
     } catch (error) {
       console.error('Content validation service error:', error);
@@ -117,7 +117,7 @@ export class EnhancedSecurityService {
         };
       }
 
-      const result = data as Record<string, any>;
+      const result = data as any;
       return {
         allowed: Boolean(result?.allowed !== false),
         currentCount: Number(result?.current_count) || 0,
