@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -46,7 +45,7 @@ const TipModal: React.FC<TipModalProps> = ({ isOpen, onClose, onSuccess }) => {
     setIsProcessing(true);
     
     try {
-      // Generate beta code
+      // Generate beta code - call the function directly
       const { data: betaData, error: betaError } = await supabase.rpc('generate_beta_access', {
         referrer_type: 'tip',
         referrer_id: null
@@ -56,9 +55,12 @@ const TipModal: React.FC<TipModalProps> = ({ isOpen, onClose, onSuccess }) => {
         throw betaError;
       }
 
+      // Handle the response as any since it's a custom function
+      const betaResult = betaData as any;
+
       toast({
         title: "Thanks for the Tip! 💰",
-        description: betaData?.code ? `Your beta code: ${betaData.code}` : "Access granted!",
+        description: betaResult?.code ? `Your beta code: ${betaResult.code}` : "Access granted!",
       });
 
       setTimeout(() => {

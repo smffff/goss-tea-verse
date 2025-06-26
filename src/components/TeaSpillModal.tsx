@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -77,7 +76,7 @@ const TeaSpillModal: React.FC<TeaSpillModalProps> = ({ isOpen, onClose, onSucces
         throw error;
       }
 
-      // Generate beta code for user
+      // Generate beta code for user - call the function directly
       const { data: betaData, error: betaError } = await supabase.rpc('generate_beta_access', {
         referrer_type: 'spill_tea',
         referrer_id: data[0]?.id
@@ -87,9 +86,12 @@ const TeaSpillModal: React.FC<TeaSpillModalProps> = ({ isOpen, onClose, onSucces
         console.error('Beta code generation error:', betaError);
       }
 
+      // Handle the response as any since it's a custom function
+      const betaResult = betaData as any;
+
       toast({
         title: "Tea Spilled Successfully! 🫖",
-        description: betaData?.code ? `Your beta code: ${betaData.code}` : "Access granted!",
+        description: betaResult?.code ? `Your beta code: ${betaResult.code}` : "Access granted!",
       });
 
       onSuccess();

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -41,6 +40,7 @@ const BetaGate: React.FC<BetaGateProps> = ({ onAccessGranted }) => {
 
     setIsValidating(true);
     try {
+      // Call the validate_beta_code function directly
       const { data, error } = await supabase.rpc('validate_beta_code', {
         code: betaCode.trim().toUpperCase()
       });
@@ -55,7 +55,10 @@ const BetaGate: React.FC<BetaGateProps> = ({ onAccessGranted }) => {
         return;
       }
 
-      if (data?.valid) {
+      // Handle the response as any since it's a custom function
+      const result = data as any;
+      
+      if (result?.valid) {
         localStorage.setItem('ctea-beta-access', 'true');
         localStorage.setItem('ctea-beta-code', betaCode.trim().toUpperCase());
         toast({
