@@ -48,7 +48,7 @@ const BrandedTeacupIcon: React.FC<BrandedTeacupIconProps> = ({
           transition: { 
             duration: 2, 
             repeat: Infinity, 
-            ease: "easeInOut"
+            ease: "easeInOut" as const
           }
         };
       case 'spilling':
@@ -57,7 +57,7 @@ const BrandedTeacupIcon: React.FC<BrandedTeacupIconProps> = ({
           transition: { 
             duration: 3, 
             repeat: Infinity, 
-            ease: "easeInOut"
+            ease: "easeInOut" as const
           }
         };
       case 'steam':
@@ -66,7 +66,7 @@ const BrandedTeacupIcon: React.FC<BrandedTeacupIconProps> = ({
           transition: { 
             duration: 2.5, 
             repeat: Infinity, 
-            ease: "easeInOut"
+            ease: "easeInOut" as const
           }
         };
       case 'glow':
@@ -75,7 +75,7 @@ const BrandedTeacupIcon: React.FC<BrandedTeacupIconProps> = ({
           transition: { 
             duration: 2, 
             repeat: Infinity, 
-            ease: "easeInOut"
+            ease: "easeInOut" as const
           }
         };
       default:
@@ -84,7 +84,7 @@ const BrandedTeacupIcon: React.FC<BrandedTeacupIconProps> = ({
           transition: { 
             duration: 2, 
             repeat: Infinity, 
-            ease: "easeInOut"
+            ease: "easeInOut" as const
           }
         } : {};
     }

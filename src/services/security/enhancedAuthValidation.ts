@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface AuthValidationResult {
@@ -210,9 +209,10 @@ export class EnhancedAuthValidation {
             securityScore -= 30;
             riskLevel = 'medium';
             recommendations.push('Try other access methods');
-          } else if (typeof result === 'object' && result.hasOwnProperty('valid')) {
-            // New format response
-            if (!result.valid) {
+          } else if (typeof result === 'object' && result !== null && 'valid' in result) {
+            // New format response - properly type check
+            const validationResult = result as BetaCodeValidationResponse;
+            if (!validationResult.valid) {
               console.log('❌ Beta code marked as invalid by server');
               threats.push('Invalid beta code');
               securityScore -= 30;
