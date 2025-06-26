@@ -49,15 +49,15 @@ export function useTeaTokens(walletAddress?: string): UseTeaTokensReturn {
     if (!address) return
 
     try {
-      // Use tea_points_transactions to calculate balance
-      const { data, error } = await supabase
-        .from('tea_points_transactions')
+      // Get wallet balance
+      const { data: balanceData, error: balanceError } = await supabase
+        .from('wallet_balances')
         .select('*')
-        .eq('anonymous_token', address)
-        .order('created_at', { ascending: false })
+        .eq('wallet_address', address)
+        .single()
 
-      if (error) {
-        console.error('Error fetching balance:', error)
+      if (balanceError && balanceError.code !== 'PGRST116') {
+        console.error('Error fetching balance:', balanceError)
         toast({
           title: "Balance Error",
           description: "Failed to fetch wallet balance",
@@ -66,24 +66,35 @@ export function useTeaTokens(walletAddress?: string): UseTeaTokensReturn {
         return
       }
 
-      // Calculate balance from transactions
-      const totalEarned = data?.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0) || 0
-      const totalSpent = data?.filter(t => t.amount < 0).reduce((sum, t) => sum + Math.abs(t.amount), 0) || 0
-      const teaBalance = totalEarned - totalSpent
+      // Get transaction stats
+      const { data: transactionData, error: transactionError } = await supabase
+        .from('tea_transactions')
+        .select('action, amount')
+        .eq('wallet_address', address)
 
-      const balanceData: WalletBalance = {
-        wallet_address: address,
-        tea_balance: teaBalance,
-        total_earned: totalEarned,
-        total_spent: totalSpent,
-        total_transactions: data?.length || 0,
-        spills_posted: data?.filter(t => t.transaction_type === 'spill').length || 0,
-        tips_given: data?.filter(t => t.transaction_type === 'tip' && t.amount < 0).length || 0,
-        rewards_received: data?.filter(t => t.transaction_type === 'reward').length || 0,
-        last_transaction_at: data?.[0]?.created_at
+      if (transactionError) {
+        console.error('Error fetching transaction stats:', transactionError)
       }
 
-      setBalance(balanceData)
+      // Calculate stats
+      const totalTransactions = transactionData?.length || 0
+      const spillsPosted = transactionData?.filter(t => t.action === 'spill').length || 0
+      const tipsGiven = transactionData?.filter(t => t.action === 'tip' && t.amount < 0).length || 0
+      const rewardsReceived = transactionData?.filter(t => t.action === 'reward').length || 0
+
+      const balanceRecord: WalletBalance = {
+        wallet_address: address,
+        tea_balance: balanceData?.tea_balance || 0,
+        total_earned: balanceData?.total_earned || 0,
+        total_spent: balanceData?.total_spent || 0,
+        last_transaction_at: balanceData?.last_transaction_at,
+        total_transactions: totalTransactions,
+        spills_posted: spillsPosted,
+        tips_given: tipsGiven,
+        rewards_received: rewardsReceived
+      }
+
+      setBalance(balanceRecord)
     } catch (error: unknown) {
       console.error('Error fetching balance:', error)
     }
@@ -94,9 +105,9 @@ export function useTeaTokens(walletAddress?: string): UseTeaTokensReturn {
 
     try {
       const { data, error } = await supabase
-        .from('tea_points_transactions')
+        .from('tea_transactions')
         .select('*')
-        .eq('anonymous_token', address)
+        .eq('wallet_address', address)
         .order('created_at', { ascending: false })
         .limit(limit)
 
@@ -110,13 +121,17 @@ export function useTeaTokens(walletAddress?: string): UseTeaTokensReturn {
         return
       }
 
-      // Map tea_points_transactions to TeaTransaction format
+      // Map to TeaTransaction format
       const mappedTransactions: TeaTransaction[] = (data || []).map(t => ({
-        id: parseInt(t.id),
+        id: parseInt(t.id.toString()),
         wallet_address: address,
-        action: t.transaction_type as TeaTransaction['action'],
+        action: t.action as TeaTransaction['action'],
         amount: t.amount,
-        status: 'confirmed' as const,
+        spill_id: t.spill_id,
+        recipient_wallet: t.recipient_wallet,
+        transaction_hash: t.transaction_hash,
+        block_number: t.block_number,
+        status: t.status as TeaTransaction['status'],
         metadata: (t.metadata && typeof t.metadata === 'object') ? t.metadata as Record<string, unknown> : {},
         created_at: t.created_at
       }))
@@ -135,21 +150,14 @@ export function useTeaTokens(walletAddress?: string): UseTeaTokensReturn {
     metadata?: Record<string, unknown>
   ): Promise<boolean> => {
     try {
-      // Use tea_points_transactions table directly
-      const { data, error } = await supabase
-        .from('tea_points_transactions')
-        .insert({
-          anonymous_token: walletAddress,
-          transaction_type: action,
-          amount: amount,
-          description: `${action} reward`,
-          metadata: {
-            ...metadata,
-            spill_id: spillId
-          }
-        })
-        .select()
-        .single()
+      // Call the database function to award tokens
+      const { data, error } = await supabase.rpc('award_tea_tokens', {
+        p_wallet_address: walletAddress,
+        p_action: action,
+        p_amount: amount,
+        p_spill_id: spillId,
+        p_metadata: metadata || {}
+      })
 
       if (error) {
         console.error('Error awarding tokens:', error)
@@ -161,11 +169,22 @@ export function useTeaTokens(walletAddress?: string): UseTeaTokensReturn {
         return false
       }
 
-      // Update local balance
-      if (balance) {
+      const result = data as any
+      if (!result?.success) {
+        console.error('Token award failed:', result?.error)
+        toast({
+          title: "Token Award Failed",
+          description: result?.error || "Unknown error occurred",
+          variant: "destructive"
+        })
+        return false
+      }
+
+      // Update local balance if we have one
+      if (balance && balance.wallet_address === walletAddress) {
         setBalance(prev => prev ? {
           ...prev,
-          tea_balance: prev.tea_balance + amount,
+          tea_balance: result.new_balance,
           total_earned: prev.total_earned + (amount > 0 ? amount : 0),
           total_spent: prev.total_spent + (amount < 0 ? Math.abs(amount) : 0),
           last_transaction_at: new Date().toISOString()
@@ -174,19 +193,20 @@ export function useTeaTokens(walletAddress?: string): UseTeaTokensReturn {
 
       // Add to transactions
       const newTransaction: TeaTransaction = {
-        id: parseInt(data.id),
+        id: result.transaction_id,
         wallet_address: walletAddress,
         action,
         amount,
+        spill_id: spillId,
         status: 'confirmed',
         metadata: metadata || {},
-        created_at: data.created_at
+        created_at: new Date().toISOString()
       }
 
       setTransactions(prev => [newTransaction, ...prev])
 
       toast({
-        title: "Tokens Awarded!",
+        title: "Tokens Awarded! 💎",
         description: `You earned ${amount} $TEA tokens for ${action}!`,
         variant: "default"
       })
@@ -205,8 +225,10 @@ export function useTeaTokens(walletAddress?: string): UseTeaTokensReturn {
 
   const refreshBalance = useCallback(async () => {
     if (walletAddress) {
-      await getBalance(walletAddress)
-      await getTransactions(walletAddress)
+      await Promise.all([
+        getBalance(walletAddress),
+        getTransactions(walletAddress)
+      ])
     }
   }, [walletAddress, getBalance, getTransactions])
 

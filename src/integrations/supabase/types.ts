@@ -669,6 +669,59 @@ export type Database = {
         }
         Relationships: []
       }
+      tea_transactions: {
+        Row: {
+          action: string
+          amount: number
+          block_number: number | null
+          created_at: string | null
+          id: number
+          metadata: Json | null
+          recipient_wallet: string | null
+          spill_id: string | null
+          status: string
+          transaction_hash: string | null
+          updated_at: string | null
+          wallet_address: string
+        }
+        Insert: {
+          action: string
+          amount?: number
+          block_number?: number | null
+          created_at?: string | null
+          id?: number
+          metadata?: Json | null
+          recipient_wallet?: string | null
+          spill_id?: string | null
+          status?: string
+          transaction_hash?: string | null
+          updated_at?: string | null
+          wallet_address: string
+        }
+        Update: {
+          action?: string
+          amount?: number
+          block_number?: number | null
+          created_at?: string | null
+          id?: number
+          metadata?: Json | null
+          recipient_wallet?: string | null
+          spill_id?: string | null
+          status?: string
+          transaction_hash?: string | null
+          updated_at?: string | null
+          wallet_address?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tea_transactions_spill_id_fkey"
+            columns: ["spill_id"]
+            isOneToOne: false
+            referencedRelation: "tea_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_achievements: {
         Row: {
           achievement_id: string
@@ -735,6 +788,7 @@ export type Database = {
           updated_at: string | null
           user_id: string | null
           verification_level: string | null
+          wallet_address: string | null
         }
         Insert: {
           anonymous_token?: string
@@ -745,6 +799,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string | null
           verification_level?: string | null
+          wallet_address?: string | null
         }
         Update: {
           anonymous_token?: string
@@ -755,6 +810,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string | null
           verification_level?: string | null
+          wallet_address?: string | null
         }
         Relationships: []
       }
@@ -912,6 +968,36 @@ export type Database = {
           },
         ]
       }
+      wallet_balances: {
+        Row: {
+          created_at: string | null
+          last_transaction_at: string | null
+          tea_balance: number
+          total_earned: number
+          total_spent: number
+          updated_at: string | null
+          wallet_address: string
+        }
+        Insert: {
+          created_at?: string | null
+          last_transaction_at?: string | null
+          tea_balance?: number
+          total_earned?: number
+          total_spent?: number
+          updated_at?: string | null
+          wallet_address: string
+        }
+        Update: {
+          created_at?: string | null
+          last_transaction_at?: string | null
+          tea_balance?: number
+          total_earned?: number
+          total_spent?: number
+          updated_at?: string | null
+          wallet_address?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -936,6 +1022,16 @@ export type Database = {
           p_points_amount: number
           p_transaction_type: string
           p_description?: string
+        }
+        Returns: Json
+      }
+      award_tea_tokens: {
+        Args: {
+          p_wallet_address: string
+          p_action: string
+          p_amount: number
+          p_spill_id?: string
+          p_metadata?: Json
         }
         Returns: Json
       }

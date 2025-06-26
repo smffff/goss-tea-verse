@@ -18,7 +18,9 @@ const SpillTea = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Get wallet address from user profile or fallback to anonymous token
-  const walletAddress = (user as any)?.wallet_address || (user as any)?.anonymous_token;
+  const walletAddress = user?.user_metadata?.wallet_address || 
+                       user?.app_metadata?.wallet_address || 
+                       (user as any)?.anonymous_token;
   const userId = user?.id;
 
   const handleSubmit = async (data: any) => {

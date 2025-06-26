@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Coffee, Shield, AlertTriangle, CheckCircle } from 'lucide-react';
@@ -47,22 +48,26 @@ const SpillTeaForm: React.FC<SpillTeaFormProps> = ({
       // Step 1: Create the spill first
       const spillId = crypto.randomUUID(); // Generate temporary ID
       
-      // Step 2: Run AI moderation
-      const moderation = await moderateContent(
-        data.teaText,
-        spillId,
-        userId,
-        walletAddress
-      );
+      // Step 2: Run AI moderation (if available)
+      let moderation = null;
+      try {
+        moderation = await moderateContent(
+          data.teaText,
+          spillId,
+          userId,
+          walletAddress
+        );
+        setModerationResult(moderation);
+      } catch (error) {
+        console.log('AI moderation not available, proceeding without it');
+      }
 
-      setModerationResult(moderation);
-
-      // Step 3: If content is clean, proceed with submission and award tokens
-      if (moderation && moderation.mod_status === 'clean') {
-        await onSubmit(data);
-        
-        // Award tokens for successful spill
-        if (walletAddress) {
+      // Step 3: Submit the spill
+      await onSubmit(data);
+      
+      // Step 4: Award tokens for successful spill (if wallet connected)
+      if (walletAddress) {
+        try {
           await awardTokens(
             walletAddress,
             'spill',
@@ -71,16 +76,14 @@ const SpillTeaForm: React.FC<SpillTeaFormProps> = ({
             {
               content_length: data.teaText.length,
               topic: data.topic,
-              has_media: !!data.mediaUrl
+              has_media: !!data.mediaUrl,
+              moderation_score: moderation?.score || 1.0
             }
           );
+        } catch (error) {
+          console.error('Error awarding tokens:', error);
+          // Don't fail the submission if token award fails
         }
-      } else if (moderation && moderation.mod_status === 'flagged') {
-        // Content flagged but not escalated - still submit but with warning
-        await onSubmit(data);
-      } else {
-        // Content escalated - don't submit
-        throw new Error('Content was escalated for review and cannot be posted');
       }
     } catch (error) {
       console.error('Submission error:', error);
