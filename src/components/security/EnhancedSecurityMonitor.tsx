@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useSecurityAudit } from './SecurityAuditProvider';
 import SecurityHealthMonitor from './SecurityHealthMonitor';
+import { useAuth } from '@/hooks/useAuth';
+import { useAccessControl } from '@/components/access/AccessControlProvider';
 
 const EnhancedSecurityMonitor: React.FC = () => {
   const { 
@@ -16,6 +18,11 @@ const EnhancedSecurityMonitor: React.FC = () => {
   } = useSecurityAudit();
   const [isVisible, setIsVisible] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<string>('');
+  
+  const { user, isAdmin } = useAuth();
+  const { isAdmin: accessControlAdmin } = useAccessControl();
+  const isSuperAdmin = user?.email === 'stephanie@taskbytask.net';
+  const hasAdminAccess = isAdmin || accessControlAdmin || isSuperAdmin;
 
   const getThreatColor = () => {
     switch (threatLevel) {
@@ -40,15 +47,16 @@ const EnhancedSecurityMonitor: React.FC = () => {
     setLastRefresh(new Date().toLocaleTimeString());
   };
 
-  // Only show in development AND if specifically enabled
+  // Only show in development AND if admin AND if specifically enabled
   useEffect(() => {
     const shouldShow = process.env.NODE_ENV === 'development' && 
+                     hasAdminAccess &&
                      localStorage.getItem('ctea-show-security-debug') === 'true';
     setIsVisible(shouldShow);
-  }, []);
+  }, [hasAdminAccess]);
 
-  // Completely hidden in production - no DOM output at all
-  if (process.env.NODE_ENV === 'production' || !isVisible) {
+  // Completely hidden in production or for non-admins - no DOM output at all
+  if (process.env.NODE_ENV === 'production' || !hasAdminAccess || !isVisible) {
     return null;
   }
 
@@ -63,7 +71,7 @@ const EnhancedSecurityMonitor: React.FC = () => {
           <CardTitle className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
               <Shield className={`w-4 h-4 ${getThreatColor()}`} />
-              Security Monitor (DEV)
+              Security Monitor (Admin Only)
             </div>
             <div className="flex items-center gap-2">
               {getThreatBadge()}

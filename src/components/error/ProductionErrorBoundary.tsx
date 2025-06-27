@@ -1,9 +1,9 @@
-
 import React, { Component, ReactNode } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { secureLog } from '@/utils/secureLog';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Props {
   children: ReactNode;
@@ -15,6 +15,33 @@ interface State {
   error?: Error;
   errorInfo?: any;
 }
+
+// Helper component to check admin status
+const AdminErrorDetails: React.FC<{ error?: Error; errorInfo?: any }> = ({ error, errorInfo }) => {
+  const { user, isAdmin } = useAuth();
+  const isSuperAdmin = user?.email === 'stephanie@taskbytask.net';
+  const hasAdminAccess = isAdmin || isSuperAdmin;
+
+  if (!hasAdminAccess) {
+    return null;
+  }
+
+  return (
+    <div className="bg-red-900/20 border border-red-500/30 rounded p-4 text-left">
+      <p className="text-red-400 text-sm font-mono">
+        {error?.message}
+      </p>
+      {process.env.NODE_ENV === 'development' && error?.stack && (
+        <details className="mt-2">
+          <summary className="text-xs text-red-300 cursor-pointer">Stack Trace</summary>
+          <pre className="text-xs text-red-300 mt-1 whitespace-pre-wrap overflow-auto max-h-32">
+            {error.stack}
+          </pre>
+        </details>
+      )}
+    </div>
+  );
+};
 
 export class ProductionErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
@@ -80,44 +107,26 @@ export class ProductionErrorBoundary extends Component<Props, State> {
                 </p>
               </div>
 
-              {process.env.NODE_ENV === 'development' && this.state.error && (
-                <div className="bg-red-900/20 border border-red-500/30 rounded p-4 text-left">
-                  <p className="text-red-400 text-sm font-mono">
-                    {this.state.error.message}
-                  </p>
-                </div>
-              )}
+              {/* Admin-only error details */}
+              <AdminErrorDetails error={this.state.error} errorInfo={this.state.errorInfo} />
 
-              <div className="space-y-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Button
                   onClick={this.handleRetry}
-                  className="w-full bg-ctea-teal hover:bg-ctea-teal/80"
-                >
-                  Try Again
-                </Button>
-                
-                <Button
-                  onClick={this.handleRefresh}
-                  variant="outline"
-                  className="w-full border-gray-600 text-gray-300 hover:bg-gray-700"
+                  className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white hover:opacity-90"
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />
-                  Refresh Page
+                  Try Again
                 </Button>
-                
                 <Button
                   onClick={this.handleGoHome}
-                  variant="ghost"
-                  className="w-full text-gray-400 hover:text-white"
+                  variant="outline"
+                  className="border-gray-600 text-gray-400"
                 >
                   <Home className="w-4 h-4 mr-2" />
                   Go Home
                 </Button>
               </div>
-
-              <p className="text-xs text-gray-500">
-                If this problem persists, please contact support
-              </p>
             </CardContent>
           </Card>
         </div>

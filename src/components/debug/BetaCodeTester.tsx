@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { betaCodeService } from '@/services/betaCodeService';
 import { supabase } from '@/integrations/supabase/client';
+import AdminGuard from '@/components/access/AdminGuard';
 
 const BetaCodeTester: React.FC = () => {
   const [testCode, setTestCode] = useState('');
@@ -59,52 +60,54 @@ const BetaCodeTester: React.FC = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>🔧 Beta Code Debug Tester</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Input
-              placeholder="Enter beta code to test..."
-              value={testCode}
-              onChange={(e) => setTestCode(e.target.value)}
-            />
-            <Button onClick={testBetaCode} disabled={loading}>
-              {loading ? 'Testing...' : 'Test Beta Code'}
-            </Button>
-          </div>
-
-          <div className="space-y-2">
-            <Button onClick={testSupabaseConnection} disabled={loading} variant="outline">
-              Test Supabase Connection
-            </Button>
-            <Button onClick={testTestCodes} disabled={loading} variant="outline">
-              Show Test Codes
-            </Button>
-          </div>
-
-          {result && (
-            <div className="mt-4 p-4 bg-gray-100 rounded">
-              <h3 className="font-bold mb-2">Result:</h3>
-              <pre className="text-sm overflow-auto">
-                {JSON.stringify(result, null, 2)}
-              </pre>
+    <AdminGuard requireSuperAdmin={true}>
+      <div className="p-6 space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>🔧 Beta Code Debug Tester (Admin Only)</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Input
+                placeholder="Enter beta code to test..."
+                value={testCode}
+                onChange={(e) => setTestCode(e.target.value)}
+              />
+              <Button onClick={testBetaCode} disabled={loading}>
+                {loading ? 'Testing...' : 'Test Beta Code'}
+              </Button>
             </div>
-          )}
 
-          {connectionTest && (
-            <div className="mt-4 p-4 bg-blue-100 rounded">
-              <h3 className="font-bold mb-2">Connection Test:</h3>
-              <pre className="text-sm overflow-auto">
-                {JSON.stringify(connectionTest, null, 2)}
-              </pre>
+            <div className="space-y-2">
+              <Button onClick={testSupabaseConnection} disabled={loading} variant="outline">
+                Test Supabase Connection
+              </Button>
+              <Button onClick={testTestCodes} disabled={loading} variant="outline">
+                Show Test Codes
+              </Button>
             </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+
+            {result && (
+              <div className="mt-4 p-4 bg-gray-100 rounded">
+                <h3 className="font-bold mb-2">Result:</h3>
+                <pre className="text-sm overflow-auto">
+                  {JSON.stringify(result, null, 2)}
+                </pre>
+              </div>
+            )}
+
+            {connectionTest && (
+              <div className="mt-4 p-4 bg-blue-100 rounded">
+                <h3 className="font-bold mb-2">Connection Test:</h3>
+                <pre className="text-sm overflow-auto">
+                  {JSON.stringify(connectionTest, null, 2)}
+                </pre>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </AdminGuard>
   );
 };
 

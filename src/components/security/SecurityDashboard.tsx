@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Shield, AlertTriangle, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 import { secureLog } from '@/utils/secureLog';
+import AdminGuard from '@/components/access/AdminGuard';
 
 interface SecurityMetrics {
   totalEvents: number;
@@ -62,92 +62,94 @@ const SecurityDashboard: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Shield className="w-6 h-6 text-blue-600" />
-          <h2 className="text-2xl font-bold">Security Dashboard</h2>
+    <AdminGuard requireSuperAdmin={true}>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Shield className="w-6 h-6 text-blue-600" />
+            <h2 className="text-2xl font-bold">Security Dashboard (Admin Only)</h2>
+          </div>
+          <Button
+            onClick={refreshMetrics}
+            disabled={isLoading}
+            size="sm"
+            variant="outline"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
         </div>
-        <Button
-          onClick={refreshMetrics}
-          disabled={isLoading}
-          size="sm"
-          variant="outline"
-        >
-          <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
+
+        {/* Security Status Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Risk Level</p>
+                  <Badge className={`mt-1 ${riskColors[riskLevel]}`}>
+                    {riskLevel.toUpperCase()}
+                  </Badge>
+                </div>
+                {riskLevel === 'low' ? (
+                  <CheckCircle className="w-8 h-8 text-green-600" />
+                ) : (
+                  <AlertTriangle className="w-8 h-8 text-red-600" />
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Events</p>
+                  <p className="text-2xl font-bold">{metrics.totalEvents}</p>
+                </div>
+                <Shield className="w-8 h-8 text-blue-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Blocked Attempts</p>
+                  <p className="text-2xl font-bold">{metrics.blockedAttempts}</p>
+                </div>
+                <XCircle className="w-8 h-8 text-red-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Active Threats</p>
+                  <p className="text-2xl font-bold">{metrics.activeThreats}</p>
+                </div>
+                <AlertTriangle className="w-8 h-8 text-orange-600" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Additional Security Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Security Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600">
+              All security systems are operational and monitoring for threats.
+            </p>
+          </CardContent>
+        </Card>
       </div>
-
-      {/* Security Status Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Risk Level</p>
-                <Badge className={`mt-1 ${riskColors[riskLevel]}`}>
-                  {riskLevel.toUpperCase()}
-                </Badge>
-              </div>
-              {riskLevel === 'low' ? (
-                <CheckCircle className="w-8 h-8 text-green-600" />
-              ) : (
-                <AlertTriangle className="w-8 h-8 text-red-600" />
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Events</p>
-                <p className="text-2xl font-bold">{metrics.totalEvents}</p>
-              </div>
-              <Shield className="w-8 h-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Blocked Attempts</p>
-                <p className="text-2xl font-bold">{metrics.blockedAttempts}</p>
-              </div>
-              <XCircle className="w-8 h-8 text-red-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Active Threats</p>
-                <p className="text-2xl font-bold">{metrics.activeThreats}</p>
-              </div>
-              <AlertTriangle className="w-8 h-8 text-orange-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Additional Security Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Security Status</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-600">
-            All security systems are operational and monitoring for threats.
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+    </AdminGuard>
   );
 };
 

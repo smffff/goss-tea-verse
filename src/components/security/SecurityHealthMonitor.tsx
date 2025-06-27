@@ -4,6 +4,8 @@ import { Shield, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { PolicyConflictData } from '@/types/security';
+import { useAuth } from '@/hooks/useAuth';
+import { useAccessControl } from '@/components/access/AccessControlProvider';
 
 interface SecurityHealth {
   policyConflicts: number;
@@ -22,12 +24,18 @@ const SecurityHealthMonitor: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
 
+  const { user, isAdmin } = useAuth();
+  const { isAdmin: accessControlAdmin } = useAccessControl();
+  const isSuperAdmin = user?.email === 'stephanie@taskbytask.net';
+  const hasAdminAccess = isAdmin || accessControlAdmin || isSuperAdmin;
+
   useEffect(() => {
-    // Only show in development with explicit flag
+    // Only show in development with admin access and explicit flag
     const shouldShow = process.env.NODE_ENV === 'development' && 
+                     hasAdminAccess &&
                      localStorage.getItem('ctea-show-security-debug') === 'true';
     setIsVisible(shouldShow);
-  }, []);
+  }, [hasAdminAccess]);
 
   useEffect(() => {
     if (!isVisible) {
@@ -88,8 +96,8 @@ const SecurityHealthMonitor: React.FC = () => {
     return () => clearInterval(interval);
   }, [isVisible]);
 
-  // Completely hidden if not in development mode with debug flag
-  if (process.env.NODE_ENV === 'production' || !isVisible) {
+  // Completely hidden if not in development mode with admin access and debug flag
+  if (process.env.NODE_ENV === 'production' || !hasAdminAccess || !isVisible) {
     return null;
   }
 
@@ -121,7 +129,7 @@ const SecurityHealthMonitor: React.FC = () => {
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-sm">
             <Shield className="w-4 h-4" />
-            Security Health (DEV)
+            Security Health (Admin Only)
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -140,7 +148,7 @@ const SecurityHealthMonitor: React.FC = () => {
         <CardTitle className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4" />
-            Security Health (DEV)
+            Security Health (Admin Only)
           </div>
           {getStatusBadge()}
         </CardTitle>
