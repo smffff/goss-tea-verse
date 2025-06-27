@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
@@ -40,7 +39,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (error) {
           secureLog.error('🔐 [AuthProvider] Session error:', error);
         } else {
-          secureLog.info('🔐 [AuthProvider] Initial session:', !!session);
+          secureLog.info('🔐 [AuthProvider] Initial session:', { hasSession: !!session });
           setSession(session);
           setUser(session?.user || null);
         }
@@ -56,7 +55,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        secureLog.info('🔐 [AuthProvider] Auth state changed:', event);
+        secureLog.info('🔐 [AuthProvider] Auth state changed:', { event });
         setSession(session);
         setUser(session?.user || null);
         setLoading(false);

@@ -1,4 +1,3 @@
-
 import { track } from '@/utils/analytics';
 import { secureLog } from './secureLogging';
 
@@ -29,7 +28,7 @@ export const trackAffiliateClick = (platform: string, url: string) => {
   clicks.push(clickData);
   localStorage.setItem('ctea_affiliate_clicks', JSON.stringify(clicks.slice(-50))); // Keep last 50
 
-  secureLog.info('🔗 Affiliate click tracked:', platform, url);
+  secureLog.info('🔗 Affiliate click tracked:', { platform, url });
 };
 
 export const getAffiliateStats = (): AffiliateClick[] => {

@@ -1,4 +1,3 @@
-
 import React, { Component, ReactNode } from 'react';
 import { Card } from '@/components/ui/card';
 import { AlertTriangle } from 'lucide-react';
@@ -25,7 +24,7 @@ export class RevenueErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    secureLog.error('Revenue component error:', error, errorInfo);
+    secureLog.error('Revenue component error:', { error, errorInfo });
     // Track error for analytics
     if (typeof window !== 'undefined' && (window as any).posthog) {
       (window as any).posthog.capture('revenue_component_error', {

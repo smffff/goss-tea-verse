@@ -38,7 +38,7 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
     setIsLoading(true);
     
     try {
-      secureLog.info('🔑 Validating beta code:', betaCode);
+      secureLog.info('🔑 Validating beta code:', { betaCode });
       const validation = await EnhancedAuthValidation.validateBetaCode(betaCode);
       
       if (validation.isValid) {
@@ -53,7 +53,7 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
         secureLog.info('✅ Beta access granted successfully');
         onAccessGranted('beta');
       } else {
-        secureLog.info('❌ Beta code validation failed:', validation.threats);
+        secureLog.info('❌ Beta code validation failed:', { threats: validation.threats });
         toast({
           title: "Invalid Code",
           description: "This code is not valid or has expired. Try spilling some tea instead!",
@@ -113,7 +113,7 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
         duration: 8000,
       });
       
-      secureLog.info('✅ Tea spill access granted:', accessCode);
+      secureLog.info('✅ Tea spill access granted:', { accessCode });
       onAccessGranted('guest');
     } catch (error) {
       secureLog.error('❌ Tea submission error:', error);

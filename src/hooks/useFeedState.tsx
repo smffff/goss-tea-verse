@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -27,7 +26,7 @@ export const useFeedState = () => {
       
       const transformedData = (data || []).map(transformSubmission);
       setSubmissions(transformedData);
-      secureLog.info('Fetched submissions:', transformedData.length);
+      secureLog.info('Fetched submissions:', { count: transformedData.length });
     } catch (error) {
       secureLog.error('Error fetching submissions:', error);
       toast({

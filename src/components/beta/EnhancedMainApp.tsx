@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { SecurityAuditProvider } from '../security/SecurityAuditProvider';
 import EnhancedSecurityMonitor from '../security/EnhancedSecurityMonitor';
@@ -6,8 +5,8 @@ import { AccessControlProvider, useAccessControl } from '../access/AccessControl
 import { logError } from '@/utils/errorUtils';
 import { AppInitializer } from './components/AppInitializer';
 import { LoadingScreen } from './components/LoadingScreen';
-import { AppRenderer } from './components/AppRenderer';
-import { AppTimeouts } from './components/AppTimeouts';
+import AppRenderer from './components/AppRenderer';
+import AppTimeouts from './components/AppTimeouts';
 import type { AccessLevel } from '../access/AccessControlProvider';
 import { secureLog } from '@/utils/secureLogging';
 

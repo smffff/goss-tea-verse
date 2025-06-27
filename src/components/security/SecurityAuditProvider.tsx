@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -82,7 +81,7 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
   };
 
   const logSecurityEvent = (event: string, details: any, severity: 'low' | 'medium' | 'high' | 'critical' = 'low') => {
-    secureLog.info(`🔐 Security Event [${severity.toUpperCase()}]:`, event, details);
+    secureLog.info(`🔐 Security Event [${severity.toUpperCase()}]:`, { event, details });
     
     // Only show critical alerts to avoid spam
     if (severity === 'critical') {

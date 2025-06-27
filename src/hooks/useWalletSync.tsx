@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { upsertUserProfile } from '@/lib/api/user';
@@ -17,7 +16,7 @@ export const useWalletSync = () => {
     refreshBalance: () => Promise<void>
   ) => {
     if (process.env.NODE_ENV === "development") {
-      secureLog.info('🔄 [WalletSync] Starting sync for:', walletAddress);
+      secureLog.info('🔄 [WalletSync] Starting sync for:', { walletAddress });
     }
     setLoading(true);
     
@@ -25,7 +24,7 @@ export const useWalletSync = () => {
       // Get existing anonymous token from localStorage if available
       const existingToken = localStorage.getItem('ctea-anonymous-token');
       if (process.env.NODE_ENV === "development") {
-        secureLog.info('🎫 [WalletSync] Existing token found:', !!existingToken);
+        secureLog.info('🎫 [WalletSync] Existing token found:', { exists: !!existingToken });
       }
       
       // Upsert user profile
@@ -79,7 +78,7 @@ export const useWalletSync = () => {
 
         if (rewardResult.rewarded) {
           if (process.env.NODE_ENV === "development") {
-            secureLog.info('🎉 [WalletSync] Early user reward granted!', rewardResult.amount);
+            secureLog.info('🎉 [WalletSync] Early user reward granted!', { amount: rewardResult.amount });
           }
           toast({
             title: "Welcome Bonus! 🎉",

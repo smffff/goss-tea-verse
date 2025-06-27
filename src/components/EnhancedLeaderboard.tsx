@@ -65,7 +65,7 @@ const EnhancedLeaderboard: React.FC = () => {
         throw error;
       }
 
-      secureLog.info('EnhancedLeaderboard - Fetched leaderboard data:', data?.length || 0, 'entries');
+      secureLog.info('EnhancedLeaderboard - Fetched leaderboard data:', { count: data?.length || 0, unit: 'entries' });
       setLeaderboard(data || []);
     } catch (error) {
       secureLog.error('EnhancedLeaderboard - Error in fetchLeaderboard:', error);

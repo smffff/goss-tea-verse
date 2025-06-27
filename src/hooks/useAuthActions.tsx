@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import type { WalletUser, AuthResult } from '@/types/auth';
 import { secureLog } from '@/utils/secureLogging';
@@ -11,7 +10,7 @@ export const useAuthActions = (
 ) => {
   // Mock sign in/up functions for compatibility
   const signIn = useCallback(async (email: string, password: string): Promise<AuthResult> => {
-    secureLog.info('📧 [AuthActions] Sign in attempt for:', email);
+    secureLog.info('📧 [AuthActions] Sign in attempt for:', { email });
     // This would normally handle email/password auth
     // For now, just return success for wallet-based auth
     return { 
@@ -21,7 +20,7 @@ export const useAuthActions = (
   }, [user]);
 
   const signUp = useCallback(async (email: string, password: string): Promise<AuthResult> => {
-    secureLog.info('📝 [AuthActions] Sign up attempt for:', email);
+    secureLog.info('📝 [AuthActions] Sign up attempt for:', { email });
     // This would normally handle email/password registration
     // For now, just return success for wallet-based auth
     return { 
