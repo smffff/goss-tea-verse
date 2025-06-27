@@ -44,8 +44,10 @@ export const SecurityMonitor: React.FC = () => {
           supabase.rpc('log_security_event', {
             event_type: 'suspicious_url_detected',
             details: { url: currentUrl, pattern: pattern.toString() }
-          }).catch(error => {
-            secureLog.error('Failed to log security event', error);
+          }).then(({ error }) => {
+            if (error) {
+              secureLog.error('Failed to log security event', error);
+            }
           });
         }
       }
@@ -62,8 +64,10 @@ export const SecurityMonitor: React.FC = () => {
             supabase.rpc('log_security_event', {
               event_type: 'suspicious_localstorage_data',
               details: { key, suspicious: true }
-            }).catch(error => {
-              secureLog.error('Failed to log security event', error);
+            }).then(({ error }) => {
+              if (error) {
+                secureLog.error('Failed to log security event', error);
+              }
             });
           }
         }
@@ -105,8 +109,10 @@ export const SecurityMonitor: React.FC = () => {
                 supabase.rpc('log_security_event', {
                   event_type: 'suspicious_dom_injection',
                   details: { tagName: element.tagName, innerHTML: element.innerHTML?.substring(0, 100) }
-                }).catch(error => {
-                  secureLog.error('Failed to log security event', error);
+                }).then(({ error }) => {
+                  if (error) {
+                    secureLog.error('Failed to log security event', error);
+                  }
                 });
               }
             }

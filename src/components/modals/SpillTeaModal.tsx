@@ -17,6 +17,13 @@ interface SpillTeaModalProps {
   onSuccess: () => void;
 }
 
+interface SecureSubmissionResult {
+  success: boolean;
+  error?: string;
+  submission_id?: string;
+  status?: string;
+}
+
 const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
   isOpen,
   onClose,
@@ -69,8 +76,11 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
         throw new Error(`Submission failed: ${error.message}`);
       }
 
-      if (!submissionResult?.success) {
-        throw new Error(submissionResult?.error || 'Unknown error occurred');
+      // Type assertion for the response
+      const result = submissionResult as SecureSubmissionResult;
+
+      if (!result?.success) {
+        throw new Error(result?.error || 'Unknown error occurred');
       }
 
       toast({

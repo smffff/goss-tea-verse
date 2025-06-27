@@ -4,6 +4,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { useUserProgression } from '@/hooks/useUserProgression';
 import { secureLog } from '@/utils/secureLogging';
 
+interface SecureReactionResult {
+  success: boolean;
+  error?: string;
+}
+
 export const useSimpleReactions = () => {
   const { incrementReaction } = useUserProgression();
   const { toast } = useToast();
@@ -33,8 +38,11 @@ export const useSimpleReactions = () => {
         throw new Error(`Failed to add reaction: ${error.message}`);
       }
 
-      if (!reactionResult?.success) {
-        throw new Error(reactionResult?.error || 'Unknown error occurred');
+      // Type assertion for the response
+      const result = reactionResult as SecureReactionResult;
+
+      if (!result?.success) {
+        throw new Error(result?.error || 'Unknown error occurred');
       }
 
       await incrementReaction('given');
