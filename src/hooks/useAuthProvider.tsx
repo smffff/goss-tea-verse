@@ -1,6 +1,6 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { secureLog } from '@/utils/secureLogging';
 import type { User, Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
@@ -30,21 +30,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔐 [AuthProvider] Initializing...');
+    secureLog.info('🔐 [AuthProvider] Initializing...');
     
     // Get initial session
     const getInitialSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) {
-          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('🔐 [AuthProvider] Session error:', error);
+          secureLog.error('🔐 [AuthProvider] Session error:', error);
         } else {
-          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔐 [AuthProvider] Initial session:', !!session);
+          secureLog.info('🔐 [AuthProvider] Initial session:', !!session);
           setSession(session);
           setUser(session?.user || null);
         }
       } catch (error) {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('🔐 [AuthProvider] Failed to get session:', error);
+        secureLog.error('🔐 [AuthProvider] Failed to get session:', error);
       } finally {
         setLoading(false);
       }
@@ -55,7 +55,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔐 [AuthProvider] Auth state changed:', event);
+        secureLog.info('🔐 [AuthProvider] Auth state changed:', event);
         setSession(session);
         setUser(session?.user || null);
         setLoading(false);
@@ -71,7 +71,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await supabase.auth.signOut();
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('🔐 [AuthProvider] Sign out error:', error);
+      secureLog.error('🔐 [AuthProvider] Sign out error:', error);
     }
   };
 

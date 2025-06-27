@@ -1,7 +1,7 @@
-
 import React, { useEffect } from 'react';
 import { useAccessControl } from '../../access/AccessControlProvider';
 import { logError, getRandomErrorMessage } from '@/utils/errorUtils';
+import { secureLog } from '@/utils/secureLogging';
 import type { AccessLevel } from '../../access/AccessControlProvider';
 
 interface AppInitializerProps {
@@ -20,7 +20,7 @@ export const AppInitializer: React.FC<AppInitializerProps> = ({
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🚀 Starting CTea app initialization...');
+        secureLog.info('🚀 Starting CTea app initialization...');
         onLoadingSteps(1);
         
         // Check for existing access
@@ -28,30 +28,30 @@ export const AppInitializer: React.FC<AppInitializerProps> = ({
         const betaAccess = localStorage.getItem('ctea-beta-access');
         const demoMode = localStorage.getItem('ctea-demo-mode');
         
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('📱 Found existing storage:', { savedLevel, betaAccess, demoMode });
+        secureLog.info('📱 Found existing storage:', { savedLevel, betaAccess, demoMode });
         
         onLoadingSteps(2);
         await new Promise(resolve => setTimeout(resolve, 300));
         
         // Determine initial access level
         if (savedLevel && ['guest', 'authenticated', 'beta', 'admin'].includes(savedLevel)) {
-          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('✅ Using saved access level:', savedLevel);
+          secureLog.info('✅ Using saved access level:', savedLevel);
           setAccessLevel(savedLevel);
         } else if (betaAccess || demoMode) {
-          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔄 Upgrading to beta access from legacy storage');
+          secureLog.info('🔄 Upgrading to beta access from legacy storage');
           setAccessLevel('beta');
         } else {
-          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🆕 No existing access found, defaulting to guest');
+          secureLog.info('🆕 No existing access found, defaulting to guest');
           setAccessLevel('guest');
         }
         
         onLoadingSteps(3);
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('✅ App initialization complete');
+        secureLog.info('✅ App initialization complete');
         onInitialized();
       } catch (error) {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('💥 App initialization error:', error);
+        secureLog.error('💥 App initialization error:', error);
         logError(error, 'App initialization');
         onError(getRandomErrorMessage());
       }

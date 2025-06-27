@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import { motion } from 'framer-motion';
 import BrandedTeacupIcon from '@/components/ui/BrandedTeacupIcon';
 import { EnhancedAuthValidation } from '@/services/security/enhancedAuthValidation';
 import type { AccessLevel } from './AccessControlProvider';
+import { secureLog } from '@/utils/secureLogging';
 
 interface EnhancedAccessGatewayProps {
   onAccessGranted: (level: AccessLevel) => void;
@@ -38,7 +38,7 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
     setIsLoading(true);
     
     try {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔑 Validating beta code:', betaCode);
+      secureLog.info('🔑 Validating beta code:', betaCode);
       const validation = await EnhancedAuthValidation.validateBetaCode(betaCode);
       
       if (validation.isValid) {
@@ -50,10 +50,10 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
           description: "Welcome to CTea Newsroom! Full access unlocked.",
         });
         
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('✅ Beta access granted successfully');
+        secureLog.info('✅ Beta access granted successfully');
         onAccessGranted('beta');
       } else {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('❌ Beta code validation failed:', validation.threats);
+        secureLog.info('❌ Beta code validation failed:', validation.threats);
         toast({
           title: "Invalid Code",
           description: "This code is not valid or has expired. Try spilling some tea instead!",
@@ -61,7 +61,7 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
         });
       }
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('❌ Beta code validation error:', error);
+      secureLog.error('❌ Beta code validation error:', error);
       toast({
         title: "Verification Failed",
         description: "Could not verify code. Please try again or contact support.",
@@ -94,7 +94,7 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
     setIsLoading(true);
     
     try {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('☕ Processing tea submission for access...');
+      secureLog.info('☕ Processing tea submission for access...');
       
       // Simulate processing with realistic delay
       await new Promise(resolve => setTimeout(resolve, 2500));
@@ -113,10 +113,10 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
         duration: 8000,
       });
       
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('✅ Tea spill access granted:', accessCode);
+      secureLog.info('✅ Tea spill access granted:', accessCode);
       onAccessGranted('guest');
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('❌ Tea submission error:', error);
+      secureLog.error('❌ Tea submission error:', error);
       toast({
         title: "Submission Failed",
         description: "Could not process your tea. Please try again!",
@@ -128,7 +128,7 @@ const EnhancedAccessGateway: React.FC<EnhancedAccessGatewayProps> = ({
   }, [spillContent, onAccessGranted, toast]);
 
   const handleSneak = useCallback(() => {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('👀 Starting sneak peek mode...');
+    secureLog.info('👀 Starting sneak peek mode...');
     localStorage.setItem('ctea-access-level', 'guest');
     localStorage.setItem('ctea-peek-start', Date.now().toString());
     

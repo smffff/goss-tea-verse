@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Coffee, Sparkles, Wallet, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { track } from '@/utils/analytics';
+import { secureLog } from '@/utils/secureLogging';
 import SpillTeaForm from '@/components/SpillTeaForm';
 import WalletBalance from '@/components/WalletBalance';
 import { useAuth } from '@/hooks/useAuth';
@@ -46,7 +46,7 @@ const SpillTea = () => {
       // Navigate to feed after submission
       navigate('/feed');
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Submission error:', error);
+      secureLog.error('Submission error:', error);
       toast({
         title: "Submission Failed",
         description: "There was an error submitting your tea. Please try again.",

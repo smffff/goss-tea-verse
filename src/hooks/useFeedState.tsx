@@ -1,7 +1,7 @@
-
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { secureLog } from '@/utils/secureLogging';
 import { TeaSubmission } from '@/types/teaFeed';
 import { transformSubmission } from '@/utils/submissionUtils';
 
@@ -13,7 +13,7 @@ export const useFeedState = () => {
   const fetchSubmissions = useCallback(async () => {
     try {
       setIsLoading(true);
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Fetching submissions...');
+      secureLog.info('Fetching submissions...');
       
       const { data, error } = await supabase
         .from('tea_submissions')
@@ -26,9 +26,9 @@ export const useFeedState = () => {
       
       const transformedData = (data || []).map(transformSubmission);
       setSubmissions(transformedData);
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Fetched submissions:', transformedData.length);
+      secureLog.info('Fetched submissions:', transformedData.length);
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching submissions:', error);
+      secureLog.error('Error fetching submissions:', error);
       toast({
         title: "Failed to Load Feed",
         description: "Please try refreshing the page.",
@@ -57,7 +57,7 @@ export const useFeedState = () => {
       
       return true;
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Reaction error:', error);
+      secureLog.error('Reaction error:', error);
       return false;
     }
   }, []);

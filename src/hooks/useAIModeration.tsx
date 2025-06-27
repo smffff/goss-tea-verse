@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import { supabase } from '../integrations/supabase/client'
 import { useToast } from './use-toast'
+import { secureLog } from '@/utils/secureLogging'
 
 interface ModerationResult {
   mod_status: "clean" | "flagged" | "escalated"
@@ -42,7 +43,7 @@ export function useAIModeration(): UseAIModerationReturn {
       })
 
       if (error) {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('AI moderation error:', error)
+        secureLog.error('AI moderation error:', error)
         toast({
           title: "Moderation Error",
           description: "Failed to moderate content. Please try again.",
@@ -52,7 +53,7 @@ export function useAIModeration(): UseAIModerationReturn {
       }
 
       if (!data.success) {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('AI moderation failed:', data.error)
+        secureLog.error('AI moderation failed:', data.error)
         toast({
           title: "Moderation Failed",
           description: data.error || "Content moderation failed",
@@ -96,7 +97,7 @@ export function useAIModeration(): UseAIModerationReturn {
       return result
 
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Moderation error:', error)
+      secureLog.error('Moderation error:', error)
       toast({
         title: "Moderation Error",
         description: "An unexpected error occurred during moderation.",

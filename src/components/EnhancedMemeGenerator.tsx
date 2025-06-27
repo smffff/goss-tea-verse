@@ -1,5 +1,4 @@
-
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Download, Share2, Sparkles, Palette, Type, Image } from 'lucide-react';
+import { secureLog } from '@/utils/secureLogging';
 
 interface EnhancedMemeGeneratorProps {
   submissionId: string;
@@ -61,20 +61,22 @@ const EnhancedMemeGenerator: React.FC<EnhancedMemeGeneratorProps> = ({
       // 3. Apply effects and filters
       // 4. Generate downloadable image
       
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Meme generated:', {
-        template: selectedTemplate,
-        topText,
-        bottomText,
-        style: textStyle,
-        backgroundColor
-      });
+      if (process.env.NODE_ENV === "development") {
+        secureLog.info('Meme generated:', {
+          template: selectedTemplate,
+          topText,
+          bottomText,
+          style: textStyle,
+          backgroundColor
+        });
+      }
     } finally {
       setIsGenerating(false);
     }
   };
 
   const shareToSocial = (platform: string) => {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`Sharing meme to ${platform}`);
+    secureLog.info(`Sharing meme to ${platform}`);
     // Implement sharing logic for each platform
   };
 

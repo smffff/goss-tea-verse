@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Trophy, Crown, Star, Medal, Award } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { secureLog } from '@/utils/secureLogging';
 
 interface LeaderboardEntry {
   anonymous_token: string;
@@ -17,13 +18,11 @@ interface LeaderboardEntry {
   updated_at: string;
 }
 
-const EnhancedLeaderboard = () => {
+const EnhancedLeaderboard: React.FC = () => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [period, setPeriod] = useState<'weekly' | 'monthly' | 'all-time'>('weekly');
   const { toast } = useToast();
-
-  if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('EnhancedLeaderboard - Component rendered, period:', period);
 
   useEffect(() => {
     fetchLeaderboard();
@@ -32,14 +31,21 @@ const EnhancedLeaderboard = () => {
   const fetchLeaderboard = async () => {
     try {
       setIsLoading(true);
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('EnhancedLeaderboard - Fetching leaderboard data for period:', period);
-
+      
       let query = supabase
-        .from('user_progression')
-        .select('*')
-        .order('tea_points', { ascending: false });
+        .from('tea_submissions')
+        .select(`
+          anonymous_token,
+          total_posts,
+          total_reactions_given,
+          total_reactions_received,
+          tea_points,
+          current_xp,
+          current_level,
+          updated_at
+        `);
 
-      // Filter by time period
+      // Apply period filter
       if (period === 'weekly') {
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
@@ -50,17 +56,19 @@ const EnhancedLeaderboard = () => {
         query = query.gte('updated_at', monthAgo.toISOString());
       }
 
-      const { data, error } = await query.limit(50);
+      const { data, error } = await query
+        .order('tea_points', { ascending: false })
+        .limit(50);
 
       if (error) {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('EnhancedLeaderboard - Error fetching leaderboard:', error);
+        secureLog.error('EnhancedLeaderboard - Error fetching leaderboard:', error);
         throw error;
       }
 
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('EnhancedLeaderboard - Fetched leaderboard data:', data?.length || 0, 'entries');
+      secureLog.info('EnhancedLeaderboard - Fetched leaderboard data:', data?.length || 0, 'entries');
       setLeaderboard(data || []);
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('EnhancedLeaderboard - Error in fetchLeaderboard:', error);
+      secureLog.error('EnhancedLeaderboard - Error in fetchLeaderboard:', error);
       toast({
         title: "Failed to Load Leaderboard",
         description: "Couldn't fetch the latest rankings. Please try again.",

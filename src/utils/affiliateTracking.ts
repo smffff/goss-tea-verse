@@ -1,5 +1,5 @@
-
 import { track } from '@/utils/analytics';
+import { secureLog } from './secureLogging';
 
 export interface AffiliateClick {
   platform: string;
@@ -28,7 +28,7 @@ export const trackAffiliateClick = (platform: string, url: string) => {
   clicks.push(clickData);
   localStorage.setItem('ctea_affiliate_clicks', JSON.stringify(clicks.slice(-50))); // Keep last 50
 
-  if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔗 Affiliate click tracked:', platform, url);
+  secureLog.info('🔗 Affiliate click tracked:', platform, url);
 };
 
 export const getAffiliateStats = (): AffiliateClick[] => {
