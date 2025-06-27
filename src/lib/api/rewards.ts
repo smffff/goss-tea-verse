@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { secureLog } from '@/utils/secureLogging';
 import type { Database } from '@/integrations/supabase/types';
 
 type TeaTransaction = Database['public']['Tables']['tea_transactions']['Row'];
@@ -27,7 +28,7 @@ export async function rewardEarlyUser(
     .maybeSingle();
 
   if (checkError) {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error checking for existing reward:', checkError);
+    secureLog.error('Error checking for existing reward:', checkError);
     throw checkError;
   }
 
@@ -50,7 +51,7 @@ export async function rewardEarlyUser(
   });
 
   if (insertError) {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error inserting reward:', insertError);
+    secureLog.error('Error inserting reward:', insertError);
     throw insertError;
   }
 
@@ -63,7 +64,7 @@ export async function rewardEarlyUser(
     .maybeSingle();
 
   if (balanceError) {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching balance for update:', balanceError);
+    secureLog.error('Error fetching balance for update:', balanceError);
     throw balanceError;
   }
 
@@ -77,7 +78,7 @@ export async function rewardEarlyUser(
   });
 
   if (updateError) {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error upserting wallet balance:', updateError);
+    secureLog.error('Error upserting wallet balance:', updateError);
     throw updateError;
   }
 
@@ -97,7 +98,7 @@ export async function getWalletBalance(wallet_address: string) {
 
   if (error && error.code !== 'PGRST116') {
     // PGRST116 means no row was found, which is not an error here.
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching wallet balance:', error);
+    secureLog.error('Error fetching wallet balance:', error);
     throw error;
   }
 
@@ -123,7 +124,7 @@ export async function getWalletTransactions(
     .limit(limit);
 
   if (error) {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching wallet transactions:', error);
+    secureLog.error('Error fetching wallet transactions:', error);
     throw error;
   }
 

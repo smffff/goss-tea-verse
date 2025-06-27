@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { secureLog } from '@/utils/secureLogging';
 
 export type IdentityVisibility = 'anon' | 'public';
 
@@ -17,13 +18,13 @@ export async function updateIdentityVisibility(
       .eq('id', userId);
 
     if (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error updating identity visibility:', error);
+      secureLog.error('Error updating identity visibility:', error);
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error) {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Unexpected error updating identity visibility:', error);
+    secureLog.error('Unexpected error updating identity visibility:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown error' 

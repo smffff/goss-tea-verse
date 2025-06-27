@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle, AlertTriangle, Loader2, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { secureLog } from '@/utils/secureLogging';
 
 interface SecurityStatus {
   securityHardened: boolean;
@@ -57,7 +58,7 @@ const BetaLaunchStatus: React.FC = () => {
         });
       }
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Launch status check failed:', error);
+      secureLog.error('Launch status check failed:', error);
     } finally {
       setLoading(false);
     }

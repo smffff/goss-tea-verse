@@ -14,13 +14,14 @@ import RevenueErrorBoundary from '@/components/revenue/RevenueErrorBoundary';
 import { Card } from '@/components/ui/card';
 import { Crown } from 'lucide-react';
 import { useRevenue } from '@/components/revenue/RevenueProvider';
+import { secureLog } from '@/utils/secureLogging';
 
 const EnhancedSidebar = () => {
   const { premiumContentEnabled } = useRevenue();
 
   const handleUpgrade = () => {
     // Navigate to subscription page or open Stripe checkout
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Opening subscription flow...');
+    secureLog.info('Opening subscription flow...');
     // You can integrate this with your payment system
   };
 

@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { secureLog } from '@/utils/secureLogging';
 
 /**
  * Upserts a user profile by wallet address, linking it to anonymous token if provided.
@@ -42,7 +43,7 @@ export async function upsertUserProfile({
     if (error) throw error;
     return data;
   } catch (error) {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error upserting user profile:', error);
+    secureLog.error('Error upserting user profile:', error);
     throw error;
   }
 }
