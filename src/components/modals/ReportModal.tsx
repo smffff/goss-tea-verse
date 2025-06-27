@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { X, Flag, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { secureLog } from '@/utils/secureLogging';
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -48,7 +49,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, contentId })
     setIsSubmitting(true);
 
     // Simulate API call
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Report submitted:', {
+    secureLog.info('Report submitted:', {
       contentId,
       reason,
       comment: comment.trim(),

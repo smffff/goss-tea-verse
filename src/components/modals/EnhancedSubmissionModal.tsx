@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Coffee, X, Send, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { secureLog } from '@/utils/secureLogging';
 
 interface EnhancedSubmissionModalProps {
   isOpen: boolean;
@@ -49,7 +50,7 @@ const EnhancedSubmissionModal: React.FC<EnhancedSubmissionModalProps> = ({
       setEmail('');
       onClose();
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Submission error:', error);
+      secureLog.error('Submission error:', error);
       toast({
         title: "Submission Failed",
         description: "Please try again later.",

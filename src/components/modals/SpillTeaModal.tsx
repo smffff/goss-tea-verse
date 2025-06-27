@@ -10,6 +10,7 @@ import { Coffee, Send, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { UnifiedSecurityService } from '@/services/unifiedSecurityService';
+import { secureLog } from '@/utils/secureLogging';
 
 interface SpillTeaModalProps {
   isOpen: boolean;
@@ -108,12 +109,12 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
       });
 
       onSuccess();
-
+      onClose();
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Submission error:', error);
+      secureLog.error('Tea submission error:', error);
       toast({
         title: "Submission Failed",
-        description: error instanceof Error ? error.message : 'An unexpected error occurred',
+        description: "Please try again later.",
         variant: "destructive"
       });
     } finally {
@@ -123,87 +124,83 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-ctea-dark border-ctea-teal/30 text-white max-w-2xl">
+      <DialogContent className="bg-ctea-dark border-ctea-teal/30 max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
+          <DialogTitle className="flex items-center gap-3 text-white">
             <Coffee className="w-6 h-6 text-ctea-teal" />
-            Spill Your Tea ☕
+            Spill the Tea
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
-            <Select
-              value={formData.category}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
-            >
-              <SelectTrigger className="bg-ctea-darker border-ctea-teal/30">
+            <Label htmlFor="content" className="text-white">What's the tea? *</Label>
+            <Textarea
+              id="content"
+              placeholder="Spill all the gossip here..."
+              value={formData.content}
+              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+              className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-500 focus:border-ctea-teal min-h-[120px] resize-none"
+              maxLength={1000}
+            />
+            <div className="text-xs text-gray-400 text-right">
+              {formData.content.length}/1000 characters
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="category" className="text-white">Category</Label>
+            <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+              <SelectTrigger className="bg-ctea-darker border-ctea-teal/30 text-white">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-ctea-dark border-ctea-teal/30">
+              <SelectContent>
                 <SelectItem value="general">General</SelectItem>
-                <SelectItem value="tech">Tech & DeFi</SelectItem>
-                <SelectItem value="nft">NFTs</SelectItem>
-                <SelectItem value="exchange">Exchanges</SelectItem>
-                <SelectItem value="project">Projects</SelectItem>
-                <SelectItem value="personalities">Crypto Personalities</SelectItem>
+                <SelectItem value="celebrity">Celebrity</SelectItem>
+                <SelectItem value="business">Business</SelectItem>
+                <SelectItem value="politics">Politics</SelectItem>
+                <SelectItem value="tech">Tech</SelectItem>
+                <SelectItem value="sports">Sports</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="content">Your Tea *</Label>
-            <Textarea
-              id="content"
-              placeholder="Spill the tea... What's the latest gossip in crypto? 👀"
-              value={formData.content}
-              onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-              className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-400 min-h-[120px] resize-none"
-              maxLength={1000}
-              required
-            />
-            <div className="text-right text-sm text-gray-400">
-              {formData.content.length}/1000
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="evidenceUrl">Evidence URL (optional)</Label>
+            <Label htmlFor="evidence" className="text-white">Evidence URL (Optional)</Label>
             <Input
-              id="evidenceUrl"
+              id="evidence"
               type="url"
-              placeholder="https://twitter.com/... or https://example.com/proof"
+              placeholder="https://example.com/proof"
               value={formData.evidenceUrl}
-              onChange={(e) => setFormData(prev => ({ ...prev, evidenceUrl: e.target.value }))}
-              className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-400"
+              onChange={(e) => setFormData({ ...formData, evidenceUrl: e.target.value })}
+              className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-500 focus:border-ctea-teal"
             />
           </div>
 
-          <div className="flex items-center justify-between pt-4">
+          <div className="flex space-x-3">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
-              className="border-gray-600 text-gray-400 hover:bg-gray-700"
+              className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting || !formData.content.trim()}
-              className="bg-gradient-to-r from-ctea-teal to-pink-400 hover:from-pink-400 hover:to-ctea-teal text-white font-bold"
+              className="flex-1 bg-gradient-to-r from-ctea-teal to-pink-400 hover:from-ctea-teal/80 hover:to-pink-400/80 text-white"
             >
               {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <div className="flex items-center">
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   Spilling...
-                </>
+                </div>
               ) : (
-                <>
+                <div className="flex items-center">
                   <Send className="w-4 h-4 mr-2" />
-                  Spill Tea
-                </>
+                  Spill the Tea
+                </div>
               )}
             </Button>
           </div>

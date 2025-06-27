@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import FeedbackTypeSelector from '@/components/feedback/FeedbackTypeSelector';
 import PrioritySelector from '@/components/feedback/PrioritySelector';
+import { secureLog } from '@/utils/secureLogging';
 
 interface FeedbackFormProps {
   initialType?: 'bug' | 'feature' | 'general' | 'error';
@@ -68,7 +69,7 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({
       onClose();
 
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error submitting feedback:', error);
+      secureLog.error('Error submitting feedback:', error);
       toast({
         title: "Submission Failed 😤",
         description: "Couldn't submit your feedback. Even our systems have drama sometimes...",

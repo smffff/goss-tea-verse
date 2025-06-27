@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { secureLog } from '@/utils/secureLogging';
 
 interface TipModalProps {
   isOpen: boolean;
@@ -33,7 +34,7 @@ const TipModal: React.FC<TipModalProps> = ({
       const codes = ['EARLY-BIRD', 'BETA-ACCESS', 'CTEA2024'];
       return codes[Math.floor(Math.random() * codes.length)];
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Beta access generation error:', error);
+      secureLog.error('Beta access generation error:', error);
       return 'BETA-ACCESS';
     }
   };
@@ -74,7 +75,7 @@ const TipModal: React.FC<TipModalProps> = ({
       setMessage('');
       onClose();
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Tip processing error:', error);
+      secureLog.error('Tip processing error:', error);
       toast({
         title: "Tip Failed",
         description: "Please try again later.",
