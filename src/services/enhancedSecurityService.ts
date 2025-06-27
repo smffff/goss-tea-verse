@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { secureLog } from '@/utils/secureLog';
+import { secureLog } from '@/utils/secureLogging';
 
 export interface SecurityValidationResult {
   success: boolean;

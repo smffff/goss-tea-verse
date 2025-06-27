@@ -3,7 +3,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserProgression } from '@/hooks/useUserProgression';
 import { secureLog } from '@/utils/secureLogging';
-import { TeaTokenRewardService } from '@/services/teaTokenRewardService';
+import { EnhancedSecurityService } from '@/services/enhancedSecurityService';
 
 export const useSimpleReactions = () => {
   const { incrementReaction } = useUserProgression();
@@ -12,7 +12,7 @@ export const useSimpleReactions = () => {
   const handleReaction = async (submissionId: string, reactionType: 'hot' | 'cold' | 'spicy'): Promise<boolean> => {
     try {
       if (process.env.NODE_ENV === "development") {
-        secureLog.info('useSimpleReactions - Adding reaction:', { submissionId, reactionType });
+        secureLog.info('useSimpleReactions - Adding secure reaction:', { submissionId, reactionType });
       }
       
       const anonymousToken = localStorage.getItem('ctea_anonymous_token') || 
@@ -22,62 +22,56 @@ export const useSimpleReactions = () => {
       
       localStorage.setItem('ctea_anonymous_token', anonymousToken);
 
-      // Check if user already reacted to this submission
-      const { data: existingReaction } = await supabase
-        .from('user_reactions')
-        .select('*')
-        .eq('submission_id', submissionId)
-        .eq('anonymous_token', anonymousToken)
-        .single();
-
-      if (existingReaction) {
-        // Update existing reaction
-        await supabase
-          .from('user_reactions')
-          .update({ reaction_type: reactionType })
-          .eq('id', existingReaction.id);
-        
-        toast({
-          title: `Reaction Updated! ${reactionType === 'hot' ? '🔥' : reactionType === 'cold' ? '❄️' : '🌶️'}`,
-          description: `You changed your reaction to ${reactionType}!`,
+      // Use secure server-side reaction function
+      const { data: reactionResult, error } = await supabase
+        .rpc('secure_reaction_insert', {
+          p_submission_id: submissionId,
+          p_anonymous_token: anonymousToken,
+          p_reaction_type: reactionType
         });
-      } else {
-        // Add new reaction
-        await supabase
-          .from('user_reactions')
-          .insert({
-            submission_id: submissionId,
-            anonymous_token: anonymousToken,
-            reaction_type: reactionType
-          });
 
-        await incrementReaction('given');
-
-        // Award tokens for new reaction using existing method
-        const rewardResult = await TeaTokenRewardService.rewardReaction(
-          anonymousToken,
-          reactionType === 'hot' ? 'upvote' : 'downvote', // Map reaction types to existing actions
-          submissionId
-        );
-
-        if (rewardResult.success) {
-          toast({
-            title: `Reaction Added! ${reactionType === 'hot' ? '🔥' : reactionType === 'cold' ? '❄️' : '🌶️'}`,
-            description: `You ${reactionType === 'hot' ? 'heated up' : reactionType === 'cold' ? 'cooled down' : 'spiced up'} this tea!`,
-          });
-        } else {
-          toast({
-            title: `Reaction Added! ${reactionType === 'hot' ? '🔥' : reactionType === 'cold' ? '❄️' : '🌶️'}`,
-            description: `You ${reactionType === 'hot' ? 'heated up' : reactionType === 'cold' ? 'cooled down' : 'spiced up'} this tea!`,
-          });
-        }
+      if (error) {
+        throw new Error(`Secure reaction failed: ${error.message}`);
       }
+
+      if (!reactionResult?.success) {
+        if (reactionResult?.error?.includes('Rate limit')) {
+          toast({
+            title: "Rate Limit Exceeded",
+            description: "Please wait before reacting again.",
+            variant: "destructive"
+          });
+          return false;
+        }
+        throw new Error(reactionResult?.error || 'Reaction failed');
+      }
+
+      await incrementReaction('given');
+
+      // Log successful secure reaction
+      await EnhancedSecurityService.logSecurityEvent(
+        'secure_reaction_success',
+        { submissionId, reactionType },
+        'info'
+      );
+
+      toast({
+        title: `Reaction Added! ${reactionType === 'hot' ? '🔥' : reactionType === 'cold' ? '❄️' : '🌶️'}`,
+        description: `You ${reactionType === 'hot' ? 'heated up' : reactionType === 'cold' ? 'cooled down' : 'spiced up'} this tea!`,
+      });
 
       return true;
     } catch (error) {
       if (process.env.NODE_ENV === "development") {
-        secureLog.error('useSimpleReactions - Error:', error);
+        secureLog.error('useSimpleReactions - Secure reaction error:', error);
       }
+
+      await EnhancedSecurityService.logSecurityEvent(
+        'reaction_error',
+        { error: error instanceof Error ? error.message : 'Unknown error', submissionId, reactionType },
+        'medium'
+      );
+
       toast({
         title: "Reaction Failed",
         description: "Could not add your reaction. Please try again.",

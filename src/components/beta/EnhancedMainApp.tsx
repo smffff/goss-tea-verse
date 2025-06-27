@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import CTEANewsroomLanding from '@/components/landing/CTEANewsroomLanding';
 import LiveTeaApp from './LiveTeaApp';
+import SecurityMonitor from '@/components/security/SecurityMonitor';
 
 const EnhancedMainApp: React.FC = () => {
   const [hasAccess, setHasAccess] = useState(false);
@@ -40,11 +41,16 @@ const EnhancedMainApp: React.FC = () => {
     );
   }
 
-  if (!hasAccess) {
-    return <CTEANewsroomLanding onAccessGranted={handleAccessGranted} />;
-  }
-
-  return <LiveTeaApp onLogout={handleLogout} />;
+  return (
+    <>
+      <SecurityMonitor />
+      {!hasAccess ? (
+        <CTEANewsroomLanding onAccessGranted={handleAccessGranted} />
+      ) : (
+        <LiveTeaApp onLogout={handleLogout} />
+      )}
+    </>
+  );
 };
 
 export default EnhancedMainApp;

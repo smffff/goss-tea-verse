@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -8,9 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Coffee, Send, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { UnifiedSecurityService } from '@/services/unifiedSecurityService';
 import { secureLog } from '@/utils/secureLogging';
-import { TeaTokenRewardService } from '@/services/teaTokenRewardService';
+import { EnhancedSecurityService } from '@/services/enhancedSecurityService';
 
 interface SpillTeaModalProps {
   isOpen: boolean;
@@ -46,83 +46,78 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Generate anonymous token for submission
-      const anonymousToken = crypto.randomUUID();
+      // Generate secure anonymous token
+      const anonymousToken = localStorage.getItem('ctea_anonymous_token') || 
+        Array.from(crypto.getRandomValues(new Uint8Array(32)))
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('');
       
-      // Validate content with security service
-      const securityCheck = await UnifiedSecurityService.validateSubmissionSecurity(
-        formData.content,
-        formData.evidenceUrl ? [formData.evidenceUrl] : [],
-        'tea_submission'
-      );
+      localStorage.setItem('ctea_anonymous_token', anonymousToken);
 
-      if (!securityCheck.rateLimitCheck.allowed) {
-        toast({
-          title: "Rate Limit Exceeded",
-          description: securityCheck.rateLimitCheck.blocked_reason || "Please wait before submitting again.",
-          variant: "destructive"
-        });
-        return;
-      }
+      // Use enhanced security validation
+      const securityValidation = await EnhancedSecurityService.validateContent(formData.content);
 
-      if (!securityCheck.contentValidation.valid) {
-        toast({
-          title: "Content Validation Failed",
-          description: `Issues detected: ${securityCheck.contentValidation.threats.join(', ')}`,
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Submit to database
-      const submissionData = {
-        content: securityCheck.contentValidation.sanitized,
-        category: formData.category,
-        evidence_urls: formData.evidenceUrl ? [formData.evidenceUrl] : null,
-        anonymous_token: anonymousToken,
-        status: 'approved', // Auto-approve for live launch
-        has_evidence: !!formData.evidenceUrl,
-        reactions: { hot: 0, cold: 0, spicy: 0 },
-        average_rating: 0,
-        rating_count: 0,
-        verification_score: 0
-      };
-
-      const { data: insertedSubmission, error } = await supabase
-        .from('tea_submissions')
-        .insert(submissionData)
-        .select()
-        .single();
-
-      if (error) {
-        throw new Error(`Submission failed: ${error.message}`);
-      }
-
-      // Award tokens for successful submission
-      try {
-        const rewardResult = await TeaTokenRewardService.rewardSpill(
-          anonymousToken, // Using anonymous token as wallet address
-          insertedSubmission.id // Use the actual inserted submission ID
+      if (!securityValidation.success) {
+        await EnhancedSecurityService.logSecurityEvent(
+          'content_validation_failed',
+          { threats: securityValidation.threats, riskLevel: securityValidation.riskLevel },
+          'high'
         );
 
-        if (rewardResult.success) {
-          toast({
-            title: "Tea Spilled Successfully! 🫖",
-            description: "Your gossip is now live for everyone to see!",
-          });
-        } else {
-          toast({
-            title: "Tea Spilled Successfully! 🫖",
-            description: "Your gossip is now live for everyone to see!",
-          });
-        }
-      } catch (rewardError) {
-        secureLog.error('Failed to award tokens for spill:', rewardError);
         toast({
-          title: "Tea Spilled Successfully! 🫖",
-          description: "Your gossip is now live for everyone to see!",
+          title: "Content Validation Failed",
+          description: `Security issues detected: ${securityValidation.threats.join(', ')}`,
+          variant: "destructive"
         });
+        return;
       }
+
+      if (securityValidation.riskLevel === 'critical') {
+        await EnhancedSecurityService.logSecurityEvent(
+          'critical_content_blocked',
+          { content: formData.content.substring(0, 100), riskLevel: securityValidation.riskLevel },
+          'critical'
+        );
+
+        toast({
+          title: "Content Blocked",
+          description: "Content contains critical security threats and cannot be submitted.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Use secure server-side submission function
+      const { data: submissionResult, error } = await supabase
+        .rpc('secure_submission_insert', {
+          p_content: securityValidation.sanitized,
+          p_anonymous_token: anonymousToken,
+          p_category: formData.category
+        });
+
+      if (error) {
+        throw new Error(`Secure submission failed: ${error.message}`);
+      }
+
+      if (!submissionResult?.success) {
+        throw new Error(submissionResult?.error || 'Submission failed');
+      }
+
+      // Log successful secure submission
+      await EnhancedSecurityService.logSecurityEvent(
+        'secure_submission_success',
+        { 
+          submissionId: submissionResult.submission_id,
+          securityScore: securityValidation.securityScore,
+          riskLevel: securityValidation.riskLevel
+        },
+        'info'
+      );
+
+      toast({
+        title: "Tea Spilled Successfully! 🫖",
+        description: "Your gossip has been securely submitted and is now live!",
+      });
 
       // Reset form
       setFormData({
@@ -134,7 +129,14 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
       onSuccess();
       onClose();
     } catch (error) {
-      secureLog.error('Tea submission error:', error);
+      secureLog.error('Secure tea submission error:', error);
+      
+      await EnhancedSecurityService.logSecurityEvent(
+        'submission_error',
+        { error: error instanceof Error ? error.message : 'Unknown error' },
+        'high'
+      );
+
       toast({
         title: "Submission Failed",
         description: "Please try again later.",
@@ -151,7 +153,7 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3 text-white">
             <Coffee className="w-6 h-6 text-ctea-teal" />
-            Spill the Tea
+            Spill the Tea (Secure)
           </DialogTitle>
         </DialogHeader>
 
@@ -188,18 +190,6 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="evidence" className="text-white">Evidence URL (Optional)</Label>
-            <Input
-              id="evidence"
-              type="url"
-              placeholder="https://example.com/proof"
-              value={formData.evidenceUrl}
-              onChange={(e) => setFormData({ ...formData, evidenceUrl: e.target.value })}
-              className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-500 focus:border-ctea-teal"
-            />
-          </div>
-
           <div className="flex space-x-3">
             <Button
               type="button"
@@ -217,12 +207,12 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
               {isSubmitting ? (
                 <div className="flex items-center">
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Spilling...
+                  Securing & Spilling...
                 </div>
               ) : (
                 <div className="flex items-center">
                   <Send className="w-4 h-4 mr-2" />
-                  Spill the Tea
+                  Securely Spill Tea
                 </div>
               )}
             </Button>
