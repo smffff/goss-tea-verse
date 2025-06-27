@@ -1,126 +1,195 @@
 
-import { ContentValidationService } from './security/contentValidationService';
-import { RateLimitService } from './security/rateLimitService';
-import { secureLog } from '@/utils/secureLog';
+import { supabase } from '@/integrations/supabase/client';
+import { secureLog } from '@/utils/secureLogging';
 
-export interface UnifiedSecurityResult {
+export interface RateLimitResult {
+  allowed: boolean;
+  blocked_reason?: string;
+  remaining_requests?: number;
+  reset_time?: number;
+  limit?: number;
+}
+
+export interface SecurityValidationResult {
   success: boolean;
+  message?: string;
+  data?: any;
   error?: string;
-  rateLimitCheck: {
-    allowed: boolean;
-    blockedReason?: string;
-  };
-  contentValidation: {
-    valid: boolean;
-    sanitized: string;
-    threats: string[];
-  };
-  urlValidation: {
-    valid: string[];
-    invalid: string[];
-  };
 }
 
 export class UnifiedSecurityService {
-  private static instance: UnifiedSecurityService;
+  private static rateLimitCache = new Map<string, { count: number; resetTime: number }>();
 
-  public static getInstance(): UnifiedSecurityService {
-    if (!UnifiedSecurityService.instance) {
-      UnifiedSecurityService.instance = new UnifiedSecurityService();
-    }
-    return UnifiedSecurityService.instance;
-  }
-
-  public static async validateSubmissionSecurity(
-    content: string,
-    urls: string[],
-    action: string = 'submission'
-  ): Promise<UnifiedSecurityResult> {
+  static async checkRateLimit(
+    identifier: string,
+    action: string,
+    limit: number = 10,
+    windowMs: number = 60000
+  ): Promise<RateLimitResult> {
     try {
-      // Generate anonymous token for rate limiting
-      const token = this.generateAnonymousToken();
-      
-      // Content validation
-      const contentResult = await ContentValidationService.validateContent(content, 1000);
-      
-      // URL validation
-      const urlResult = this.validateUrls(urls);
-      
-      // Rate limit check
-      const rateLimitResult = await RateLimitService.checkRateLimit(token, action, 5, 60);
-      
-      const success = contentResult.valid && urlResult.invalid.length === 0 && rateLimitResult.allowed;
-      
+      const now = Date.now();
+      const key = `${identifier}:${action}`;
+      const cached = this.rateLimitCache.get(key);
+
+      if (cached && now < cached.resetTime) {
+        if (cached.count >= limit) {
+          return {
+            allowed: false,
+            blocked_reason: 'Rate limit exceeded',
+            remaining_requests: 0,
+            reset_time: cached.resetTime,
+            limit
+          };
+        }
+        
+        cached.count++;
+        return {
+          allowed: true,
+          remaining_requests: limit - cached.count,
+          reset_time: cached.resetTime,
+          limit
+        };
+      }
+
+      // Reset or create new entry
+      this.rateLimitCache.set(key, {
+        count: 1,
+        resetTime: now + windowMs
+      });
+
       return {
-        success,
-        rateLimitCheck: {
-          allowed: rateLimitResult.allowed,
-          blockedReason: rateLimitResult.blockedReason
-        },
-        contentValidation: {
-          valid: contentResult.valid,
-          sanitized: contentResult.sanitized,
-          threats: contentResult.threats
-        },
-        urlValidation: urlResult
+        allowed: true,
+        remaining_requests: limit - 1,
+        reset_time: now + windowMs,
+        limit
       };
     } catch (error) {
-      secureLog.error('Security validation failed:', error);
-      
-      // Fallback validation
+      secureLog.error('Rate limit check failed:', error);
       return {
-        success: content.trim().length > 0 && content.length <= 1000,
-        rateLimitCheck: { allowed: true },
-        contentValidation: {
-          valid: content.trim().length > 0 && content.length <= 1000,
-          sanitized: this.basicSanitize(content),
-          threats: []
-        },
-        urlValidation: this.validateUrls(urls)
+        allowed: false,
+        blocked_reason: 'Rate limit check failed'
       };
     }
   }
 
-  private static validateUrls(urls: string[]): { valid: string[]; invalid: string[] } {
-    const valid: string[] = [];
-    const invalid: string[] = [];
-
-    for (const url of urls) {
-      if (!url?.trim()) continue;
+  static async validateSecureSubmission(
+    content: string,
+    userId: string,
+    additionalData?: Record<string, any>
+  ): Promise<SecurityValidationResult> {
+    try {
+      // Check rate limiting
+      const rateLimitResult = await this.checkRateLimit(userId, 'submission', 5, 300000); // 5 per 5 minutes
       
-      try {
-        const urlObj = new URL(url);
-        if (urlObj.protocol === 'http:' || urlObj.protocol === 'https:') {
-          valid.push(url);
-        } else {
-          invalid.push(url);
+      if (!rateLimitResult.allowed) {
+        return {
+          success: false,
+          error: rateLimitResult.blocked_reason || 'Rate limit exceeded'
+        };
+      }
+
+      // Content validation
+      if (!content || content.trim().length < 10) {
+        return {
+          success: false,
+          error: 'Content too short'
+        };
+      }
+
+      if (content.length > 2000) {
+        return {
+          success: false,
+          error: 'Content too long'
+        };
+      }
+
+      // Basic profanity/spam detection
+      const suspiciousPatterns = [
+        /(.)\1{10,}/g, // Repeated characters
+        /https?:\/\/[^\s]+/gi, // URLs (could be spam)
+      ];
+
+      for (const pattern of suspiciousPatterns) {
+        if (pattern.test(content)) {
+          secureLog.warn('Suspicious content detected', { userId, pattern: pattern.source });
         }
-      } catch {
-        invalid.push(url);
+      }
+
+      return {
+        success: true,
+        message: 'Submission validated successfully'
+      };
+    } catch (error) {
+      secureLog.error('Secure submission validation failed:', error);
+      return {
+        success: false,
+        error: 'Validation failed'
+      };
+    }
+  }
+
+  static async validateSecureReaction(
+    submissionId: string,
+    userId: string,
+    reactionType: string
+  ): Promise<SecurityValidationResult> {
+    try {
+      // Check rate limiting for reactions
+      const rateLimitResult = await this.checkRateLimit(userId, 'reaction', 30, 60000); // 30 per minute
+      
+      if (!rateLimitResult.allowed) {
+        return {
+          success: false,
+          error: rateLimitResult.blocked_reason || 'Rate limit exceeded'
+        };
+      }
+
+      // Validate reaction type
+      const allowedReactions = ['hot', 'cold', 'spicy'];
+      if (!allowedReactions.includes(reactionType)) {
+        return {
+          success: false,
+          error: 'Invalid reaction type'
+        };
+      }
+
+      // Validate submission exists
+      const { data: submission, error } = await supabase
+        .from('tea_submissions')
+        .select('id')
+        .eq('id', submissionId)
+        .single();
+
+      if (error || !submission) {
+        return {
+          success: false,
+          error: 'Submission not found'
+        };
+      }
+
+      return {
+        success: true,
+        message: 'Reaction validated successfully'
+      };
+    } catch (error) {
+      secureLog.error('Secure reaction validation failed:', error);
+      return {
+        success: false,
+        error: 'Validation failed'
+      };
+    }
+  }
+
+  static clearRateLimit(identifier: string, action?: string) {
+    if (action) {
+      this.rateLimitCache.delete(`${identifier}:${action}`);
+    } else {
+      // Clear all entries for the identifier
+      for (const key of this.rateLimitCache.keys()) {
+        if (key.startsWith(`${identifier}:`)) {
+          this.rateLimitCache.delete(key);
+        }
       }
     }
-
-    return { valid, invalid };
-  }
-
-  private static basicSanitize(content: string): string {
-    return content
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#x27;')
-      .replace(/\//g, '&#x2F;');
-  }
-
-  private static generateAnonymousToken(): string {
-    let token = sessionStorage.getItem('ctea_anonymous_token');
-    if (!token) {
-      token = crypto.randomUUID();
-      sessionStorage.setItem('ctea_anonymous_token', token);
-    }
-    return token;
   }
 }
-
-// Export default for easier imports
-export default UnifiedSecurityService;

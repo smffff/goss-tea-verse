@@ -1,7 +1,9 @@
 
 // Secure logging utility to prevent sensitive information exposure in production
 
-interface LogContext {
+export type LogContext = string | number | object | boolean | null | undefined | unknown;
+
+interface LogContextObject {
   [key: string]: any;
 }
 

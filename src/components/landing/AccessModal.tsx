@@ -1,171 +1,122 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, Coffee } from 'lucide-react';
-import { betaCodeService } from '@/services/betaCodeService';
 import { useToast } from '@/hooks/use-toast';
+import { BetaCodeService } from '@/services/betaCodeService';
+import { secureLog } from '@/utils/secureLogging';
 
 interface AccessModalProps {
   isOpen: boolean;
   onClose: () => void;
-  selectedPath: 'spill' | 'bribe' | 'code' | null;
-  accessCode: string;
-  onAccessCodeChange: (code: string) => void;
-  onSubmit: () => void;
+  onAccessGranted: () => void;
 }
 
-const AccessModal: React.FC<AccessModalProps> = ({
-  isOpen,
-  onClose,
-  selectedPath,
-  accessCode,
-  onAccessCodeChange,
-  onSubmit
-}) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [generatedCode, setGeneratedCode] = useState('');
+const AccessModal: React.FC<AccessModalProps> = ({ isOpen, onClose, onAccessGranted }) => {
+  const [betaCode, setBetaCode] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = async () => {
-    if (selectedPath === 'code') {
-      if (!accessCode.trim()) {
-        setError('Please enter an access code');
-        return;
-      }
+  const handleBetaCodeSubmit = async () => {
+    if (!betaCode.trim()) {
+      toast({
+        title: "Beta Code Required",
+        description: "Please enter a beta code to continue.",
+        variant: "destructive"
+      });
+      return;
+    }
 
-      setIsLoading(true);
-      setError('');
-
-      try {
-        const result = await betaCodeService.validateCode(accessCode, true);
-        
-        if (result.valid) {
-          localStorage.setItem('ctea-beta-access', 'granted');
-          localStorage.setItem('ctea-beta-code', result.code || accessCode);
-          toast({
-            title: "Access Granted! ☕",
-            description: "Welcome to CTea Newsroom!",
-          });
-          onSubmit();
-        } else {
-          setError(result.error || 'Invalid access code');
-        }
-      } catch (error) {
-        setError('Verification failed. Please try again.');
-      } finally {
-        setIsLoading(false);
+    setIsVerifying(true);
+    try {
+      const result = await BetaCodeService.validateBetaCode(betaCode.trim());
+      secureLog.info('Beta code validation result:', { success: result.success });
+      
+      if (result.success) {
+        localStorage.setItem('ctea-beta-access', 'granted');
+        localStorage.setItem('ctea-beta-code', betaCode.trim());
+        toast({
+          title: "Access Granted! 🎉",
+          description: "Welcome to CTea Beta! You now have full access.",
+        });
+        onAccessGranted();
+        onClose();
+      } else {
+        toast({
+          title: "Invalid Beta Code",
+          description: result.message || "The beta code you entered is not valid.",
+          variant: "destructive"
+        });
       }
-    } else {
-      // For spill and bribe paths, generate a code
-      if (selectedPath === 'spill') {
-        const mockSubmissionId = crypto.randomUUID();
-        const result = await betaCodeService.generateCodeForSpill(mockSubmissionId);
-        if (result.success && result.code) {
-          setGeneratedCode(result.code);
-          onAccessCodeChange(result.code);
-        }
-      } else if (selectedPath === 'bribe') {
-        const testCodes = betaCodeService.getTestCodes();
-        const randomCode = testCodes[Math.floor(Math.random() * testCodes.length)];
-        setGeneratedCode(randomCode);
-        onAccessCodeChange(randomCode);
-      }
+    } catch (error) {
+      secureLog.error('Beta code validation error:', error);
+      toast({
+        title: "Validation Error",
+        description: "Unable to verify beta code. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsVerifying(false);
     }
   };
 
-  const handleUseGeneratedCode = async () => {
-    if (!generatedCode) return;
-
-    setIsLoading(true);
-    setError('');
-
+  const handleDemoAccess = async () => {
     try {
-      const result = await betaCodeService.validateCode(generatedCode, true);
-      
-      if (result.valid) {
-        localStorage.setItem('ctea-beta-access', 'granted');
-        localStorage.setItem('ctea-beta-code', result.code || generatedCode);
-        toast({
-          title: "Access Granted! ☕",
-          description: "Welcome to CTea Newsroom!",
-        });
-        onSubmit();
-      } else {
-        setError('Failed to validate generated code');
-      }
+      secureLog.info('Demo access granted');
+      localStorage.setItem('ctea-demo-mode', 'true');
+      toast({
+        title: "Demo Access Granted! 🎉",
+        description: "Welcome to CTea Demo! Explore the app with sample data.",
+      });
+      onAccessGranted();
+      onClose();
     } catch (error) {
-      setError('Verification failed. Please try again.');
-    } finally {
-      setIsLoading(false);
+      secureLog.error('Demo access error:', error);
+      toast({
+        title: "Demo Access Error",
+        description: "Unable to grant demo access. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-gradient-to-br from-[#1b1b1b] to-[#2a1a2a] border-[#00d1c1]/30 text-white max-w-md">
+      <DialogContent className="sm:max-w-md bg-ctea-dark border-ctea-teal/30">
         <DialogHeader>
-          <DialogTitle className="text-center text-2xl font-bold flex items-center justify-center gap-2" style={{ fontFamily: "'Luckiest Guy', cursive" }}>
-            <Coffee className="w-6 h-6 text-[#00d1c1]" />
-            {selectedPath === 'spill' && 'Spill Your Tea'}
-            {selectedPath === 'bribe' && 'Bribe Accepted'}
-            {selectedPath === 'code' && 'Enter Access Code'}
-          </DialogTitle>
+          <DialogTitle className="text-white">Access CTea</DialogTitle>
         </DialogHeader>
-        
         <div className="space-y-4">
-          {selectedPath === 'code' ? (
-            <div>
-              <Label htmlFor="access-code" className="text-white">Access Code</Label>
-              <Input
-                id="access-code"
-                value={accessCode}
-                onChange={(e) => onAccessCodeChange(e.target.value.toUpperCase())}
-                placeholder="Enter your code..."
-                className="bg-white/10 border-[#00d1c1]/30 text-white placeholder:text-white/50 font-mono text-center"
-                onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
-              />
-              {error && (
-                <Alert className="border-red-500 bg-red-500/10 mt-2">
-                  <AlertCircle className="w-4 h-4 text-red-400" />
-                  <AlertDescription className="text-red-400">
-                    {error}
-                  </AlertDescription>
-                </Alert>
-              )}
-            </div>
-          ) : generatedCode ? (
-            <div className="text-center py-4">
-              <p className="text-white/80 mb-4">
-                {selectedPath === 'spill' && "Thanks for spilling the tea! Here's your access code:"}
-                {selectedPath === 'bribe' && "Your tribute has been noted! Here's your access code:"}
-              </p>
-              <div className="bg-[#00d1c1]/20 border border-[#00d1c1]/50 rounded-lg p-4">
-                <code className="text-[#00d1c1] text-2xl font-bold font-mono">{generatedCode}</code>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-4">
-              <p className="text-white/80 mb-4">
-                {selectedPath === 'spill' && "Ready to spill some tea and get access?"}
-                {selectedPath === 'bribe' && "Ready to tip the gatekeepers for access?"}
-              </p>
-            </div>
-          )}
-
-          <Button
-            onClick={generatedCode ? handleUseGeneratedCode : handleSubmit}
-            disabled={isLoading}
-            className="w-full bg-gradient-to-r from-[#00d1c1] to-[#ff61a6] hover:from-[#ff61a6] hover:to-[#00d1c1] text-white font-bold"
-          >
-            {isLoading ? 'Processing...' : 
-             generatedCode ? 'Enter Newsroom' :
-             selectedPath === 'code' ? 'Submit Code' : 
-             selectedPath === 'spill' ? 'Generate Code' : 'Get Access Code'}
-          </Button>
+          <div className="space-y-2">
+            <Label htmlFor="beta-code" className="text-white">Beta Code</Label>
+            <Input
+              id="beta-code"
+              type="text"
+              value={betaCode}
+              onChange={(e) => setBetaCode(e.target.value)}
+              placeholder="Enter your beta code"
+              className="bg-ctea-darker border-ctea-teal/30 text-white"
+              onKeyPress={(e) => e.key === 'Enter' && handleBetaCodeSubmit()}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Button
+              onClick={handleBetaCodeSubmit}
+              disabled={isVerifying}
+              className="w-full bg-gradient-to-r from-ctea-teal to-ctea-purple text-white"
+            >
+              {isVerifying ? 'Verifying...' : 'Submit Beta Code'}
+            </Button>
+            <Button
+              onClick={handleDemoAccess}
+              variant="outline"
+              className="w-full border-ctea-purple/30 text-ctea-purple hover:bg-ctea-purple/10"
+            >
+              Try Demo Mode
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
