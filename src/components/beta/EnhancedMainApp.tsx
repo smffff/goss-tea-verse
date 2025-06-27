@@ -1,126 +1,50 @@
-import React, { useState } from 'react';
-import { SecurityAuditProvider } from '../security/SecurityAuditProvider';
-import EnhancedSecurityMonitor from '../security/EnhancedSecurityMonitor';
-import { AccessControlProvider, useAccessControl } from '../access/AccessControlProvider';
-import { logError } from '@/utils/errorUtils';
-import { AppInitializer } from './components/AppInitializer';
-import { LoadingScreen } from './components/LoadingScreen';
-import AppRenderer from './components/AppRenderer';
-import AppTimeouts from './components/AppTimeouts';
-import type { AccessLevel } from '../access/AccessControlProvider';
-import { secureLog } from '@/utils/secureLogging';
 
-const EnhancedMainAppContent: React.FC = () => {
-  const { accessLevel, setAccessLevel } = useAccessControl();
+import React, { useState, useEffect } from 'react';
+import CTEANewsroomLanding from '@/components/landing/CTEANewsroomLanding';
+import LiveTeaApp from './LiveTeaApp';
+
+const EnhancedMainApp: React.FC = () => {
+  const [hasAccess, setHasAccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [initError, setInitError] = useState<string | null>(null);
-  const [showEmergencyAccess, setShowEmergencyAccess] = useState(false);
-  const [loadingSteps, setLoadingSteps] = useState(0);
 
-  const handleAccessGranted = (level: AccessLevel) => {
-    secureLog.info('✅ Access granted with level:', level);
-    setAccessLevel(level);
+  useEffect(() => {
+    // Check for existing access
+    const betaAccess = localStorage.getItem('ctea-beta-access');
+    const demoMode = localStorage.getItem('ctea-demo-mode');
+    
+    setHasAccess(!!(betaAccess || demoMode));
+    setIsLoading(false);
+  }, []);
+
+  const handleAccessGranted = () => {
+    setHasAccess(true);
   };
 
   const handleLogout = () => {
-    secureLog.info('👋 Logging out...');
-    try {
-      const keysToRemove = [
-        'ctea-beta-access',
-        'ctea-demo-mode', 
-        'ctea-beta-code',
-        'ctea-access-level',
-        'ctea-peek-start'
-      ];
-      
-      keysToRemove.forEach(key => localStorage.removeItem(key));
-      setAccessLevel('guest');
-    } catch (error) {
-      logError(error, 'Logout error');
-      window.location.reload();
-    }
-  };
-
-  const handleTimeExpired = () => {
-    secureLog.info('⏰ Sneak peek time expired');
-    try {
-      localStorage.removeItem('ctea-access-level');
-      localStorage.removeItem('ctea-peek-start');
-      setAccessLevel('guest');
-    } catch (error) {
-      logError(error, 'Time expiry error');
-    }
-  };
-
-  const handleEmergencyAccess = () => {
-    secureLog.info('🚨 Emergency access activated');
-    try {
-      localStorage.setItem('ctea-access-level', 'beta');
-      localStorage.setItem('ctea-demo-mode', 'true');
-      setAccessLevel('beta');
-      setIsLoading(false);
-      setShowEmergencyAccess(false);
-    } catch (error) {
-      secureLog.error('Emergency access failed:', error);
-      window.location.reload();
-    }
-  };
-
-  const handleForceRefresh = () => {
-    secureLog.info('🔄 Force refresh triggered');
-    window.location.reload();
+    localStorage.removeItem('ctea-beta-access');
+    localStorage.removeItem('ctea-demo-mode');
+    localStorage.removeItem('ctea-beta-code');
+    localStorage.removeItem('ctea-access-level');
+    setHasAccess(false);
   };
 
   if (isLoading) {
     return (
-      <>
-        <AppInitializer
-          onInitialized={() => setIsLoading(false)}
-          onError={(error) => {
-            setInitError(error);
-            setIsLoading(false);
-          }}
-          onLoadingSteps={setLoadingSteps}
-        />
-        <AppTimeouts
-          isLoading={isLoading}
-          onEmergencyTimeout={() => setShowEmergencyAccess(true)}
-          onForceTimeout={(error) => {
-            setInitError(error);
-            setIsLoading(false);
-          }}
-        />
-        <LoadingScreen
-          loadingSteps={loadingSteps}
-          showEmergencyAccess={showEmergencyAccess}
-          initError={initError}
-          onEmergencyAccess={handleEmergencyAccess}
-          onForceRefresh={handleForceRefresh}
-        />
-      </>
+      <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4 animate-bounce">🫖</div>
+          <div className="w-8 h-8 border-2 border-ctea-teal/30 border-t-ctea-teal rounded-full animate-spin mx-auto"></div>
+          <p className="text-white mt-4">Loading CTea Newsroom...</p>
+        </div>
+      </div>
     );
   }
 
-  return (
-    <AppRenderer
-      accessLevel={accessLevel}
-      onAccessGranted={handleAccessGranted}
-      onLogout={handleLogout}
-      onTimeExpired={handleTimeExpired}
-    />
-  );
-};
+  if (!hasAccess) {
+    return <CTEANewsroomLanding onAccessGranted={handleAccessGranted} />;
+  }
 
-const EnhancedMainApp: React.FC = () => {
-  secureLog.info('🏁 EnhancedMainApp rendering');
-  return (
-    <SecurityAuditProvider>
-      <AccessControlProvider>
-        <EnhancedMainAppContent />
-        <EnhancedSecurityMonitor />
-      </AccessControlProvider>
-    </SecurityAuditProvider>
-  );
+  return <LiveTeaApp onLogout={handleLogout} />;
 };
 
 export default EnhancedMainApp;
