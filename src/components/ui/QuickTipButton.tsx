@@ -58,7 +58,6 @@ const QuickTipButton: React.FC<QuickTipButtonProps> = ({
   };
 
   const isPremium = amount >= 10;
-  const isSuccess = isSuccess;
 
   return (
     <Button
