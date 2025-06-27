@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { MinimalTipButton, InlineTipButton, DefaultTipButton } from '@/components/tip/TipButtonVariants';
 import ConnectTipButton from '@/components/tip/ConnectTipButton';
 import { TeaTokenService } from '@/services/teaTokenService';
-import { secureLog } from '@/utils/secureLog';
+import { secureLog } from '@/utils/secureLogging';
 
 interface TipButtonProps {
   variant?: 'default' | 'minimal' | 'inline' | 'connect';
@@ -56,13 +57,13 @@ const TipButton = ({
         }
       );
 
-      if (result.success) {
+      if (result) {
         toast({
           title: "Tip Sent! 💝",
           description: `Successfully sent ${amount} $TEA to the recipient!`,
         });
       } else {
-        throw new Error(result.error || 'Failed to send tip');
+        throw new Error('Failed to send tip');
       }
     } catch (error) {
       secureLog.error('Tip failed:', error);

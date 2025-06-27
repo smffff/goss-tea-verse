@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react'
 import { useToast } from './use-toast'
 import { TeaTokenService } from '../services/teaTokenService'
@@ -21,7 +22,7 @@ export const useTeaTokens = (walletAddress?: string): UseTeaTokensReturn => {
     setError(null)
 
     try {
-      const balanceData = await TeaTokenService.getWalletBalance(address)
+      const balanceData = await TeaTokenService.getBalance(address)
       setBalance(balanceData)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch balance'
@@ -37,9 +38,7 @@ export const useTeaTokens = (walletAddress?: string): UseTeaTokensReturn => {
       const mappedTransactions = await TeaTokenService.getTransactions(address, limit)
       setTransactions(mappedTransactions)
     } catch (error: unknown) {
-      if (process.env.NODE_ENV === "development") {
-        secureLog.error('Error fetching transactions:', error)
-      }
+      secureLog.error('Error fetching transactions:', error)
       toast({
         title: "Transaction Error",
         description: "Failed to fetch transaction history",
@@ -57,10 +56,10 @@ export const useTeaTokens = (walletAddress?: string): UseTeaTokensReturn => {
   ): Promise<boolean> => {
     const result = await TeaTokenService.awardTokens(walletAddress, action, amount, spillId, metadata)
     
-    if (!result.success) {
+    if (!result) {
       toast({
         title: "Token Award Failed",
-        description: result.error || "Failed to award tokens. Please try again.",
+        description: "Failed to award tokens. Please try again.",
         variant: "destructive"
       })
       return false
@@ -70,7 +69,7 @@ export const useTeaTokens = (walletAddress?: string): UseTeaTokensReturn => {
     if (balance && balance.wallet_address === walletAddress) {
       setBalance(prev => prev ? {
         ...prev,
-        tea_balance: result.data.new_balance,
+        tea_balance: prev.tea_balance + amount,
         total_earned: prev.total_earned + (amount > 0 ? amount : 0),
         total_spent: prev.total_spent + (amount < 0 ? Math.abs(amount) : 0),
         last_transaction_at: new Date().toISOString()
@@ -79,7 +78,7 @@ export const useTeaTokens = (walletAddress?: string): UseTeaTokensReturn => {
 
     // Add to transactions
     const newTransaction: TeaTransaction = {
-      id: result.data.transaction_id,
+      id: Date.now().toString(),
       wallet_address: walletAddress,
       action,
       amount,
@@ -101,12 +100,16 @@ export const useTeaTokens = (walletAddress?: string): UseTeaTokensReturn => {
   }, [balance, toast])
 
   const refreshBalance = useCallback(() => {
-    getBalance(walletAddress)
+    if (walletAddress) {
+      getBalance(walletAddress)
+    }
   }, [walletAddress, getBalance])
 
   // Initial load
   useEffect(() => {
-    getBalance(walletAddress)
+    if (walletAddress) {
+      getBalance(walletAddress)
+    }
   }, [walletAddress, getBalance])
 
   // Set up real-time updates using polling (every 30 seconds)
@@ -120,9 +123,10 @@ export const useTeaTokens = (walletAddress?: string): UseTeaTokensReturn => {
     return () => clearInterval(interval)
   }, [walletAddress, getBalance])
 
-  // Manual refresh function
   const forceRefresh = useCallback(() => {
-    getBalance(walletAddress)
+    if (walletAddress) {
+      getBalance(walletAddress)
+    }
   }, [walletAddress, getBalance])
 
   return {

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { getOrCreateSecureToken } from '@/utils/securityUtils';
-import { secureLog } from '@/utils/secureLog';
+import { generateSecureToken } from '@/utils/securityUtils';
+import { secureLog } from '@/utils/secureLogging';
 
 interface Comment {
   id: string;
@@ -47,11 +47,7 @@ export const useComments = (submissionId: string) => {
       
       setComments(mockComments);
     } catch (error: unknown) {
-      try {
-        secureLog.error('Error fetching comments:', error);
-      } catch (logError) {
-        console.error('Error fetching comments:', error);
-      }
+      secureLog.error('Error fetching comments:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to load comments",
@@ -65,7 +61,7 @@ export const useComments = (submissionId: string) => {
   const addComment = async (content: string, parentId?: string): Promise<void> => {
     try {
       // Use secure token generation and content sanitization
-      const anonymousToken = getOrCreateSecureToken();
+      const anonymousToken = generateSecureToken();
       
       // Basic content validation and sanitization
       const sanitizedContent = content.trim();

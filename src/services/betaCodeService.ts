@@ -1,67 +1,29 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { secureLog } from '@/utils/secureLog';
+import { secureLog } from '@/utils/secureLogging';
 
-interface BetaCodeResult {
+export interface BetaCodeResult {
   success: boolean;
+  message?: string;
   code?: string;
   error?: string;
 }
 
-class BetaCodeService {
-  private testCodes = ['BETA2024', 'TESTCODE', 'CTEA1337', 'ALPHA123'];
-
-  async generateCodeForSpill(spillId: string): Promise<BetaCodeResult> {
+export class BetaCodeService {
+  static async validateCode(code: string): Promise<BetaCodeResult> {
     try {
-      const code = this.generateRandomCode();
-      
-      const { error } = await supabase
-        .from('beta_codes')
-        .insert({
-          code,
-          granted_by: 'system_spill',
-          metadata: { spill_id: spillId, generated_at: new Date().toISOString() }
-        });
-
-      if (error) {
-        throw error;
-      }
-
-      return { success: true, code };
-    } catch (error) {
-      secureLog.error('Beta code generation failed', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
-      };
-    }
-  }
-
-  private generateRandomCode(): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = '';
-    for (let i = 0; i < 8; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-  }
-
-  async validateCode(code: string, userToken?: string): Promise<BetaCodeResult> {
-    try {
-      // In development, accept test codes
-      if (process.env.NODE_ENV === 'development' && this.testCodes.includes(code.toUpperCase())) {
-        return { success: true, code: code.toUpperCase() };
-      }
-
       const { data, error } = await supabase
         .from('beta_codes')
         .select('*')
-        .eq('code', code.toUpperCase())
+        .eq('code', code)
         .eq('used', false)
         .single();
 
       if (error || !data) {
-        return { success: false, error: 'Invalid or expired code' };
+        return {
+          success: false,
+          message: 'Invalid or expired beta code'
+        };
       }
 
       // Mark code as used
@@ -70,45 +32,61 @@ class BetaCodeService {
         .update({ 
           used: true, 
           used_at: new Date().toISOString(),
-          user_token: userToken 
+          user_token: localStorage.getItem('ctea_anonymous_token') || 'anonymous'
         })
         .eq('id', data.id);
 
-      return { success: true, code: data.code };
+      return {
+        success: true,
+        message: 'Beta access granted!',
+        code: data.code
+      };
     } catch (error) {
-      secureLog.error('Beta code validation failed', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Validation failed' 
+      secureLog.error('Beta code validation error:', error);
+      return {
+        success: false,
+        message: 'Validation service unavailable'
       };
     }
   }
 
-  // Add missing methods
-  getTestCodes(): string[] {
-    return [...this.testCodes];
-  }
+  static async generateCodeForSpill(spillId: string): Promise<BetaCodeResult> {
+    try {
+      const code = Array.from(crypto.getRandomValues(new Uint8Array(4)))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('')
+        .toUpperCase();
 
-  isDemoMode(): boolean {
-    return localStorage.getItem('ctea-demo-mode') === 'true';
-  }
+      const { data, error } = await supabase
+        .from('beta_codes')
+        .insert({
+          code: `SPILL-${code}`,
+          granted_by: 'system',
+          metadata: { 
+            spill_id: spillId,
+            generated_for: 'spill_submission'
+          }
+        })
+        .select()
+        .single();
 
-  checkDemoParams(): boolean {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('demo') === 'true';
-  }
+      if (error) {
+        throw error;
+      }
 
-  enableDemoMode(): void {
-    localStorage.setItem('ctea-demo-mode', 'true');
-    localStorage.setItem('ctea-access-level', 'beta');
-  }
-
-  clearAccess(): void {
-    localStorage.removeItem('ctea-beta-access');
-    localStorage.removeItem('ctea-demo-mode');
-    localStorage.removeItem('ctea-beta-code');
-    localStorage.removeItem('ctea-access-level');
+      return {
+        success: true,
+        code: data.code,
+        message: 'Beta code generated successfully'
+      };
+    } catch (error) {
+      secureLog.error('Beta code generation error:', error);
+      return {
+        success: false,
+        message: 'Failed to generate beta code'
+      };
+    }
   }
 }
 
-export const betaCodeService = new BetaCodeService();
+export const betaCodeService = BetaCodeService;

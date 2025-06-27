@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useSecurityMonitoring } from '../hooks/useSecurityMonitoring'
 import { applySecurityHeaders, generateCSRFToken } from '../utils/securityHeaders'
 import { SecurityService } from '../services/securityService'
-import { secureLog } from '@/utils/secureLog'
+import { secureLog } from '@/utils/secureLogging'
 
 interface SecurityContextType {
   csrfToken: string
@@ -41,10 +41,17 @@ export const SecurityProvider: React.FC<SecurityProviderProps> = ({ children }) 
     detectSuspiciousPatterns: true
   })
 
-  // Wrap the async validateContent to match expected interface
-  const validateContent = async (content: string) => {
+  // Wrap the async validateContent to ensure consistent return type
+  const validateContent = async (content: string): Promise<{ valid: boolean; sanitized: string; threats: string[] }> => {
     try {
-      return await validateContentAsync(content);
+      const result = await validateContentAsync(content);
+      
+      // Ensure threats array is always present
+      return {
+        valid: result.valid,
+        sanitized: result.sanitized,
+        threats: 'threats' in result ? result.threats : []
+      };
     } catch (error) {
       secureLog.error('Content validation failed', error);
       return {
