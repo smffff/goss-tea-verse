@@ -7,7 +7,7 @@ import { useWallet } from '@/hooks/useWallet';
 import { useToast } from '@/hooks/use-toast';
 
 const ChainSwitcher: React.FC = () => {
-  const { isConnected, walletAddress, connectWallet } = useWallet();
+  const { isConnected, walletAddress, connectWallet, switchToAvalanche } = useWallet();
   const { toast } = useToast();
 
   const handleSwitchToAvalanche = async () => {
@@ -17,11 +17,14 @@ const ChainSwitcher: React.FC = () => {
         return;
       }
 
-      // For now, just show a toast since we don't have the actual chain switching logic
-      toast({
-        title: "Avalanche Network",
-        description: "Chain switching functionality coming soon!",
-      });
+      if (switchToAvalanche) {
+        await switchToAvalanche();
+      } else {
+        toast({
+          title: "Avalanche Network",
+          description: "Chain switching functionality coming soon!",
+        });
+      }
     } catch (error) {
       toast({
         title: "Chain Switch Failed",

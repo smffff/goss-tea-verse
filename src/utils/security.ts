@@ -1,16 +1,23 @@
 
-// Enhanced security utilities - now using unified service layer
-// Updated: 2025-01-26 - Using centralized security service
+import { ContentValidationService } from '@/services/contentValidationService';
 
-export {
-  performSubmissionSecurityCheck,
-  sanitizeContent,
-  getOrCreateSecureToken,
-  validateUrls,
-  validateUrl,
-  checkClientRateLimit,
-  validateContentSecurity
-} from './securityUtils';
+export const validateContent = (content: string) => {
+  return ContentValidationService.validateContent(content);
+};
 
-// Re-export the unified security service
-export { SecurityServiceUnified as SecurityService } from '@/services/securityServiceUnified';
+export const sanitizeInput = (input: string): string => {
+  return input
+    .replace(/<script[^>]*>.*?<\/script>/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '')
+    .trim();
+};
+
+export const isValidUrl = (url: string): boolean => {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};

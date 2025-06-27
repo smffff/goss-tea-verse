@@ -17,6 +17,20 @@ export interface SecurityValidationResult {
   error?: string;
 }
 
+export interface SubmissionSecurityResult {
+  success: boolean;
+  rateLimitCheck: RateLimitResult;
+  contentValidation: {
+    valid: boolean;
+    sanitized: string;
+    threats: string[];
+  };
+  urlValidation: {
+    valid: string[];
+    invalid: string[];
+  };
+}
+
 export class UnifiedSecurityService {
   private static rateLimitCache = new Map<string, { count: number; resetTime: number }>();
 
@@ -72,112 +86,90 @@ export class UnifiedSecurityService {
     }
   }
 
-  static async validateSecureSubmission(
+  static async validateSubmissionSecurity(
     content: string,
-    userId: string,
-    additionalData?: Record<string, any>
-  ): Promise<SecurityValidationResult> {
+    urls: string[],
+    action: string = 'submission'
+  ): Promise<SubmissionSecurityResult> {
     try {
-      // Check rate limiting
-      const rateLimitResult = await this.checkRateLimit(userId, 'submission', 5, 300000); // 5 per 5 minutes
+      const userId = localStorage.getItem('ctea_anonymous_token') || 'anonymous';
       
-      if (!rateLimitResult.allowed) {
-        return {
-          success: false,
-          error: rateLimitResult.blocked_reason || 'Rate limit exceeded'
-        };
-      }
-
+      // Check rate limiting
+      const rateLimitResult = await this.checkRateLimit(userId, action, 5, 300000);
+      
       // Content validation
-      if (!content || content.trim().length < 10) {
-        return {
-          success: false,
-          error: 'Content too short'
-        };
-      }
-
-      if (content.length > 2000) {
-        return {
-          success: false,
-          error: 'Content too long'
-        };
-      }
-
-      // Basic profanity/spam detection
-      const suspiciousPatterns = [
-        /(.)\1{10,}/g, // Repeated characters
-        /https?:\/\/[^\s]+/gi, // URLs (could be spam)
-      ];
-
-      for (const pattern of suspiciousPatterns) {
-        if (pattern.test(content)) {
-          secureLog.warn('Suspicious content detected', { userId, pattern: pattern.source });
-        }
-      }
+      const contentValidation = this.validateContent(content);
+      
+      // URL validation
+      const urlValidation = this.validateUrls(urls);
 
       return {
-        success: true,
-        message: 'Submission validated successfully'
+        success: rateLimitResult.allowed && contentValidation.valid,
+        rateLimitCheck: rateLimitResult,
+        contentValidation,
+        urlValidation
       };
     } catch (error) {
-      secureLog.error('Secure submission validation failed:', error);
+      secureLog.error('Submission security validation failed:', error);
       return {
         success: false,
-        error: 'Validation failed'
+        rateLimitCheck: { allowed: false, blocked_reason: 'Validation failed' },
+        contentValidation: { valid: false, sanitized: content, threats: ['Validation error'] },
+        urlValidation: { valid: [], invalid: urls }
       };
     }
   }
 
-  static async validateSecureReaction(
-    submissionId: string,
-    userId: string,
-    reactionType: string
-  ): Promise<SecurityValidationResult> {
-    try {
-      // Check rate limiting for reactions
-      const rateLimitResult = await this.checkRateLimit(userId, 'reaction', 30, 60000); // 30 per minute
-      
-      if (!rateLimitResult.allowed) {
-        return {
-          success: false,
-          error: rateLimitResult.blocked_reason || 'Rate limit exceeded'
-        };
-      }
+  private static validateContent(content: string) {
+    const threats: string[] = [];
+    let sanitized = content.trim();
 
-      // Validate reaction type
-      const allowedReactions = ['hot', 'cold', 'spicy'];
-      if (!allowedReactions.includes(reactionType)) {
-        return {
-          success: false,
-          error: 'Invalid reaction type'
-        };
-      }
-
-      // Validate submission exists
-      const { data: submission, error } = await supabase
-        .from('tea_submissions')
-        .select('id')
-        .eq('id', submissionId)
-        .single();
-
-      if (error || !submission) {
-        return {
-          success: false,
-          error: 'Submission not found'
-        };
-      }
-
-      return {
-        success: true,
-        message: 'Reaction validated successfully'
-      };
-    } catch (error) {
-      secureLog.error('Secure reaction validation failed:', error);
-      return {
-        success: false,
-        error: 'Validation failed'
-      };
+    // Basic content validation
+    if (!sanitized || sanitized.length < 3) {
+      threats.push('Content too short');
     }
+
+    if (sanitized.length > 2000) {
+      threats.push('Content too long');
+    }
+
+    // Basic XSS prevention
+    const xssPatterns = [
+      /<script[^>]*>.*?<\/script>/gi,
+      /javascript:/gi,
+      /on\w+\s*=/gi
+    ];
+
+    for (const pattern of xssPatterns) {
+      if (pattern.test(sanitized)) {
+        threats.push('Potential XSS detected');
+        sanitized = sanitized.replace(pattern, '');
+      }
+    }
+
+    return {
+      valid: threats.length === 0,
+      sanitized,
+      threats
+    };
+  }
+
+  private static validateUrls(urls: string[]) {
+    const valid: string[] = [];
+    const invalid: string[] = [];
+
+    for (const url of urls) {
+      if (!url.trim()) continue;
+      
+      try {
+        new URL(url);
+        valid.push(url);
+      } catch {
+        invalid.push(url);
+      }
+    }
+
+    return { valid, invalid };
   }
 
   static clearRateLimit(identifier: string, action?: string) {

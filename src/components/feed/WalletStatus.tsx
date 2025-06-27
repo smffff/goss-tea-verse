@@ -1,19 +1,20 @@
-import React, { useEffect } from 'react';
+
+import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Wallet, RefreshCw, Coins } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useWallet } from '@/components/WalletProvider';
+import { useWallet } from '@/hooks/useWallet';
 import { useToast } from '@/hooks/use-toast';
 
 const WalletStatus = () => {
   const { user, loading, refreshBalance } = useAuth();
-  const { wallet, connectWallet } = useWallet();
+  const { isConnected, walletAddress, connectWallet } = useWallet();
   const { toast } = useToast();
 
   const handleConnect = async () => {
     try {
-      await connectWallet('metamask');
+      await connectWallet();
     } catch (error: any) {
       toast({
         title: 'Connection Failed',
@@ -25,7 +26,9 @@ const WalletStatus = () => {
 
   const handleRefreshBalance = async () => {
     try {
-      await refreshBalance();
+      if (refreshBalance) {
+        await refreshBalance();
+      }
       toast({
         title: 'Balance Updated',
         description: 'Your balance has been refreshed',
@@ -39,7 +42,7 @@ const WalletStatus = () => {
     }
   };
 
-  if (!wallet.isConnected) {
+  if (!isConnected) {
     return (
       <div className="flex justify-center mb-6">
         <Card className="bg-gray-800/50 border-gray-700 p-4">
@@ -108,9 +111,9 @@ const WalletStatus = () => {
               <RefreshCw className="w-4 h-4" />
             </Button>
             
-            {wallet.address && (
+            {walletAddress && (
               <div className="text-xs text-gray-400 font-mono">
-                {wallet.address.slice(0, 6)}...{wallet.address.slice(-4)}
+                {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
               </div>
             )}
           </div>

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { BetaCodeService } from '@/services/betaCodeService';
+import { betaCodeService } from '@/services/betaCodeService';
 import { secureLog } from '@/utils/secureLogging';
 
 interface AccessModalProps {
@@ -31,7 +31,7 @@ const AccessModal: React.FC<AccessModalProps> = ({ isOpen, onClose, onAccessGran
 
     setIsVerifying(true);
     try {
-      const result = await BetaCodeService.validateBetaCode(betaCode.trim());
+      const result = await betaCodeService.validateCode(betaCode.trim());
       secureLog.info('Beta code validation result:', { success: result.success });
       
       if (result.success) {

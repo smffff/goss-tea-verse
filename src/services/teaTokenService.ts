@@ -1,140 +1,122 @@
-import { supabase } from '../integrations/supabase/client'
-import type { TeaTransaction, WalletBalance } from '../types/teaTokens'
+
+import { supabase } from '@/integrations/supabase/client';
+import { secureLog } from '@/utils/secureLogging';
+import type { TeaTransaction, WalletBalance } from '@/types/teaTokens';
 
 export class TeaTokenService {
-  static async getWalletBalance(address: string): Promise<WalletBalance | null> {
-    if (!address) return null
-
+  static async awardTokens(
+    walletAddress: string,
+    action: 'spill' | 'tip' | 'flag' | 'upvote' | 'downvote' | 'reward' | 'penalty',
+    amount: number,
+    spillId?: string,
+    metadata?: Record<string, unknown>
+  ): Promise<boolean> {
     try {
-      // Get wallet balance
-      const { data: balanceData, error: balanceError } = await supabase
-        .from('wallet_balances')
-        .select('*')
-        .eq('wallet_address', address)
-        .single()
-
-      if (balanceError && balanceError.code !== 'PGRST116') {
-        if (process.env.NODE_ENV === "development") {
-          console.error('Error fetching balance:', balanceError);
-        }
-        throw balanceError
-      }
-
-      // Get transaction stats
-      const { data: transactionData, error: transactionError } = await supabase
+      const { data, error } = await supabase
         .from('tea_transactions')
-        .select('action, amount')
-        .eq('wallet_address', address)
+        .insert({
+          wallet_address: walletAddress,
+          action,
+          amount,
+          spill_id: spillId,
+          status: 'confirmed',
+          metadata
+        })
+        .select()
+        .single();
 
-      if (transactionError) {
-        if (process.env.NODE_ENV === "development") {
-          console.error('Error fetching transaction stats:', transactionError);
-        }
+      if (error) {
+        secureLog.error('Token award failed:', error);
+        return false;
       }
 
-      // Calculate stats
-      const totalTransactions = transactionData?.length || 0
-      const spillsPosted = transactionData?.filter(t => t.action === 'spill').length || 0
-      const tipsGiven = transactionData?.filter(t => t.action === 'tip' && t.amount < 0).length || 0
-      const rewardsReceived = transactionData?.filter(t => t.action === 'reward').length || 0
-
-      return {
-        wallet_address: address,
-        tea_balance: balanceData?.tea_balance || 0,
-        total_earned: balanceData?.total_earned || 0,
-        total_spent: balanceData?.total_spent || 0,
-        last_transaction_at: balanceData?.last_transaction_at,
-        total_transactions: totalTransactions,
-        spills_posted: spillsPosted,
-        tips_given: tipsGiven,
-        rewards_received: rewardsReceived
-      }
-    } catch (error: unknown) {
-      if (process.env.NODE_ENV === "development") {
-        console.error('Error fetching balance:', error);
-      }
-      throw error
+      // Update wallet balance
+      await this.updateWalletBalance(walletAddress, amount, action);
+      
+      return true;
+    } catch (error) {
+      secureLog.error('Token service error:', error);
+      return false;
     }
   }
 
-  static async getTransactions(address: string, limit: number = 20): Promise<TeaTransaction[]> {
-    if (!address) return []
+  static async getBalance(walletAddress: string): Promise<WalletBalance | null> {
+    try {
+      const { data, error } = await supabase
+        .from('wallet_balances')
+        .select('*')
+        .eq('wallet_address', walletAddress)
+        .single();
 
+      if (error && error.code !== 'PGRST116') {
+        secureLog.error('Balance fetch failed:', error);
+        return null;
+      }
+
+      return data || null;
+    } catch (error) {
+      secureLog.error('Balance service error:', error);
+      return null;
+    }
+  }
+
+  static async getTransactions(walletAddress: string, limit: number = 50): Promise<TeaTransaction[]> {
     try {
       const { data, error } = await supabase
         .from('tea_transactions')
         .select('*')
-        .eq('wallet_address', address)
+        .eq('wallet_address', walletAddress)
         .order('created_at', { ascending: false })
-        .limit(limit)
+        .limit(limit);
 
       if (error) {
-        if (process.env.NODE_ENV === "development") {
-          console.error('Error fetching transactions:', error);
-        }
-        throw error
+        secureLog.error('Transactions fetch failed:', error);
+        return [];
       }
 
-      // Map to TeaTransaction format
-      return (data || []).map(t => ({
-        id: parseInt(t.id.toString()),
-        wallet_address: address,
-        action: t.action as TeaTransaction['action'],
-        amount: t.amount,
-        spill_id: t.spill_id,
-        recipient_wallet: t.recipient_wallet,
-        transaction_hash: t.transaction_hash,
-        block_number: t.block_number,
-        status: t.status as TeaTransaction['status'],
-        metadata: (t.metadata && typeof t.metadata === 'object') ? t.metadata as Record<string, unknown> : {},
-        created_at: t.created_at
-      }))
-    } catch (error: unknown) {
-      if (process.env.NODE_ENV === "development") {
-        console.error('Error fetching transactions:', error);
-      }
-      throw error
+      return data || [];
+    } catch (error) {
+      secureLog.error('Transactions service error:', error);
+      return [];
     }
   }
 
-  static async awardTokens(
+  private static async updateWalletBalance(
     walletAddress: string,
-    action: TeaTransaction['action'],
     amount: number,
-    spillId?: string,
-    metadata?: Record<string, unknown>
-  ): Promise<{ success: boolean; data?: any; error?: string }> {
+    action: string
+  ): Promise<void> {
     try {
-      // Call the database function to award tokens
-      const { data, error } = await supabase.rpc('award_tea_tokens', {
-        p_wallet_address: walletAddress,
-        p_action: action,
-        p_amount: amount,
-        p_spill_id: spillId,
-        p_metadata: metadata ? JSON.parse(JSON.stringify(metadata)) : null
-      })
+      const { data: existing } = await supabase
+        .from('wallet_balances')
+        .select('*')
+        .eq('wallet_address', walletAddress)
+        .single();
 
-      if (error) {
-        if (process.env.NODE_ENV === "development") {
-          console.error('Error awarding tokens:', error);
-        }
-        return { success: false, error: error.message }
+      if (existing) {
+        await supabase
+          .from('wallet_balances')
+          .update({
+            tea_balance: existing.tea_balance + amount,
+            total_earned: amount > 0 ? existing.total_earned + amount : existing.total_earned,
+            total_spent: amount < 0 ? existing.total_spent + Math.abs(amount) : existing.total_spent,
+            total_transactions: existing.total_transactions + 1,
+            last_transaction_at: new Date().toISOString()
+          })
+          .eq('wallet_address', walletAddress);
+      } else {
+        await supabase
+          .from('wallet_balances')
+          .insert({
+            wallet_address: walletAddress,
+            tea_balance: amount,
+            total_earned: amount > 0 ? amount : 0,
+            total_spent: amount < 0 ? Math.abs(amount) : 0,
+            total_transactions: 1
+          });
       }
-
-      const result = data as any
-      if (!result?.success) {
-        if (process.env.NODE_ENV === "development") {
-          console.error('Token award failed:', result?.error);
-        }
-        return { success: false, error: result?.error || 'Unknown error occurred' }
-      }
-
-      return { success: true, data: result }
-    } catch (error: unknown) {
-      if (process.env.NODE_ENV === "development") {
-        console.error('Error awarding tokens:', error);
-      }
-      return { success: false, error: 'An unexpected error occurred' }
+    } catch (error) {
+      secureLog.error('Balance update failed:', error);
     }
   }
 }

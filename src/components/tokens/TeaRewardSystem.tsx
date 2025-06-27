@@ -1,202 +1,185 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Coins, TrendingUp, Award, Zap } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { motion, AnimatePresence } from 'framer-motion';
-import { TeaTokenService } from '@/services/teaTokenService';
-import { useTeaTokens } from '@/hooks/useTeaTokens';
-import { secureLog } from '@/utils/secureLog';
 
-interface Transaction {
-  id: number;
-  amount: number;
-  action: string;
-  metadata?: Record<string, unknown>;
-  created_at: string;
-}
+import React, { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Coffee, TrendingUp, Gift, Zap } from 'lucide-react';
+import { TeaTokenService } from '@/services/teaTokenService';
+import type { WalletBalance, TeaTransaction } from '@/types/teaTokens';
 
 interface RewardEvent {
   id: string;
-  type: 'tea_earned' | 'soap_earned' | 'level_up' | 'achievement';
-  amount?: number;
-  message: string;
-  timestamp: number;
+  type: 'spill' | 'tip' | 'reward';
+  amount: number;
+  description: string;
+  timestamp: Date;
 }
 
 interface TeaRewardSystemProps {
-  walletAddress?: string;
-  className?: string;
+  walletAddress: string;
+  children?: React.ReactNode;
 }
 
-const TeaRewardSystem: React.FC<TeaRewardSystemProps> = ({
-  walletAddress,
-  className = ''
-}) => {
+const TeaRewardSystem: React.FC<TeaRewardSystemProps> = ({ walletAddress, children }) => {
+  const [balance, setBalance] = useState<WalletBalance | null>(null);
   const [recentRewards, setRecentRewards] = useState<RewardEvent[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-  const { balance, refreshBalance } = useTeaTokens(walletAddress);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load recent transactions as reward events
   useEffect(() => {
-    if (!walletAddress) return;
-
-    const loadRecentTransactions = async () => {
-      setIsLoading(true);
-      try {
-        const transactions = await TeaTokenService.getTransactions(walletAddress, 5);
-        
-        const rewardEvents: RewardEvent[] = transactions
-          .filter(t => t.amount > 0) // Only show positive transactions
-          .map(t => ({
-            id: t.id.toString(),
-            type: 'tea_earned' as const,
-            amount: t.amount,
-            message: getTransactionMessage(t),
-            timestamp: new Date(t.created_at).getTime()
-          }));
-
-        setRecentRewards(rewardEvents);
-      } catch (error) {
-        secureLog.error('Failed to load transactions:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadRecentTransactions();
+    if (walletAddress) {
+      fetchBalanceAndRewards();
+    }
   }, [walletAddress]);
 
-  const getTransactionMessage = (transaction: Transaction): string => {
-    const metadata = transaction.metadata || {};
-    
-    switch (transaction.action) {
+  const fetchBalanceAndRewards = async () => {
+    try {
+      const [balanceData, transactionsData] = await Promise.all([
+        TeaTokenService.getBalance(walletAddress),
+        TeaTokenService.getTransactions(walletAddress, 5)
+      ]);
+
+      setBalance(balanceData);
+      
+      // Convert transactions to reward events
+      const rewards: RewardEvent[] = transactionsData.map((tx: TeaTransaction) => ({
+        id: tx.id.toString(),
+        type: tx.action as 'spill' | 'tip' | 'reward',
+        amount: tx.amount,
+        description: getRewardDescription(tx.action, tx.amount),
+        timestamp: new Date(tx.created_at)
+      }));
+      
+      setRecentRewards(rewards);
+    } catch (error) {
+      console.error('Failed to fetch balance and rewards:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getRewardDescription = (action: string, amount: number): string => {
+    switch (action) {
       case 'spill':
-        return `+${transaction.amount} $TEA for spilling tea!`;
+        return `+${amount} TEA for spilling tea`;
+      case 'tip':
+        return amount > 0 ? `+${amount} TEA tip received` : `${amount} TEA tip sent`;
       case 'reward':
-        if (metadata.reward_type === 'reaction') {
-          const emoji = metadata.reaction_type === 'hot' ? '🔥' : 
-                       metadata.reaction_type === 'cold' ? '❄️' : '🌶️';
-          return `${emoji} +${transaction.amount} $TEA for ${metadata.reaction_type} reaction!`;
-        } else if (metadata.reward_type === 'daily_login') {
-          return `☕ +${transaction.amount} $TEA daily login bonus!`;
-        } else if (metadata.reward_type === 'quality_spill') {
-          return `🏆 +${transaction.amount} $TEA for quality tea!`;
-        }
-        return `+${transaction.amount} $TEA reward!`;
+        return `+${amount} TEA bonus reward`;
+      case 'upvote':
+        return `+${amount} TEA for upvote`;
+      case 'downvote':
+        return `${amount} TEA for downvote`;
       default:
-        return `+${transaction.amount} $TEA earned!`;
+        return `${amount > 0 ? '+' : ''}${amount} TEA`;
     }
   };
 
-  // Add real reward event (called from parent components)
-  const addRewardEvent = (event: Omit<RewardEvent, 'id' | 'timestamp'>) => {
-    const newEvent: RewardEvent = {
-      ...event,
-      id: Date.now().toString(),
-      timestamp: Date.now()
-    };
-
-    setRecentRewards(prev => [newEvent, ...prev.slice(0, 4)]);
-    refreshBalance(); // Refresh balance when new reward is added
-
-    // Show toast notification
-    toast({
-      title: getRewardTitle(event.type),
-      description: event.message,
-      duration: 3000,
-    });
-  };
-
-  const getRewardTitle = (type: RewardEvent['type']) => {
+  const getRewardIcon = (type: string) => {
     switch (type) {
-      case 'tea_earned': return '🫖 $TEA Earned!';
-      case 'soap_earned': return '🧼 $SOAP Earned!';
-      case 'level_up': return '⬆️ Level Up!';
-      case 'achievement': return '🏆 Achievement Unlocked!';
-      default: return '🎉 Reward!';
+      case 'spill':
+        return <Coffee className="w-4 h-4 text-ctea-teal" />;
+      case 'tip':
+        return <Gift className="w-4 h-4 text-purple-400" />;
+      case 'reward':
+        return <Zap className="w-4 h-4 text-yellow-400" />;
+      default:
+        return <TrendingUp className="w-4 h-4 text-green-400" />;
     }
   };
 
-  const getRewardIcon = (type: RewardEvent['type']) => {
-    switch (type) {
-      case 'tea_earned': return Coins;
-      case 'soap_earned': return Award;
-      case 'level_up': return TrendingUp;
-      case 'achievement': return Zap;
-      default: return Coins;
-    }
-  };
-
-  const getRewardColor = (type: RewardEvent['type']) => {
-    switch (type) {
-      case 'tea_earned': return 'text-green-400 bg-green-500/20';
-      case 'soap_earned': return 'text-blue-400 bg-blue-500/20';
-      case 'level_up': return 'text-purple-400 bg-purple-500/20';
-      case 'achievement': return 'text-yellow-400 bg-yellow-500/20';
-      default: return 'text-gray-400 bg-gray-500/20';
-    }
-  };
-
-  // Expose addRewardEvent to parent components
-  React.useImperativeHandle(React.useRef(), () => ({
-    addRewardEvent
-  }));
+  if (isLoading) {
+    return (
+      <Card className="bg-ctea-dark/60 border-ctea-teal/30">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Coffee className="w-5 h-5 text-ctea-teal" />
+            Tea Rewards
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3 animate-pulse">
+            <div className="h-8 bg-gray-600 rounded"></div>
+            <div className="h-4 bg-gray-600 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-600 rounded w-1/2"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <Card className={`bg-gradient-to-br from-ctea-dark/50 to-black/50 border-ctea-teal/30 ${className}`}>
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-white">Token Rewards</h3>
-          <div className="flex gap-3">
-            <Badge className="bg-green-500/20 text-green-400 border-green-500/50">
-              {balance?.tea_balance || 0} $TEA
-            </Badge>
-            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/50">
-              {balance?.total_earned || 0} Total
-            </Badge>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-4">
-              <div className="animate-spin w-6 h-6 border-2 border-ctea-teal border-t-transparent rounded-full"></div>
+    <Card className="bg-ctea-dark/60 border-ctea-teal/30">
+      <CardHeader>
+        <CardTitle className="text-white flex items-center gap-2">
+          <Coffee className="w-5 h-5 text-ctea-teal" />
+          Tea Rewards
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {/* Balance Display */}
+          <div className="text-center p-4 bg-gradient-to-r from-ctea-teal/20 to-ctea-purple/20 rounded-lg">
+            <div className="text-2xl font-bold text-white">
+              {balance?.tea_balance?.toLocaleString() || '0'}
             </div>
-          ) : (
-            <AnimatePresence>
-              {recentRewards.map((reward) => {
-                const Icon = getRewardIcon(reward.type);
-                
-                return (
-                  <motion.div
-                    key={reward.id}
-                    initial={{ opacity: 0, x: 20, scale: 0.9 }}
-                    animate={{ opacity: 1, x: 0, scale: 1 }}
-                    exit={{ opacity: 0, x: -20, scale: 0.9 }}
-                    className={`flex items-center gap-3 p-2 rounded-lg border ${getRewardColor(reward.type)} border-current/30`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{reward.message}</p>
-                      {reward.amount && (
-                        <p className="text-xs opacity-70">+{reward.amount} tokens</p>
-                      )}
+            <div className="text-sm text-gray-400">$TEA Balance</div>
+            {balance && (
+              <div className="text-xs text-gray-500 mt-1">
+                Earned: {balance.total_earned} • Spent: {balance.total_spent}
+              </div>
+            )}
+          </div>
+
+          {/* Recent Rewards */}
+          {recentRewards.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium text-white">Recent Activity</h4>
+              {recentRewards.map((reward) => (
+                <div
+                  key={reward.id}
+                  className="flex items-center gap-2 p-2 bg-ctea-darker/30 rounded"
+                >
+                  {getRewardIcon(reward.type)}
+                  <div className="flex-1">
+                    <div className="text-xs text-white">{reward.description}</div>
+                    <div className="text-xs text-gray-500">
+                      {reward.timestamp.toLocaleDateString()}
                     </div>
-                    <span className="text-xs opacity-50">
-                      {Math.floor((Date.now() - reward.timestamp) / 1000)}s ago
-                    </span>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className={`text-xs ${
+                      reward.amount > 0
+                        ? 'text-green-400 border-green-400/30'
+                        : 'text-red-400 border-red-400/30'
+                    }`}
+                  >
+                    {reward.amount > 0 ? '+' : ''}{reward.amount}
+                  </Badge>
+                </div>
+              ))}
+            </div>
           )}
-          
-          {!isLoading && recentRewards.length === 0 && (
-            <div className="text-center py-4 text-gray-500">
-              <Coins className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Start earning $TEA by spilling quality gossip!</p>
+
+          {/* Earning Tips */}
+          <div className="text-xs text-gray-400 space-y-1">
+            <div>💡 Earn TEA by:</div>
+            <div>• Spilling hot tea (+5 TEA)</div>
+            <div>• Getting reactions (+1-3 TEA)</div>
+            <div>• Daily login bonus (+3 TEA)</div>
+          </div>
+
+          {children && (
+            <div>
+              {React.cloneElement(children as React.ReactElement, {
+                addRewardEvent: (event: Omit<RewardEvent, 'id' | 'timestamp'>) => {
+                  const newEvent: RewardEvent = {
+                    ...event,
+                    id: crypto.randomUUID(),
+                    timestamp: new Date()
+                  };
+                  setRecentRewards(prev => [newEvent, ...prev.slice(0, 4)]);
+                }
+              })}
             </div>
           )}
         </div>
