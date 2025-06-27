@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Shield, AlertTriangle, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
-import { EnhancedSecurityService } from '@/services/enhancedSecurityService';
+import { secureLog } from '@/utils/secureLog';
 
 interface SecurityMetrics {
   totalEvents: number;
@@ -36,7 +36,7 @@ const SecurityDashboard: React.FC = () => {
         activeThreats: Math.floor(Math.random() * 5)
       });
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to load security metrics:', error);
+      secureLog.error('Failed to load security metrics:', error);
     } finally {
       setIsLoading(false);
     }
@@ -115,8 +115,8 @@ const SecurityDashboard: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Critical Events</p>
-                <p className="text-2xl font-bold text-red-600">{metrics.criticalEvents}</p>
+                <p className="text-sm font-medium text-gray-600">Blocked Attempts</p>
+                <p className="text-2xl font-bold">{metrics.blockedAttempts}</p>
               </div>
               <XCircle className="w-8 h-8 text-red-600" />
             </div>
@@ -127,8 +127,8 @@ const SecurityDashboard: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Blocked Attempts</p>
-                <p className="text-2xl font-bold text-orange-600">{metrics.blockedAttempts}</p>
+                <p className="text-sm font-medium text-gray-600">Active Threats</p>
+                <p className="text-2xl font-bold">{metrics.activeThreats}</p>
               </div>
               <AlertTriangle className="w-8 h-8 text-orange-600" />
             </div>
@@ -136,62 +136,15 @@ const SecurityDashboard: React.FC = () => {
         </Card>
       </div>
 
-      {/* Recent Security Events */}
+      {/* Additional Security Information */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Security Events</CardTitle>
+          <CardTitle>Security Status</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {[
-              { type: 'rate_limit_exceeded', severity: 'warning', time: '2 minutes ago' },
-              { type: 'content_validation_failed', severity: 'critical', time: '5 minutes ago' },
-              { type: 'suspicious_pattern_detected', severity: 'high', time: '10 minutes ago' },
-              { type: 'successful_validation', severity: 'info', time: '15 minutes ago' }
-            ].map((event, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <Badge 
-                    className={
-                      event.severity === 'critical' ? 'bg-red-100 text-red-800' :
-                      event.severity === 'warning' ? 'bg-yellow-100 text-yellow-800' :
-                      event.severity === 'high' ? 'bg-orange-100 text-orange-800' :
-                      'bg-blue-100 text-blue-800'
-                    }
-                  >
-                    {event.severity}
-                  </Badge>
-                  <span className="font-medium">{event.type.replace(/_/g, ' ')}</span>
-                </div>
-                <span className="text-sm text-gray-500">{event.time}</span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Security Recommendations */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Security Recommendations</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-start gap-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-              <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
-              <div>
-                <p className="font-medium text-yellow-800">Review Rate Limits</p>
-                <p className="text-sm text-yellow-700">Consider lowering rate limits due to increased suspicious activity.</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5" />
-              <div>
-                <p className="font-medium text-blue-800">Content Validation Active</p>
-                <p className="text-sm text-blue-700">Content validation is working effectively and blocking threats.</p>
-              </div>
-            </div>
-          </div>
+          <p className="text-gray-600">
+            All security systems are operational and monitoring for threats.
+          </p>
         </CardContent>
       </Card>
     </div>

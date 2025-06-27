@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { SecurityServiceUnified } from '@/services/securityServiceUnified';
 import { betaCodeService } from '@/services/betaCodeService';
+import { secureLog } from '@/utils/secureLog';
 
 interface SubmissionData {
   tea: string;
@@ -36,33 +37,16 @@ const SubmitTea = () => {
         'tea_submission'
       );
 
-      // Check overall security validation
-      if (!securityCheck.overallValid) {
-        let errorMessage = 'Submission failed security validation';
-        
-        if (!securityCheck.rateLimitCheck.allowed) {
-          errorMessage = securityCheck.rateLimitCheck.blockedReason || 'Rate limit exceeded. Please wait before submitting again.';
-        } else if (!securityCheck.contentValidation.valid) {
-          errorMessage = `Content validation failed: ${securityCheck.contentValidation.threats.join(', ')}`;
-        } else if (securityCheck.urlValidation.invalid.length > 0) {
-          errorMessage = 'Some evidence URLs are invalid or suspicious';
-        }
-        
-        throw new Error(errorMessage);
-      }
-
-      // Check if content has critical security risks
-      if (securityCheck.contentValidation.riskLevel === 'critical') {
-        throw new Error('Content contains critical security threats and cannot be submitted');
+      if (!securityCheck.success) {
+        throw new Error(securityCheck.error || 'Security validation failed');
       }
 
       const submissionData = {
-        content: securityCheck.contentValidation.sanitized,
+        content: data.tea,
         category: data.category || 'general',
-        evidence_urls: securityCheck.urlValidation.valid.length > 0 ? securityCheck.urlValidation.valid : null,
-        anonymous_token: securityCheck.tokenValidation.token,
-        status: securityCheck.contentValidation.riskLevel === 'high' ? 'pending' : 'approved',
-        has_evidence: securityCheck.urlValidation.valid.length > 0,
+        evidence_urls: data.evidence_urls.length > 0 ? data.evidence_urls : null,
+        status: 'approved',
+        has_evidence: data.evidence_urls.length > 0,
         reactions: { hot: 0, cold: 0, spicy: 0 },
         average_rating: 0,
         rating_count: 0,
@@ -96,7 +80,7 @@ const SubmitTea = () => {
           });
         }
       } catch (codeError) {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Beta code generation failed:', codeError);
+        secureLog.info('Beta code generation failed:', codeError);
         // Don't fail the submission if code generation fails
       }
 
@@ -108,7 +92,7 @@ const SubmitTea = () => {
       navigate('/feed');
 
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Submission error:', error);
+      secureLog.error('Submission error:', error);
       
       toast({
         title: "Submission Failed",

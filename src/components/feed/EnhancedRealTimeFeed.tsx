@@ -1,374 +1,142 @@
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { TeaSubmission } from '@/types/teaFeed';
-import { transformSubmission } from '@/utils/submissionUtils';
-import EnhancedTeaSubmissionCard from '@/components/EnhancedTeaSubmissionCard';
-import FeedSkeleton from '@/components/FeedSkeleton';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { 
-  RefreshCw, 
-  Search, 
-  Filter, 
-  TrendingUp, 
-  Clock, 
-  Star,
-  Coffee,
-  Zap,
-  AlertCircle
-} from 'lucide-react';
-import { useEnhancedRealTime } from '@/hooks/useEnhancedRealTime';
+import { Button } from '@/components/ui/button';
+import { RefreshCw, Zap, TrendingUp } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { secureLog } from '@/utils/secureLog';
 
-interface FeedFilters {
-  category?: string;
-  sortBy: 'latest' | 'trending' | 'hot';
-  timeRange: 'hour' | 'day' | 'week' | 'all';
-  search?: string;
+interface TeaSubmission {
+  id: string;
+  content: string;
+  category: string;
+  created_at: string;
+  reactions: {
+    hot: number;
+    cold: number;
+    spicy: number;
+  };
 }
 
 const EnhancedRealTimeFeed: React.FC = () => {
   const [submissions, setSubmissions] = useState<TeaSubmission[]>([]);
-  const [filters, setFilters] = useState<FeedFilters>({
-    sortBy: 'latest',
-    timeRange: 'all'
-  });
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  // Set up real-time updates
-  useEnhancedRealTime({ setSubmissions });
-
-  // Monitor online status
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-
-  // Fetch submissions with infinite scroll
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    isError,
-    refetch
-  } = useInfiniteQuery({
-    queryKey: ['tea-submissions', filters],
-    queryFn: async ({ pageParam = 0 }) => {
-      const pageSize = 10;
-      const offset = pageParam * pageSize;
-
-      let query = supabase
+  const fetchSubmissions = async () => {
+    try {
+      setIsLoading(true);
+      
+      const { data, error } = await supabase
         .from('tea_submissions')
-        .select(`
-          *,
-          reactions,
-          evidence_urls
-        `)
+        .select('*')
         .eq('status', 'approved')
-        .range(offset, offset + pageSize - 1);
-
-      // Apply filters
-      if (filters.category) {
-        query = query.eq('category', filters.category);
-      }
-
-      if (filters.search) {
-        query = query.ilike('content', `%${filters.search}%`);
-      }
-
-      // Apply time range filter
-      if (filters.timeRange !== 'all') {
-        const now = new Date();
-        let timeThreshold = new Date();
-        
-        switch (filters.timeRange) {
-          case 'hour':
-            timeThreshold.setHours(now.getHours() - 1);
-            break;
-          case 'day':
-            timeThreshold.setDate(now.getDate() - 1);
-            break;
-          case 'week':
-            timeThreshold.setDate(now.getDate() - 7);
-            break;
-        }
-        
-        query = query.gte('created_at', timeThreshold.toISOString());
-      }
-
-      // Apply sorting
-      switch (filters.sortBy) {
-        case 'latest':
-          query = query.order('created_at', { ascending: false });
-          break;
-        case 'trending':
-          // Sort by engagement score (reactions + comments)
-          query = query.order('created_at', { ascending: false }); // Fallback to latest for now
-          break;
-        case 'hot':
-          // Sort by recent activity with high engagement
-          query = query.order('created_at', { ascending: false }); // Fallback to latest for now
-          break;
-      }
-
-      const { data, error } = await query;
+        .order('created_at', { ascending: false })
+        .limit(20);
 
       if (error) throw error;
+      
+      setSubmissions(data || []);
+    } catch (error) {
+      secureLog.error('Failed to fetch submissions:', error);
+      toast({
+        title: "Failed to Load Feed",
+        description: "Please try refreshing the page.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      return {
-        submissions: data?.map(transformSubmission) || [],
-        nextPage: data && data.length === pageSize ? pageParam + 1 : null
-      };
-    },
-    getNextPageParam: (lastPage) => lastPage.nextPage,
-    initialPageParam: 0,
-    refetchInterval: 30000, // Refetch every 30 seconds
-    staleTime: 10000 // Consider data stale after 10 seconds
-  });
+  useEffect(() => {
+    fetchSubmissions();
+    
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('tea_submissions')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'tea_submissions'
+      }, (payload) => {
+        const newSubmission = payload.new as TeaSubmission;
+        if (newSubmission.status === 'approved') {
+          setSubmissions(prev => [newSubmission, ...prev]);
+          toast({
+            title: "New Tea Alert! ☕",
+            description: "Fresh gossip just dropped!",
+          });
+        }
+      })
+      .subscribe();
 
-  // Flatten all pages into single array
-  const allSubmissions = useMemo(() => {
-    return data?.pages.flatMap(page => page.submissions) || [];
-  }, [data]);
-
-  // Merge with real-time submissions
-  const mergedSubmissions = useMemo(() => {
-    const realtimeIds = new Set(submissions.map(s => s.id));
-    const fetchedSubmissions = allSubmissions.filter(s => !realtimeIds.has(s.id));
-    return [...submissions, ...fetchedSubmissions];
-  }, [submissions, allSubmissions]);
-
-  const handleSearch = useCallback((query: string) => {
-    setSearchQuery(query);
-    setFilters(prev => ({ ...prev, search: query || undefined }));
-  }, []);
-
-  const handleFilterChange = useCallback((newFilters: Partial<FeedFilters>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
-  }, []);
-
-  const handleReaction = useCallback((submissionId: string, reactionType: 'hot' | 'cold' | 'spicy') => {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`Reaction ${reactionType} on submission ${submissionId}`);
-    // TODO: Implement reaction logic
-    toast({
-      title: "Reaction added! 🔥",
-      description: "Your reaction has been recorded",
-    });
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [toast]);
 
-  const handleVote = useCallback((submissionId: string, voteType: 'up' | 'down') => {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`Vote ${voteType} on submission ${submissionId}`);
-    // TODO: Implement voting logic
-  }, []);
-
-  const handleRefresh = useCallback(async () => {
-    await refetch();
-    toast({
-      title: "Feed Refreshed! ☕",
-      description: "Latest tea has been loaded",
-    });
-  }, [refetch, toast]);
-
-  // Handle scroll for infinite loading
-  useEffect(() => {
-    const handleScroll = () => {
-      if (
-        window.innerHeight + document.documentElement.scrollTop
-        >= document.documentElement.offsetHeight - 1000
-      ) {
-        if (hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
-
   if (isLoading) {
-    return <FeedSkeleton />;
-  }
-
-  if (isError) {
     return (
-      <Card className="bg-red-500/10 border-red-500/20">
-        <CardContent className="p-6 text-center">
-          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-white mb-2">Feed Error</h3>
-          <p className="text-gray-400 mb-4">Unable to load the tea feed</p>
-          <Button onClick={handleRefresh} variant="outline" className="border-red-500/50 text-red-400">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Try Again
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center p-8">
+        <RefreshCw className="w-8 h-8 animate-spin text-cyan-400" />
+        <span className="ml-3 text-cyan-400">Loading fresh tea...</span>
+      </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Offline Banner */}
-      {!isOnline && (
-        <Card className="bg-yellow-500/10 border-yellow-500/20">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 text-yellow-400">
-              <AlertCircle className="w-5 h-5" />
-              <span className="font-medium">You're offline</span>
-              <span className="text-sm text-gray-400">Showing cached content</span>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Feed Controls */}
-      <div className="space-y-4">
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <Input
-            placeholder="Search the tea..."
-            value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="pl-10 bg-ctea-dark/40 border-ctea-teal/30 text-white"
-          />
+    <div className="space-y-4">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <Zap className="w-5 h-5 text-cyan-400" />
+          <h2 className="text-xl font-bold text-white">Live Tea Feed</h2>
         </div>
-
-        {/* Filters */}
-        <div className="flex flex-wrap gap-3">
-          {/* Sort Options */}
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant={filters.sortBy === 'latest' ? 'default' : 'outline'}
-              onClick={() => handleFilterChange({ sortBy: 'latest' })}
-              className="text-xs"
-            >
-              <Clock className="w-3 h-3 mr-1" />
-              Latest
-            </Button>
-            <Button
-              size="sm"
-              variant={filters.sortBy === 'trending' ? 'default' : 'outline'}
-              onClick={() => handleFilterChange({ sortBy: 'trending' })}
-              className="text-xs"
-            >
-              <TrendingUp className="w-3 h-3 mr-1" />
-              Trending
-            </Button>
-            <Button
-              size="sm"
-              variant={filters.sortBy === 'hot' ? 'default' : 'outline'}
-              onClick={() => handleFilterChange({ sortBy: 'hot' })}
-              className="text-xs"
-            >
-              <Zap className="w-3 h-3 mr-1" />
-              Hot
-            </Button>
-          </div>
-
-          {/* Time Range */}
-          <div className="flex gap-2">
-            {(['hour', 'day', 'week', 'all'] as const).map((range) => (
-              <Badge
-                key={range}
-                variant={filters.timeRange === range ? 'default' : 'outline'}
-                className="cursor-pointer text-xs"
-                onClick={() => handleFilterChange({ timeRange: range })}
-              >
-                {range === 'all' ? 'All Time' : `Last ${range}`}
-              </Badge>
-            ))}
-          </div>
-
-          {/* Refresh Button */}
-          <Button
-            size="sm"
-            onClick={handleRefresh}
-            variant="outline"
-            className="border-ctea-teal/30 text-ctea-teal hover:bg-ctea-teal/10 ml-auto"
-          >
-            <RefreshCw className="w-3 h-3 mr-1" />
-            Refresh
-          </Button>
-        </div>
+        <Button
+          onClick={fetchSubmissions}
+          size="sm"
+          variant="outline"
+          className="border-cyan-400/50 text-cyan-400 hover:bg-cyan-400/10"
+        >
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Refresh
+        </Button>
       </div>
 
-      {/* Feed Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          <Coffee className="w-5 h-5 text-ctea-teal" />
-          Live Tea Feed
-          {submissions.length > 0 && (
-            <Badge className="bg-red-500/20 text-red-400 animate-pulse">
-              LIVE
-            </Badge>
-          )}
-        </h2>
-        <div className="text-sm text-gray-400">
-          {mergedSubmissions.length} spills loaded
-        </div>
-      </div>
-
-      {/* Feed Content */}
-      {mergedSubmissions.length === 0 ? (
-        <Card className="bg-ctea-dark/40 border-ctea-teal/20">
-          <CardContent className="p-12 text-center">
-            <div className="text-6xl mb-4">☕</div>
-            <h3 className="text-xl font-bold text-white mb-2">No tea found</h3>
-            <p className="text-gray-400">
-              {filters.search ? 'Try a different search term' : 'Be the first to spill some tea!'}
-            </p>
+      {submissions.length === 0 ? (
+        <Card className="bg-slate-800/50 border-cyan-500/30">
+          <CardContent className="p-8 text-center">
+            <p className="text-gray-300">No tea to spill yet. Be the first to share some gossip!</p>
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-6">
-          {mergedSubmissions.map((submission) => (
-            <EnhancedTeaSubmissionCard
-              key={submission.id}
-              submission={submission}
-              onReaction={handleReaction}
-              onVote={handleVote}
-            />
-          ))}
-
-          {/* Loading More Indicator */}
-          {isFetchingNextPage && (
-            <Card className="bg-ctea-dark/40 border-ctea-teal/20">
-              <CardContent className="p-6 text-center">
-                <div className="flex items-center justify-center gap-2 text-ctea-teal">
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Loading more tea...</span>
+        <div className="space-y-4">
+          {submissions.map((submission) => (
+            <Card key={submission.id} className="bg-slate-800/50 border-cyan-500/30">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-1 bg-cyan-400/20 text-cyan-400 text-xs rounded-full">
+                      {submission.category}
+                    </span>
+                    <span className="text-gray-400 text-sm">
+                      {new Date(submission.created_at).toLocaleTimeString()}
+                    </span>
+                  </div>
+                  <TrendingUp className="w-4 h-4 text-green-400" />
+                </div>
+                
+                <p className="text-white mb-4">{submission.content}</p>
+                
+                <div className="flex items-center gap-4 text-sm">
+                  <span className="text-red-400">🔥 {submission.reactions?.hot || 0}</span>
+                  <span className="text-blue-400">❄️ {submission.reactions?.cold || 0}</span>
+                  <span className="text-orange-400">🌶️ {submission.reactions?.spicy || 0}</span>
                 </div>
               </CardContent>
             </Card>
-          )}
-
-          {/* End of Feed */}
-          {!hasNextPage && mergedSubmissions.length > 0 && (
-            <Card className="bg-ctea-dark/20 border-ctea-teal/10">
-              <CardContent className="p-6 text-center">
-                <Star className="w-8 h-8 text-ctea-teal mx-auto mb-2" />
-                <p className="text-gray-400">You've reached the bottom! Time to spill some fresh tea ☕</p>
-              </CardContent>
-            </Card>
-          )}
+          ))}
         </div>
       )}
     </div>
