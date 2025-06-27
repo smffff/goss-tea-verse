@@ -4,6 +4,7 @@ import { useAuthState } from '@/hooks/useAuthState';
 import { useWalletSync } from '@/hooks/useWalletSync';
 import { useAuthActions } from '@/hooks/useAuthActions';
 import type { AuthContextType } from '@/types/auth';
+import { secureLog } from '@/utils/secureLogging';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -17,9 +18,9 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   if (process.env.NODE_ENV === "development") {
-    console.info('🔐 [AuthProvider] Initializing...');
+    secureLog.info('🔐 [AuthProvider] Initializing...');
   }
-  
+
   const { wallet, disconnectWallet } = useWallet();
   const { 
     user, 
@@ -42,10 +43,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 
   if (process.env.NODE_ENV === "development") {
-    console.info('👛 [AuthProvider] Wallet state:', {
-      isConnected: !!wallet,
-      address: wallet?.address,
-      chainId: wallet?.chainId
+    secureLog.info('👛 [AuthProvider] Wallet state:', { 
+      address: wallet.address, 
+      isConnected: wallet.isConnected,
+      chainId: wallet.chainId 
     });
   }
 
@@ -55,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (wallet.isConnected && wallet.address && !user) {
       if (process.env.NODE_ENV === "development") {
-        console.info('🔄 [AuthProvider] Triggering wallet sync...');
+        secureLog.info('🔄 [AuthProvider] Triggering wallet sync...');
       }
       syncWalletUser(wallet.address, setUser, setSession, setLoading, refreshBalance);
     }
@@ -69,7 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     if (!wallet.isConnected) {
       if (process.env.NODE_ENV === "development") {
-        console.info('👛 [AuthProvider] Wallet disconnected, clearing user state');
+        secureLog.info('👛 [AuthProvider] Wallet disconnected, clearing user state');
       }
       setUser(null);
       setSession(null);
@@ -90,11 +91,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   if (process.env.NODE_ENV === "development") {
-    console.info('🔐 [AuthProvider] Rendering with value:', {
-      user,
-      wallet,
-      isConnected: !!wallet,
-      isLoading
+    secureLog.info('🔐 [AuthProvider] Rendering with value:', { 
+      hasUser: !!user, 
+      hasSession: !!session, 
+      loading, 
+      isAdmin, 
+      isModerator,
+      userWallet: user?.wallet_address
     });
   }
 

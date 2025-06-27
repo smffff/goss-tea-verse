@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import AccessLevelIndicator from '../AccessLevelIndicator';
+import { secureLog } from '@/utils/secureLogging';
 
 interface SneakPeekTabProps {
   onAccessGranted: (level: 'guest' | 'authenticated' | 'beta' | 'admin') => void;
@@ -22,7 +23,7 @@ const SneakPeekTab: React.FC<SneakPeekTabProps> = ({ onAccessGranted }) => {
       });
       onAccessGranted('guest');
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error setting sneak peek:', error);
+      secureLog.error('Error setting sneak peek:', error);
       toast({
         title: "Oops! Something went sideways",
         description: "Sneak peek couldn't start. Try refreshing and we'll fix this mess 💅",

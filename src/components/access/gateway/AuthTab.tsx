@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import AccessLevelIndicator from '../AccessLevelIndicator';
 import { getErrorMessage } from '@/utils/authErrorHandler';
+import { secureLog } from '@/utils/secureLogging';
 
 interface AuthTabProps {
   onAccessGranted: (level: 'guest' | 'authenticated' | 'beta' | 'admin') => void;
@@ -47,7 +48,7 @@ const AuthTab: React.FC<AuthTabProps> = ({
         setError(errorMessage);
       }
     } catch (error: any) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Login error:', error);
+      secureLog.error('Login error:', error);
       setError('Login failed - probably my code acting up again 🙄');
     } finally {
       setIsProcessing(false);
@@ -73,7 +74,7 @@ const AuthTab: React.FC<AuthTabProps> = ({
         setError(errorMessage);
       }
     } catch (error: any) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Signup error:', error);
+      secureLog.error('Signup error:', error);
       setError('Signup failed - this is awkward but we\'ll figure it out 💅');
     } finally {
       setIsProcessing(false);

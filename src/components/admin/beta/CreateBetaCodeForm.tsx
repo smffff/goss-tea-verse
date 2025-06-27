@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { secureLog } from '@/utils/secureLogging';
 
 interface CreateBetaCodeFormProps {
   onCodeCreated: () => void;
@@ -45,7 +46,7 @@ const CreateBetaCodeForm: React.FC<CreateBetaCodeFormProps> = ({ onCodeCreated }
       setNewCode('');
       onCodeCreated();
     } catch (error: any) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error creating beta code:', error);
+      secureLog.error('Error creating beta code:', error);
       toast({
         title: "Error",
         description: error.message.includes('duplicate') ? 'Code already exists' : 'Failed to create beta code',

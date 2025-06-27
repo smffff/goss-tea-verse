@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Coffee, Send, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { accessControlService, AccessLevel } from '@/services/accessControlService';
+import { secureLog } from '@/utils/secureLogging';
 
 interface EnhancedSpillSubmissionProps {
   onSpillAccepted: (accessLevel: AccessLevel) => void;
@@ -58,7 +59,7 @@ const EnhancedSpillSubmission: React.FC<EnhancedSpillSubmissionProps> = ({
       }, 3000);
       
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Spill submission failed:', error);
+      secureLog.error('Spill submission failed:', error);
     } finally {
       setIsSubmitting(false);
     }
