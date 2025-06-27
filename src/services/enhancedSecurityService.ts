@@ -1,294 +1,117 @@
 
-interface SecurityEvent {
-  event_type: string;
-  details: Record<string, unknown>;
-  severity: 'info' | 'warning' | 'error' | 'critical';
-  timestamp: string;
-  session_id?: string;
-  user_agent?: string;
-  ip_address?: string;
-}
+import { supabase } from '@/integrations/supabase/client';
+import { secureLog } from '@/utils/secureLog';
 
-interface SecurityConfig {
-  maxLoginAttempts: number;
-  lockoutDuration: number;
-  sessionTimeout: number;
-  rateLimitWindow: number;
-  rateLimitMax: number;
-}
-
-interface SecurityMetrics {
-  totalEvents: number;
-  criticalEvents: number;
-  blockedAttempts: number;
-  activeThreats: number;
-}
-
-interface SubmissionSecurityResult {
-  overallValid: boolean;
-  contentValidation: {
-    valid: boolean;
-    sanitized: string;
-    threats: string[];
-    riskLevel: 'low' | 'medium' | 'high' | 'critical';
-    securityScore: number;
-  };
-  urlValidation: {
-    valid: string[];
-    invalid: string[];
-  };
-  rateLimitCheck: {
-    allowed: boolean;
-    blockedReason?: string;
-  };
+export interface SecurityValidationResult {
+  success: boolean;
+  threats: string[];
+  sanitized: string;
+  securityScore: number;
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  error?: string;
 }
 
 export class EnhancedSecurityService {
-  private static instance: EnhancedSecurityService;
-  private events: SecurityEvent[] = [];
-  private blockedIPs: Set<string> = new Set();
-  private suspiciousSessions: Set<string> = new Set();
-
-  private config: SecurityConfig = {
-    maxLoginAttempts: 5,
-    lockoutDuration: 15 * 60 * 1000, // 15 minutes
-    sessionTimeout: 30 * 60 * 1000, // 30 minutes
-    rateLimitWindow: 60 * 1000, // 1 minute
-    rateLimitMax: 100
-  };
-
-  public static getInstance(): EnhancedSecurityService {
-    if (!EnhancedSecurityService.instance) {
-      EnhancedSecurityService.instance = new EnhancedSecurityService();
-    }
-    return EnhancedSecurityService.instance;
-  }
-
-  public static async validateSubmissionSecurity(
-    content: string,
-    urls: string[],
-    action: string = 'submission'
-  ): Promise<SubmissionSecurityResult> {
-    const instance = this.getInstance();
+  private static readonly THREAT_PATTERNS = [
+    // XSS patterns
+    /<script[^>]*>.*?<\/script>/gi,
+    /javascript:/gi,
+    /on\w+\s*=/gi,
     
-    // Content validation using new server-side function
-    const contentValidation = await instance.validateContentAdvanced(content);
+    // SQL injection patterns
+    /union\s+select/gi,
+    /drop\s+table/gi,
+    /delete\s+from/gi,
     
-    // URL validation
-    const urlValidation = instance.validateUrls(urls);
+    // Path traversal
+    /\.\.\//g,
+    /\.\.\\g,
     
-    // Rate limit check
-    const rateLimitCheck = instance.checkRateLimit(action, 5, 60);
-    
-    return {
-      overallValid: contentValidation.valid && urlValidation.invalid.length === 0 && rateLimitCheck.allowed,
-      contentValidation: {
-        valid: contentValidation.valid,
-        sanitized: contentValidation.sanitized,
-        threats: contentValidation.threats,
-        riskLevel: contentValidation.riskLevel,
-        securityScore: contentValidation.securityScore || 80
-      },
-      urlValidation,
-      rateLimitCheck
-    };
-  }
+    // Command injection
+    /;\s*rm\s/gi,
+    /;\s*cat\s/gi,
+    /;\s*ls\s/gi,
+  ];
 
-  public static async logSecurityEvent(
-    eventType: string,
-    details: Record<string, unknown> = {},
-    severity: 'info' | 'warning' | 'error' | 'critical' = 'info'
-  ): Promise<void> {
-    const instance = this.getInstance();
-    instance.logSecurityEvent(eventType, details, severity);
-  }
-
-  public logSecurityEvent(
-    eventType: string,
-    details: Record<string, unknown> = {},
-    severity: 'info' | 'warning' | 'error' | 'critical' = 'info'
-  ): void {
-    const event: SecurityEvent = {
-      event_type: eventType,
-      details,
-      severity,
-      timestamp: new Date().toISOString(),
-      session_id: this.getSessionId(),
-      user_agent: typeof window !== 'undefined' ? navigator.userAgent : 'server',
-      ip_address: 'client-side' // Cannot get real IP from client
-    };
-
-    this.events.push(event);
-    
-    // Keep only recent events (last 1000)
-    if (this.events.length > 1000) {
-      this.events = this.events.slice(-1000);
-    }
-
-    // Console log for development
-    if (process.env.NODE_ENV === 'development') {
-      secureLog.info(`[SECURITY] ${severity.toUpperCase()}: ${eventType}`, details);
-    }
-
-    // Handle critical events
-    if (severity === 'critical') {
-      this.handleCriticalEvent(event);
-    }
-  }
-
-  private async validateContentAdvanced(content: string): Promise<{
-    valid: boolean;
-    sanitized: string;
-    threats: string[];
-    riskLevel: 'low' | 'medium' | 'high' | 'critical';
-    securityScore?: number;
-  }> {
+  static async validateContent(content: string): Promise<SecurityValidationResult> {
     try {
-      // Use the ContentValidationService which now calls the server-side function
-      const { ContentValidationService } = await import('./security/contentValidationService');
-      const result = await ContentValidationService.validateContent(content);
-      
-      return {
-        valid: result.valid,
-        sanitized: result.sanitized,
-        threats: result.threats,
-        riskLevel: result.riskLevel,
-        securityScore: result.securityScore
-      };
-    } catch (error) {
-      secureLog.error('Advanced content validation failed:', error);
-      // Fallback to basic validation
-      return this.validateContentBasic(content);
-    }
-  }
+      const threats: string[] = [];
+      let securityScore = 100;
+      let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
 
-  private validateContentBasic(content: string): {
-    valid: boolean;
-    sanitized: string;
-    threats: string[];
-    riskLevel: 'low' | 'medium' | 'high' | 'critical';
-    securityScore?: number;
-  } {
-    const threats: string[] = [];
-    let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
-    let securityScore = 100;
-    
-    if (!content || content.trim().length === 0) {
-      return { valid: false, sanitized: '', threats: ['Empty content'], riskLevel: 'low', securityScore: 0 };
-    }
-    
-    // Basic validation
-    if (content.length > 10000) {
-      threats.push('Content too long');
-      riskLevel = 'medium';
-      securityScore -= 20;
-    }
-    
-    // Check for suspicious patterns
-    const suspiciousPatterns = [
-      /<script[^>]*>.*?<\/script>/gi,
-      /javascript:/gi,
-      /on\w+\s*=/gi,
-      /eval\s*\(/gi,
-      /union\s+select/gi,
-      /drop\s+table/gi
-    ];
-
-    for (const pattern of suspiciousPatterns) {
-      if (pattern.test(content)) {
-        threats.push('Suspicious content pattern detected');
-        riskLevel = 'critical';
-        securityScore = 0;
-        break;
-      }
-    }
-
-    // Sanitize content
-    const sanitized = content
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#x27;')
-      .replace(/\//g, '&#x2F;')
-      .replace(/`/g, '&#x60;')
-      .replace(/=/g, '&#x3D;');
-
-    return {
-      valid: threats.length === 0,
-      sanitized,
-      threats,
-      riskLevel,
-      securityScore
-    };
-  }
-
-  private validateUrls(urls: string[]): { valid: string[]; invalid: string[] } {
-    const valid: string[] = [];
-    const invalid: string[] = [];
-
-    for (const url of urls) {
-      if (!url?.trim()) continue;
-      
-      try {
-        const urlObj = new URL(url);
-        if (urlObj.protocol === 'http:' || urlObj.protocol === 'https:') {
-          valid.push(url);
-        } else {
-          invalid.push(url);
+      // Check for malicious patterns
+      for (const pattern of this.THREAT_PATTERNS) {
+        if (pattern.test(content)) {
+          threats.push(`Potential security threat detected: ${pattern.toString()}`);
+          securityScore -= 25;
         }
-      } catch {
-        invalid.push(url);
       }
-    }
 
-    return { valid, invalid };
+      // Determine risk level
+      if (securityScore < 25) {
+        riskLevel = 'critical';
+      } else if (securityScore < 50) {
+        riskLevel = 'high';
+      } else if (securityScore < 75) {
+        riskLevel = 'medium';
+      }
+
+      // Sanitize content
+      const sanitized = content
+        .replace(/<script[^>]*>.*?<\/script>/gi, '')
+        .replace(/javascript:/gi, '')
+        .replace(/on\w+\s*=/gi, '')
+        .trim();
+
+      const result: SecurityValidationResult = {
+        success: threats.length === 0,
+        threats,
+        sanitized,
+        securityScore,
+        riskLevel
+      };
+
+      if (threats.length > 0) {
+        secureLog.warn('Security threats detected in content', {
+          threatCount: threats.length,
+          riskLevel,
+          securityScore
+        });
+      }
+
+      return result;
+
+    } catch (error) {
+      secureLog.error('Enhanced security validation failed', error);
+      return {
+        success: false,
+        threats: ['Security validation service unavailable'],
+        sanitized: content.replace(/[<>]/g, ''),
+        securityScore: 0,
+        riskLevel: 'critical',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
   }
 
-  private checkRateLimit(action: string, maxAttempts: number, windowMinutes: number): { allowed: boolean; blockedReason?: string } {
-    // Simple client-side rate limiting
-    const key = `rate_limit_${action}`;
-    const stored = localStorage.getItem(key);
-    
-    if (stored) {
-      const data = JSON.parse(stored);
-      const now = Date.now();
-      const windowMs = windowMinutes * 60 * 1000;
-      
-      if (now - data.timestamp < windowMs && data.count >= maxAttempts) {
-        return { allowed: false, blockedReason: 'Rate limit exceeded' };
-      }
-      
-      if (now - data.timestamp < windowMs) {
-        data.count++;
-      } else {
-        data.count = 1;
-        data.timestamp = now;
-      }
-      
-      localStorage.setItem(key, JSON.stringify(data));
-    } else {
-      localStorage.setItem(key, JSON.stringify({ count: 1, timestamp: Date.now() }));
-    }
-    
-    return { allowed: true };
-  }
+  static async logSecurityEvent(
+    eventType: string,
+    details: Record<string, any>,
+    severity: 'low' | 'medium' | 'high' | 'critical' = 'medium'
+  ): Promise<void> {
+    try {
+      await supabase.from('security_audit_trail').insert({
+        event_type: eventType,
+        details,
+        severity,
+        ip_address: 'unknown', // Client-side can't determine real IP
+        user_agent: navigator.userAgent,
+        session_id: sessionStorage.getItem('session_id') || 'anonymous'
+      });
 
-  private getSessionId(): string {
-    let sessionId = sessionStorage.getItem('security_session_id');
-    if (!sessionId) {
-      sessionId = crypto.randomUUID();
-      sessionStorage.setItem('security_session_id', sessionId);
+      secureLog.info('Security event logged', { eventType, severity });
+    } catch (error) {
+      secureLog.error('Failed to log security event', error);
     }
-    return sessionId;
-  }
-
-  private handleCriticalEvent(event: SecurityEvent): void {
-    // Log critical event
-    secureLog.error('[CRITICAL SECURITY EVENT]', event);
-    
-    // Could implement additional measures like:
-    // - Block the session
-    // - Send alert to administrators
-    // - Temporarily restrict functionality
   }
 }

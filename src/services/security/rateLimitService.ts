@@ -1,162 +1,98 @@
+
 import { supabase } from '@/integrations/supabase/client';
-import { secureLog } from '@/utils/secureLogging';
 
 export interface RateLimitResult {
   allowed: boolean;
-  currentCount?: number;
-  maxActions?: number;
-  blockedReason?: string;
-  resetTime?: Date;
-  remainingActions?: number;
+  current_count: number;
+  max_actions: number;
+  remaining: number;
+  reset_time: Date;
+  blocked_reason?: string;
 }
 
 export class RateLimitService {
-  private static readonly DEFAULT_LIMITS = {
-    submission: { max: 5, windowMinutes: 60 },
-    reaction: { max: 50, windowMinutes: 60 },
-    comment: { max: 20, windowMinutes: 60 },
-    vote: { max: 100, windowMinutes: 60 },
-    search: { max: 30, windowMinutes: 60 }
-  };
-
-  public static async checkRateLimit(
-    token: string,
+  static async checkRateLimit(
+    identifier: string,
     action: string,
-    maxActions?: number,
-    windowMinutes?: number
+    maxActions = 10,
+    windowMinutes = 5
   ): Promise<RateLimitResult> {
     try {
-      secureLog.info('🚦 Checking rate limit', { action, token: token.substring(0, 8) + '...' });
+      const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000);
+      
+      // Get current rate limit entries
+      const { data, error } = await supabase
+        .from('rate_limits')
+        .select('*')
+        .eq('anonymous_token', identifier)
+        .eq('action_type', action)
+        .gte('window_start', windowStart.toISOString());
 
-      // Get default limits if not provided
-      const limits = this.DEFAULT_LIMITS[action as keyof typeof this.DEFAULT_LIMITS] || 
-                    { max: maxActions || 10, windowMinutes: windowMinutes || 60 };
+      if (error) throw error;
 
-      // Server-side rate limit check
-      const { data, error } = await supabase.rpc('check_rate_limit_ultimate', {
-        p_token: token,
-        p_action: action,
-        p_max_actions: limits.max,
-        p_window_minutes: limits.windowMinutes
-      });
+      const currentCount = data?.length || 0;
+      const allowed = currentCount < maxActions;
+      const remaining = Math.max(0, maxActions - currentCount);
+      const resetTime = new Date(Date.now() + windowMinutes * 60 * 1000);
 
-      if (error) {
-        secureLog.error('Server rate limit check failed', error);
-        // Fallback to client-side check
-        return this.fallbackRateLimit(token, action, limits.max, limits.windowMinutes);
+      // If allowed, record this action
+      if (allowed) {
+        await supabase.from('rate_limits').insert({
+          anonymous_token: identifier,
+          action_type: action,
+          window_start: new Date().toISOString()
+        });
       }
 
-      const result = {
-        allowed: data?.allowed || false,
-        currentCount: data?.current_count || 0,
-        maxActions: data?.max_actions || limits.max,
-        blockedReason: data?.blocked_reason,
-        resetTime: data?.reset_time ? new Date(data.reset_time) : undefined,
-        remainingActions: data?.remaining || 0
+      const result: RateLimitResult = {
+        allowed,
+        current_count: currentCount,
+        max_actions: maxActions,
+        remaining,
+        reset_time: resetTime
       };
 
-      secureLog.info('✅ Rate limit check completed', { 
-        allowed: result.allowed, 
-        currentCount: result.currentCount,
-        maxActions: result.maxActions 
-      });
+      if (!allowed) {
+        result.blocked_reason = `Rate limit exceeded: ${currentCount}/${maxActions} actions in ${windowMinutes} minutes`;
+      }
 
       return result;
     } catch (error) {
-      secureLog.error('❌ Rate limit check failed', error);
-      return {
-        allowed: false,
-        blockedReason: 'Rate limit service unavailable'
-      };
-    }
-  }
-
-  private static fallbackRateLimit(
-    token: string,
-    action: string,
-    maxActions: number,
-    windowMinutes: number
-  ): RateLimitResult {
-    try {
-      const key = `rate_limit_${action}_${token}`;
-      const now = Date.now();
-      const windowMs = windowMinutes * 60 * 1000;
-      const windowStart = Math.floor(now / windowMs) * windowMs;
-
-      const stored = localStorage.getItem(key);
-      let count = 0;
-      let storedWindowStart = 0;
-
-      if (stored) {
-        const data = JSON.parse(stored);
-        if (data.windowStart === windowStart) {
-          count = data.count;
-          storedWindowStart = data.windowStart;
-        }
-      }
-
-      if (count >= maxActions) {
-        return {
-          allowed: false,
-          currentCount: count,
-          maxActions,
-          blockedReason: 'Rate limit exceeded (client-side)',
-          resetTime: new Date(windowStart + windowMs)
-        };
-      }
-
-      // Update count
-      localStorage.setItem(key, JSON.stringify({
-        count: count + 1,
-        windowStart
-      }));
-
+      console.error('Rate limit check failed:', error);
+      
+      // Return permissive result on error to avoid blocking users
       return {
         allowed: true,
-        currentCount: count + 1,
-        maxActions,
-        remainingActions: maxActions - (count + 1)
-      };
-    } catch (error) {
-      secureLog.error('Fallback rate limit failed', error);
-      return {
-        allowed: false,
-        blockedReason: 'Rate limit fallback error'
+        current_count: 0,
+        max_actions: maxActions,
+        remaining: maxActions,
+        reset_time: new Date(Date.now() + windowMinutes * 60 * 1000)
       };
     }
   }
 
-  // Enhanced suspicious activity detection
-  public static async detectSuspiciousActivity(token: string): Promise<boolean> {
+  static async recordAction(identifier: string, action: string): Promise<void> {
     try {
-      const key = `activity_${token}`;
-      const now = Date.now();
-      const activities = JSON.parse(localStorage.getItem(key) || '[]');
-
-      // Add current activity
-      activities.push(now);
-
-      // Keep only last 100 activities
-      const recentActivities = activities.slice(-100);
-
-      // Check for rapid-fire patterns (more than 10 actions in 1 minute)
-      const oneMinuteAgo = now - 60000;
-      const recentCount = recentActivities.filter((time: number) => time > oneMinuteAgo).length;
-
-      if (recentCount > 10) {
-        secureLog.warn('🚨 Suspicious rapid-fire activity detected', { 
-          token: token.substring(0, 8) + '...',
-          recentCount 
-        });
-        return true;
-      }
-
-      // Update stored activities
-      localStorage.setItem(key, JSON.stringify(recentActivities));
-      return false;
+      await supabase.from('rate_limits').insert({
+        anonymous_token: identifier,
+        action_type: action,
+        window_start: new Date().toISOString()
+      });
     } catch (error) {
-      secureLog.error('Suspicious activity detection failed', error);
-      return false;
+      console.error('Failed to record rate limit action:', error);
+    }
+  }
+
+  static async cleanupExpiredEntries(): Promise<void> {
+    try {
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      
+      await supabase
+        .from('rate_limits')
+        .delete()
+        .lt('window_start', oneDayAgo.toISOString());
+    } catch (error) {
+      console.error('Failed to cleanup expired rate limit entries:', error);
     }
   }
 }

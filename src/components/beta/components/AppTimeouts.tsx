@@ -1,37 +1,41 @@
 
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { secureLog } from '@/utils/secureLog';
 
-interface AppTimeoutsProps {
-  isLoading: boolean;
-  onEmergencyTimeout: () => void;
-  onForceTimeout: (error: string) => void;
-}
+const AppTimeouts: React.FC = () => {
+  const { toast } = useToast();
 
-export const AppTimeouts: React.FC<AppTimeoutsProps> = ({
-  isLoading,
-  onEmergencyTimeout,
-  onForceTimeout
-}) => {
   useEffect(() => {
-    if (!isLoading) return;
+    // Set up global error handling
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      secureLog.error('Unhandled promise rejection', event.reason);
+      toast({
+        title: "Something went wrong",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      });
+    };
 
-    // Emergency timeout - show emergency access after 5 seconds
-    const emergencyTimeout = setTimeout(() => {
-      secureLog.warn('⚠️ Emergency timeout triggered');
-      onEmergencyTimeout();
-    }, 5000);
+    const handleError = (event: ErrorEvent) => {
+      secureLog.error('Global error caught', event.error);
+      toast({
+        title: "Application Error",
+        description: "An error occurred. Please refresh the page if issues persist.",
+        variant: "destructive"
+      });
+    };
 
-    // Force timeout - stop loading after 10 seconds
-    const forceTimeout = setTimeout(() => {
-      secureLog.warn('⚠️ Force timeout - stopping loading');
-      onForceTimeout('Loading took too long. Activating emergency access! 🚨');
-    }, 10000);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    window.addEventListener('error', handleError);
 
     return () => {
-      clearTimeout(emergencyTimeout);
-      clearTimeout(forceTimeout);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+      window.removeEventListener('error', handleError);
     };
-  }, [isLoading, onEmergencyTimeout, onForceTimeout]);
+  }, [toast]);
 
   return null;
 };
+
+export default AppTimeouts;

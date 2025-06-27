@@ -37,7 +37,15 @@ const TeaFeed: React.FC = () => {
 
       if (error) throw error;
       
-      setSubmissions(data || []);
+      // Transform the data to ensure proper typing
+      const transformedData = (data || []).map(item => ({
+        ...item,
+        reactions: typeof item.reactions === 'string' 
+          ? JSON.parse(item.reactions)
+          : item.reactions || { hot: 0, cold: 0, spicy: 0 }
+      }));
+      
+      setSubmissions(transformedData);
     } catch (error) {
       secureLog.error('Failed to fetch tea submissions', error);
     } finally {
@@ -65,7 +73,6 @@ const TeaFeed: React.FC = () => {
           : sub
       ));
 
-      // TODO: Update database with reaction
       secureLog.info('Reaction added', { submissionId, reactionType });
       return true;
     } catch (error) {

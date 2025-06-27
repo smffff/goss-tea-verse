@@ -1,83 +1,133 @@
-interface SecurityEvent {
-  eventType: string;
+
+import { supabase } from '@/integrations/supabase/client';
+import { secureLog } from '@/utils/secureLog';
+
+export interface SecurityEvent {
+  type: string;
   severity: 'low' | 'medium' | 'high' | 'critical';
   details: Record<string, any>;
-  timestamp: Date;
-  userAgent?: string;
-  ipAddress?: string;
+  timestamp: string;
+  user_context?: string;
 }
 
 export class SecurityMonitoringService {
-  private static events: SecurityEvent[] = [];
-  private static readonly MAX_EVENTS = 1000;
+  private static eventQueue: SecurityEvent[] = [];
+  private static isProcessing = false;
 
-  public static logSecurityEvent(
-    eventType: string,
+  static async logSecurityEvent(
+    type: string,
     details: Record<string, any>,
-    severity: 'low' | 'medium' | 'high' | 'critical' = 'low'
-  ): void {
-    const event: SecurityEvent = {
-      eventType,
-      severity,
-      details,
-      timestamp: new Date(),
-      userAgent: navigator.userAgent,
-      ipAddress: 'client-side' // IP would be determined server-side
-    };
-
-    this.events.unshift(event);
-    
-    // Keep only the most recent events
-    if (this.events.length > this.MAX_EVENTS) {
-      this.events = this.events.slice(0, this.MAX_EVENTS);
-    }
-
-    // Store in localStorage for persistence
+    severity: 'low' | 'medium' | 'high' | 'critical' = 'medium'
+  ): Promise<void> {
     try {
-      localStorage.setItem('security_events', JSON.stringify(this.events.slice(0, 100)));
-    } catch (error) {
-      secureLog.warn('Failed to store security events:', error);
-    }
+      const event: SecurityEvent = {
+        type,
+        severity,
+        details,
+        timestamp: new Date().toISOString(),
+        user_context: this.getUserContext()
+      };
 
-    // Log critical events to console
-    if (severity === 'critical' || severity === 'high') {
-      secureLog.warn(`🚨 Security Event [${severity.toUpperCase()}]:`, eventType, details);
-    }
-  }
+      this.eventQueue.push(event);
+      
+      secureLog.info('Security event queued', { type, severity });
 
-  public static getRecentEvents(limit: number = 50): SecurityEvent[] {
-    return this.events.slice(0, limit);
-  }
-
-  public static getEventsByType(eventType: string): SecurityEvent[] {
-    return this.events.filter(event => event.eventType === eventType);
-  }
-
-  public static getEventsBySeverity(severity: 'low' | 'medium' | 'high' | 'critical'): SecurityEvent[] {
-    return this.events.filter(event => event.severity === severity);
-  }
-
-  public static clearEvents(): void {
-    this.events = [];
-    localStorage.removeItem('security_events');
-  }
-
-  // Initialize from localStorage
-  public static init(): void {
-    try {
-      const stored = localStorage.getItem('security_events');
-      if (stored) {
-        const parsedEvents = JSON.parse(stored);
-        this.events = parsedEvents.map((event: any) => ({
-          ...event,
-          timestamp: new Date(event.timestamp)
-        }));
+      // Process queue if not already processing
+      if (!this.isProcessing) {
+        await this.processEventQueue();
       }
     } catch (error) {
-      secureLog.warn('Failed to load security events from storage:', error);
+      secureLog.error('Failed to log security event', error);
+    }
+  }
+
+  private static async processEventQueue(): Promise<void> {
+    if (this.eventQueue.length === 0 || this.isProcessing) return;
+
+    this.isProcessing = true;
+
+    try {
+      const events = [...this.eventQueue];
+      this.eventQueue = [];
+
+      const { error } = await supabase
+        .from('security_audit_trail')
+        .insert(
+          events.map(event => ({
+            event_type: event.type,
+            severity: event.severity,
+            details: event.details,
+            user_context: event.user_context,
+            ip_address: 'client-side',
+            user_agent: navigator.userAgent,
+            session_id: sessionStorage.getItem('session_id') || 'anonymous'
+          }))
+        );
+
+      if (error) throw error;
+
+      secureLog.info('Security events processed', { count: events.length });
+    } catch (error) {
+      secureLog.error('Failed to process security events', error);
+      // Re-queue events on failure
+      this.eventQueue.unshift(...this.eventQueue);
+    } finally {
+      this.isProcessing = false;
+    }
+  }
+
+  private static getUserContext(): string {
+    try {
+      const accessLevel = localStorage.getItem('ctea-access-level') || 'guest';
+      const betaCode = localStorage.getItem('ctea-beta-code');
+      
+      return JSON.stringify({
+        accessLevel,
+        hasBetaCode: !!betaCode,
+        timestamp: Date.now()
+      });
+    } catch {
+      return 'unknown';
+    }
+  }
+
+  static async checkRateLimit(
+    identifier: string,
+    action: string,
+    maxActions = 10,
+    windowMinutes = 5
+  ): Promise<{ allowed: boolean; remaining: number; resetTime: Date }> {
+    try {
+      const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000);
+      
+      const { data, error } = await supabase
+        .from('rate_limits')
+        .select('*')
+        .eq('anonymous_token', identifier)
+        .eq('action_type', action)
+        .gte('window_start', windowStart.toISOString());
+
+      if (error) throw error;
+
+      const currentCount = data?.length || 0;
+      const allowed = currentCount < maxActions;
+      const remaining = Math.max(0, maxActions - currentCount);
+      const resetTime = new Date(Date.now() + windowMinutes * 60 * 1000);
+
+      if (!allowed) {
+        await this.logSecurityEvent('rate_limit_exceeded', {
+          identifier,
+          action,
+          currentCount,
+          maxActions,
+          windowMinutes
+        }, 'medium');
+      }
+
+      return { allowed, remaining, resetTime };
+    } catch (error) {
+      secureLog.error('Rate limit check failed', error);
+      return { allowed: true, remaining: maxActions, resetTime: new Date() };
     }
   }
 }
-
-// Initialize the service
-SecurityMonitoringService.init();
