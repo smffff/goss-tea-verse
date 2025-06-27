@@ -25,7 +25,7 @@ export class EnhancedSecurityService {
     
     // Path traversal
     /\.\.\//g,
-    /\.\.\\g,
+    /\.\.[\\/]/g,
     
     // Command injection
     /;\s*rm\s/gi,
