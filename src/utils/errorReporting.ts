@@ -1,3 +1,6 @@
+
+import { secureLog } from './secureLogging';
+
 export interface ErrorReport {
   id: string;
   type: string;
@@ -59,23 +62,23 @@ export class ErrorReportingService {
       
       localStorage.setItem('ctea_error_reports', JSON.stringify(existing));
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to store error report:', error);
+      secureLog.error('Failed to store error report:', error);
     }
   }
 
   private static logReport(report: ErrorReport): void {
     const emoji = this.getSeverityEmoji(report.severity);
     console.group(`🫖 CTea Error Report ${emoji}`);
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('ID:', report.id);
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Type:', report.type);
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Component:', report.component || 'Unknown');
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Severity:', report.severity.toUpperCase());
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Error:', report.error);
+    secureLog.info('ID:', report.id);
+    secureLog.info('Type:', report.type);
+    secureLog.info('Component:', report.component || 'Unknown');
+    secureLog.info('Severity:', report.severity.toUpperCase());
+    secureLog.info('Error:', report.error);
     if (report.stack) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Stack:', report.stack);
+      secureLog.info('Stack:', report.stack);
     }
     if (report.context) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Context:', report.context);
+      secureLog.info('Context:', report.context);
     }
     console.groupEnd();
   }
@@ -95,7 +98,7 @@ export class ErrorReportingService {
       const stored = localStorage.getItem('ctea_error_reports');
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to retrieve error reports:', error);
+      secureLog.error('Failed to retrieve error reports:', error);
       return [];
     }
   }
@@ -114,7 +117,7 @@ export class ErrorReportingService {
 
   public static clearReports(): void {
     localStorage.removeItem('ctea_error_reports');
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🫖 CTea error reports cleared');
+    secureLog.info('🫖 CTea error reports cleared');
   }
 
   // Report specific error types with context

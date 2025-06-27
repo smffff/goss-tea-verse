@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SplashScreen from './SplashScreen';
+import { secureLog } from '@/utils/secureLogging';
 
 interface ErrorRedirectHandlerProps {
   children: React.ReactNode;
@@ -22,13 +23,13 @@ const ErrorRedirectHandler: React.FC<ErrorRedirectHandlerProps> = ({ children })
         // Check localStorage for any stored error flags
         const hasStoredErrors = localStorage.getItem('ctea_critical_error');
         if (hasStoredErrors) {
-          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔧 Clearing stored error flags');
+          secureLog.info('🔧 Clearing stored error flags');
           localStorage.removeItem('ctea_critical_error');
         }
         
         setIsInitializing(false);
       } catch (error) {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('System health check failed:', error);
+        secureLog.error('System health check failed:', error);
         setHasError(true);
         setIsInitializing(false);
       }
@@ -40,7 +41,7 @@ const ErrorRedirectHandler: React.FC<ErrorRedirectHandlerProps> = ({ children })
   // Handle any runtime errors by redirecting gracefully
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('🚨 Global error caught:', event.error);
+      secureLog.error('🚨 Global error caught:', event.error);
       
       // Store error for debugging but don't show to user
       try {
@@ -61,7 +62,7 @@ const ErrorRedirectHandler: React.FC<ErrorRedirectHandlerProps> = ({ children })
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('🚨 Unhandled promise rejection:', event.reason);
+      secureLog.error('🚨 Unhandled promise rejection:', event.reason);
       
       // Log for debugging
       try {

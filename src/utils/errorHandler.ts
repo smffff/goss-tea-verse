@@ -1,9 +1,10 @@
 
 import React from 'react';
+import { secureLog } from './secureLogging';
 
 // Error handling utilities
 export const handleError = (error: Error, context?: string) => {
-  if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error(`Error in ${context || 'unknown context'}:`, error);
+  secureLog.error(`Error in ${context || 'unknown context'}:`, error);
   
   // In production, you would send this to an error reporting service
   if (process.env.NODE_ENV === 'production') {

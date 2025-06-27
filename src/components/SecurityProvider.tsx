@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useSecurityMonitoring } from '../hooks/useSecurityMonitoring'
 import { applySecurityHeaders, generateCSRFToken } from '../utils/securityHeaders'
 import { SecurityService } from '../services/securityService'
+import { secureLog } from '@/utils/secureLogging'
 
 interface SecurityContextType {
   csrfToken: string
@@ -61,7 +62,7 @@ export const SecurityProvider: React.FC<SecurityProviderProps> = ({ children }) 
 
         setIsSecurityEnabled(true)
       } catch (error) {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Security initialization failed:', error)
+        secureLog.error('Security initialization failed:', error)
         await logSecurityEvent('security_init_failed', {
           error: error instanceof Error ? error.message : 'Unknown error'
         }, 'high')

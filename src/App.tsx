@@ -6,6 +6,7 @@ import AppHead from '@/components/app/AppHead';
 import AppRoutes from '@/components/app/AppRoutes';
 import ErrorRedirectHandler from '@/components/ErrorRedirectHandler';
 import AppInitializer from '@/components/AppInitializer';
+import { secureLog } from '@/utils/secureLogging';
 
 function App() {
   const [hasAccess, setHasAccess] = useState(false);
@@ -23,18 +24,13 @@ function App() {
     
     const existingAccess = Boolean(betaAccess || accessMethod || devRoutes || demoMode);
     
-    // Only log in development
-    if (process.env.NODE_ENV === 'development') {
-      secureLog.info('Access check:', { betaAccess, accessMethod, devRoutes, demoMode, existingAccess });
-    }
+    secureLog.info('Access check:', { betaAccess, accessMethod, devRoutes, demoMode, existingAccess });
     
     setHasAccess(existingAccess);
   }, []);
 
   const handleAccessGranted = () => {
-    if (process.env.NODE_ENV === 'development') {
-      secureLog.info('Access granted');
-    }
+    secureLog.info('Access granted');
     setHasAccess(true);
   };
 

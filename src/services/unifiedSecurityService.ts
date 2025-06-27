@@ -1,6 +1,7 @@
 
 import { ContentValidationService } from './security/contentValidationService';
 import { RateLimitService } from './security/rateLimitService';
+import { secureLog } from '@/utils/secureLogging';
 
 interface UnifiedSecurityResult {
   overallValid: boolean;
@@ -64,7 +65,7 @@ export class UnifiedSecurityService {
         }
       };
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Unified security validation failed:', error);
+      secureLog.error('Unified security validation failed:', error);
       
       // Fallback validation
       return {
