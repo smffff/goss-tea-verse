@@ -1,238 +1,175 @@
+
+import { supabase } from '@/integrations/supabase/client';
 import { TeaTokenService } from './teaTokenService';
-import { secureLog } from '@/utils/secureLog';
+import { track } from '@/utils/analytics';
+import { secureLog } from '@/utils/secureLogging';
 
-export type TokenAction = 'spill' | 'reward' | 'transfer' | 'tip';
+export type TokenAction = 'spill' | 'tip' | 'flag' | 'upvote' | 'downvote' | 'reward' | 'penalty';
 
-export interface TokenRewardConfig {
+interface TokenReward {
   action: TokenAction;
-  baseAmount: number;
-  bonusMultiplier?: number;
-  maxPerDay?: number;
+  amount: number;
   description: string;
 }
 
-export const TOKEN_REWARDS: Record<string, TokenRewardConfig> = {
-  spill_tea: {
-    action: 'spill',
-    baseAmount: 5,
-    bonusMultiplier: 1.5,
-    maxPerDay: 50,
-    description: 'Spilling quality tea'
-  },
-  hot_reaction: {
-    action: 'reward',
-    baseAmount: 1,
-    maxPerDay: 20,
-    description: 'Hot reaction given'
-  },
-  cold_reaction: {
-    action: 'reward',
-    baseAmount: 1,
-    maxPerDay: 20,
-    description: 'Cold reaction given'
-  },
-  spicy_reaction: {
-    action: 'reward',
-    baseAmount: 2,
-    maxPerDay: 20,
-    description: 'Spicy reaction given'
-  },
-  daily_login: {
-    action: 'reward',
-    baseAmount: 3,
-    maxPerDay: 3,
-    description: 'Daily login bonus'
-  },
-  quality_spill: {
-    action: 'reward',
-    baseAmount: 10,
-    maxPerDay: 100,
-    description: 'High-quality tea spill'
-  },
-  viral_spill: {
-    action: 'reward',
-    baseAmount: 25,
-    maxPerDay: 200,
-    description: 'Viral tea spill'
-  }
+const TOKEN_REWARDS: Record<TokenAction, TokenReward> = {
+  spill: { action: 'spill', amount: 10, description: 'Posted a new spill' },
+  tip: { action: 'tip', amount: 5, description: 'Gave a tip' },
+  flag: { action: 'flag', amount: -2, description: 'Flagged content' },
+  upvote: { action: 'upvote', amount: 1, description: 'Upvoted content' },
+  downvote: { action: 'downvote', amount: -1, description: 'Downvoted content' },
+  reward: { action: 'reward', amount: 20, description: 'Received reward' },
+  penalty: { action: 'penalty', amount: -10, description: 'Received penalty' }
 };
 
 export class TeaTokenRewardService {
-  static async awardSpillReward(
-    walletAddress: string,
-    spillId: string,
-    contentLength: number,
-    hasEvidence: boolean = false
-  ): Promise<{ success: boolean; amount: number; message: string }> {
+  static async rewardSpill(walletAddress: string, spillId: string): Promise<{ success: boolean; error?: string }> {
     try {
-      const baseConfig = TOKEN_REWARDS.spill_tea;
-      let amount = baseConfig.baseAmount;
-
-      // Bonus for longer content
-      if (contentLength > 200) {
-        amount += 2;
-      }
-      if (contentLength > 400) {
-        amount += 3;
-      }
-
-      // Bonus for evidence
-      if (hasEvidence) {
-        amount += 3;
-      }
-
-      const result = await TeaTokenService.awardTokens(
+      const reward = TOKEN_REWARDS.spill;
+      
+      const success = await TeaTokenService.awardTokens(
         walletAddress,
-        baseConfig.action,
-        amount,
+        reward.action,
+        reward.amount,
         spillId,
-        {
-          content_length: contentLength,
-          has_evidence: hasEvidence,
-          reward_type: 'spill_tea'
-        }
+        { action_type: 'spill_reward', description: reward.description }
       );
 
-      if (result.success) {
-        return {
-          success: true,
-          amount,
-          message: `+${amount} $TEA for spilling tea!`
-        };
+      if (success) {
+        track('tea_tokens_earned', {
+          action: 'spill',
+          amount: reward.amount,
+          wallet: walletAddress
+        });
+
+        return { success: true };
       } else {
-        throw new Error(result.error || 'Failed to award tokens');
+        return { success: false, error: 'Failed to award tokens' };
       }
     } catch (error) {
-      secureLog.error('Failed to award spill reward:', error);
-      return {
-        success: false,
-        amount: 0,
-        message: 'Failed to award tokens'
-      };
+      secureLog.error('Spill reward error:', error);
+      return { success: false, error: 'Reward service unavailable' };
     }
   }
 
-  static async awardReactionReward(
-    walletAddress: string,
-    reactionType: 'hot' | 'cold' | 'spicy',
+  static async rewardTip(
+    fromWallet: string, 
+    toWallet: string, 
+    amount: number, 
+    spillId?: string
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      // Deduct from sender
+      const deductSuccess = await TeaTokenService.awardTokens(
+        fromWallet,
+        'tip',
+        -amount,
+        spillId,
+        { action_type: 'tip_sent', recipient: toWallet }
+      );
+
+      if (deductSuccess) {
+        // Award to recipient
+        const awardSuccess = await TeaTokenService.awardTokens(
+          toWallet,
+          'reward',
+          amount,
+          spillId,
+          { action_type: 'tip_received', sender: fromWallet }
+        );
+
+        if (awardSuccess) {
+          track('tea_tokens_transferred', {
+            from: fromWallet,
+            to: toWallet,
+            amount,
+            type: 'tip'
+          });
+
+          return { success: true };
+        } else {
+          return { success: false, error: 'Failed to award tip to recipient' };
+        }
+      } else {
+        return { success: false, error: 'Insufficient balance or transfer failed' };
+      }
+    } catch (error) {
+      secureLog.error('Tip reward error:', error);
+      return { success: false, error: 'Tip service unavailable' };
+    }
+  }
+
+  static async rewardReaction(
+    walletAddress: string, 
+    reactionType: 'upvote' | 'downvote', 
     spillId: string
-  ): Promise<{ success: boolean; amount: number; message: string }> {
+  ): Promise<{ success: boolean; error?: string }> {
     try {
-      const configKey = `${reactionType}_reaction`;
-      const config = TOKEN_REWARDS[configKey];
+      const reward = TOKEN_REWARDS[reactionType];
       
-      if (!config) {
-        throw new Error(`Unknown reaction type: ${reactionType}`);
-      }
-
-      const result = await TeaTokenService.awardTokens(
+      const success = await TeaTokenService.awardTokens(
         walletAddress,
-        config.action,
-        config.baseAmount,
+        reward.action,
+        reward.amount,
         spillId,
-        {
-          reaction_type: reactionType,
-          reward_type: 'reaction'
-        }
+        { action_type: 'reaction_reward', reaction_type: reactionType }
       );
 
-      if (result.success) {
-        const emoji = reactionType === 'hot' ? '🔥' : reactionType === 'cold' ? '❄️' : '🌶️';
-        return {
-          success: true,
-          amount: config.baseAmount,
-          message: `${emoji} +${config.baseAmount} $TEA for ${reactionType} reaction!`
-        };
+      if (success) {
+        track('tea_tokens_earned', {
+          action: reactionType,
+          amount: reward.amount,
+          wallet: walletAddress
+        });
+
+        return { success: true };
       } else {
-        throw new Error(result.error || 'Failed to award tokens');
+        return { success: false, error: 'Failed to process reaction reward' };
       }
     } catch (error) {
-      secureLog.error('Failed to award reaction reward:', error);
-      return {
-        success: false,
-        amount: 0,
-        message: 'Failed to award tokens'
-      };
+      secureLog.error('Reaction reward error:', error);
+      return { success: false, error: 'Reaction service unavailable' };
     }
   }
 
-  static async awardDailyLoginReward(walletAddress: string): Promise<{ success: boolean; amount: number; message: string }> {
+  static async penalizeUser(
+    walletAddress: string, 
+    reason: string, 
+    spillId?: string
+  ): Promise<{ success: boolean; error?: string }> {
     try {
-      const config = TOKEN_REWARDS.daily_login;
+      const penalty = TOKEN_REWARDS.penalty;
       
-      const result = await TeaTokenService.awardTokens(
+      const success = await TeaTokenService.awardTokens(
         walletAddress,
-        config.action,
-        config.baseAmount,
-        undefined,
-        {
-          reward_type: 'daily_login',
-          date: new Date().toISOString().split('T')[0]
-        }
-      );
-
-      if (result.success) {
-        return {
-          success: true,
-          amount: config.baseAmount,
-          message: `☕ +${config.baseAmount} $TEA daily login bonus!`
-        };
-      } else {
-        throw new Error(result.error || 'Failed to award tokens');
-      }
-    } catch (error) {
-      secureLog.error('Failed to award daily login reward:', error);
-      return {
-        success: false,
-        amount: 0,
-        message: 'Failed to award tokens'
-      };
-    }
-  }
-
-  static async awardQualitySpillReward(
-    walletAddress: string,
-    spillId: string,
-    qualityScore: number
-  ): Promise<{ success: boolean; amount: number; message: string }> {
-    try {
-      const config = TOKEN_REWARDS.quality_spill;
-      let amount = config.baseAmount;
-
-      // Bonus based on quality score (0-100)
-      if (qualityScore > 80) {
-        amount += 15;
-      } else if (qualityScore > 60) {
-        amount += 10;
-      }
-
-      const result = await TeaTokenService.awardTokens(
-        walletAddress,
-        config.action,
-        amount,
+        penalty.action,
+        penalty.amount,
         spillId,
-        {
-          quality_score: qualityScore,
-          reward_type: 'quality_spill'
-        }
+        { action_type: 'penalty', reason }
       );
 
-      if (result.success) {
-        return {
-          success: true,
-          amount,
-          message: `🏆 +${amount} $TEA for quality tea!`
-        };
+      if (success) {
+        track('tea_tokens_penalty', {
+          wallet: walletAddress,
+          amount: penalty.amount,
+          reason
+        });
+
+        return { success: true };
       } else {
-        throw new Error(result.error || 'Failed to award tokens');
+        return { success: false, error: 'Failed to apply penalty' };
       }
     } catch (error) {
-      secureLog.error('Failed to award quality spill reward:', error);
-      return {
-        success: false,
-        amount: 0,
-        message: 'Failed to award tokens'
-      };
+      secureLog.error('Penalty error:', error);
+      return { success: false, error: 'Penalty service unavailable' };
     }
   }
-} 
+
+  static getRewardAmount(action: TokenAction): number {
+    return TOKEN_REWARDS[action]?.amount || 0;
+  }
+
+  static getRewardDescription(action: TokenAction): string {
+    return TOKEN_REWARDS[action]?.description || 'Unknown action';
+  }
+}

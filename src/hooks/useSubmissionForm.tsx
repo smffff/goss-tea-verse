@@ -73,7 +73,7 @@ export const useSubmissionForm = (
 
     try {
       // Use unified security service for validation
-      const securityCheck = await UnifiedSecurityService.validate(
+      const securityCheck = await UnifiedSecurityService.validateSubmissionSecurity(
         formData.tea,
         formData.evidence_urls.filter(url => url.trim()),
         'tea_submission'

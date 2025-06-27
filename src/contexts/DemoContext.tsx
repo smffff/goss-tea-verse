@@ -1,81 +1,62 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { betaCodeService } from '@/services/betaCodeService';
 
 interface DemoContextType {
   isDemoMode: boolean;
-  isPreviewMode: boolean;
-  enableDemo: () => void;
-  enablePreview: () => void;
-  exitDemo: () => void;
-  getDemoWatermark: () => string;
+  enableDemoMode: () => void;
+  disableDemoMode: () => void;
 }
 
-const DemoContext = createContext<DemoContextType | undefined>(undefined);
+const DemoContext = createContext<DemoContextType | null>(null);
+
+export const useDemoMode = () => {
+  const context = useContext(DemoContext);
+  if (!context) {
+    throw new Error('useDemoMode must be used within a DemoProvider');
+  }
+  return context;
+};
 
 interface DemoProviderProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export const DemoProvider: React.FC<DemoProviderProps> = ({ children }) => {
   const [isDemoMode, setIsDemoMode] = useState(false);
-  const [isPreviewMode, setIsPreviewMode] = useState(false);
 
   useEffect(() => {
-    // Check if user is in demo mode on load
-    setIsDemoMode(betaCodeService.isDemoMode());
-    
-    // Check for demo URL parameters
-    if (betaCodeService.checkDemoParams()) {
-      enablePreview();
+    // Check if demo mode is enabled
+    const demoModeEnabled = betaCodeService.isDemoMode();
+    setIsDemoMode(demoModeEnabled);
+
+    // Check URL parameters for demo mode
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('demo') === 'true') {
+      betaCodeService.enableDemoMode();
+      setIsDemoMode(true);
     }
   }, []);
 
-  const enableDemo = () => {
+  const enableDemoMode = () => {
     betaCodeService.enableDemoMode();
     setIsDemoMode(true);
-    setIsPreviewMode(false);
   };
 
-  const enablePreview = () => {
-    setIsPreviewMode(true);
+  const disableDemoMode = () => {
+    betaCodeService.clearAccess();
     setIsDemoMode(false);
   };
 
-  const exitDemo = () => {
-    if (isDemoMode) {
-      betaCodeService.clearAccess();
-      setIsDemoMode(false);
-    }
-    setIsPreviewMode(false);
-    // Redirect to landing page
-    window.location.href = '/';
-  };
-
-  const getDemoWatermark = (): string => {
-    if (isDemoMode) return 'Demo Mode';
-    if (isPreviewMode) return 'Preview Mode';
-    return '';
+  const value: DemoContextType = {
+    isDemoMode,
+    enableDemoMode,
+    disableDemoMode
   };
 
   return (
-    <DemoContext.Provider value={{
-      isDemoMode,
-      isPreviewMode,
-      enableDemo,
-      enablePreview,
-      exitDemo,
-      getDemoWatermark
-    }}>
+    <DemoContext.Provider value={value}>
       {children}
     </DemoContext.Provider>
   );
-};
-
-export const useDemo = () => {
-  const context = useContext(DemoContext);
-  if (context === undefined) {
-    throw new Error('useDemo must be used within a DemoProvider');
-  }
-  return context;
 };

@@ -59,7 +59,7 @@ export const useSpillTeaForm = (
     try {
       // Use unified security service for validation
       const urls = formData.mediaUrl ? [formData.mediaUrl] : [];
-      const securityCheck = await UnifiedSecurityService.validate(
+      const securityCheck = await UnifiedSecurityService.validateSubmissionSecurity(
         formData.teaText,
         urls,
         'spill_tea'
