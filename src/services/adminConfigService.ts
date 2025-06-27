@@ -1,4 +1,3 @@
-
 interface AdminConfig {
   isAdminMode: boolean;
   forceOGAccess: boolean;
@@ -45,7 +44,9 @@ class AdminConfigService {
   enableAdminMode(): void {
     this.config.isAdminMode = true;
     localStorage.setItem('ctea_admin_mode', 'true');
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔧 Admin mode enabled');
+    if (process.env.NODE_ENV === "development") {
+      console.info('🔧 Admin mode enabled');
+    }
   }
 
   disableAdminMode(): void {
@@ -53,7 +54,9 @@ class AdminConfigService {
     this.config.forceOGAccess = false;
     this.config.mockTokenBalance = null;
     localStorage.removeItem('ctea_admin_mode');
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔧 Admin mode disabled');
+    if (process.env.NODE_ENV === "development") {
+      console.info('🔧 Admin mode disabled');
+    }
   }
 
   toggleAdminMode(): void {

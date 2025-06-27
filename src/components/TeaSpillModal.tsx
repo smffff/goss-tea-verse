@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Coffee, Sparkles, Zap } from 'lucide-react';
@@ -23,6 +22,7 @@ const TeaSpillModal: React.FC<TeaSpillModalProps> = ({ isOpen, onClose, onSubmit
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [needsBetaAccess, setNeedsBetaAccess] = useState(false);
   const [betaCode, setBetaCode] = useState('');
+  const [error, setError] = useState('');
   const { toast } = useToast();
 
   const generateBetaAccess = async (): Promise<string> => {
@@ -31,7 +31,10 @@ const TeaSpillModal: React.FC<TeaSpillModalProps> = ({ isOpen, onClose, onSubmit
       const codes = ['EARLY-BIRD', 'BETA-ACCESS', 'CTEA2024'];
       return codes[Math.floor(Math.random() * codes.length)];
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Beta access generation error:', error);
+      if (process.env.NODE_ENV === "development") {
+        console.error('Beta access generation error:', error);
+      }
+      setError('Failed to generate beta access');
       return 'BETA-ACCESS';
     }
   };
@@ -74,12 +77,10 @@ const TeaSpillModal: React.FC<TeaSpillModalProps> = ({ isOpen, onClose, onSubmit
       setEmail('');
       onClose();
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Submission error:', error);
-      toast({
-        title: "Submission Failed",
-        description: "Please try again later.",
-        variant: "destructive"
-      });
+      if (process.env.NODE_ENV === "development") {
+        console.error('Submission error:', error);
+      }
+      setError('Failed to submit tea spill');
     } finally {
       setIsSubmitting(false);
     }

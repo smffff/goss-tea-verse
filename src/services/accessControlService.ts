@@ -1,4 +1,3 @@
-
 import { web3CrossChainService } from './web3CrossChainService';
 
 export interface AccessLevel {
@@ -19,7 +18,9 @@ class AccessControlService {
 
   async checkWalletAccess(address: string): Promise<AccessLevel> {
     try {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔐 Checking wallet access for:', address);
+      if (process.env.NODE_ENV === "development") {
+        console.info('🔐 Checking wallet access for:', address);
+      }
       
       const ogStatus = await web3CrossChainService.getOGStatus(address);
       
@@ -31,7 +32,9 @@ class AccessControlService {
         perks: web3CrossChainService.getOGPerks(ogStatus.tier)
       };
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to check wallet access:', error);
+      if (process.env.NODE_ENV === "development") {
+        console.error('Failed to check wallet access:', error);
+      }
       return this.getNoAccessLevel();
     }
   }

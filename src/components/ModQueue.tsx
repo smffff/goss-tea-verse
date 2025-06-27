@@ -28,6 +28,7 @@ const ModQueue = () => {
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const { toast } = useToast();
   const { requireModerator, isAdmin } = useSecureAuth();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!requireModerator()) return;
@@ -65,12 +66,10 @@ const ModQueue = () => {
 
       setQueueItems(transformedItems);
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching queue items:', error);
-      toast({
-        title: "Error loading moderation queue",
-        description: "Please try again later.",
-        variant: "destructive"
-      });
+      if (process.env.NODE_ENV === "development") {
+        console.error('Error fetching queue items:', error);
+      }
+      setError('Failed to load moderation queue');
     } finally {
       setIsLoading(false);
     }
@@ -94,12 +93,10 @@ const ModQueue = () => {
         description: `The submission has been ${action}d.`,
       });
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error moderating submission:', error);
-      toast({
-        title: "Moderation failed",
-        description: "Please try again.",
-        variant: "destructive"
-      });
+      if (process.env.NODE_ENV === "development") {
+        console.error('Error moderating submission:', error);
+      }
+      setError('Failed to moderate submission');
     }
   };
 

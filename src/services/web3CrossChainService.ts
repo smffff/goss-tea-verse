@@ -1,4 +1,3 @@
-
 import { SUPPORTED_CHAINS, OG_TIERS } from '@/config/chainConfig';
 import { OGStatus, CrossChainUser } from '@/types/crossChain';
 import { adminConfigService } from './adminConfigService';
@@ -13,17 +12,21 @@ class Web3CrossChainService {
   // Check Avalanche $TEA balance using Web3
   async checkAvalancheBalance(address: string): Promise<number> {
     try {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔍 Checking Avalanche $TEA balance for:', address);
+      if (process.env.NODE_ENV === "development") {
+        console.info('🔍 Checking Avalanche $TEA balance for:', address);
+      }
       
       // Check for admin override
       const adminBalance = adminConfigService.getMockTokenBalance();
       if (adminBalance !== null) {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔧 Using admin mock balance:', adminBalance);
+        if (process.env.NODE_ENV === "development") {
+          console.info('🔧 Using admin mock balance:', adminBalance);
+        }
         return adminBalance;
       }
 
       if (!window.ethereum) {
-        secureLog.warn('No ethereum provider found');
+        console.warn('No ethereum provider found');
         return 0;
       }
 
@@ -31,11 +34,15 @@ class Web3CrossChainService {
       // In production, this would call the actual token contract
       const demoBalance = this.generateRealisticBalance(address);
       
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('💰 Balance found:', demoBalance);
+      if (process.env.NODE_ENV === "development") {
+        console.info('💰 Balance found:', demoBalance);
+      }
       return demoBalance;
       
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to check Avalanche balance:', error);
+      if (process.env.NODE_ENV === "development") {
+        console.error('Failed to check Avalanche balance:', error);
+      }
       return 0;
     }
   }
@@ -43,12 +50,16 @@ class Web3CrossChainService {
   // Check Solana $TEA balance for Phantom wallet
   async checkSolanaBalance(address: string): Promise<number> {
     try {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔍 Checking Solana $TEA balance for:', address);
+      if (process.env.NODE_ENV === "development") {
+        console.info('🔍 Checking Solana $TEA balance for:', address);
+      }
       
       // Check for admin override
       const adminBalance = adminConfigService.getMockTokenBalance();
       if (adminBalance !== null) {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔧 Using admin mock balance:', adminBalance);
+        if (process.env.NODE_ENV === "development") {
+          console.info('🔧 Using admin mock balance:', adminBalance);
+        }
         return adminBalance;
       }
 
@@ -56,11 +67,15 @@ class Web3CrossChainService {
       // In production, this would call the actual SPL token program
       const demoBalance = this.generateRealisticBalance(address);
       
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('💰 Solana balance found:', demoBalance);
+      if (process.env.NODE_ENV === "development") {
+        console.info('💰 Solana balance found:', demoBalance);
+      }
       return demoBalance;
       
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to check Solana balance:', error);
+      if (process.env.NODE_ENV === "development") {
+        console.error('Failed to check Solana balance:', error);
+      }
       return 0;
     }
   }
@@ -190,7 +205,9 @@ class Web3CrossChainService {
         throw new Error('Phantom wallet not found');
       }
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to connect Phantom wallet:', error);
+      if (process.env.NODE_ENV === "development") {
+        console.error('Failed to connect Phantom wallet:', error);
+      }
       throw error;
     }
   }

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,6 +9,7 @@ const Profile = () => {
   const { user, isAdmin, isModerator } = useAuth();
   const [profileData, setProfileData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const isAdminOrMod = isAdmin || isModerator;
 
@@ -21,7 +21,10 @@ const Profile = () => {
         const data = await getUserProfileWithVisibility(user.wallet_address);
         setProfileData(data);
       } catch (error) {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error loading profile:', error);
+        if (process.env.NODE_ENV === "development") {
+          console.error('Error loading profile:', error);
+        }
+        setError('Failed to load profile data');
       } finally {
         setLoading(false);
       }

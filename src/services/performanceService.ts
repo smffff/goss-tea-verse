@@ -1,4 +1,3 @@
-
 export class PerformanceService {
   private static instance: PerformanceService;
   private metrics: Map<string, number> = new Map();
@@ -114,7 +113,9 @@ export class PerformanceService {
 
         // Log to console in development
         if (!this.isProduction) {
-          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`📊 ${vital.name}:`, vital.value, vital);
+          if (process.env.NODE_ENV === "development") {
+            console.info(`📊 ${vital.name}:`, vital.value, vital);
+          }
         }
       };
 
@@ -189,7 +190,9 @@ export class PerformanceService {
     
     console.group('🚀 CTea Performance Summary');
     Object.entries(metrics).forEach(([name, value]) => {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`${name}: ${value.toFixed(2)}ms`);
+      if (process.env.NODE_ENV === "development") {
+        console.info(`${name}: ${value.toFixed(2)}ms`);
+      }
     });
     console.groupEnd();
 

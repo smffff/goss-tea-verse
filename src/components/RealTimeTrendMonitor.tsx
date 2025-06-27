@@ -36,6 +36,7 @@ const RealTimeTrendMonitor = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [selectedPlatform, setSelectedPlatform] = useState<'all' | 'twitter' | 'discord' | 'telegram' | 'reddit'>('all');
+  const [error, setError] = useState<string | null>(null);
 
   // Mock data for demonstration - in production this would come from real-time APIs
   const mockTrends: TrendData[] = [
@@ -123,7 +124,10 @@ const RealTimeTrendMonitor = () => {
       setSentimentData(sentiment);
       setLastUpdate(new Date());
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching trend data:', error);
+      if (process.env.NODE_ENV === "development") {
+        console.error('Error fetching trend data:', error);
+      }
+      setError('Failed to load trend data');
     } finally {
       setIsLoading(false);
     }

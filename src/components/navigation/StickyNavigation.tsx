@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -61,7 +60,9 @@ const StickyNavigation: React.FC<StickyNavigationProps> = ({ className = '' }) =
       await signOut();
       navigate('/');
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Sign out error:', error);
+      if (process.env.NODE_ENV === "development") {
+        console.error('Sign out error:', error);
+      }
     }
   };
 

@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client'
 
 export interface SecurityEvent {
@@ -23,10 +22,14 @@ export class SecurityEventService {
       })
 
       if (error) {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Security event logging failed:', error)
+        if (process.env.NODE_ENV === "development") {
+          console.error('Security event logging failed:', error);
+        }
       }
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Security logging service error:', error)
+      if (process.env.NODE_ENV === "development") {
+        console.error('Security logging service error:', error);
+      }
     }
   }
 }

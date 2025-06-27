@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,6 +23,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const { user, isAdmin } = useAuth();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAdminStats();
@@ -47,12 +47,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
         flaggedContent: flaggedRes.count || 0
       });
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching admin stats:', error);
-      toast({
-        title: "Error Loading Stats",
-        description: "Could not load admin dashboard data",
-        variant: "destructive"
-      });
+      if (process.env.NODE_ENV === "development") {
+        console.error('Error fetching admin stats:', error);
+      }
+      setError('Failed to load admin statistics');
     } finally {
       setIsLoading(false);
     }

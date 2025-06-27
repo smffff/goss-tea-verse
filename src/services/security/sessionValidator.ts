@@ -1,4 +1,3 @@
-
 import type { AuthValidationResult } from './types';
 
 export class SessionValidator {
@@ -46,7 +45,9 @@ export class SessionValidator {
         riskLevel
       };
     } catch (error: any) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Session validation error:', error);
+      if (process.env.NODE_ENV === "development") {
+        console.error('Session validation error:', error);
+      }
       return {
         isValid: false,
         securityScore: 0,
