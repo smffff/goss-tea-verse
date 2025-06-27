@@ -10,7 +10,6 @@ import { Coffee, Send, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
-import { EnhancedSecurityService } from '@/services/enhancedSecurityService';
 
 interface SpillTeaModalProps {
   isOpen: boolean;
@@ -54,73 +53,25 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
       
       localStorage.setItem('ctea_anonymous_token', anonymousToken);
 
-      // Use enhanced security validation
-      const securityValidation = await EnhancedSecurityService.validateContent(formData.content);
+      // Prepare evidence URLs array
+      const evidenceUrls = formData.evidenceUrl ? [formData.evidenceUrl] : null;
 
-      if (!securityValidation.success) {
-        await EnhancedSecurityService.logSecurityEvent(
-          'content_validation_failed',
-          { threats: securityValidation.threats, riskLevel: securityValidation.riskLevel },
-          'high'
-        );
-
-        toast({
-          title: "Content Validation Failed",
-          description: `Security issues detected: ${securityValidation.threats.join(', ')}`,
-          variant: "destructive"
+      // Use the new secure server-side function
+      const { data: submissionResult, error } = await supabase
+        .rpc('secure_submission_insert', {
+          p_content: formData.content,
+          p_anonymous_token: anonymousToken,
+          p_category: formData.category,
+          p_evidence_urls: evidenceUrls
         });
-        return;
-      }
-
-      if (securityValidation.riskLevel === 'critical') {
-        await EnhancedSecurityService.logSecurityEvent(
-          'critical_content_blocked',
-          { content: formData.content.substring(0, 100), riskLevel: securityValidation.riskLevel },
-          'critical'
-        );
-
-        toast({
-          title: "Content Blocked",
-          description: "Content contains critical security threats and cannot be submitted.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Use direct database insert with enhanced validation
-      const submissionData = {
-        content: securityValidation.sanitized,
-        category: formData.category,
-        evidence_urls: formData.evidenceUrl ? [formData.evidenceUrl] : null,
-        anonymous_token: anonymousToken,
-        status: 'approved',
-        has_evidence: !!formData.evidenceUrl,
-        reactions: { hot: 0, cold: 0, spicy: 0 },
-        average_rating: 0,
-        rating_count: 0,
-        verification_score: securityValidation.securityScore
-      };
-
-      const { data: insertedSubmission, error } = await supabase
-        .from('tea_submissions')
-        .insert(submissionData)
-        .select('id')
-        .single();
 
       if (error) {
         throw new Error(`Submission failed: ${error.message}`);
       }
 
-      // Log successful secure submission
-      await EnhancedSecurityService.logSecurityEvent(
-        'secure_submission_success',
-        { 
-          submissionId: insertedSubmission?.id,
-          securityScore: securityValidation.securityScore,
-          riskLevel: securityValidation.riskLevel
-        },
-        'medium'
-      );
+      if (!submissionResult?.success) {
+        throw new Error(submissionResult?.error || 'Unknown error occurred');
+      }
 
       toast({
         title: "Tea Spilled Successfully! 🫖",
@@ -138,16 +89,10 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
       onClose();
     } catch (error) {
       secureLog.error('Secure tea submission error:', error);
-      
-      await EnhancedSecurityService.logSecurityEvent(
-        'submission_error',
-        { error: error instanceof Error ? error.message : 'Unknown error' },
-        'high'
-      );
 
       toast({
         title: "Submission Failed",
-        description: "Please try again later.",
+        description: error instanceof Error ? error.message : "Please try again later.",
         variant: "destructive"
       });
     } finally {
@@ -196,6 +141,18 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
                 <SelectItem value="sports">Sports</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="evidence" className="text-white">Evidence URL (optional)</Label>
+            <Input
+              id="evidence"
+              type="url"
+              placeholder="https://example.com/evidence"
+              value={formData.evidenceUrl}
+              onChange={(e) => setFormData({ ...formData, evidenceUrl: e.target.value })}
+              className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-500 focus:border-ctea-teal"
+            />
           </div>
 
           <div className="flex space-x-3">

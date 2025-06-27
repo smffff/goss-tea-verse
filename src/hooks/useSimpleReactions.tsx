@@ -3,7 +3,6 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserProgression } from '@/hooks/useUserProgression';
 import { secureLog } from '@/utils/secureLogging';
-import { EnhancedSecurityService } from '@/services/enhancedSecurityService';
 
 export const useSimpleReactions = () => {
   const { incrementReaction } = useUserProgression();
@@ -22,47 +21,23 @@ export const useSimpleReactions = () => {
       
       localStorage.setItem('ctea_anonymous_token', anonymousToken);
 
-      // Check if user already reacted to this submission
-      const { data: existingReaction } = await supabase
-        .from('user_reactions')
-        .select('*')
-        .eq('submission_id', submissionId)
-        .eq('anonymous_token', anonymousToken)
-        .single();
+      // Use the new secure server-side function
+      const { data: reactionResult, error } = await supabase
+        .rpc('secure_reaction_insert', {
+          p_submission_id: submissionId,
+          p_anonymous_token: anonymousToken,
+          p_reaction_type: reactionType
+        });
 
-      if (existingReaction) {
-        // Update existing reaction
-        const { error: updateError } = await supabase
-          .from('user_reactions')
-          .update({ reaction_type: reactionType })
-          .eq('id', existingReaction.id);
-
-        if (updateError) {
-          throw new Error(`Failed to update reaction: ${updateError.message}`);
-        }
-      } else {
-        // Create new reaction
-        const { error: insertError } = await supabase
-          .from('user_reactions')
-          .insert({
-            submission_id: submissionId,
-            anonymous_token: anonymousToken,
-            reaction_type: reactionType
-          });
-
-        if (insertError) {
-          throw new Error(`Failed to add reaction: ${insertError.message}`);
-        }
-
-        await incrementReaction('given');
+      if (error) {
+        throw new Error(`Failed to add reaction: ${error.message}`);
       }
 
-      // Log successful secure reaction
-      await EnhancedSecurityService.logSecurityEvent(
-        'secure_reaction_success',
-        { submissionId, reactionType },
-        'medium'
-      );
+      if (!reactionResult?.success) {
+        throw new Error(reactionResult?.error || 'Unknown error occurred');
+      }
+
+      await incrementReaction('given');
 
       toast({
         title: `Reaction Added! ${reactionType === 'hot' ? '🔥' : reactionType === 'cold' ? '❄️' : '🌶️'}`,
@@ -74,12 +49,6 @@ export const useSimpleReactions = () => {
       if (process.env.NODE_ENV === "development") {
         secureLog.error('useSimpleReactions - Secure reaction error:', error);
       }
-
-      await EnhancedSecurityService.logSecurityEvent(
-        'reaction_error',
-        { error: error instanceof Error ? error.message : 'Unknown error', submissionId, reactionType },
-        'medium'
-      );
 
       toast({
         title: "Reaction Failed",

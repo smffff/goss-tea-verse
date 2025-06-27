@@ -35,63 +35,70 @@ export class EnhancedSecurityService {
 
   static async validateContent(content: string): Promise<SecurityValidationResult> {
     try {
-      const threats: string[] = [];
-      let securityScore = 100;
-      let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
-
-      // Check for malicious patterns
-      for (const pattern of this.THREAT_PATTERNS) {
-        if (pattern.test(content)) {
-          threats.push(`Potential security threat detected: ${pattern.toString()}`);
-          securityScore -= 25;
-        }
-      }
-
-      // Determine risk level
-      if (securityScore < 25) {
-        riskLevel = 'critical';
-      } else if (securityScore < 50) {
-        riskLevel = 'high';
-      } else if (securityScore < 75) {
-        riskLevel = 'medium';
-      }
-
-      // Sanitize content
-      const sanitized = content
-        .replace(/<script[^>]*>.*?<\/script>/gi, '')
-        .replace(/javascript:/gi, '')
-        .replace(/on\w+\s*=/gi, '')
-        .trim();
-
-      const result: SecurityValidationResult = {
-        success: threats.length === 0,
-        threats,
-        sanitized,
-        securityScore,
-        riskLevel
-      };
-
-      if (threats.length > 0) {
-        secureLog.warn('Security threats detected in content', {
-          threatCount: threats.length,
-          riskLevel,
-          securityScore
+      // Use server-side validation for enhanced security
+      const { data: validationResult, error } = await supabase
+        .rpc('validate_content_server_side', {
+          content: content,
+          max_length: 1000
         });
+
+      if (error) {
+        secureLog.error('Server-side validation failed, using fallback', error);
+        return this.fallbackValidation(content);
       }
 
-      return result;
+      const result = validationResult as any;
+
+      return {
+        success: result?.valid || false,
+        threats: result?.errors || [],
+        sanitized: result?.sanitized || content,
+        securityScore: result?.security_score || 0,
+        riskLevel: result?.risk_level || 'critical'
+      };
 
     } catch (error) {
       secureLog.error('Enhanced security validation failed', error);
-      return {
-        success: false,
-        threats: ['Security validation service unavailable'],
-        sanitized: content.replace(/[<>]/g, ''),
-        securityScore: 0,
-        riskLevel: 'critical',
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
+      return this.fallbackValidation(content);
     }
+  }
+
+  private static fallbackValidation(content: string): SecurityValidationResult {
+    const threats: string[] = [];
+    let securityScore = 100;
+    let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
+
+    // Check for malicious patterns
+    for (const pattern of this.THREAT_PATTERNS) {
+      if (pattern.test(content)) {
+        threats.push(`Potential security threat detected: ${pattern.toString()}`);
+        securityScore -= 25;
+      }
+    }
+
+    // Determine risk level
+    if (securityScore < 25) {
+      riskLevel = 'critical';
+    } else if (securityScore < 50) {
+      riskLevel = 'high';
+    } else if (securityScore < 75) {
+      riskLevel = 'medium';
+    }
+
+    // Sanitize content
+    const sanitized = content
+      .replace(/<script[^>]*>.*?<\/script>/gi, '')
+      .replace(/javascript:/gi, '')
+      .replace(/on\w+\s*=/gi, '')
+      .trim();
+
+    return {
+      success: threats.length === 0,
+      threats,
+      sanitized,
+      securityScore,
+      riskLevel
+    };
   }
 
   static async logSecurityEvent(
@@ -100,13 +107,9 @@ export class EnhancedSecurityService {
     severity: 'low' | 'medium' | 'high' | 'critical' = 'medium'
   ): Promise<void> {
     try {
-      await supabase.from('security_audit_trail').insert({
+      await supabase.rpc('log_security_event', {
         event_type: eventType,
-        details,
-        severity,
-        ip_address: 'unknown', // Client-side can't determine real IP
-        user_agent: navigator.userAgent,
-        session_id: sessionStorage.getItem('session_id') || 'anonymous'
+        details: details
       });
 
       secureLog.info('Security event logged', { eventType, severity });

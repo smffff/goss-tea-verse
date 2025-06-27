@@ -1330,6 +1330,23 @@ export type Database = {
         }
         Returns: Json
       }
+      secure_reaction_insert: {
+        Args: {
+          p_submission_id: string
+          p_anonymous_token: string
+          p_reaction_type: string
+        }
+        Returns: Json
+      }
+      secure_submission_insert: {
+        Args: {
+          p_content: string
+          p_anonymous_token: string
+          p_category?: string
+          p_evidence_urls?: string[]
+        }
+        Returns: Json
+      }
       security_health_check: {
         Args: Record<PropertyKey, never>
         Returns: Json
