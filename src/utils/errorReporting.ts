@@ -1,5 +1,4 @@
-
-import { secureLog } from './secureLogging';
+import { secureLog } from './secureLog';
 
 export interface ErrorReport {
   id: string;
@@ -137,6 +136,9 @@ export class ErrorReportingService {
     return this.reportError('ui_error', error, component, 'low', context);
   }
 }
+
+// Export the standalone function for easier use
+export const reportError = ErrorReportingService.reportError;
 
 // Global error handler for uncaught errors
 window.addEventListener('error', (event) => {

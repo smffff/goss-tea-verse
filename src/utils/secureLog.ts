@@ -1,3 +1,4 @@
+
 // Secure logging utility with proper error handling
 interface LogEntry {
   level: 'info' | 'warn' | 'error';
@@ -6,31 +7,33 @@ interface LogEntry {
   timestamp: string;
 }
 
+export type LogContext = string | number | object | boolean;
+
 class SecureLogger {
   private isDevelopment = process.env.NODE_ENV === 'development';
   
-  info(message: string, data?: any) {
+  info(message: string, data?: LogContext) {
     if (this.isDevelopment) {
       console.log(`[INFO] ${message}`, data);
     }
     this.storeLog('info', message, data);
   }
 
-  warn(message: string, data?: any) {
+  warn(message: string, data?: LogContext) {
     if (this.isDevelopment) {
       console.warn(`[WARN] ${message}`, data);
     }
     this.storeLog('warn', message, data);
   }
 
-  error(message: string, data?: any) {
+  error(message: string, data?: LogContext) {
     if (this.isDevelopment) {
       console.error(`[ERROR] ${message}`, data);
     }
     this.storeLog('error', message, data);
   }
 
-  private storeLog(level: 'info' | 'warn' | 'error', message: string, data?: any) {
+  private storeLog(level: 'info' | 'warn' | 'error', message: string, data?: LogContext) {
     try {
       const logEntry: LogEntry = {
         level,

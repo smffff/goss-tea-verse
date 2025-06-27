@@ -23,7 +23,6 @@ const ErrorBoundaryWrapper: React.FC<ErrorBoundaryWrapperProps> = ({
 
   return (
     <ErrorBoundary 
-      componentName={componentName}
       fallback={fallback || defaultFallback}
     >
       {children}

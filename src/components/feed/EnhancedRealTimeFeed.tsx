@@ -16,7 +16,7 @@ interface TeaSubmission {
     hot: number;
     cold: number;
     spicy: number;
-  };
+  } | any; // Allow for Json type from database
 }
 
 const EnhancedRealTimeFeed: React.FC = () => {
@@ -37,7 +37,15 @@ const EnhancedRealTimeFeed: React.FC = () => {
 
       if (error) throw error;
       
-      setSubmissions(data || []);
+      // Transform the data to ensure reactions are properly typed
+      const transformedData = (data || []).map(item => ({
+        ...item,
+        reactions: typeof item.reactions === 'string' 
+          ? JSON.parse(item.reactions) 
+          : item.reactions || { hot: 0, cold: 0, spicy: 0 }
+      }));
+      
+      setSubmissions(transformedData);
     } catch (error) {
       secureLog.error('Failed to fetch submissions:', error);
       toast({
@@ -61,9 +69,15 @@ const EnhancedRealTimeFeed: React.FC = () => {
         schema: 'public',
         table: 'tea_submissions'
       }, (payload) => {
-        const newSubmission = payload.new as TeaSubmission;
+        const newSubmission = payload.new as any;
         if (newSubmission.status === 'approved') {
-          setSubmissions(prev => [newSubmission, ...prev]);
+          const transformedSubmission = {
+            ...newSubmission,
+            reactions: typeof newSubmission.reactions === 'string' 
+              ? JSON.parse(newSubmission.reactions) 
+              : newSubmission.reactions || { hot: 0, cold: 0, spicy: 0 }
+          };
+          setSubmissions(prev => [transformedSubmission, ...prev]);
           toast({
             title: "New Tea Alert! ☕",
             description: "Fresh gossip just dropped!",

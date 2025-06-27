@@ -2,7 +2,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { RefreshCcw, AlertTriangle } from 'lucide-react';
-import { secureLog } from '@/utils/secureLogging';
+import { secureLog } from '@/utils/secureLog';
 import { reportError } from '@/utils/errorReporting';
 
 interface Props {
@@ -31,10 +31,10 @@ class EnhancedErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     const context = this.props.componentName || 'EnhancedErrorBoundary';
-    secureLog.error(`Error in ${context}:`, error, errorInfo);
+    secureLog.error(`Error in ${context}:`, error);
     
     // Enhanced error reporting
-    reportError(error, context, {
+    reportError('component_error', error, context, 'high', {
       errorInfo,
       componentStack: errorInfo.componentStack,
       timestamp: new Date().toISOString(),

@@ -1,12 +1,13 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { secureLog } from '@/utils/secureLogging';
+import { secureLog } from '@/utils/secureLog';
 import { reportError } from '@/utils/errorReporting';
 
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  componentName?: string;
 }
 
 interface State {
@@ -25,10 +26,10 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    secureLog.error('ErrorBoundary caught an error:', error, errorInfo);
+    secureLog.error('ErrorBoundary caught an error:', error);
     
     // Report error for debugging
-    reportError(error, 'ErrorBoundary', {
+    reportError('error_boundary', error, this.props.componentName || 'ErrorBoundary', 'high', {
       errorInfo,
       componentStack: errorInfo.componentStack
     });
