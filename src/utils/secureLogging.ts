@@ -1,55 +1,74 @@
-// CTea Secure Logging Utility
-// This utility ensures no sensitive information is exposed in production
 
-export const isProduction = process.env.NODE_ENV === 'production' || 
-                           window.location.hostname === 'cteanews.com' ||
-                           window.location.hostname === 'www.cteanews.com';
+// Secure logging utility to prevent sensitive information exposure in production
 
-export const isDevelopment = process.env.NODE_ENV === 'development';
+interface LogContext {
+  [key: string]: any;
+}
 
-// Sensitive patterns to detect and sanitize
-const SENSITIVE_PATTERNS = [
-  /password[=:]\s*\S+/gi,
-  /token[=:]\s*\S+/gi,
-  /key[=:]\s*\S+/gi,
-  /secret[=:]\s*\S+/gi,
-  /auth[=:]\s*\S+/gi,
-  /api[_-]?key[=:]\s*\S+/gi,
-  /private[_-]?key[=:]\s*\S+/gi,
-  /access[_-]?token[=:]\s*\S+/gi,
-  /session[_-]?id[=:]\s*\S+/gi,
-  /user[_-]?id[=:]\s*\S+/gi,
-  /email[=:]\s*\S+/gi,
-  /phone[=:]\s*\S+/gi,
-  /address[=:]\s*\S+/gi,
-  /ssn[=:]\s*\S+/gi,
-  /credit[_-]?card[=:]\s*\S+/gi,
-  /cvv[=:]\s*\S+/gi,
-  /pin[=:]\s*\S+/gi
-];
-
-// Sanitize sensitive data
-export const sanitizeData = (data: any): any => {
-  if (isProduction) {
-    if (typeof data === 'string') {
-      let sanitized = data;
-      SENSITIVE_PATTERNS.forEach(pattern => {
-        sanitized = sanitized.replace(pattern, (match) => {
-          const [key] = match.split(/[=:]/);
-          return `${key}=***`;
-        });
-      });
-      return sanitized.substring(0, 200); // Limit length
+export const secureLog = {
+  info: (message: string, context?: LogContext) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.info(`ℹ️ ${message}`, context ? sanitizeForLogging(context) : '');
     }
-    
+  },
+  
+  error: (message: string, error?: any) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.error(`❌ ${message}`, error);
+    } else {
+      // In production, only log sanitized error messages
+      const sanitizedError = error instanceof Error 
+        ? { message: error.message, name: error.name }
+        : typeof error === 'string' 
+          ? error.substring(0, 100) 
+          : 'Unknown error';
+      console.error(`❌ ${message}`, sanitizedError);
+    }
+  },
+  
+  warn: (message: string, context?: LogContext) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(`⚠️ ${message}`, context ? sanitizeForLogging(context) : '');
+    } else {
+      console.warn(`⚠️ ${message}`);
+    }
+  },
+  
+  debug: (message: string, context?: LogContext) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`🐛 [DEBUG] ${message}`, context ? sanitizeForLogging(context) : '');
+    }
+  },
+
+  security: (message: string, context?: LogContext) => {
+    const sanitizedContext = context ? sanitizeForLogging(context) : '';
+    console.warn(`🔐 [SECURITY] ${message}`, sanitizedContext);
+  }
+};
+
+// Sanitize sensitive data for production logging
+export const sanitizeForLogging = (data: any): any => {
+  if (process.env.NODE_ENV === 'production') {
+    if (typeof data === 'string') {
+      // Remove potential sensitive patterns
+      return data
+        .replace(/password[=:]\s*\S+/gi, 'password=***')
+        .replace(/token[=:]\s*\S+/gi, 'token=***')
+        .replace(/key[=:]\s*\S+/gi, 'key=***')
+        .replace(/secret[=:]\s*\S+/gi, 'secret=***')
+        .replace(/auth[=:]\s*\S+/gi, 'auth=***')
+        .substring(0, 200); // Limit length
+    }
     if (typeof data === 'object' && data !== null) {
       const sanitized: any = {};
       for (const [key, value] of Object.entries(data)) {
-        const lowerKey = key.toLowerCase();
-        if (['password', 'token', 'key', 'secret', 'auth', 'email', 'phone', 'address', 'ssn', 'credit', 'cvv', 'pin'].some(sensitive => lowerKey.includes(sensitive))) {
+        if (['password', 'token', 'key', 'secret', 'auth', 'wallet_address'].some(sensitive => 
+          key.toLowerCase().includes(sensitive))) {
           sanitized[key] = '***';
+        } else if (typeof value === 'string' && value.length > 50) {
+          sanitized[key] = value.substring(0, 50) + '...';
         } else {
-          sanitized[key] = sanitizeData(value);
+          sanitized[key] = sanitizeForLogging(value);
         }
       }
       return sanitized;
@@ -58,72 +77,4 @@ export const sanitizeData = (data: any): any => {
   return data;
 };
 
-// Secure logging functions
-export const secureLog = {
-  // Only log in development
-  info: (message: string, data?: any) => {
-    if (isDevelopment) {
-      console.log(message, data);
-    }
-  },
-  
-  // Log errors with sanitization in production
-  error: (message: string, error?: any) => {
-    if (isDevelopment) {
-      console.error(message, error);
-    } else {
-      const sanitizedError = error instanceof Error 
-        ? { message: error.message, name: error.name, stack: error.stack?.substring(0, 500) }
-        : sanitizeData(error);
-      console.error(message, sanitizedError);
-    }
-  },
-  
-  // Only warn in development
-  warn: (message: string, data?: any) => {
-    if (isDevelopment) {
-      console.warn(message, data);
-    }
-  },
-  
-  // Debug logging (development only)
-  debug: (message: string, data?: any) => {
-    if (isDevelopment) {
-      console.log(`[DEBUG] ${message}`, data);
-    }
-  },
-  
-  // Security event logging (always logged but sanitized)
-  security: (event: string, details?: any) => {
-    const sanitizedDetails = sanitizeData(details);
-    if (isDevelopment) {
-      console.warn(`[SECURITY] ${event}`, sanitizedDetails);
-    } else {
-      console.warn(`[SECURITY] ${event}`, sanitizedDetails);
-    }
-  }
-};
-
-// Replace console methods globally in production
-if (isProduction) {
-  // Override console.log
-  const originalLog = console.log;
-  console.log = (...args: any[]) => {
-    const sanitizedArgs = args.map(arg => sanitizeData(arg));
-    originalLog.apply(console, sanitizedArgs);
-  };
-  
-  // Override console.error (keep for errors but sanitize)
-  const originalError = console.error;
-  console.error = (...args: any[]) => {
-    const sanitizedArgs = args.map(arg => sanitizeData(arg));
-    originalError.apply(console, sanitizedArgs);
-  };
-  
-  // Override console.warn
-  const originalWarn = console.warn;
-  console.warn = (...args: any[]) => {
-    const sanitizedArgs = args.map(arg => sanitizeData(arg));
-    originalWarn.apply(console, sanitizedArgs);
-  };
-}
+export default secureLog;

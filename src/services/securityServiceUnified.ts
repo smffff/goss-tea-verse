@@ -3,16 +3,20 @@ import { ContentValidationService, SecurityValidationResult } from './security/c
 import { RateLimitService, RateLimitResult } from './security/rateLimitService';
 import { UrlValidationService, UrlValidationResult } from './security/urlValidationService';
 import { TokenValidationService, TokenValidationResult } from './security/tokenValidationService';
-import { ErrorReportingService } from '@/utils/errorReporting';
+import { SecurityEventService } from './securityEventService';
+import { supabase } from '@/integrations/supabase/client';
+import { secureLog } from '@/utils/secureLogging';
 
 interface ComprehensiveSecurityResult {
   overallValid: boolean;
+  securityScore: number;
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
   contentValidation: SecurityValidationResult;
   urlValidation: UrlValidationResult;
   rateLimitCheck: RateLimitResult;
   tokenValidation: TokenValidationResult;
-  fallbacksUsed: string[];
-  errorReports: string[];
+  threats: string[];
+  recommendations: string[];
 }
 
 export class SecurityServiceUnified {
@@ -27,194 +31,249 @@ export class SecurityServiceUnified {
 
   public static async validateSubmissionSecurity(
     content: string,
-    urls: string[],
+    urls: string[] = [],
     action: string = 'submission'
   ): Promise<ComprehensiveSecurityResult> {
-    const fallbacksUsed: string[] = [];
-    const errorReports: string[] = [];
-
     try {
-      // Get or create secure token first
+      secureLog.info('🔐 Starting comprehensive security validation', { action, contentLength: content.length });
+
+      // Generate secure token
       const tokenValidation = TokenValidationService.getOrCreateSecureToken();
       
-      // Run all validations in parallel for better performance
-      const [contentValidation, urlValidation, rateLimitCheck] = await Promise.allSettled([
-        ContentValidationService.validateContent(content),
-        Promise.resolve(UrlValidationService.validateUrls(urls)),
-        RateLimitService.checkRateLimit(tokenValidation.token, action)
-      ]);
+      // Server-side rate limiting check
+      const rateLimitCheck = await this.performServerSideRateLimit(tokenValidation.token, action);
+      if (!rateLimitCheck.allowed) {
+        return this.createSecurityResult(false, 0, 'critical', {
+          valid: false,
+          sanitized: '',
+          threats: ['Rate limit exceeded'],
+          riskLevel: 'critical',
+          securityScore: 0
+        }, { valid: [], invalid: [] }, rateLimitCheck, tokenValidation);
+      }
 
-      // Process results and handle failures
-      const processedContentValidation = this.processValidationResult(
+      // Enhanced content validation
+      const contentValidation = await ContentValidationService.validateContent(content, 2000);
+      
+      // URL validation
+      const urlValidation = UrlValidationService.validateUrls(urls);
+      
+      // Calculate overall security score
+      const overallScore = this.calculateSecurityScore(contentValidation, urlValidation, rateLimitCheck);
+      const riskLevel = this.determineRiskLevel(overallScore, contentValidation.riskLevel);
+      
+      // Log security event for monitoring
+      await this.logSecurityValidation(action, {
+        securityScore: overallScore,
+        riskLevel,
+        threats: contentValidation.threats,
+        contentLength: content.length,
+        urlCount: urls.length
+      });
+
+      const result = this.createSecurityResult(
+        overallScore >= 70 && contentValidation.valid && rateLimitCheck.allowed,
+        overallScore,
+        riskLevel,
         contentValidation,
-        'content_validation',
-        fallbacksUsed,
-        errorReports,
-        content
-      );
-
-      const processedUrlValidation = this.processValidationResult(
         urlValidation,
-        'url_validation',
-        fallbacksUsed,
-        errorReports,
-        urls
-      );
-
-      const processedRateLimitCheck = this.processValidationResult(
         rateLimitCheck,
-        'rate_limit',
-        fallbacksUsed,
-        errorReports,
-        { token: tokenValidation.token, action }
+        tokenValidation
       );
 
-      const overallValid = 
-        processedContentValidation.valid && 
-        processedUrlValidation.invalid.length === 0 && 
-        processedRateLimitCheck.allowed;
+      secureLog.info('✅ Security validation completed', { 
+        overallValid: result.overallValid, 
+        securityScore: result.securityScore,
+        riskLevel: result.riskLevel 
+      });
+
+      return result;
+    } catch (error) {
+      secureLog.error('❌ Security validation failed', error);
+      
+      // Fallback security validation
+      return this.createSecurityResult(false, 0, 'critical', {
+        valid: false,
+        sanitized: this.basicSanitize(content),
+        threats: ['Security validation system error'],
+        riskLevel: 'critical',
+        securityScore: 0
+      }, { valid: [], invalid: urls }, { allowed: false, blockedReason: 'System error' }, {
+        token: TokenValidationService.generateSecureToken(),
+        valid: false,
+        warnings: ['System error during validation']
+      });
+    }
+  }
+
+  private static async performServerSideRateLimit(token: string, action: string): Promise<RateLimitResult> {
+    try {
+      const { data, error } = await supabase.rpc('check_rate_limit_ultimate', {
+        p_token: token,
+        p_action: action,
+        p_max_actions: 10,
+        p_window_minutes: 60
+      });
+
+      if (error) {
+        secureLog.error('Server-side rate limiting failed', error);
+        return { allowed: false, blockedReason: 'Rate limit check failed' };
+      }
 
       return {
-        overallValid,
-        contentValidation: processedContentValidation,
-        urlValidation: processedUrlValidation,
-        rateLimitCheck: processedRateLimitCheck,
-        tokenValidation,
-        fallbacksUsed,
-        errorReports
+        allowed: data?.allowed || false,
+        currentCount: data?.current_count || 0,
+        maxActions: data?.max_actions || 10,
+        blockedReason: data?.blocked_reason
       };
     } catch (error) {
-      const errorId = ErrorReportingService.reportSecurityError(error as Error, {
-        content: content.substring(0, 100),
-        urlCount: urls.length,
-        action
-      }).id;
+      secureLog.error('Rate limit service error', error);
+      return { allowed: false, blockedReason: 'Rate limit service unavailable' };
+    }
+  }
 
-      errorReports.push(errorId);
-      fallbacksUsed.push('emergency_fallback');
+  private static calculateSecurityScore(
+    contentValidation: SecurityValidationResult,
+    urlValidation: UrlValidationResult,
+    rateLimitCheck: RateLimitResult
+  ): number {
+    let score = 100;
+    
+    // Content validation impact
+    score -= (100 - contentValidation.securityScore);
+    
+    // URL validation impact
+    if (urlValidation.invalid.length > 0) {
+      score -= urlValidation.invalid.length * 10;
+    }
+    
+    // Rate limiting impact
+    if (!rateLimitCheck.allowed) {
+      score -= 50;
+    }
+    
+    return Math.max(0, Math.min(100, score));
+  }
 
-      // Return safe fallback result
+  private static determineRiskLevel(score: number, contentRisk: 'low' | 'medium' | 'high' | 'critical'): 'low' | 'medium' | 'high' | 'critical' {
+    if (contentRisk === 'critical' || score < 30) return 'critical';
+    if (contentRisk === 'high' || score < 50) return 'high';
+    if (contentRisk === 'medium' || score < 70) return 'medium';
+    return 'low';
+  }
+
+  private static createSecurityResult(
+    valid: boolean,
+    score: number,
+    riskLevel: 'low' | 'medium' | 'high' | 'critical',
+    contentValidation: SecurityValidationResult,
+    urlValidation: UrlValidationResult,
+    rateLimitCheck: RateLimitResult,
+    tokenValidation: TokenValidationResult
+  ): ComprehensiveSecurityResult {
+    const threats = [
+      ...contentValidation.threats,
+      ...(urlValidation.invalid.length > 0 ? ['Invalid URLs detected'] : []),
+      ...(!rateLimitCheck.allowed ? [rateLimitCheck.blockedReason || 'Rate limit exceeded'] : [])
+    ];
+
+    const recommendations = [];
+    if (!contentValidation.valid) recommendations.push('Review and sanitize content');
+    if (urlValidation.invalid.length > 0) recommendations.push('Provide valid HTTPS URLs');
+    if (!rateLimitCheck.allowed) recommendations.push('Wait before submitting again');
+
+    return {
+      overallValid: valid,
+      securityScore: score,
+      riskLevel,
+      contentValidation,
+      urlValidation,
+      rateLimitCheck,
+      tokenValidation,
+      threats,
+      recommendations
+    };
+  }
+
+  private static async logSecurityValidation(action: string, details: any): Promise<void> {
+    try {
+      await SecurityEventService.logSecurityEvent({
+        event_type: 'security_validation',
+        details: {
+          action,
+          ...details,
+          timestamp: new Date().toISOString()
+        },
+        severity: details.riskLevel === 'critical' ? 'critical' : 
+                 details.riskLevel === 'high' ? 'high' : 'low'
+      });
+    } catch (error) {
+      secureLog.error('Failed to log security event', error);
+    }
+  }
+
+  private static basicSanitize(content: string): string {
+    return content
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;')
+      .replace(/\//g, '&#x2F;')
+      .replace(/`/g, '&#x60;')
+      .replace(/=/g, '&#x3D;');
+  }
+
+  // Enhanced session validation
+  public static async validateUserSession(): Promise<{
+    valid: boolean;
+    user: any;
+    session: any;
+    securityScore: number;
+    threats: string[];
+  }> {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error || !session) {
+        return {
+          valid: false,
+          user: null,
+          session: null,
+          securityScore: 0,
+          threats: ['No valid session']
+        };
+      }
+
+      // Validate session age
+      const sessionAge = Date.now() - new Date(session.refresh_token).getTime();
+      const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+      
+      if (sessionAge > maxAge) {
+        return {
+          valid: false,
+          user: null,
+          session: null,
+          securityScore: 30,
+          threats: ['Session expired']
+        };
+      }
+
       return {
-        overallValid: false,
-        contentValidation: {
-          valid: false,
-          sanitized: ContentValidationService.sanitizeContent(content),
-          threats: ['🫖 Security system temporarily unavailable'],
-          riskLevel: 'medium',
-          securityScore: 50
-        },
-        urlValidation: UrlValidationService.validateUrls(urls),
-        rateLimitCheck: {
-          allowed: true, // Be permissive in emergency fallback
-          currentCount: 0,
-          maxActions: 5
-        },
-        tokenValidation: TokenValidationService.getOrCreateSecureToken(),
-        fallbacksUsed,
-        errorReports
+        valid: true,
+        user: session.user,
+        session,
+        securityScore: 100,
+        threats: []
       };
-    }
-  }
-
-  private static processValidationResult(
-    result: PromiseSettledResult<any>,
-    type: string,
-    fallbacksUsed: string[],
-    errorReports: string[],
-    context: any
-  ): any {
-    if (result.status === 'fulfilled') {
-      return result.value;
-    }
-
-    // Handle rejected promises
-    const errorId = ErrorReportingService.reportSecurityError(
-      result.reason,
-      { validationType: type, context }
-    ).id;
-
-    errorReports.push(errorId);
-    fallbacksUsed.push(type);
-
-    // Return appropriate fallback based on type
-    switch (type) {
-      case 'content_validation':
-        return {
-          valid: false,
-          sanitized: ContentValidationService.sanitizeContent(context),
-          threats: [`🫖 ${type} fallback active`],
-          riskLevel: 'medium' as const,
-          securityScore: 50
-        };
-      case 'url_validation':
-        return UrlValidationService.validateUrls(context);
-      case 'rate_limit':
-        return {
-          allowed: true, // Be permissive in fallback
-          currentCount: 0,
-          maxActions: 5,
-          blockedReason: `🫖 ${type} fallback active`
-        };
-      default:
-        return {};
-    }
-  }
-
-  // Convenience methods that delegate to specific services
-  public validateUrls(urls: string[]): UrlValidationResult {
-    try {
-      return UrlValidationService.validateUrls(urls);
     } catch (error) {
-      ErrorReportingService.reportError('url_validation_error', error as Error, 'SecurityServiceUnified');
-      return { valid: [], invalid: urls };
-    }
-  }
-
-  public getOrCreateSecureToken(): TokenValidationResult {
-    try {
-      return TokenValidationService.getOrCreateSecureToken();
-    } catch (error) {
-      ErrorReportingService.reportError('token_validation_error', error as Error, 'SecurityServiceUnified');
-      return { valid: false, token: 'fallback_token_' + Date.now() };
-    }
-  }
-
-  public sanitizeContent(content: string): string {
-    try {
-      return ContentValidationService.sanitizeContent(content);
-    } catch (error) {
-      ErrorReportingService.reportError('content_sanitization_error', error as Error, 'SecurityServiceUnified');
-      return content.replace(/[<>]/g, ''); // Minimal fallback
+      secureLog.error('Session validation failed', error);
+      return {
+        valid: false,
+        user: null,
+        session: null,
+        securityScore: 0,
+        threats: ['Session validation error']
+      };
     }
   }
 }
-
-// Export convenience functions for backward compatibility
-export const performSubmissionSecurityCheck = SecurityServiceUnified.validateSubmissionSecurity;
-export const sanitizeContent = (content: string) => {
-  try {
-    return ContentValidationService.sanitizeContent(content);
-  } catch (error) {
-    ErrorReportingService.reportError('sanitize_content_error', error as Error);
-    return content;
-  }
-};
-export const validateUrls = (urls: string[]) => {
-  try {
-    return UrlValidationService.validateUrls(urls);
-  } catch (error) {
-    ErrorReportingService.reportError('validate_urls_error', error as Error);
-    return { valid: [], invalid: urls };
-  }
-};
-export const getOrCreateSecureToken = () => {
-  try {
-    return TokenValidationService.getOrCreateSecureToken();
-  } catch (error) {
-    ErrorReportingService.reportError('get_token_error', error as Error);
-    return { valid: false, token: 'fallback_' + Date.now() };
-  }
-};
-
-// Re-export types for convenience
-export type { SecurityValidationResult, RateLimitResult, UrlValidationResult, TokenValidationResult, ComprehensiveSecurityResult };
