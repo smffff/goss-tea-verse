@@ -8,6 +8,7 @@ import { DollarSign, Coffee, Zap, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useWallet } from '@/components/WalletProvider';
 import { accessControlService, AccessLevel } from '@/services/accessControlService';
+import { secureLog } from '@/utils/secureLogging';
 
 interface BribeButtonProps {
   onBribeAccepted: (accessLevel: AccessLevel) => void;
@@ -49,7 +50,7 @@ const BribeButton: React.FC<BribeButtonProps> = ({ onBribeAccepted, onClose }) =
       }, 2000);
       
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Bribe processing failed:', error);
+      secureLog.error('Bribe processing failed:', error);
     } finally {
       setIsProcessing(false);
     }

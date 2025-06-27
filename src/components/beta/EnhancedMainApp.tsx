@@ -9,6 +9,7 @@ import { LoadingScreen } from './components/LoadingScreen';
 import { AppRenderer } from './components/AppRenderer';
 import { AppTimeouts } from './components/AppTimeouts';
 import type { AccessLevel } from '../access/AccessControlProvider';
+import { secureLog } from '@/utils/secureLogging';
 
 const EnhancedMainAppContent: React.FC = () => {
   const { accessLevel, setAccessLevel } = useAccessControl();
@@ -18,12 +19,12 @@ const EnhancedMainAppContent: React.FC = () => {
   const [loadingSteps, setLoadingSteps] = useState(0);
 
   const handleAccessGranted = (level: AccessLevel) => {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('✅ Access granted with level:', level);
+    secureLog.info('✅ Access granted with level:', level);
     setAccessLevel(level);
   };
 
   const handleLogout = () => {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('👋 Logging out...');
+    secureLog.info('👋 Logging out...');
     try {
       const keysToRemove = [
         'ctea-beta-access',
@@ -42,7 +43,7 @@ const EnhancedMainAppContent: React.FC = () => {
   };
 
   const handleTimeExpired = () => {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('⏰ Sneak peek time expired');
+    secureLog.info('⏰ Sneak peek time expired');
     try {
       localStorage.removeItem('ctea-access-level');
       localStorage.removeItem('ctea-peek-start');
@@ -53,7 +54,7 @@ const EnhancedMainAppContent: React.FC = () => {
   };
 
   const handleEmergencyAccess = () => {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🚨 Emergency access activated');
+    secureLog.info('🚨 Emergency access activated');
     try {
       localStorage.setItem('ctea-access-level', 'beta');
       localStorage.setItem('ctea-demo-mode', 'true');
@@ -61,13 +62,13 @@ const EnhancedMainAppContent: React.FC = () => {
       setIsLoading(false);
       setShowEmergencyAccess(false);
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Emergency access failed:', error);
+      secureLog.error('Emergency access failed:', error);
       window.location.reload();
     }
   };
 
   const handleForceRefresh = () => {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔄 Force refresh triggered');
+    secureLog.info('🔄 Force refresh triggered');
     window.location.reload();
   };
 
@@ -112,7 +113,7 @@ const EnhancedMainAppContent: React.FC = () => {
 };
 
 const EnhancedMainApp: React.FC = () => {
-  if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🏁 EnhancedMainApp rendering');
+  secureLog.info('🏁 EnhancedMainApp rendering');
   return (
     <SecurityAuditProvider>
       <AccessControlProvider>

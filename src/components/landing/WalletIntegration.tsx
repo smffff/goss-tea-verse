@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Wallet, ExternalLink, AlertCircle, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { secureLog } from '@/utils/secureLogging';
 
 interface WalletIntegrationProps {
   onSuccess: (address: string) => void;
@@ -53,7 +54,7 @@ const WalletIntegration: React.FC<WalletIntegrationProps> = ({
       const mockBalance = Math.floor(Math.random() * 1000);
       setTeaBalance(mockBalance);
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to check TEA balance:', error);
+      secureLog.error('Failed to check TEA balance:', error);
     } finally {
       setIsCheckingBalance(false);
     }

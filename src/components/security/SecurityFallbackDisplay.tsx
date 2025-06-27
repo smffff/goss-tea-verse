@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { AlertTriangle, Shield, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import BrandedTeacupIcon from '@/components/ui/BrandedTeacupIcon';
+import { secureLog } from '@/utils/secureLogging';
 
 interface SecurityFallbackDisplayProps {
   type: 'validation' | 'rate_limit' | 'general';
@@ -58,13 +59,13 @@ const SecurityFallbackDisplay: React.FC<SecurityFallbackDisplayProps> = ({
       };
       
       localStorage.setItem('ctea_error_report', JSON.stringify(errorReport));
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🫖 CTea Error Report created:', errorReport);
+      secureLog.info('🫖 CTea Error Report created:', errorReport);
       
       if (onReportIssue) {
         onReportIssue();
       }
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to create error report:', error);
+      secureLog.error('Failed to create error report:', error);
     }
   };
 

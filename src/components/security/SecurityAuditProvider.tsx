@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { PolicyConflictData } from '@/types/security';
+import { secureLog } from '@/utils/secureLogging';
 
 interface SecurityAuditContextType {
   threatLevel: 'low' | 'medium' | 'high' | 'critical';
@@ -41,7 +42,7 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
       const { data: healthData, error } = await supabase.rpc('detect_policy_conflicts');
       
       if (error) {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to check policy health:', error);
+        secureLog.error('Failed to check policy health:', error);
         setPolicyHealth('warning');
         setSecurityScore(70);
         setThreatLevel('medium');
@@ -73,7 +74,7 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
         }, 'critical');
       }
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Security health check failed:', error);
+      secureLog.error('Security health check failed:', error);
       setPolicyHealth('warning');
       setSecurityScore(60);
       setThreatLevel('medium');
@@ -81,7 +82,7 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
   };
 
   const logSecurityEvent = (event: string, details: any, severity: 'low' | 'medium' | 'high' | 'critical' = 'low') => {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info(`🔐 Security Event [${severity.toUpperCase()}]:`, event, details);
+    secureLog.info(`🔐 Security Event [${severity.toUpperCase()}]:`, event, details);
     
     // Only show critical alerts to avoid spam
     if (severity === 'critical') {
@@ -106,7 +107,7 @@ export const SecurityAuditProvider: React.FC<SecurityAuditProviderProps> = ({ ch
       });
       localStorage.setItem('ctea_security_audit', JSON.stringify(auditLog.slice(-50)));
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to store security audit log:', error);
+      secureLog.error('Failed to store security audit log:', error);
     }
   };
 
