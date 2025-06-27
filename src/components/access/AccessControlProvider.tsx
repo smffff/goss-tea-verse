@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { logError } from '@/utils/errorUtils';
+import { secureLog } from '@/utils/secureLogging';
 
 export type AccessLevel = 'guest' | 'authenticated' | 'beta' | 'admin';
 
@@ -63,7 +64,7 @@ export const AccessControlProvider: React.FC<AccessControlProviderProps> = ({ ch
         const savedLevel = localStorage.getItem('ctea-access-level') as AccessLevel;
         const savedPeekStart = localStorage.getItem('ctea-peek-start');
         
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Initializing access control with:', { savedLevel, savedPeekStart });
+        secureLog.info('Initializing access control with:', { savedLevel, savedPeekStart });
         
         if (savedLevel && ['guest', 'authenticated', 'beta', 'admin'].includes(savedLevel)) {
           if (savedLevel === 'guest' && savedPeekStart) {
@@ -142,7 +143,7 @@ export const AccessControlProvider: React.FC<AccessControlProviderProps> = ({ ch
 
   const setAccessLevel = useCallback((level: AccessLevel) => {
     try {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Setting access level to:', level);
+      secureLog.info('Setting access level to:', level);
       setAccessLevelState(level);
       localStorage.setItem('ctea-access-level', level);
       
