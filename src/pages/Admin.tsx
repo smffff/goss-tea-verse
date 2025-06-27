@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,8 +6,23 @@ import { Shield, Database, Users, Settings, Download } from 'lucide-react';
 import Layout from '@/components/Layout';
 import SecurityHealthDashboard from '@/components/security/SecurityHealthDashboard';
 import { ErrorReportingService } from '@/utils/errorReporting';
+import { useAuth } from '@/hooks/useAuth';
 
 const Admin = () => {
+  const { user } = useAuth();
+  const isSuperAdmin = user?.email === 'stephanie@taskbytask.net';
+
+  if (!isSuperAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-ctea-darker via-ctea-dark to-black">
+        <div className="bg-ctea-dark/60 border-red-500/30 p-8 rounded-lg text-center">
+          <h2 className="text-2xl font-bold text-red-400 mb-2">Access Denied</h2>
+          <p className="text-gray-300 mb-4">You do not have permission to view this page.</p>
+        </div>
+      </div>
+    );
+  }
+
   const [reports, setReports] = useState(ErrorReportingService.getStoredReports());
 
   const downloadAllReports = () => {

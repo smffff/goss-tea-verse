@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -7,6 +6,7 @@ import BetaStatsCards from '@/components/admin/beta/BetaStatsCards';
 import CreateBetaCodeForm from '@/components/admin/beta/CreateBetaCodeForm';
 import BetaCodesTable from '@/components/admin/beta/BetaCodesTable';
 import { secureLog } from '@/utils/secureLogging';
+import { useAuth } from '@/hooks/useAuth';
 
 interface BetaCode {
   id: string;
@@ -22,6 +22,8 @@ const AdminBetaDashboard: React.FC = () => {
   const [betaCodes, setBetaCodes] = useState<BetaCode[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const isSuperAdmin = user?.email === 'stephanie@taskbytask.net';
 
   useEffect(() => {
     fetchBetaCodes();
@@ -47,6 +49,17 @@ const AdminBetaDashboard: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  if (!isSuperAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-ctea-darker via-ctea-dark to-black">
+        <div className="bg-ctea-dark/60 border-red-500/30 p-8 rounded-lg text-center">
+          <h2 className="text-2xl font-bold text-red-400 mb-2">Access Denied</h2>
+          <p className="text-gray-300 mb-4">You do not have permission to view this page.</p>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

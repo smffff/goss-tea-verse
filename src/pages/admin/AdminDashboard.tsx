@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +6,19 @@ import { useAuth } from '@/hooks/useAuth';
 import AdminSetup from '@/components/admin/AdminSetup';
 
 const AdminDashboard = () => {
-  const { user, isAdmin } = useAuth();
+  const { user } = useAuth();
+  const isSuperAdmin = user?.email === 'stephanie@taskbytask.net';
+
+  if (!isSuperAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-ctea-darker via-ctea-dark to-black">
+        <div className="bg-ctea-dark/60 border-red-500/30 p-8 rounded-lg text-center">
+          <h2 className="text-2xl font-bold text-red-400 mb-2">Access Denied</h2>
+          <p className="text-gray-300 mb-4">You do not have permission to view this page.</p>
+        </div>
+      </div>
+    );
+  }
 
   const stats = [
     { title: 'Total Users', value: '1,234', icon: Users, change: '+12%' },
@@ -30,12 +41,12 @@ const AdminDashboard = () => {
           <p className="text-gray-400">Welcome back, {user?.email}</p>
         </div>
         <Badge variant="outline" className="border-ctea-teal text-ctea-teal">
-          {isAdmin ? 'Administrator' : 'Moderator'}
+          {isSuperAdmin ? 'Administrator' : 'Moderator'}
         </Badge>
       </div>
 
       {/* Admin Setup Section - Show if not admin */}
-      {!isAdmin && (
+      {!isSuperAdmin && (
         <AdminSetup />
       )}
 

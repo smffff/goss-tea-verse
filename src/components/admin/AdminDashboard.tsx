@@ -25,6 +25,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   const { user, isAdmin } = useAuth();
   const [error, setError] = useState<string | null>(null);
 
+  const isSuperAdmin = user?.email === 'stephanie@taskbytask.net';
+
   useEffect(() => {
     fetchAdminStats();
   }, []);
@@ -85,7 +87,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     });
   };
 
-  if (!isAdmin) {
+  if (!isSuperAdmin) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black flex items-center justify-center">
         <Card className="bg-ctea-dark/60 border-red-500/30">
@@ -93,7 +95,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
             <Shield className="w-16 h-16 text-red-400 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-white mb-2">Access Denied</h3>
             <p className="text-gray-400 mb-4">You don't have admin privileges</p>
-            <Button onClick={onLogout} variant="outline" className="border-gray-600 text-gray-400">
+            <Button variant="outline" className="border-gray-600 text-gray-400">
               Back to App
             </Button>
           </CardContent>
