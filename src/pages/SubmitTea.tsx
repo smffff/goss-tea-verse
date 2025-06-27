@@ -6,7 +6,7 @@ import SubmissionForm from '@/components/SubmissionForm';
 import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { SecurityServiceUnified } from '@/services/securityServiceUnified';
+import { UnifiedSecurityService } from '@/services/unifiedSecurityService';
 import { betaCodeService } from '@/services/betaCodeService';
 import { secureLog } from '@/utils/secureLog';
 
@@ -30,30 +30,31 @@ const SubmitTea = () => {
     setIsSubmitting(true);
     
     try {
+      // Generate anonymous token
+      const anonymousToken = crypto.randomUUID();
+      
       // Use unified security service for comprehensive validation
-      const securityCheck = await SecurityServiceUnified.validateSubmissionSecurity(
+      const securityCheck = await UnifiedSecurityService.validateSubmissionSecurity(
         data.tea,
         data.evidence_urls,
         'tea_submission'
       );
 
       if (!securityCheck.success) {
-        throw new Error(securityCheck.error || 'Security validation failed');
+        throw new Error('Security validation failed');
       }
 
       const submissionData = {
         content: data.tea,
         category: data.category || 'general',
         evidence_urls: data.evidence_urls.length > 0 ? data.evidence_urls : null,
+        anonymous_token: anonymousToken,
         status: 'approved',
         has_evidence: data.evidence_urls.length > 0,
         reactions: { hot: 0, cold: 0, spicy: 0 },
         average_rating: 0,
         rating_count: 0,
-        ...(data.isAnonymous ? {} : {
-          contact_email: data.email?.trim() || null,
-          contact_wallet: data.wallet?.trim() || null
-        })
+        verification_score: 0
       };
 
       const { data: result, error } = await supabase
@@ -80,7 +81,7 @@ const SubmitTea = () => {
           });
         }
       } catch (codeError) {
-        secureLog.info('Beta code generation failed:', codeError);
+        secureLog.info('Beta code generation failed', codeError);
         // Don't fail the submission if code generation fails
       }
 
@@ -92,7 +93,7 @@ const SubmitTea = () => {
       navigate('/feed');
 
     } catch (error) {
-      secureLog.error('Submission error:', error);
+      secureLog.error('Submission error', error);
       
       toast({
         title: "Submission Failed",

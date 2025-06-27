@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -122,7 +123,7 @@ const TokenGatedContent: React.FC<TokenGatedContentProps> = ({
         <div className="space-y-2">
           {!wallet.isConnected ? (
             <Button 
-              onClick={() => connectWallet('metamask')}
+              onClick={() => connectWallet()}
               className="bg-white text-gray-900 hover:bg-gray-100 font-bold"
             >
               Connect Wallet to Access

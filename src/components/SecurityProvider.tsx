@@ -3,13 +3,13 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useSecurityMonitoring } from '../hooks/useSecurityMonitoring'
 import { applySecurityHeaders, generateCSRFToken } from '../utils/securityHeaders'
 import { SecurityService } from '../services/securityService'
-import { secureLog } from '@/utils/secureLogging'
+import { secureLog } from '@/utils/secureLog'
 
 interface SecurityContextType {
   csrfToken: string
   logSecurityEvent: (type: string, details: Record<string, unknown>, severity?: 'low' | 'medium' | 'high' | 'critical') => Promise<void>
   checkRateLimit: (identifier: string, action: string, maxActions?: number, windowMinutes?: number) => Promise<any>
-  validateContent: (content: string) => { valid: boolean; sanitized: string; threats: string[] }
+  validateContent: (content: string) => Promise<{ valid: boolean; sanitized: string; threats: string[] }>
   isSecurityEnabled: boolean
 }
 
@@ -34,12 +34,26 @@ export const SecurityProvider: React.FC<SecurityProviderProps> = ({ children }) 
   const {
     logSecurityEvent,
     checkRateLimit,
-    validateContent
+    validateContent: validateContentAsync
   } = useSecurityMonitoring({
     enableRealTimeAlerts: true,
     logUserActivity: true,
     detectSuspiciousPatterns: true
   })
+
+  // Wrap the async validateContent to match expected interface
+  const validateContent = async (content: string) => {
+    try {
+      return await validateContentAsync(content);
+    } catch (error) {
+      secureLog.error('Content validation failed', error);
+      return {
+        valid: false,
+        sanitized: content.replace(/[<>]/g, ''),
+        threats: ['Validation service unavailable']
+      };
+    }
+  };
 
   useEffect(() => {
     // Initialize security
@@ -62,7 +76,7 @@ export const SecurityProvider: React.FC<SecurityProviderProps> = ({ children }) 
 
         setIsSecurityEnabled(true)
       } catch (error) {
-        secureLog.error('Security initialization failed:', error)
+        secureLog.error('Security initialization failed', error)
         await logSecurityEvent('security_init_failed', {
           error: error instanceof Error ? error.message : 'Unknown error'
         }, 'high')

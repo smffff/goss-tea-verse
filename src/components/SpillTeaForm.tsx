@@ -39,7 +39,7 @@ const SpillTeaForm: React.FC<SpillTeaFormProps> = ({ onSubmit, isLoading = false
         description: "Your submission has been added to the queue.",
       });
     } catch (error) {
-      secureLog.error('Failed to submit tea:', error);
+      secureLog.error('Failed to submit tea', error);
       toast({
         title: "Spill Failed",
         description: "Could not submit your tea. Please try again.",
