@@ -87,6 +87,48 @@ export class BetaCodeService {
       };
     }
   }
+
+  static async getTestCodes(): Promise<string[]> {
+    try {
+      const { data, error } = await supabase
+        .from('beta_codes')
+        .select('code')
+        .eq('used', false)
+        .limit(5);
+
+      if (error) {
+        secureLog.error('Error fetching test codes:', error);
+        return [];
+      }
+
+      return data?.map(item => item.code) || [];
+    } catch (error) {
+      secureLog.error('Test codes fetch error:', error);
+      return [];
+    }
+  }
+
+  static isDemoMode(): boolean {
+    return localStorage.getItem('ctea-demo-mode') === 'true';
+  }
+
+  static checkDemoParams(): void {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('demo') === 'true') {
+      this.enableDemoMode();
+    }
+  }
+
+  static enableDemoMode(): void {
+    localStorage.setItem('ctea-demo-mode', 'true');
+    localStorage.setItem('ctea-beta-access', 'granted');
+  }
+
+  static clearAccess(): void {
+    localStorage.removeItem('ctea-beta-access');
+    localStorage.removeItem('ctea-demo-mode');
+    localStorage.removeItem('ctea-beta-code');
+  }
 }
 
 export const betaCodeService = BetaCodeService;

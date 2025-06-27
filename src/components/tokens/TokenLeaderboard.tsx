@@ -1,176 +1,142 @@
 
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Crown, Trophy, Medal, Coffee } from 'lucide-react';
-import { TeaTokenService } from '@/services/teaTokenService';
-import type { WalletBalance } from '@/types/teaTokens';
+import React, { useState, useEffect } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Trophy, Medal, Award } from 'lucide-react'
+import { TeaTokenService } from '@/services/teaTokenService'
 
-interface LeaderboardEntry extends WalletBalance {
-  rank: number;
+interface LeaderboardEntry {
+  wallet_address: string;
   displayName: string;
+  tea_balance: number;
+  total_earned: number;
+  total_spent: number;
+  total_transactions: number;
+  spills_posted: number;
+  tips_given: number;
+  rewards_received: number;
+  rank: number;
+  created_at: string;
+  updated_at: string;
+  last_transaction_at: string | null;
 }
 
-const TokenLeaderboard = () => {
+const TokenLeaderboard: React.FC = () => {
   const [leaders, setLeaders] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchLeaderboard();
-  }, []);
+    // Mock leaderboard data with all required properties
+    const mockLeaders: LeaderboardEntry[] = [
+      {
+        wallet_address: '0x1234...5678',
+        displayName: 'Tea Master 🫖',
+        tea_balance: 15420,
+        total_earned: 20000,
+        total_spent: 4580,
+        total_transactions: 89,
+        spills_posted: 12,
+        tips_given: 45,
+        rewards_received: 23,
+        rank: 1,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        last_transaction_at: new Date().toISOString()
+      },
+      {
+        wallet_address: '0xabcd...efgh',
+        displayName: 'Spill Queen 👑',
+        tea_balance: 12890,
+        total_earned: 15000,
+        total_spent: 2110,
+        total_transactions: 67,
+        spills_posted: 18,
+        tips_given: 32,
+        rewards_received: 19,
+        rank: 2,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        last_transaction_at: new Date().toISOString()
+      },
+      {
+        wallet_address: '0x9876...1234',
+        displayName: 'Gossip Guru 🗣️',
+        tea_balance: 9450,
+        total_earned: 12000,
+        total_spent: 2550,
+        total_transactions: 45,
+        spills_posted: 8,
+        tips_given: 28,
+        rewards_received: 15,
+        rank: 3,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        last_transaction_at: new Date().toISOString()
+      }
+    ];
 
-  const fetchLeaderboard = async () => {
-    try {
-      // Mock data for now since we don't have a leaderboard endpoint
-      const mockLeaders: LeaderboardEntry[] = [
-        {
-          wallet_address: '0x1234...5678',
-          displayName: 'Tea Master',
-          tea_balance: 1250,
-          total_earned: 1500,
-          total_spent: 250,
-          total_transactions: 45,
-          spills_posted: 12,
-          tips_given: 8,
-          rewards_received: 25,
-          rank: 1
-        },
-        {
-          wallet_address: '0x2345...6789',
-          displayName: 'Gossip Guru',
-          tea_balance: 980,
-          total_earned: 1200,
-          total_spent: 220,
-          total_transactions: 38,
-          spills_posted: 10,
-          tips_given: 6,
-          rewards_received: 22,
-          rank: 2
-        },
-        {
-          wallet_address: '0x3456...7890',
-          displayName: 'Spill Specialist',
-          tea_balance: 750,
-          total_earned: 900,
-          total_spent: 150,
-          total_transactions: 32,
-          spills_posted: 8,
-          tips_given: 4,
-          rewards_received: 20,
-          rank: 3
-        }
-      ];
-      
-      setLeaders(mockLeaders);
-    } catch (error) {
-      console.error('Failed to fetch leaderboard:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    setLeaders(mockLeaders);
+    setIsLoading(false);
+  }, []);
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Crown className="w-5 h-5 text-yellow-500" />;
+        return <Trophy className="w-6 h-6 text-yellow-500" />;
       case 2:
-        return <Trophy className="w-5 h-5 text-gray-400" />;
+        return <Medal className="w-6 h-6 text-gray-400" />;
       case 3:
-        return <Medal className="w-5 h-5 text-amber-600" />;
+        return <Award className="w-6 h-6 text-orange-500" />;
       default:
-        return <Coffee className="w-5 h-5 text-ctea-teal" />;
-    }
-  };
-
-  const getRankBadgeColor = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-      case 2:
-        return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
-      case 3:
-        return 'bg-amber-600/20 text-amber-400 border-amber-600/30';
-      default:
-        return 'bg-ctea-teal/20 text-ctea-teal border-ctea-teal/30';
+        return <span className="w-6 h-6 flex items-center justify-center text-sm font-bold">#{rank}</span>;
     }
   };
 
   if (isLoading) {
     return (
-      <Card className="bg-ctea-dark/60 border-ctea-teal/30">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Trophy className="w-5 h-5 text-ctea-teal" />
-            Top Tea Earners
-          </CardTitle>
+          <CardTitle>Token Leaders</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-center gap-3 p-3 bg-ctea-darker/50 rounded-lg animate-pulse">
-                <div className="w-8 h-8 bg-gray-600 rounded-full"></div>
-                <div className="flex-1">
-                  <div className="h-4 bg-gray-600 rounded w-24 mb-1"></div>
-                  <div className="h-3 bg-gray-600 rounded w-16"></div>
-                </div>
-                <div className="h-6 bg-gray-600 rounded w-12"></div>
-              </div>
-            ))}
-          </div>
+          <div className="text-center py-4">Loading leaderboard...</div>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="bg-ctea-dark/60 border-ctea-teal/30">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-white flex items-center gap-2">
-          <Trophy className="w-5 h-5 text-ctea-teal" />
-          Top Tea Earners
+        <CardTitle className="flex items-center gap-2">
+          <Trophy className="w-5 h-5" />
+          Token Leaders
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {leaders.map((leader) => (
-            <div
-              key={leader.wallet_address}
-              className="flex items-center gap-3 p-3 bg-ctea-darker/50 rounded-lg hover:bg-ctea-darker/70 transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                {getRankIcon(leader.rank)}
-                <Badge
-                  variant="outline"
-                  className={`text-xs ${getRankBadgeColor(leader.rank)}`}
-                >
-                  #{leader.rank}
-                </Badge>
-              </div>
-              
-              <div className="flex-1">
-                <div className="text-white font-medium text-sm">
-                  {leader.displayName}
+      <CardContent className="space-y-3">
+        {leaders.map((leader) => (
+          <div
+            key={leader.wallet_address}
+            className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
+          >
+            <div className="flex items-center gap-3">
+              {getRankIcon(leader.rank)}
+              <div>
+                <div className="font-medium">{leader.displayName}</div>
+                <div className="text-sm text-white/60">
+                  {leader.wallet_address}
                 </div>
-                <div className="text-xs text-gray-400">
-                  {leader.spills_posted} spills • {leader.tips_given} tips
-                </div>
-              </div>
-              
-              <div className="text-right">
-                <div className="text-ctea-teal font-bold">
-                  {leader.tea_balance.toLocaleString()}
-                </div>
-                <div className="text-xs text-gray-400">$TEA</div>
               </div>
             </div>
-          ))}
-        </div>
-        
-        <div className="mt-4 pt-4 border-t border-ctea-teal/20">
-          <div className="text-center text-xs text-gray-400">
-            Rankings update every hour
+            <div className="text-right">
+              <div className="font-bold text-ctea-teal">
+                {leader.tea_balance.toLocaleString()} $TEA
+              </div>
+              <div className="text-xs text-white/60">
+                {leader.spills_posted} spills • {leader.tips_given} tips
+              </div>
+            </div>
           </div>
-        </div>
+        ))}
       </CardContent>
     </Card>
   );

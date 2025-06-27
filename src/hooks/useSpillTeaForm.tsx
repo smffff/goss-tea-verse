@@ -59,7 +59,7 @@ export const useSpillTeaForm = (
     try {
       // Use unified security service for validation
       const urls = formData.mediaUrl ? [formData.mediaUrl] : [];
-      const securityCheck = await UnifiedSecurityService.validateSubmissionSecurity(
+      const securityCheck = await UnifiedSecurityService.validate(
         formData.teaText,
         urls,
         'spill_tea'
@@ -68,7 +68,7 @@ export const useSpillTeaForm = (
       if (!securityCheck.rateLimitCheck.allowed) {
         toast({
           title: "Rate Limit Exceeded",
-          description: securityCheck.rateLimitCheck.blockedReason || "Please wait before submitting again.",
+          description: securityCheck.rateLimitCheck.blocked_reason || "Please wait before submitting again.",
           variant: "destructive"
         });
         return;

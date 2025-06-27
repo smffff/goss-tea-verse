@@ -73,7 +73,7 @@ export const useSubmissionForm = (
 
     try {
       // Use unified security service for validation
-      const securityCheck = await UnifiedSecurityService.validateSubmissionSecurity(
+      const securityCheck = await UnifiedSecurityService.validate(
         formData.tea,
         formData.evidence_urls.filter(url => url.trim()),
         'tea_submission'
@@ -82,7 +82,7 @@ export const useSubmissionForm = (
       if (!securityCheck.rateLimitCheck.allowed) {
         toast({
           title: "Rate Limit Exceeded",
-          description: securityCheck.rateLimitCheck.blockedReason || "Please wait before submitting again.",
+          description: securityCheck.rateLimitCheck.blocked_reason || "Please wait before submitting again.",
           variant: "destructive"
         });
         return;

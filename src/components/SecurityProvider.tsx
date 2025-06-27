@@ -50,7 +50,7 @@ export const SecurityProvider: React.FC<SecurityProviderProps> = ({ children }) 
       return {
         valid: result.valid,
         sanitized: result.sanitized,
-        threats: 'threats' in result ? result.threats : []
+        threats: []
       };
     } catch (error) {
       secureLog.error('Content validation failed', error);

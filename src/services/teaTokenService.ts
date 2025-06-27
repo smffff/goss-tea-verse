@@ -20,7 +20,7 @@ export class TeaTokenService {
           amount,
           spill_id: spillId,
           status: 'confirmed',
-          metadata: metadata as any
+          metadata: metadata || {}
         })
         .select()
         .single();
@@ -97,7 +97,7 @@ export class TeaTokenService {
         amount: item.amount,
         spill_id: item.spill_id,
         status: item.status as 'pending' | 'confirmed' | 'failed',
-        metadata: item.metadata || {},
+        metadata: (item.metadata as Record<string, unknown>) || {},
         created_at: item.created_at
       }));
     } catch (error) {
