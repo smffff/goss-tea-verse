@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Shield, AlertTriangle, CheckCircle, RefreshCw, Download } from 'lucide-react';
 import BrandedTeacupIcon from '@/components/ui/BrandedTeacupIcon';
+import { secureLog } from '@/utils/secureLog';
 
 interface SecurityStatus {
   contentValidation: 'healthy' | 'degraded' | 'failed';
@@ -38,7 +39,9 @@ const SecurityHealthDashboard: React.FC = () => {
         setErrorReports([report]);
       }
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to load error reports:', error);
+      if (process.env.NODE_ENV === "development") {
+        secureLog.error('Failed to load error reports:', error);
+      }
     }
   };
 
@@ -102,7 +105,9 @@ const SecurityHealthDashboard: React.FC = () => {
       linkElement.setAttribute('download', exportFileDefaultName);
       linkElement.click();
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to export error reports:', error);
+      if (process.env.NODE_ENV === "development") {
+        secureLog.error('Failed to export error reports:', error);
+      }
     }
   };
 
