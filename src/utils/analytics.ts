@@ -1,3 +1,4 @@
+
 import { secureLog } from './secureLogging';
 
 // Analytics utilities for tracking user behavior

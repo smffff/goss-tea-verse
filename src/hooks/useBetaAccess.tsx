@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { secureLog } from '@/utils/secureLogging';
 
 export const useBetaAccess = (onAccessGranted: () => void) => {
   const [betaCode, setBetaCode] = useState('');
@@ -13,7 +14,7 @@ export const useBetaAccess = (onAccessGranted: () => void) => {
       const validCodes = ['CTEA2024', 'BETA-ACCESS', 'EARLY-BIRD'];
       return validCodes.includes(code.toUpperCase());
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Beta code validation error:', error);
+      secureLog.error('Beta code validation error:', error);
       return false;
     }
   };
@@ -41,7 +42,7 @@ export const useBetaAccess = (onAccessGranted: () => void) => {
         setError('Invalid beta code. Please check your code and try again.');
       }
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Beta verification error:', error);
+      secureLog.error('Beta verification error:', error);
       setError('Verification failed. Please try again.');
     } finally {
       setIsVerifying(false);

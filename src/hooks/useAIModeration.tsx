@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react'
 import { supabase } from '../integrations/supabase/client'
 import { useToast } from './use-toast'
@@ -119,4 +120,4 @@ export function useAIModeration(): UseAIModerationReturn {
     moderationHistory,
     clearHistory
   }
-} 
+}
