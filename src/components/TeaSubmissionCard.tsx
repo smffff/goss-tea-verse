@@ -1,167 +1,97 @@
+
 import React from 'react';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, MessageCircle, Share2, Flag, ThumbsUp, ThumbsDown } from 'lucide-react';
-import { TeaSubmission } from '@/types/teaFeed';
-import SubmissionMedia from '@/components/submission/SubmissionMedia';
+import { Badge } from '@/components/ui/badge';
+import { Flame, Snowflake, Zap, Clock } from 'lucide-react';
+
+interface TeaSubmission {
+  id: string;
+  content: string;
+  category: string;
+  created_at: string;
+  reactions: {
+    hot: number;
+    cold: number;
+    spicy: number;
+  };
+}
 
 interface TeaSubmissionCardProps {
   submission: TeaSubmission;
-  aiComments: any[];
-  isExpanded: boolean;
-  onReaction: (submissionId: string, reactionType: 'hot' | 'cold' | 'spicy') => void;
-  onToggleComments: () => void;
-  onGenerateAI: () => void;
-  onVote: (submissionId: string, voteType: 'up' | 'down') => void;
+  onReaction?: (submissionId: string, reactionType: 'hot' | 'cold' | 'spicy') => Promise<boolean>;
 }
 
-const TeaSubmissionCard: React.FC<TeaSubmissionCardProps> = ({
-  submission,
-  aiComments,
-  isExpanded,
-  onReaction,
-  onToggleComments,
-  onGenerateAI,
-  onVote
+const TeaSubmissionCard: React.FC<TeaSubmissionCardProps> = ({ 
+  submission, 
+  onReaction 
 }) => {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const handleReaction = async (type: 'hot' | 'cold' | 'spicy') => {
+    if (onReaction) {
+      await onReaction(submission.id, type);
+    }
   };
 
-  const getTotalReactions = () => {
-    return submission.reactions.hot + submission.reactions.cold + submission.reactions.spicy;
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    return `${Math.floor(diffInMinutes / 1440)}d ago`;
   };
 
   return (
-    <Card className="bg-gray-800/50 border-gray-700 p-6 hover:bg-gray-800/70 transition-colors">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-teal-400 border-teal-400/30">
-            {submission.category}
-          </Badge>
-          {submission.is_verified && (
-            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-              ✓ Verified
+    <Card className="bg-slate-800/50 border-cyan-500/30 hover:border-cyan-500/50 transition-colors">
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="bg-cyan-400/20 text-cyan-400 border-0">
+              {submission.category}
             </Badge>
-          )}
-        </div>
-        <span className="text-sm text-gray-400">
-          {formatDate(submission.created_at)}
-        </span>
-      </div>
-
-      {/* Content */}
-      <div className="mb-4">
-        <p className="text-white leading-relaxed">{submission.content}</p>
-      </div>
-
-      {/* Media */}
-      {submission.evidence_urls && submission.evidence_urls.length > 0 && (
-        <SubmissionMedia imageUrls={submission.evidence_urls} />
-      )}
-
-      {/* AI Commentary */}
-      {submission.ai_reaction && (
-        <div className="mb-4 p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-purple-400 text-sm font-medium">🤖 AI Take</span>
+            <div className="flex items-center gap-1 text-gray-400 text-sm">
+              <Clock className="w-3 h-3" />
+              {formatTime(submission.created_at)}
+            </div>
           </div>
-          <p className="text-gray-300 text-sm">{submission.ai_reaction}</p>
         </div>
-      )}
-
-      {/* Stats */}
-      <div className="flex items-center gap-4 mb-4 text-sm text-gray-400">
-        <span>Reactions: {getTotalReactions()}</span>
-        <span>Rating: {submission.average_rating.toFixed(1)}/10</span>
-        {submission.verification_score > 0 && (
-          <span>Credibility: {submission.verification_score}%</span>
-        )}
-      </div>
-
-      {/* Actions */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {/* Reaction Buttons */}
+        
+        <p className="text-white mb-4 leading-relaxed">{submission.content}</p>
+        
+        <div className="flex items-center gap-4">
           <Button
-            size="sm"
             variant="ghost"
-            className="text-orange-400 hover:bg-orange-400/10"
-            onClick={() => onReaction(submission.id, 'hot')}
+            size="sm"
+            onClick={() => handleReaction('hot')}
+            className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
           >
-            🔥 {submission.reactions.hot}
+            <Flame className="w-4 h-4 mr-1" />
+            {submission.reactions?.hot || 0}
           </Button>
+          
           <Button
-            size="sm"
             variant="ghost"
-            className="text-blue-400 hover:bg-blue-400/10"
-            onClick={() => onReaction(submission.id, 'cold')}
+            size="sm"
+            onClick={() => handleReaction('cold')}
+            className="text-blue-400 hover:text-blue-300 hover:bg-blue-400/10"
           >
-            🧊 {submission.reactions.cold}
+            <Snowflake className="w-4 h-4 mr-1" />
+            {submission.reactions?.cold || 0}
           </Button>
+          
           <Button
-            size="sm"
             variant="ghost"
-            className="text-red-400 hover:bg-red-400/10"
-            onClick={() => onReaction(submission.id, 'spicy')}
+            size="sm"
+            onClick={() => handleReaction('spicy')}
+            className="text-orange-400 hover:text-orange-300 hover:bg-orange-400/10"
           >
-            🌶️ {submission.reactions.spicy}
+            <Zap className="w-4 h-4 mr-1" />
+            {submission.reactions?.spicy || 0}
           </Button>
         </div>
-
-        <div className="flex items-center gap-2">
-          {/* Vote Buttons */}
-          <Button
-            size="sm"
-            variant="ghost"
-            className="text-green-400 hover:bg-green-400/10"
-            onClick={() => onVote(submission.id, 'up')}
-          >
-            <ThumbsUp className="w-4 h-4" />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="text-red-400 hover:bg-red-400/10"
-            onClick={() => onVote(submission.id, 'down')}
-          >
-            <ThumbsDown className="w-4 h-4" />
-          </Button>
-
-          {/* Other Actions */}
-          <Button
-            size="sm"
-            variant="ghost"
-            className="text-gray-400 hover:bg-gray-700"
-            onClick={onToggleComments}
-          >
-            <MessageCircle className="w-4 h-4 mr-1" />
-            Comments
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="text-gray-400 hover:bg-gray-700"
-          >
-            <Share2 className="w-4 h-4" />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="text-gray-400 hover:bg-gray-700"
-          >
-            <Flag className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
+      </CardContent>
     </Card>
   );
 };

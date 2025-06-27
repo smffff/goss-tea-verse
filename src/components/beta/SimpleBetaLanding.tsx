@@ -1,14 +1,12 @@
+
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Coffee, Lock, Play, Eye, X } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Coffee, Code, Heart, Coins, CheckCircle, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { betaCodeService } from '@/services/betaCodeService';
-import BrandedTeacupIcon from '@/components/ui/BrandedTeacupIcon';
-import BetaCodeTester from '@/components/debug/BetaCodeTester';
+import SpillTeaModal from '@/components/modals/SpillTeaModal';
 
 interface SimpleBetaLandingProps {
   onAccessGranted: () => void;
@@ -16,241 +14,220 @@ interface SimpleBetaLandingProps {
 
 const SimpleBetaLanding: React.FC<SimpleBetaLandingProps> = ({ onAccessGranted }) => {
   const [betaCode, setBetaCode] = useState('');
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [error, setError] = useState('');
-  const [showTestCodes, setShowTestCodes] = useState(false);
+  const [tipAmount, setTipAmount] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [showSpillModal, setShowSpillModal] = useState(false);
   const { toast } = useToast();
 
-  const testCodes = betaCodeService.getTestCodes();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleBetaCode = async () => {
     if (!betaCode.trim()) {
-      setError('Please enter a beta code');
+      toast({
+        title: "Code Required",
+        description: "Please enter a beta access code",
+        variant: "destructive"
+      });
       return;
     }
 
-    setIsVerifying(true);
-    setError('');
-
+    setIsProcessing(true);
     try {
-      console.log('🔍 Validating beta code:', betaCode);
-      const result = await betaCodeService.validateCode(betaCode, true);
-      console.log('✅ Validation result:', result);
+      // Simulate code validation
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      if (result.valid) {
+      // For demo, accept any code that looks like a beta code
+      if (betaCode.length >= 6) {
+        localStorage.setItem('ctea-beta-access', 'true');
+        localStorage.setItem('ctea-beta-code', betaCode);
         toast({
-          title: "Welcome to CTea! ☕",
-          description: "You're now part of the hottest gossip network!",
+          title: "Access Granted! 🎉",
+          description: "Welcome to CTea Beta!",
         });
         onAccessGranted();
       } else {
-        // Show more specific error messages
-        const errorMessage = result.error || 'Invalid beta code';
-        setError(`${errorMessage}. Need access? Try demo mode or request an invite from the CTea team!`);
-        
-        // Log for debugging
-        console.warn('❌ Beta code validation failed:', result);
+        toast({
+          title: "Invalid Code",
+          description: "Please check your beta access code",
+          variant: "destructive"
+        });
       }
     } catch (error) {
-      console.error('🚨 Beta verification error:', error);
-      
-      // Show user-friendly error message
-      let userMessage = 'Verification failed. Please try again.';
-      
-      if (error.message?.includes('fetch')) {
-        userMessage = 'Network error. Please check your connection and try again.';
-      } else if (error.message?.includes('permission')) {
-        userMessage = 'Access denied. Please try demo mode or contact support.';
-      } else if (error.message?.includes('timeout')) {
-        userMessage = 'Request timed out. Please try again.';
-      }
-      
-      setError(userMessage);
+      toast({
+        title: "Verification Failed",
+        description: "Please try again later",
+        variant: "destructive"
+      });
     } finally {
-      setIsVerifying(false);
+      setIsProcessing(false);
     }
   };
 
-  const handleDemoMode = () => {
-    betaCodeService.enableDemoMode();
+  const handleTip = async () => {
+    const amount = parseFloat(tipAmount);
+    if (!amount || amount <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid tip amount",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      // Simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      localStorage.setItem('ctea-beta-access', 'true');
+      localStorage.setItem('ctea-demo-mode', 'true');
+      toast({
+        title: "Thanks for the tip! ☕",
+        description: "Access granted! The devs appreciate your support.",
+      });
+      onAccessGranted();
+    } catch (error) {
+      toast({
+        title: "Payment Failed",
+        description: "Please try again later",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleSpillSuccess = () => {
+    localStorage.setItem('ctea-beta-access', 'true');
+    localStorage.setItem('ctea-demo-mode', 'true');
     toast({
-      title: "Demo Mode Activated! 🎭",
-      description: "Exploring CTea with sample data",
+      title: "Great Tea! 🫖",
+      description: "Your spill earned you beta access!",
     });
     onAccessGranted();
   };
 
-  const handleTestCode = (code: string) => {
-    setBetaCode(code);
-    setShowTestCodes(false);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black flex items-center justify-center p-4">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-ctea-teal rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-ctea-purple rounded-full blur-2xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-pink-500 rounded-full blur-xl animate-pulse delay-2000"></div>
-      </div>
+      <div className="max-w-2xl w-full">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="text-6xl mb-4">🫖</div>
+          <h1 className="text-4xl font-bold text-white mb-4">CTea Beta Access</h1>
+          <p className="text-gray-300 text-lg">
+            The hottest crypto gossip platform. Choose your way in:
+          </p>
+        </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md relative z-10"
-      >
-        <Card className="bg-ctea-dark/90 border-ctea-teal/30 backdrop-blur-sm">
-          <CardHeader className="text-center">
-            <div className="w-16 h-16 mx-auto bg-gradient-to-r from-ctea-teal to-pink-400 rounded-full flex items-center justify-center mb-4">
-              <Coffee className="w-8 h-8 text-white" />
-            </div>
-            <CardTitle className="text-2xl text-white flex items-center justify-center gap-2">
-              CTea Newsroom
-              <BrandedTeacupIcon size="sm" animated />
-            </CardTitle>
-            <p className="text-gray-400">Beta 1.2 • Where Crypto Twitter Spills ☕</p>
+        {/* Access Methods */}
+        <Card className="bg-ctea-dark/80 border-ctea-teal/30 backdrop-blur-lg">
+          <CardHeader>
+            <CardTitle className="text-white text-center">Get Beta Access</CardTitle>
           </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="code" className="w-full">
+              <TabsList className="grid w-full grid-cols-3 bg-ctea-darker">
+                <TabsTrigger value="code" className="text-white data-[state=active]:bg-ctea-teal">
+                  <Code className="w-4 h-4 mr-2" />
+                  Beta Code
+                </TabsTrigger>
+                <TabsTrigger value="spill" className="text-white data-[state=active]:bg-ctea-purple">
+                  <Coffee className="w-4 h-4 mr-2" />
+                  Spill Tea
+                </TabsTrigger>
+                <TabsTrigger value="tip" className="text-white data-[state=active]:bg-orange-500">
+                  <Heart className="w-4 h-4 mr-2" />
+                  Tip Devs
+                </TabsTrigger>
+              </TabsList>
 
-          <CardContent className="space-y-6">
-            {/* Primary Demo Access */}
-            <div className="space-y-3">
-              <Button
-                onClick={handleDemoMode}
-                className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3"
-              >
-                <Play className="w-4 h-4 mr-2" />
-                Try Demo Mode
-              </Button>
-              <p className="text-xs text-gray-400 text-center">
-                Experience CTea with sample data • No signup required
-              </p>
-            </div>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-ctea-teal/20" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-ctea-dark px-2 text-gray-400">Or use beta code</span>
-              </div>
-            </div>
-
-            {/* Beta Code Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Input
-                  placeholder="Enter your beta code..."
-                  value={betaCode}
-                  onChange={(e) => setBetaCode(e.target.value)}
-                  className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-500 focus:border-ctea-teal font-mono text-center"
-                />
-              </div>
-
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="space-y-3"
-                >
-                  <p className="text-red-400 text-sm text-center">
-                    {error}
+              <TabsContent value="code" className="space-y-4">
+                <div className="text-center py-4">
+                  <CheckCircle className="w-12 h-12 text-ctea-teal mx-auto mb-4" />
+                  <h3 className="text-white font-semibold mb-2">Have a Beta Code?</h3>
+                  <p className="text-gray-400 text-sm mb-4">
+                    Enter your exclusive beta access code below
                   </p>
-                  
-                  {/* Helpful suggestions */}
-                  <div className="text-xs text-gray-400 text-center space-y-1">
-                    <p>💡 Try these options:</p>
-                    <div className="flex flex-col gap-1">
-                      <button
-                        onClick={handleDemoMode}
-                        className="text-ctea-teal hover:text-ctea-teal/80 underline"
-                      >
-                        • Try Demo Mode (no code needed)
-                      </button>
-                      <p>• Use one of the test codes below</p>
-                      <p>• Contact @cteanews on Twitter for access</p>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              <Button
-                type="submit"
-                disabled={isVerifying}
-                className="w-full bg-gradient-to-r from-ctea-teal to-pink-400 hover:from-ctea-teal/80 hover:to-pink-400/80"
-              >
-                {isVerifying ? (
-                  <div className="flex items-center">
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
-                    Verifying...
-                  </div>
-                ) : (
-                  <div className="flex items-center">
-                    <Lock className="w-4 h-4 mr-2" />
-                    Access CTea
-                  </div>
-                )}
-              </Button>
-            </form>
-
-            {/* Development Test Codes (always visible in dev) */}
-            {process.env.NODE_ENV === 'development' && (
-              <div className="pt-4 border-t border-ctea-teal/20">
-                <div className="text-center mb-3">
-                  <p className="text-xs text-ctea-teal font-medium">🧪 Development Test Codes</p>
-                  <p className="text-xs text-gray-400">Click any code to test it</p>
                 </div>
-                
-                <div className="grid grid-cols-2 gap-2">
-                  {testCodes.map((code) => (
-                    <Badge
-                      key={code}
-                      variant="outline"
-                      className="cursor-pointer border-ctea-teal/30 text-ctea-teal hover:bg-ctea-teal/10 font-mono text-xs justify-center py-2"
-                      onClick={() => handleTestCode(code)}
-                    >
-                      {code}
-                    </Badge>
-                  ))}
-                </div>
-                
-                <div className="mt-3 text-center">
+                <div className="space-y-3">
+                  <Input
+                    placeholder="Enter beta code..."
+                    value={betaCode}
+                    onChange={(e) => setBetaCode(e.target.value)}
+                    className="bg-ctea-darker border-ctea-teal/30 text-white"
+                    disabled={isProcessing}
+                  />
                   <Button
-                    variant="ghost"
-                    onClick={() => setShowTestCodes(!showTestCodes)}
-                    className="text-ctea-teal hover:bg-ctea-teal/10 text-xs"
+                    onClick={handleBetaCode}
+                    disabled={isProcessing}
+                    className="w-full bg-gradient-to-r from-ctea-teal to-cyan-400 hover:from-cyan-400 hover:to-ctea-teal text-white font-bold"
                   >
-                    <Eye className="w-3 h-3 mr-2" />
-                    {showTestCodes ? 'Hide' : 'Show'} Debug Info
+                    {isProcessing ? 'Verifying...' : 'Access Beta'}
                   </Button>
                 </div>
-              </div>
-            )}
+              </TabsContent>
 
-            {/* Help Section */}
-            <div className="pt-4 border-t border-ctea-teal/20 text-center">
-              <p className="text-xs text-gray-400 mb-2">Need a beta code?</p>
-              <p className="text-xs text-ctea-teal mb-3">
-                Request access from the CTea team or try demo mode above!
-              </p>
-              
-              {/* Funny fallback message */}
-              <div className="text-xs text-gray-500 italic">
-                <p>💭 "In the living room, figuring out عيدا is here Zai! Deschê!"</p>
-                <p>— The dev while building this</p>
-              </div>
-            </div>
+              <TabsContent value="spill" className="space-y-4">
+                <div className="text-center py-4">
+                  <Zap className="w-12 h-12 text-ctea-purple mx-auto mb-4" />
+                  <h3 className="text-white font-semibold mb-2">Share Hot Gossip</h3>
+                  <p className="text-gray-400 text-sm mb-4">
+                    Spill some quality tea to earn access
+                  </p>
+                </div>
+                <Button
+                  onClick={() => setShowSpillModal(true)}
+                  className="w-full bg-gradient-to-r from-ctea-purple to-pink-500 hover:from-pink-500 hover:to-ctea-purple text-white font-bold"
+                >
+                  <Coffee className="w-4 h-4 mr-2" />
+                  Spill the Tea
+                </Button>
+              </TabsContent>
 
-            {/* Debug Tester (Development Only) */}
-            {process.env.NODE_ENV === 'development' && (
-              <div className="pt-4 border-t border-ctea-teal/20">
-                <BetaCodeTester />
-              </div>
-            )}
+              <TabsContent value="tip" className="space-y-4">
+                <div className="text-center py-4">
+                  <Coins className="w-12 h-12 text-orange-400 mx-auto mb-4" />
+                  <h3 className="text-white font-semibold mb-2">Support the Devs</h3>
+                  <p className="text-gray-400 text-sm mb-4">
+                    Buy us coffee and get instant access
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  <Input
+                    type="number"
+                    placeholder="Tip amount ($)"
+                    value={tipAmount}
+                    onChange={(e) => setTipAmount(e.target.value)}
+                    className="bg-ctea-darker border-orange-400/30 text-white"
+                    disabled={isProcessing}
+                    min="1"
+                    step="0.01"
+                  />
+                  <Button
+                    onClick={handleTip}
+                    disabled={isProcessing}
+                    className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-red-500 hover:to-orange-500 text-white font-bold"
+                  >
+                    {isProcessing ? 'Processing...' : 'Send Tip & Access'}
+                  </Button>
+                </div>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
-      </motion.div>
+
+        {/* Footer */}
+        <div className="text-center mt-8 text-gray-500">
+          <p className="text-sm">
+            CTea Beta • The future of crypto gossip is here
+          </p>
+        </div>
+      </div>
+
+      {/* Spill Tea Modal */}
+      <SpillTeaModal
+        isOpen={showSpillModal}
+        onClose={() => setShowSpillModal(false)}
+        onSuccess={handleSpillSuccess}
+      />
     </div>
   );
 };

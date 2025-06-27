@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Send, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { secureLog } from '@/utils/secureLogging';
+import { secureLog } from '@/utils/secureLog';
 
 interface SpillTeaFormProps {
   onSubmit: (content: string) => Promise<void>;
@@ -66,6 +66,7 @@ const SpillTeaForm: React.FC<SpillTeaFormProps> = ({ onSubmit, isLoading = false
             placeholder="What's the tea? Share your crypto gossip, market insights, or hot takes..."
             className="min-h-[120px] bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-400 resize-none"
             disabled={isLoading || isSubmitting}
+            maxLength={500}
           />
           
           <div className="flex items-center justify-between">

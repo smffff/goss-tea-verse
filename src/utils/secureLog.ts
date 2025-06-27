@@ -7,7 +7,7 @@ interface LogEntry {
   timestamp: string;
 }
 
-export type LogContext = string | number | object | boolean;
+export type LogContext = string | number | object | boolean | null | undefined;
 
 class SecureLogger {
   private isDevelopment = process.env.NODE_ENV === 'development';
