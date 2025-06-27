@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { secureLog } from '@/utils/secureLogging';
 
 interface FeatureFlags {
   enableSOAPGating: boolean;
@@ -42,7 +43,7 @@ const FeatureFlagProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const parsedFlags = JSON.parse(savedFlags);
         setFlags({ ...defaultFlags, ...parsedFlags });
       } catch (error) {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to parse feature flags:', error);
+        secureLog.error('Failed to parse feature flags:', error);
       }
     }
   }, []);
