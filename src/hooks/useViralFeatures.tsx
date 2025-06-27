@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { secureLog } from '@/utils/secureLogging';
 
 interface ViralFeatures {
   isShakeToSpillEnabled: boolean;
@@ -145,7 +146,9 @@ export const useViralFeatures = () => {
           url: window.location.href
         });
       } catch (error) {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Share cancelled or failed');
+        if (process.env.NODE_ENV === "development") {
+          secureLog.info('Share cancelled or failed');
+        }
       }
     }
   };

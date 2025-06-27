@@ -1,6 +1,8 @@
+
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { UnifiedSecurityService } from '@/services/unifiedSecurityService';
+import { secureLog } from '@/utils/secureLogging';
 
 interface SpillData {
   topic: string;
@@ -21,70 +23,45 @@ export const useSpillTeaForm = (
   const [errors, setErrors] = useState<Partial<SpillData>>({});
   const { toast } = useToast();
 
-  if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('useSpillTeaForm - Current form data:', formData);
-  if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('useSpillTeaForm - Current errors:', errors);
-  if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('useSpillTeaForm - isLoading:', isLoading);
-
   const validateForm = (): boolean => {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('validateForm - Starting validation');
     const newErrors: Partial<SpillData> = {};
 
-    const trimmedTeaText = formData.teaText.trim();
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('validateForm - Trimmed tea text:', trimmedTeaText);
-    
-    if (!trimmedTeaText) {
+    if (!formData.teaText.trim()) {
       newErrors.teaText = 'Please share some tea!';
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('validateForm - Error: Empty tea text');
-    } else if (trimmedTeaText.length < 3) {
+    } else if (formData.teaText.trim().length < 3) {
       newErrors.teaText = 'Tea must be at least 3 characters long';
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('validateForm - Error: Tea too short');
-    } else if (trimmedTeaText.length > 2000) {
-      newErrors.teaText = 'Tea must be less than 2000 characters';
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('validateForm - Error: Tea too long');
     }
 
-    // Validate media URL if provided
-    if (formData.mediaUrl && formData.mediaUrl.trim()) {
-      const urlPattern = /^https?:\/\/.+/;
-      if (!urlPattern.test(formData.mediaUrl.trim())) {
-        newErrors.mediaUrl = 'Please enter a valid URL starting with http:// or https://';
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('validateForm - Error: Invalid media URL');
-      }
+    if (formData.mediaUrl && formData.mediaUrl.trim() && !isValidUrl(formData.mediaUrl)) {
+      newErrors.mediaUrl = 'Please enter a valid URL';
     }
 
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('validateForm - New errors:', newErrors);
     setErrors(newErrors);
-    const isValid = Object.keys(newErrors).length === 0;
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('validateForm - Form is valid:', isValid);
-    return isValid;
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const isValidUrl = (url: string): boolean => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('handleSubmit - Form submission started');
     e.preventDefault();
     
-    if (isLoading) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('handleSubmit - Already loading, preventing duplicate submission');
-      return;
-    }
-    
-    if (!validateForm()) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('handleSubmit - Validation failed');
-      toast({
-        title: "Validation Error",
-        description: "Please fix the errors above before submitting.",
-        variant: "destructive"
-      });
+    if (isLoading || !validateForm()) {
       return;
     }
 
     try {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('handleSubmit - Using unified security service for validation');
-      
       // Use unified security service for validation
+      const urls = formData.mediaUrl ? [formData.mediaUrl] : [];
       const securityCheck = await UnifiedSecurityService.validateSubmissionSecurity(
         formData.teaText,
-        formData.mediaUrl ? [formData.mediaUrl] : [],
+        urls,
         'spill_tea'
       );
 
@@ -112,10 +89,8 @@ export const useSpillTeaForm = (
         mediaUrl: securityCheck.urlValidation.valid[0] || undefined
       };
       
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('handleSubmit - Calling onSubmit with sanitized data:', sanitizedData);
       await onSubmit(sanitizedData);
       
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('handleSubmit - Submission successful, resetting form');
       // Reset form on successful submission
       setFormData({
         topic: 'general',
@@ -125,9 +100,9 @@ export const useSpillTeaForm = (
       setErrors({});
       
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('handleSubmit - Form submission error:', error);
-      
-      // Show error toast here since parent might not handle it
+      if (process.env.NODE_ENV === "development") {
+        secureLog.error('Form submission error:', error);
+      }
       toast({
         title: "Submission Failed",
         description: error instanceof Error ? error.message : 'An unexpected error occurred',
@@ -138,22 +113,15 @@ export const useSpillTeaForm = (
 
   const clearError = (field: keyof SpillData) => {
     if (errors[field]) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('clearError - Clearing error for field:', field);
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
   };
 
   const updateFormData = (updates: Partial<SpillData>) => {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('updateFormData - Updating with:', updates);
-    setFormData(prev => {
-      const newData = { ...prev, ...updates };
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('updateFormData - New form data:', newData);
-      return newData;
-    });
+    setFormData(prev => ({ ...prev, ...updates }));
   };
 
   const isFormValid = formData.teaText.trim().length >= 3;
-  if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('useSpillTeaForm - isFormValid:', isFormValid);
 
   return {
     formData,

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { secureLog } from '@/utils/secureLogging';
 
 interface SecureAuthState {
   isAuthenticated: boolean;
@@ -46,7 +47,9 @@ export const useSecureAuth = () => {
         const { data, error } = await supabase.rpc('validate_admin_access');
         
         if (error) {
-          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Session validation error:', error);
+          if (process.env.NODE_ENV === "development") {
+            secureLog.error('Session validation error:', error);
+          }
           setSecureState(prev => ({
             ...prev,
             isAuthenticated: false,
@@ -87,7 +90,9 @@ export const useSecureAuth = () => {
         }
 
       } catch (error) {
-        if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Session validation failed:', error);
+        if (process.env.NODE_ENV === "development") {
+          secureLog.error('Session validation failed:', error);
+        }
         setSecureState(prev => ({
           ...prev,
           isAuthenticated: false,

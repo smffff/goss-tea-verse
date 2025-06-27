@@ -1,6 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { useWallet } from '@/components/WalletProvider';
 import { TokenBalance, EarlyAccessStatus } from '@/types/wallet';
+import { secureLog } from '@/utils/secureLogging';
 
 export const useTeaToken = () => {
   const { wallet } = useWallet();
@@ -41,7 +43,9 @@ export const useTeaToken = () => {
       });
 
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error checking TEA balance:', error);
+      if (process.env.NODE_ENV === "development") {
+        secureLog.error('Error checking TEA balance:', error);
+      }
     } finally {
       setIsLoading(false);
     }

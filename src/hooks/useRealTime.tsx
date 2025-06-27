@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { TeaSubmission } from '@/types/teaFeed';
 import { transformSubmission } from '@/utils/submissionUtils';
 import type { RealtimeChannel } from '@supabase/supabase-js';
+import { secureLog } from '@/utils/secureLogging';
 
 interface UseRealTimeProps {
   setSubmissions: React.Dispatch<React.SetStateAction<TeaSubmission[]>>;
@@ -15,7 +16,9 @@ export const useRealTime = ({ setSubmissions }: UseRealTimeProps) => {
   const channelRef = useRef<RealtimeChannel | null>(null);
 
   useEffect(() => {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Setting up real-time subscription');
+    if (process.env.NODE_ENV === "development") {
+      secureLog.info('Setting up real-time subscription');
+    }
     
     // Clean up existing channel
     if (channelRef.current) {
@@ -32,7 +35,9 @@ export const useRealTime = ({ setSubmissions }: UseRealTimeProps) => {
           table: 'tea_submissions'
         },
         (payload) => {
-          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('New submission:', payload);
+          if (process.env.NODE_ENV === "development") {
+            secureLog.info('New submission:', payload);
+          }
           const newSubmission = payload.new as TeaSubmission;
           
           if (newSubmission.status === 'approved') {
@@ -54,7 +59,9 @@ export const useRealTime = ({ setSubmissions }: UseRealTimeProps) => {
           table: 'tea_submissions'
         },
         (payload) => {
-          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Submission updated:', payload);
+          if (process.env.NODE_ENV === "development") {
+            secureLog.info('Submission updated:', payload);
+          }
           const updatedSubmission = payload.new as TeaSubmission;
           
           if (updatedSubmission.status === 'approved') {

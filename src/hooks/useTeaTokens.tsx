@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useToast } from './use-toast'
 import { TeaTokenService } from '../services/teaTokenService'
 import type { TeaTransaction, WalletBalance, UseTeaTokensReturn } from '../types/teaTokens'
+import { secureLog } from '@/utils/secureLogging'
 
 export function useTeaTokens(walletAddress?: string): UseTeaTokensReturn {
   const [balance, setBalance] = useState<WalletBalance | null>(null)
@@ -15,7 +16,9 @@ export function useTeaTokens(walletAddress?: string): UseTeaTokensReturn {
       const balanceRecord = await TeaTokenService.getWalletBalance(address)
       setBalance(balanceRecord)
     } catch (error: unknown) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching balance:', error)
+      if (process.env.NODE_ENV === "development") {
+        secureLog.error('Error fetching balance:', error)
+      }
       toast({
         title: "Balance Error",
         description: "Failed to fetch wallet balance",
@@ -29,7 +32,9 @@ export function useTeaTokens(walletAddress?: string): UseTeaTokensReturn {
       const mappedTransactions = await TeaTokenService.getTransactions(address, limit)
       setTransactions(mappedTransactions)
     } catch (error: unknown) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching transactions:', error)
+      if (process.env.NODE_ENV === "development") {
+        secureLog.error('Error fetching transactions:', error)
+      }
       toast({
         title: "Transaction Error",
         description: "Failed to fetch transaction history",

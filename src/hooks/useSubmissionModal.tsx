@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { secureLog } from '@/utils/secureLogging';
 
 export const useSubmissionModal = () => {
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
@@ -17,7 +18,9 @@ export const useSubmissionModal = () => {
       
       setShowSubmissionModal(false);
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Submission error:', error);
+      if (process.env.NODE_ENV === "development") {
+        secureLog.error('Submission error:', error);
+      }
       toast({
         title: "Submission Failed",
         description: "Please try again later.",

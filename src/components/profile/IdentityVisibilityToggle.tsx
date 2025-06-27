@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { updateIdentityVisibility, type IdentityVisibility } from '@/lib/api/identityVisibility';
+import { secureLog } from '@/utils/secureLogging';
 
 interface IdentityVisibilityToggleProps {
   userId: string;
@@ -48,7 +49,9 @@ const IdentityVisibilityToggle: React.FC<IdentityVisibilityToggleProps> = ({
         });
       }
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error updating visibility:', error);
+      if (process.env.NODE_ENV === "development") {
+        secureLog.error('Error updating visibility:', error);
+      }
       toast({
         title: "☕️ Could not change visibility",
         description: "Try again in a bit!",

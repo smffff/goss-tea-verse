@@ -1,7 +1,9 @@
+
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { track } from '@/utils/analytics';
 import { UnifiedSecurityService } from '@/services/unifiedSecurityService';
+import { secureLog } from '@/utils/secureLogging';
 
 interface SubmissionData {
   tea: string;
@@ -120,7 +122,9 @@ export const useSubmissionForm = (
       setErrors({});
       
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Form submission error:', error);
+      if (process.env.NODE_ENV === "development") {
+        secureLog.error('Form submission error:', error);
+      }
       toast({
         title: "Submission Failed",
         description: error instanceof Error ? error.message : 'An unexpected error occurred',
