@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { LogOut, Coffee, Zap } from 'lucide-react';
 import EnhancedRealTimeFeed from '@/components/feed/EnhancedRealTimeFeed';
 import SpillTeaModal from '@/components/modals/SpillTeaModal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import UnifiedNavigation from '@/components/navigation/UnifiedNavigation';
 
 interface LiveTeaAppProps {
   onLogout?: () => void;
@@ -12,17 +13,21 @@ interface LiveTeaAppProps {
 
 const LiveTeaApp: React.FC<LiveTeaAppProps> = ({ onLogout }) => {
   const [showSpillModal, setShowSpillModal] = useState(false);
+  const [feedRefreshKey, setFeedRefreshKey] = useState(0);
 
-  const handleSpillSuccess = () => {
-    // Refresh the feed when a new submission is made
-    window.location.reload();
-  };
+  const handleSpillSuccess = useCallback(() => {
+    // Refresh the feed by updating the key instead of reloading the page
+    setFeedRefreshKey(prev => prev + 1);
+    setShowSpillModal(false);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black">
-      {/* Header */}
-      <div className="bg-ctea-dark/80 backdrop-blur-lg border-b border-ctea-teal/30 sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-4">
+      <UnifiedNavigation />
+      
+      {/* Quick Action Header */}
+      <div className="bg-ctea-dark/80 backdrop-blur-lg border-b border-ctea-teal/30 sticky top-16 z-30">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="text-2xl">🫖</div>
@@ -63,7 +68,7 @@ const LiveTeaApp: React.FC<LiveTeaAppProps> = ({ onLogout }) => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Feed */}
           <div className="lg:col-span-3">
-            <EnhancedRealTimeFeed />
+            <EnhancedRealTimeFeed key={feedRefreshKey} />
           </div>
 
           {/* Sidebar */}
