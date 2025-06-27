@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import EnhancedProfileModal from '../profile/EnhancedProfileModal';
 import { useAuth } from '@/hooks/useAuth';
+import { secureLog } from '@/utils/secureLogging';
 
 const FloatingActionButton: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -30,8 +31,10 @@ const FloatingActionButton: React.FC = () => {
       icon: Ghost,
       label: 'Ghost Mode',
       color: 'from-gray-500 to-gray-700',
-      action: () => if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('Toggle ghost mode')
-    },
+      action: () => {
+        secureLog.info('Toggle ghost mode');
+      }
+    }
   ];
 
   return (

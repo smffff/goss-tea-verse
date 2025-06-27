@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Shield, Star, Award, TrendingUp, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { secureLog } from '@/utils/secureLogging';
 
 interface SOAPData {
   total_verifications: number;
@@ -69,7 +70,7 @@ const SOAPCredibilitySystem = () => {
         setUserLevel(profile.verification_level as any || 'none');
       }
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching SOAP data:', error);
+      secureLog.error('Error fetching SOAP data:', error);
     } finally {
       setIsLoading(false);
     }
@@ -94,128 +95,113 @@ const SOAPCredibilitySystem = () => {
       case 'basic':
         return { icon: '🔰', color: 'text-gray-400', name: 'Basic Member' };
       default:
-        return { icon: '👤', color: 'text-gray-500', name: 'New Member' };
+        return { icon: '👤', color: 'text-gray-500', name: 'Unverified' };
     }
   };
 
-  const initiateVerificationChallenge = async () => {
-    try {
-      toast({
-        title: "Verification Challenge Started! 🎯",
-        description: "Complete challenges to increase your SOAP credibility score",
-      });
-    } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error starting verification challenge:', error);
-    }
-  };
+  const badge = getVerificationBadge(userLevel);
+  const soapScore = calculateSOAPScore();
 
   if (isLoading) {
     return (
-      <Card className="p-6 bg-ctea-dark/30 border border-ctea-teal/20">
+      <Card className="bg-ctea-dark/80 border-ctea-teal/30 p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-4 bg-ctea-teal/20 rounded"></div>
-          <div className="h-8 bg-ctea-teal/20 rounded"></div>
-          <div className="h-4 bg-ctea-teal/20 rounded"></div>
+          <div className="h-4 bg-ctea-teal/20 rounded w-1/3"></div>
+          <div className="space-y-2">
+            <div className="h-3 bg-ctea-teal/10 rounded"></div>
+            <div className="h-3 bg-ctea-teal/10 rounded w-5/6"></div>
+          </div>
         </div>
       </Card>
     );
   }
 
-  const soapScore = calculateSOAPScore();
-  const badge = getVerificationBadge(userLevel);
-
   return (
     <div className="space-y-6">
-      {/* SOAP Score Overview */}
-      <Card className="p-6 bg-gradient-to-br from-ctea-dark/80 to-ctea-darker/90 border-ctea-teal/30">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-white flex items-center gap-2">
-            <Shield className="w-6 h-6 text-ctea-teal" />
-            SOAP Credibility Score
-          </h3>
-          <Badge className={`${badge.color} bg-ctea-dark/50 border border-ctea-teal/30`}>
-            {badge.icon} {badge.name}
-          </Badge>
-        </div>
-
-        <div className="space-y-4">
-          <div className="text-center">
-            <div className="text-4xl font-bold text-ctea-teal mb-2">{soapScore}/100</div>
-            <Progress value={soapScore} className="w-full h-3" />
+      <Card className="bg-ctea-dark/80 border-ctea-teal/30">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+              <Shield className="w-5 h-5 text-ctea-teal" />
+              SOAP Credibility System
+            </h3>
+            <Badge className={`${badge.color} bg-transparent border`}>
+              {badge.icon} {badge.name}
+            </Badge>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center p-3 bg-ctea-darker/50 rounded-lg">
-              <div className="text-lg font-bold text-white">{soapData.soap_tokens}</div>
-              <div className="text-sm text-gray-400">SOAP Tokens</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-gray-400">SOAP Score</span>
+                  <span className="text-ctea-teal font-bold">{soapScore}/100</span>
+                </div>
+                <Progress value={soapScore} className="h-2" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-400">Total Verifications</span>
+                  <div className="text-white font-bold">{soapData.total_verifications}</div>
+                </div>
+                <div>
+                  <span className="text-gray-400">Accuracy Rate</span>
+                  <div className="text-green-400 font-bold">{soapData.verification_accuracy}%</div>
+                </div>
+                <div>
+                  <span className="text-gray-400">Trust Score</span>
+                  <div className="text-blue-400 font-bold">{soapData.community_trust_score}/100</div>
+                </div>
+                <div>
+                  <span className="text-gray-400">SOAP Tokens</span>
+                  <div className="text-ctea-purple font-bold">{soapData.soap_tokens}</div>
+                </div>
+              </div>
             </div>
-            <div className="text-center p-3 bg-ctea-darker/50 rounded-lg">
-              <div className="text-lg font-bold text-white">{soapData.verification_accuracy}%</div>
-              <div className="text-sm text-gray-400">Accuracy</div>
+
+            <div className="space-y-4">
+              <h4 className="text-white font-medium">Verification Stats</h4>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400 flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    Successful
+                  </span>
+                  <span className="text-green-400 font-bold">{soapData.successful_verifications}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400 flex items-center gap-2">
+                    <Star className="w-4 h-4 text-yellow-400" />
+                    Moderation Actions
+                  </span>
+                  <span className="text-yellow-400 font-bold">{soapData.moderation_actions}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400 flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-ctea-teal" />
+                    Failed Attempts
+                  </span>
+                  <span className="text-red-400 font-bold">{soapData.failed_verifications}</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </Card>
 
-      {/* Verification Stats */}
-      <Card className="p-6 bg-ctea-dark/30 border border-ctea-teal/20">
-        <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-          <Star className="w-5 h-5 text-ctea-yellow" />
-          Verification Statistics
-        </h4>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-gray-300">Total Verifications</span>
-              <span className="text-white font-bold">{soapData.total_verifications}</span>
+          <div className="mt-6 pt-4 border-t border-ctea-teal/20">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-400">
+                Last verification: {new Date(soapData.last_verification_date).toLocaleDateString()}
+              </span>
+              <Button
+                size="sm"
+                className="bg-ctea-teal hover:bg-ctea-teal/80 text-black"
+                onClick={fetchSOAPData}
+              >
+                <Award className="w-4 h-4 mr-2" />
+                Refresh Stats
+              </Button>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-300">Successful</span>
-              <span className="text-green-400 font-bold">{soapData.successful_verifications}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-300">Failed</span>
-              <span className="text-red-400 font-bold">{soapData.failed_verifications}</span>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-gray-300">Moderation Actions</span>
-              <span className="text-white font-bold">{soapData.moderation_actions}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-300">Community Trust</span>
-              <span className="text-ctea-teal font-bold">{soapData.community_trust_score}%</span>
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      {/* Verification Challenges */}
-      <Card className="p-6 bg-gradient-to-br from-ctea-purple/20 to-ctea-pink/20 border-ctea-purple/30">
-        <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-          <Award className="w-5 h-5 text-ctea-purple" />
-          Level Up Your Credibility
-        </h4>
-
-        <div className="space-y-3">
-          <Button
-            onClick={initiateVerificationChallenge}
-            className="w-full bg-gradient-to-r from-ctea-purple to-ctea-pink text-white"
-          >
-            <CheckCircle className="w-4 h-4 mr-2" />
-            Start Verification Challenge
-          </Button>
-          
-          <div className="text-sm text-gray-300">
-            Complete verification challenges to:
-            <ul className="list-disc list-inside mt-2 space-y-1">
-              <li>Increase your SOAP credibility score</li>
-              <li>Unlock premium verification features</li>
-              <li>Earn exclusive badges and tokens</li>
-              <li>Access advanced moderation tools</li>
-            </ul>
           </div>
         </div>
       </Card>

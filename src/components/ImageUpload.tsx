@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Upload, X, Image } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { secureLog } from '@/utils/secureLogging';
 
 interface ImageUploadProps {
   onImageUploaded: (url: string) => void;
@@ -59,7 +61,7 @@ const ImageUpload = ({ onImageUploaded, onImageRemoved, currentImage }: ImageUpl
         description: "Your meme is ready to spill with the tea!",
       });
     } catch (error: unknown) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Upload error:', error);
+      secureLog.error('Upload error:', error);
       toast({
         title: "Upload Failed",
         description: "Couldn't upload your image. Please try again.",

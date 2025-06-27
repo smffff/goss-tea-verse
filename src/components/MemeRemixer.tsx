@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Zap, Download, Share2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { secureLog } from '@/utils/secureLogging';
 
 interface MemeRemixerProps {
   submissionId: string;
@@ -38,7 +39,7 @@ const MemeRemixer: React.FC<MemeRemixerProps> = ({
       });
 
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error generating meme:', error);
+      secureLog.error('Error generating meme:', error);
       toast({
         title: "Meme Generation Failed",
         description: "Couldn't generate your meme. Please try again.",
@@ -70,7 +71,7 @@ const MemeRemixer: React.FC<MemeRemixerProps> = ({
         });
       }
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error sharing meme:', error);
+      secureLog.error('Error sharing meme:', error);
     }
   };
 

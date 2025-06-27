@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Sparkles, Brain, Zap, Flame } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { secureLog } from '@/utils/secureLogging';
 
 interface CTeaBotCommentaryProps {
   submission: {
@@ -77,7 +78,7 @@ const CTeaBotCommentary: React.FC<CTeaBotCommentaryProps> = ({
         });
       }
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error generating AI commentary:', error);
+      secureLog.error('Error generating AI commentary:', error);
       toast({
         title: "AI Commentary Failed",
         description: "CTeaBot is taking a tea break. Try again in a moment.",
