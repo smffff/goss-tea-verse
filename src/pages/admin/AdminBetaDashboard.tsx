@@ -6,6 +6,7 @@ import AdminBetaHeader from '@/components/admin/beta/AdminBetaHeader';
 import BetaStatsCards from '@/components/admin/beta/BetaStatsCards';
 import CreateBetaCodeForm from '@/components/admin/beta/CreateBetaCodeForm';
 import BetaCodesTable from '@/components/admin/beta/BetaCodesTable';
+import { secureLog } from '@/utils/secureLogging';
 
 interface BetaCode {
   id: string;
@@ -36,7 +37,7 @@ const AdminBetaDashboard: React.FC = () => {
       if (error) throw error;
       setBetaCodes(data || []);
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching beta codes:', error);
+      secureLog.error('Error fetching beta codes:', error);
       toast({
         title: "Error",
         description: "Failed to fetch beta codes",
