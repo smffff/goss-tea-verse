@@ -20,9 +20,9 @@ export class SecureRateLimitService {
     windowMinutes: number = 15
   ): Promise<RateLimitResult> {
     try {
-      // Use server-side rate limiting for security
+      // Use existing server-side rate limiting function
       const { data: rateLimitResult, error } = await supabase
-        .rpc('check_rate_limit_ultimate', {
+        .rpc('check_rate_limit_server', {
           p_token: identifier,
           p_action: action,
           p_max_actions: maxAttempts,
@@ -34,12 +34,15 @@ export class SecureRateLimitService {
         return this.fallbackRateLimit(identifier, action, maxAttempts, windowMinutes);
       }
 
+      // Type cast the result safely
+      const result = rateLimitResult as any;
+
       return {
-        allowed: rateLimitResult.allowed,
-        remaining: rateLimitResult.remaining || 0,
-        resetTime: rateLimitResult.reset_time || Date.now() + (windowMinutes * 60 * 1000),
-        blocked: !rateLimitResult.allowed,
-        reason: rateLimitResult.blocked_reason
+        allowed: result?.allowed || false,
+        remaining: result?.remaining || 0,
+        resetTime: result?.reset_time ? new Date(result.reset_time).getTime() : Date.now() + (windowMinutes * 60 * 1000),
+        blocked: !result?.allowed,
+        reason: result?.blocked_reason
       };
     } catch (error) {
       secureLog.error('Rate limit service error', error);

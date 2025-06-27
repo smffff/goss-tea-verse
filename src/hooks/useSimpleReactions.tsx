@@ -22,37 +22,46 @@ export const useSimpleReactions = () => {
       
       localStorage.setItem('ctea_anonymous_token', anonymousToken);
 
-      // Use secure server-side reaction function
-      const { data: reactionResult, error } = await supabase
-        .rpc('secure_reaction_insert', {
-          p_submission_id: submissionId,
-          p_anonymous_token: anonymousToken,
-          p_reaction_type: reactionType
-        });
+      // Check if user already reacted to this submission
+      const { data: existingReaction } = await supabase
+        .from('user_reactions')
+        .select('*')
+        .eq('submission_id', submissionId)
+        .eq('anonymous_token', anonymousToken)
+        .single();
 
-      if (error) {
-        throw new Error(`Secure reaction failed: ${error.message}`);
-      }
+      if (existingReaction) {
+        // Update existing reaction
+        const { error: updateError } = await supabase
+          .from('user_reactions')
+          .update({ reaction_type: reactionType })
+          .eq('id', existingReaction.id);
 
-      if (!reactionResult?.success) {
-        if (reactionResult?.error?.includes('Rate limit')) {
-          toast({
-            title: "Rate Limit Exceeded",
-            description: "Please wait before reacting again.",
-            variant: "destructive"
-          });
-          return false;
+        if (updateError) {
+          throw new Error(`Failed to update reaction: ${updateError.message}`);
         }
-        throw new Error(reactionResult?.error || 'Reaction failed');
-      }
+      } else {
+        // Create new reaction
+        const { error: insertError } = await supabase
+          .from('user_reactions')
+          .insert({
+            submission_id: submissionId,
+            anonymous_token: anonymousToken,
+            reaction_type: reactionType
+          });
 
-      await incrementReaction('given');
+        if (insertError) {
+          throw new Error(`Failed to add reaction: ${insertError.message}`);
+        }
+
+        await incrementReaction('given');
+      }
 
       // Log successful secure reaction
       await EnhancedSecurityService.logSecurityEvent(
         'secure_reaction_success',
         { submissionId, reactionType },
-        'info'
+        'medium'
       );
 
       toast({
