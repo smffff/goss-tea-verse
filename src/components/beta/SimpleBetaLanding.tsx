@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +8,7 @@ import { Coffee, Lock, Play, Eye, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { betaCodeService } from '@/services/betaCodeService';
 import BrandedTeacupIcon from '@/components/ui/BrandedTeacupIcon';
+import BetaCodeTester from '@/components/debug/BetaCodeTester';
 
 interface SimpleBetaLandingProps {
   onAccessGranted: () => void;
@@ -35,7 +35,9 @@ const SimpleBetaLanding: React.FC<SimpleBetaLandingProps> = ({ onAccessGranted }
     setError('');
 
     try {
+      console.log('🔍 Validating beta code:', betaCode);
       const result = await betaCodeService.validateCode(betaCode, true);
+      console.log('✅ Validation result:', result);
       
       if (result.valid) {
         toast({
@@ -44,11 +46,28 @@ const SimpleBetaLanding: React.FC<SimpleBetaLandingProps> = ({ onAccessGranted }
         });
         onAccessGranted();
       } else {
-        setError('Invalid beta code. Need access? Request an invite from the CTea team!');
+        // Show more specific error messages
+        const errorMessage = result.error || 'Invalid beta code';
+        setError(`${errorMessage}. Need access? Try demo mode or request an invite from the CTea team!`);
+        
+        // Log for debugging
+        console.warn('❌ Beta code validation failed:', result);
       }
     } catch (error) {
-      secureLog.error('Beta verification error:', error);
-      setError('Verification failed. Please try again.');
+      console.error('🚨 Beta verification error:', error);
+      
+      // Show user-friendly error message
+      let userMessage = 'Verification failed. Please try again.';
+      
+      if (error.message?.includes('fetch')) {
+        userMessage = 'Network error. Please check your connection and try again.';
+      } else if (error.message?.includes('permission')) {
+        userMessage = 'Access denied. Please try demo mode or contact support.';
+      } else if (error.message?.includes('timeout')) {
+        userMessage = 'Request timed out. Please try again.';
+      }
+      
+      setError(userMessage);
     } finally {
       setIsVerifying(false);
     }
@@ -130,13 +149,30 @@ const SimpleBetaLanding: React.FC<SimpleBetaLandingProps> = ({ onAccessGranted }
               </div>
 
               {error && (
-                <motion.p
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="text-red-400 text-sm text-center"
+                  className="space-y-3"
                 >
-                  {error}
-                </motion.p>
+                  <p className="text-red-400 text-sm text-center">
+                    {error}
+                  </p>
+                  
+                  {/* Helpful suggestions */}
+                  <div className="text-xs text-gray-400 text-center space-y-1">
+                    <p>💡 Try these options:</p>
+                    <div className="flex flex-col gap-1">
+                      <button
+                        onClick={handleDemoMode}
+                        className="text-ctea-teal hover:text-ctea-teal/80 underline"
+                      >
+                        • Try Demo Mode (no code needed)
+                      </button>
+                      <p>• Use one of the test codes below</p>
+                      <p>• Contact @cteanews on Twitter for access</p>
+                    </div>
+                  </div>
+                </motion.div>
               )}
 
               <Button
@@ -158,48 +194,60 @@ const SimpleBetaLanding: React.FC<SimpleBetaLandingProps> = ({ onAccessGranted }
               </Button>
             </form>
 
-            {/* Development Test Codes (only in dev) */}
+            {/* Development Test Codes (always visible in dev) */}
             {process.env.NODE_ENV === 'development' && (
               <div className="pt-4 border-t border-ctea-teal/20">
-                <Button
-                  variant="ghost"
-                  onClick={() => setShowTestCodes(!showTestCodes)}
-                  className="w-full text-ctea-teal hover:bg-ctea-teal/10 text-xs"
-                >
-                  <Eye className="w-3 h-3 mr-2" />
-                  {showTestCodes ? 'Hide' : 'Show'} Test Codes
-                </Button>
-
-                {showTestCodes && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    className="mt-3 space-y-2"
+                <div className="text-center mb-3">
+                  <p className="text-xs text-ctea-teal font-medium">🧪 Development Test Codes</p>
+                  <p className="text-xs text-gray-400">Click any code to test it</p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2">
+                  {testCodes.map((code) => (
+                    <Badge
+                      key={code}
+                      variant="outline"
+                      className="cursor-pointer border-ctea-teal/30 text-ctea-teal hover:bg-ctea-teal/10 font-mono text-xs justify-center py-2"
+                      onClick={() => handleTestCode(code)}
+                    >
+                      {code}
+                    </Badge>
+                  ))}
+                </div>
+                
+                <div className="mt-3 text-center">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowTestCodes(!showTestCodes)}
+                    className="text-ctea-teal hover:bg-ctea-teal/10 text-xs"
                   >
-                    <div className="grid grid-cols-2 gap-2">
-                      {testCodes.map((code) => (
-                        <Badge
-                          key={code}
-                          variant="outline"
-                          className="cursor-pointer border-ctea-teal/30 text-ctea-teal hover:bg-ctea-teal/10 font-mono text-xs justify-center py-1"
-                          onClick={() => handleTestCode(code)}
-                        >
-                          {code}
-                        </Badge>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
+                    <Eye className="w-3 h-3 mr-2" />
+                    {showTestCodes ? 'Hide' : 'Show'} Debug Info
+                  </Button>
+                </div>
               </div>
             )}
 
             {/* Help Section */}
             <div className="pt-4 border-t border-ctea-teal/20 text-center">
               <p className="text-xs text-gray-400 mb-2">Need a beta code?</p>
-              <p className="text-xs text-ctea-teal">
+              <p className="text-xs text-ctea-teal mb-3">
                 Request access from the CTea team or try demo mode above!
               </p>
+              
+              {/* Funny fallback message */}
+              <div className="text-xs text-gray-500 italic">
+                <p>💭 "In the living room, figuring out عيدا is here Zai! Deschê!"</p>
+                <p>— The dev while building this</p>
+              </div>
             </div>
+
+            {/* Debug Tester (Development Only) */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="pt-4 border-t border-ctea-teal/20">
+                <BetaCodeTester />
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>
