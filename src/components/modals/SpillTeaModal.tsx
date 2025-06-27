@@ -59,7 +59,7 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
       if (!securityCheck.rateLimitCheck.allowed) {
         toast({
           title: "Rate Limit Exceeded",
-          description: securityCheck.rateLimitCheck.blockedReason || "Please wait before submitting again.",
+          description: securityCheck.rateLimitCheck.blocked_reason || "Please wait before submitting again.",
           variant: "destructive"
         });
         return;
@@ -100,17 +100,15 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
 
       // Award tokens for successful submission
       try {
-        const rewardResult = await TeaTokenRewardService.awardSpillReward(
+        const rewardResult = await TeaTokenRewardService.rewardSpill(
           anonymousToken, // Using anonymous token as wallet address
-          insertedSubmission.id, // Use the actual inserted submission ID
-          submissionData.content.length,
-          !!submissionData.evidence_urls
+          insertedSubmission.id // Use the actual inserted submission ID
         );
 
         if (rewardResult.success) {
           toast({
             title: "Tea Spilled Successfully! 🫖",
-            description: `${rewardResult.message} Your gossip is now live for everyone to see!`,
+            description: "Your gossip is now live for everyone to see!",
           });
         } else {
           toast({

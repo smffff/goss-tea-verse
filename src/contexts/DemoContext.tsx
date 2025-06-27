@@ -4,8 +4,11 @@ import { betaCodeService } from '@/services/betaCodeService';
 
 interface DemoContextType {
   isDemoMode: boolean;
+  isPreviewMode: boolean;
   enableDemoMode: () => void;
   disableDemoMode: () => void;
+  exitDemo: () => void;
+  getDemoWatermark: () => string;
 }
 
 const DemoContext = createContext<DemoContextType | null>(null);
@@ -18,12 +21,16 @@ export const useDemoMode = () => {
   return context;
 };
 
+// Add the useDemo alias for backward compatibility
+export const useDemo = useDemoMode;
+
 interface DemoProviderProps {
   children: React.ReactNode;
 }
 
 export const DemoProvider: React.FC<DemoProviderProps> = ({ children }) => {
   const [isDemoMode, setIsDemoMode] = useState(false);
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
 
   useEffect(() => {
     // Check if demo mode is enabled
@@ -35,6 +42,9 @@ export const DemoProvider: React.FC<DemoProviderProps> = ({ children }) => {
     if (urlParams.get('demo') === 'true') {
       betaCodeService.enableDemoMode();
       setIsDemoMode(true);
+    }
+    if (urlParams.get('preview') === 'true') {
+      setIsPreviewMode(true);
     }
   }, []);
 
@@ -48,10 +58,30 @@ export const DemoProvider: React.FC<DemoProviderProps> = ({ children }) => {
     setIsDemoMode(false);
   };
 
+  const exitDemo = () => {
+    betaCodeService.clearAccess();
+    setIsDemoMode(false);
+    setIsPreviewMode(false);
+    // Remove demo/preview params from URL
+    const url = new URL(window.location.href);
+    url.searchParams.delete('demo');
+    url.searchParams.delete('preview');
+    window.history.replaceState({}, '', url.toString());
+  };
+
+  const getDemoWatermark = () => {
+    if (isDemoMode) return 'Demo Mode';
+    if (isPreviewMode) return 'Preview Mode';
+    return '';
+  };
+
   const value: DemoContextType = {
     isDemoMode,
+    isPreviewMode,
     enableDemoMode,
-    disableDemoMode
+    disableDemoMode,
+    exitDemo,
+    getDemoWatermark
   };
 
   return (

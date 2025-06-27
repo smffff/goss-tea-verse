@@ -1,3 +1,4 @@
+
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserProgression } from '@/hooks/useUserProgression';
@@ -52,17 +53,17 @@ export const useSimpleReactions = () => {
 
         await incrementReaction('given');
 
-        // Award tokens for new reaction
-        const rewardResult = await TeaTokenRewardService.awardReactionReward(
-          anonymousToken, // Using anonymous token as wallet address for now
-          reactionType,
+        // Award tokens for new reaction using existing method
+        const rewardResult = await TeaTokenRewardService.rewardReaction(
+          anonymousToken,
+          reactionType === 'hot' ? 'upvote' : 'downvote', // Map reaction types to existing actions
           submissionId
         );
 
         if (rewardResult.success) {
           toast({
             title: `Reaction Added! ${reactionType === 'hot' ? '🔥' : reactionType === 'cold' ? '❄️' : '🌶️'}`,
-            description: rewardResult.message,
+            description: `You ${reactionType === 'hot' ? 'heated up' : reactionType === 'cold' ? 'cooled down' : 'spiced up'} this tea!`,
           });
         } else {
           toast({
