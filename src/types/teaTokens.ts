@@ -1,4 +1,3 @@
-
 export interface TeaTransaction {
   id: number
   wallet_address: string
@@ -29,8 +28,10 @@ export interface UseTeaTokensReturn {
   balance: WalletBalance | null
   transactions: TeaTransaction[]
   isLoading: boolean
+  error: string | null
   awardTokens: (walletAddress: string, action: TeaTransaction['action'], amount: number, spillId?: string, metadata?: Record<string, unknown>) => Promise<boolean>
   getBalance: (walletAddress: string) => Promise<void>
   getTransactions: (walletAddress: string, limit?: number) => Promise<void>
-  refreshBalance: () => Promise<void>
+  refreshBalance: () => void
+  refetch: (walletAddress: string) => Promise<void>
 }

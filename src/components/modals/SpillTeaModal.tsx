@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { UnifiedSecurityService } from '@/services/unifiedSecurityService';
 import { secureLog } from '@/utils/secureLogging';
+import { TeaTokenRewardService } from '@/services/teaTokenRewardService';
 
 interface SpillTeaModalProps {
   isOpen: boolean;
@@ -88,18 +88,43 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
         verification_score: 0
       };
 
-      const { error } = await supabase
+      const { data: insertedSubmission, error } = await supabase
         .from('tea_submissions')
-        .insert(submissionData);
+        .insert(submissionData)
+        .select()
+        .single();
 
       if (error) {
         throw new Error(`Submission failed: ${error.message}`);
       }
 
-      toast({
-        title: "Tea Spilled Successfully! 🫖",
-        description: "Your gossip is now live for everyone to see!",
-      });
+      // Award tokens for successful submission
+      try {
+        const rewardResult = await TeaTokenRewardService.awardSpillReward(
+          anonymousToken, // Using anonymous token as wallet address
+          insertedSubmission.id, // Use the actual inserted submission ID
+          submissionData.content.length,
+          !!submissionData.evidence_urls
+        );
+
+        if (rewardResult.success) {
+          toast({
+            title: "Tea Spilled Successfully! 🫖",
+            description: `${rewardResult.message} Your gossip is now live for everyone to see!`,
+          });
+        } else {
+          toast({
+            title: "Tea Spilled Successfully! 🫖",
+            description: "Your gossip is now live for everyone to see!",
+          });
+        }
+      } catch (rewardError) {
+        secureLog.error('Failed to award tokens for spill:', rewardError);
+        toast({
+          title: "Tea Spilled Successfully! 🫖",
+          description: "Your gossip is now live for everyone to see!",
+        });
+      }
 
       // Reset form
       setFormData({

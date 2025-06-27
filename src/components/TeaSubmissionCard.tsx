@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Flame, Snowflake, Zap, Clock } from 'lucide-react';
+import { Flame, Snowflake, Zap, Clock, Heart } from 'lucide-react';
+import TipButton from './TipButton';
 
 interface TeaSubmission {
   id: string;
@@ -15,6 +15,7 @@ interface TeaSubmission {
     cold: number;
     spicy: number;
   };
+  anonymous_token?: string;
 }
 
 interface TeaSubmissionCardProps {
@@ -60,36 +61,46 @@ const TeaSubmissionCard: React.FC<TeaSubmissionCardProps> = ({
         
         <p className="text-white mb-4 leading-relaxed">{submission.content}</p>
         
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleReaction('hot')}
-            className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
-          >
-            <Flame className="w-4 h-4 mr-1" />
-            {submission.reactions?.hot || 0}
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleReaction('cold')}
-            className="text-blue-400 hover:text-blue-300 hover:bg-blue-400/10"
-          >
-            <Snowflake className="w-4 h-4 mr-1" />
-            {submission.reactions?.cold || 0}
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleReaction('spicy')}
-            className="text-orange-400 hover:text-orange-300 hover:bg-orange-400/10"
-          >
-            <Zap className="w-4 h-4 mr-1" />
-            {submission.reactions?.spicy || 0}
-          </Button>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleReaction('hot')}
+              className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+            >
+              <Flame className="w-4 h-4 mr-1" />
+              {submission.reactions?.hot || 0}
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleReaction('cold')}
+              className="text-blue-400 hover:text-blue-300 hover:bg-blue-400/10"
+            >
+              <Snowflake className="w-4 h-4 mr-1" />
+              {submission.reactions?.cold || 0}
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleReaction('spicy')}
+              className="text-orange-400 hover:text-orange-300 hover:bg-orange-400/10"
+            >
+              <Zap className="w-4 h-4 mr-1" />
+              {submission.reactions?.spicy || 0}
+            </Button>
+          </div>
+
+          <TipButton
+            variant="minimal"
+            recipientAddress={submission.anonymous_token || 'anonymous'}
+            amount={5}
+            spillId={submission.id}
+            className="text-pink-400 hover:text-pink-300"
+          />
         </div>
       </CardContent>
     </Card>

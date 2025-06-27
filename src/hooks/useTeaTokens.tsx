@@ -1,31 +1,36 @@
-
 import { useState, useEffect, useCallback } from 'react'
 import { useToast } from './use-toast'
 import { TeaTokenService } from '../services/teaTokenService'
 import type { TeaTransaction, WalletBalance, UseTeaTokensReturn } from '../types/teaTokens'
 import { secureLog } from '@/utils/secureLogging'
 
-export function useTeaTokens(walletAddress?: string): UseTeaTokensReturn {
+export const useTeaTokens = (walletAddress?: string): UseTeaTokensReturn => {
   const [balance, setBalance] = useState<WalletBalance | null>(null)
   const [transactions, setTransactions] = useState<TeaTransaction[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
 
   const getBalance = useCallback(async (address: string): Promise<void> => {
-    try {
-      const balanceRecord = await TeaTokenService.getWalletBalance(address)
-      setBalance(balanceRecord)
-    } catch (error: unknown) {
-      if (process.env.NODE_ENV === "development") {
-        secureLog.error('Error fetching balance:', error)
-      }
-      toast({
-        title: "Balance Error",
-        description: "Failed to fetch wallet balance",
-        variant: "destructive"
-      })
+    if (!address) {
+      setBalance(null)
+      return
     }
-  }, [toast])
+
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const balanceData = await TeaTokenService.getWalletBalance(address)
+      setBalance(balanceData)
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch balance'
+      setError(errorMessage)
+      secureLog.error('Failed to fetch tea token balance:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
 
   const getTransactions = useCallback(async (address: string, limit: number = 20): Promise<void> => {
     try {
@@ -95,33 +100,40 @@ export function useTeaTokens(walletAddress?: string): UseTeaTokensReturn {
     return true
   }, [balance, toast])
 
-  const refreshBalance = useCallback(async () => {
-    if (walletAddress) {
-      await Promise.all([
-        getBalance(walletAddress),
-        getTransactions(walletAddress)
-      ])
-    }
-  }, [walletAddress, getBalance, getTransactions])
+  const refreshBalance = useCallback(() => {
+    getBalance(walletAddress)
+  }, [walletAddress, getBalance])
 
-  // Load initial data
+  // Initial load
   useEffect(() => {
-    if (walletAddress) {
-      setIsLoading(true)
-      Promise.all([
-        getBalance(walletAddress),
-        getTransactions(walletAddress)
-      ]).finally(() => setIsLoading(false))
-    }
-  }, [walletAddress, getBalance, getTransactions])
+    getBalance(walletAddress)
+  }, [walletAddress, getBalance])
+
+  // Set up real-time updates using polling (every 30 seconds)
+  useEffect(() => {
+    if (!walletAddress) return
+
+    const interval = setInterval(() => {
+      getBalance(walletAddress)
+    }, 30000) // 30 seconds
+
+    return () => clearInterval(interval)
+  }, [walletAddress, getBalance])
+
+  // Manual refresh function
+  const forceRefresh = useCallback(() => {
+    getBalance(walletAddress)
+  }, [walletAddress, getBalance])
 
   return {
     balance,
     transactions,
     isLoading,
+    error,
     awardTokens,
     getBalance,
     getTransactions,
-    refreshBalance
+    refreshBalance: forceRefresh,
+    refetch: getBalance
   }
 }

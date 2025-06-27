@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLog';
@@ -6,6 +5,8 @@ import TeaSubmissionCard from './TeaSubmissionCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { Coffee, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useSimpleReactions } from '@/hooks/useSimpleReactions';
+import { TeaTokenRewardService } from '@/services/teaTokenRewardService';
 
 interface TeaSubmission {
   id: string;
@@ -23,6 +24,7 @@ const TeaFeed: React.FC = () => {
   const [submissions, setSubmissions] = useState<TeaSubmission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const { handleReaction } = useSimpleReactions();
 
   const fetchSubmissions = async (showRefreshLoader = false) => {
     try {
@@ -30,7 +32,7 @@ const TeaFeed: React.FC = () => {
       
       const { data, error } = await supabase
         .from('tea_submissions')
-        .select('id, content, category, created_at, reactions')
+        .select('id, content, category, created_at, reactions, anonymous_token')
         .eq('status', 'approved')
         .order('created_at', { ascending: false })
         .limit(20);
@@ -58,7 +60,7 @@ const TeaFeed: React.FC = () => {
     fetchSubmissions();
   }, []);
 
-  const handleReaction = async (submissionId: string, reactionType: 'hot' | 'cold' | 'spicy') => {
+  const handleReactionWithRewards = async (submissionId: string, reactionType: 'hot' | 'cold' | 'spicy') => {
     try {
       // Update local state optimistically
       setSubmissions(prev => prev.map(sub => 
@@ -73,8 +75,27 @@ const TeaFeed: React.FC = () => {
           : sub
       ));
 
-      secureLog.info('Reaction added', { submissionId, reactionType });
-      return true;
+      // Handle the reaction with token rewards
+      const success = await handleReaction(submissionId, reactionType);
+      
+      if (success) {
+        secureLog.info('Reaction added with rewards', { submissionId, reactionType });
+      } else {
+        // Revert optimistic update on failure
+        setSubmissions(prev => prev.map(sub => 
+          sub.id === submissionId 
+            ? { 
+                ...sub, 
+                reactions: { 
+                  ...sub.reactions, 
+                  [reactionType]: sub.reactions[reactionType] - 1 
+                } 
+              }
+            : sub
+        ));
+      }
+      
+      return success;
     } catch (error) {
       secureLog.error('Failed to add reaction', error);
       return false;
@@ -124,7 +145,7 @@ const TeaFeed: React.FC = () => {
             <TeaSubmissionCard
               key={submission.id}
               submission={submission}
-              onReaction={handleReaction}
+              onReaction={handleReactionWithRewards}
             />
           ))}
         </div>
