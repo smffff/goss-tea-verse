@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -16,11 +17,7 @@ export const useEnhancedFeedState = () => {
   const fetchSubmissions = useCallback(async () => {
     try {
       setIsLoading(true);
-      try {
-        secureLog.info('useEnhancedFeedState - Fetching submissions...');
-      } catch (logError) {
-        console.log('useEnhancedFeedState - Fetching submissions...');
-      }
+      secureLog.info('useEnhancedFeedState - Fetching submissions...');
       
       let query = supabase
         .from('tea_submissions')
@@ -47,17 +44,9 @@ export const useEnhancedFeedState = () => {
       const filteredData = filterSubmissions(transformedData, activeFilter);
       
       setSubmissions(filteredData);
-      try {
-        secureLog.info('useEnhancedFeedState - Fetched submissions:', filteredData.length);
-      } catch (logError) {
-        console.log('useEnhancedFeedState - Fetched submissions:', filteredData.length);
-      }
+      secureLog.info('useEnhancedFeedState - Fetched submissions:', filteredData.length);
     } catch (error) {
-      try {
-        secureLog.error('useEnhancedFeedState - Error:', error);
-      } catch (logError) {
-        console.error('useEnhancedFeedState - Error:', error);
-      }
+      secureLog.error('useEnhancedFeedState - Error:', error);
       toast({
         title: "Failed to Load Feed",
         description: "Please try refreshing the page.",
@@ -86,11 +75,7 @@ export const useEnhancedFeedState = () => {
       
       return true;
     } catch (error) {
-      try {
-        secureLog.error('useEnhancedFeedState - Reaction error:', error);
-      } catch (logError) {
-        console.error('useEnhancedFeedState - Reaction error:', error);
-      }
+      secureLog.error('useEnhancedFeedState - Reaction error:', error);
       return false;
     }
   }, []);

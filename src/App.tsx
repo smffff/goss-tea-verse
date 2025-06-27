@@ -1,55 +1,47 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
-import AppProviders from '@/components/app/AppProviders';
-import AppHead from '@/components/app/AppHead';
-import AppRoutes from '@/components/app/AppRoutes';
-import ErrorRedirectHandler from '@/components/ErrorRedirectHandler';
-import AppInitializer from '@/components/AppInitializer';
-import { secureLog } from '@/utils/secureLogging';
+import FallbackLanding from '@/components/FallbackLanding';
+
+// Create a new QueryClient instance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 1,
+    },
+  },
+});
 
 function App() {
-  const [hasAccess, setHasAccess] = useState(false);
-  const [isProduction] = useState(
-    process.env.NODE_ENV === 'production' || 
-    window.location.hostname === 'cteanews.com'
-  );
+  // For now, show the fallback landing page while security fixes are being implemented
+  const isMaintenanceMode = true;
 
-  useEffect(() => {
-    // Check for existing access - ensure boolean values only with strict equality
-    const betaAccess = localStorage.getItem('ctea-beta-access') === 'granted';
-    const accessMethod = localStorage.getItem('ctea_access_method') !== null;
-    const devRoutes = localStorage.getItem('ENABLE_DEV_ROUTES') === 'true';
-    const demoMode = localStorage.getItem('ctea-demo-mode') === 'true';
-    
-    const existingAccess = Boolean(betaAccess || accessMethod || devRoutes || demoMode);
-    
-    secureLog.info('Access check:', { betaAccess, accessMethod, devRoutes, demoMode, existingAccess });
-    
-    setHasAccess(existingAccess);
-  }, []);
-
-  const handleAccessGranted = () => {
-    secureLog.info('Access granted');
-    setHasAccess(true);
-  };
+  if (isMaintenanceMode) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <div className="App">
+          <FallbackLanding />
+          <Toaster />
+        </div>
+      </QueryClientProvider>
+    );
+  }
 
   return (
-    <AppProviders>
-      <AppHead isProduction={isProduction} />
-      <ErrorRedirectHandler>
-        <AppInitializer>
-          <AppRoutes hasAccess={hasAccess} onAccessGranted={handleAccessGranted} />
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<FallbackLanding />} />
+            <Route path="*" element={<FallbackLanding />} />
+          </Routes>
           <Toaster />
-          {/* Only show monitoring in development */}
-          {process.env.NODE_ENV === 'development' && (
-            <div id="dev-monitoring" style={{ display: 'none' }}>
-              {/* Development monitoring components can be added here if needed */}
-            </div>
-          )}
-        </AppInitializer>
-      </ErrorRedirectHandler>
-    </AppProviders>
+        </div>
+      </Router>
+    </QueryClientProvider>
   );
 }
 

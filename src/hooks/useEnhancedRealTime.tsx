@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -17,82 +18,82 @@ export const useEnhancedRealTime = ({ setSubmissions }: UseEnhancedRealTimeProps
   useEffect(() => {
     try {
       secureLog.info('useEnhancedRealTime - Setting up subscription');
-    } catch (logError) {
-      console.log('useEnhancedRealTime - Setting up subscription');
-    }
-    
-    // Clean up existing channel
-    if (channelRef.current) {
-      supabase.removeChannel(channelRef.current);
-    }
-    
-    const channel = supabase
-      .channel(`tea_submissions_${Date.now()}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'tea_submissions'
-        },
-        (payload) => {
-          try {
-            secureLog.info('useEnhancedRealTime - New submission:', payload);
-          } catch (logError) {
-            console.log('useEnhancedRealTime - New submission:', payload);
-          }
-          const newSubmission = payload.new as TeaSubmission;
-          
-          if (newSubmission.status === 'approved') {
-            const transformedSubmission = transformSubmission(newSubmission);
-            setSubmissions(prev => [transformedSubmission, ...prev]);
-            
-            toast({
-              title: "New Tea Alert! ☕",
-              description: "Fresh gossip just dropped!",
-            });
-          }
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'tea_submissions'
-        },
-        (payload) => {
-          try {
-            secureLog.info('useEnhancedRealTime - Submission updated:', payload);
-          } catch (logError) {
-            console.log('useEnhancedRealTime - Submission updated:', payload);
-          }
-          const updatedSubmission = payload.new as TeaSubmission;
-          
-          if (updatedSubmission.status === 'approved') {
-            const transformedSubmission = transformSubmission(updatedSubmission);
-            
-            setSubmissions(prev => {
-              const existingIndex = prev.findIndex(sub => sub.id === updatedSubmission.id);
-              if (existingIndex >= 0) {
-                const newSubmissions = [...prev];
-                newSubmissions[existingIndex] = transformedSubmission;
-                return newSubmissions;
-              } else {
-                return [transformedSubmission, ...prev];
-              }
-            });
-          }
-        }
-      )
-      .subscribe();
-
-    channelRef.current = channel;
-
-    return () => {
+      
+      // Clean up existing channel
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
       }
-    };
+      
+      const channel = supabase
+        .channel(`tea_submissions_${Date.now()}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'tea_submissions'
+          },
+          (payload) => {
+            try {
+              secureLog.info('useEnhancedRealTime - New submission:', payload);
+              const newSubmission = payload.new as TeaSubmission;
+              
+              if (newSubmission.status === 'approved') {
+                const transformedSubmission = transformSubmission(newSubmission);
+                setSubmissions(prev => [transformedSubmission, ...prev]);
+                
+                toast({
+                  title: "New Tea Alert! ☕",
+                  description: "Fresh gossip just dropped!",
+                });
+              }
+            } catch (error) {
+              secureLog.error('Error processing new submission:', error);
+            }
+          }
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'tea_submissions'
+          },
+          (payload) => {
+            try {
+              secureLog.info('useEnhancedRealTime - Submission updated:', payload);
+              const updatedSubmission = payload.new as TeaSubmission;
+              
+              if (updatedSubmission.status === 'approved') {
+                const transformedSubmission = transformSubmission(updatedSubmission);
+                
+                setSubmissions(prev => {
+                  const existingIndex = prev.findIndex(sub => sub.id === updatedSubmission.id);
+                  if (existingIndex >= 0) {
+                    const newSubmissions = [...prev];
+                    newSubmissions[existingIndex] = transformedSubmission;
+                    return newSubmissions;
+                  } else {
+                    return [transformedSubmission, ...prev];
+                  }
+                });
+              }
+            } catch (error) {
+              secureLog.error('Error processing submission update:', error);
+            }
+          }
+        )
+        .subscribe();
+
+      channelRef.current = channel;
+
+      return () => {
+        if (channelRef.current) {
+          supabase.removeChannel(channelRef.current);
+        }
+      };
+    } catch (error) {
+      secureLog.error('useEnhancedRealTime - Setup failed:', error);
+    }
   }, [setSubmissions, toast]);
 };

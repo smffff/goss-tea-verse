@@ -1,22 +1,13 @@
 
-import { ContentValidationService, SecurityValidationResult } from './security/contentValidationService';
-import { RateLimitService, RateLimitResult } from './security/rateLimitService';
-import { UrlValidationService, UrlValidationResult } from './security/urlValidationService';
-import { TokenValidationService, TokenValidationResult } from './security/tokenValidationService';
-import { SecurityEventService } from './securityEventService';
 import { supabase } from '@/integrations/supabase/client';
-import { secureLog } from '@/utils/secureLogging';
+import { secureLog } from '@/utils/secureLog';
 
-interface ComprehensiveSecurityResult {
-  overallValid: boolean;
-  securityScore: number;
-  riskLevel: 'low' | 'medium' | 'high' | 'critical';
-  contentValidation: SecurityValidationResult;
-  urlValidation: UrlValidationResult;
-  rateLimitCheck: RateLimitResult;
-  tokenValidation: TokenValidationResult;
-  threats: string[];
-  recommendations: string[];
+export interface UnifiedSecurityResult {
+  success: boolean;
+  data?: any;
+  error?: string;
+  securityViolation?: boolean;
+  riskLevel?: 'low' | 'medium' | 'high' | 'critical';
 }
 
 export class SecurityServiceUnified {
@@ -29,190 +20,147 @@ export class SecurityServiceUnified {
     return SecurityServiceUnified.instance;
   }
 
+  // Main submission security validation
   public static async validateSubmissionSecurity(
     content: string,
     urls: string[] = [],
     action: string = 'submission'
-  ): Promise<ComprehensiveSecurityResult> {
+  ): Promise<UnifiedSecurityResult> {
     try {
-      secureLog.info('🔐 Starting comprehensive security validation', { action, contentLength: content.length });
-
-      // Generate secure token
-      const tokenValidation = TokenValidationService.getOrCreateSecureToken();
-      
-      // Server-side rate limiting check
-      const rateLimitCheck = await this.performServerSideRateLimit(tokenValidation.token, action);
-      if (!rateLimitCheck.allowed) {
-        return this.createSecurityResult(false, 0, 'critical', {
-          valid: false,
-          sanitized: '',
-          threats: ['Rate limit exceeded'],
-          riskLevel: 'critical',
-          securityScore: 0
-        }, { valid: [], invalid: [] }, rateLimitCheck, tokenValidation);
+      // Get secure token
+      const token = this.getOrCreateSecureToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Authentication required',
+          securityViolation: true,
+          riskLevel: 'high'
+        };
       }
 
-      // Enhanced content validation
-      const contentValidation = await ContentValidationService.validateContent(content, 2000);
-      
-      // URL validation
-      const urlValidation = UrlValidationService.validateUrls(urls);
-      
-      // Calculate overall security score
-      const overallScore = this.calculateSecurityScore(contentValidation, urlValidation, rateLimitCheck);
-      const riskLevel = this.determineRiskLevel(overallScore, contentValidation.riskLevel);
-      
-      // Log security event for monitoring
-      await this.logSecurityValidation(action, {
-        securityScore: overallScore,
-        riskLevel,
-        threats: contentValidation.threats,
-        contentLength: content.length,
-        urlCount: urls.length
-      });
-
-      const result = this.createSecurityResult(
-        overallScore >= 70 && contentValidation.valid && rateLimitCheck.allowed,
-        overallScore,
-        riskLevel,
-        contentValidation,
-        urlValidation,
-        rateLimitCheck,
-        tokenValidation
-      );
-
-      secureLog.info('✅ Security validation completed', { 
-        overallValid: result.overallValid, 
-        securityScore: result.securityScore,
-        riskLevel: result.riskLevel 
-      });
-
-      return result;
-    } catch (error) {
-      secureLog.error('❌ Security validation failed', error);
-      
-      // Fallback security validation
-      return this.createSecurityResult(false, 0, 'critical', {
-        valid: false,
-        sanitized: this.basicSanitize(content),
-        threats: ['Security validation system error'],
-        riskLevel: 'critical',
-        securityScore: 0
-      }, { valid: [], invalid: urls }, { allowed: false, blockedReason: 'System error' }, {
-        token: TokenValidationService.generateSecureToken(),
-        valid: false,
-        warnings: ['System error during validation']
-      });
-    }
-  }
-
-  private static async performServerSideRateLimit(token: string, action: string): Promise<RateLimitResult> {
-    try {
-      const { data, error } = await supabase.rpc('check_rate_limit_ultimate', {
-        p_token: token,
-        p_action: action,
-        p_max_actions: 10,
-        p_window_minutes: 60
+      // Use server-side validation function
+      const { data, error } = await supabase.rpc('secure_submission_insert', {
+        p_content: content,
+        p_anonymous_token: token,
+        p_category: 'general'
       });
 
       if (error) {
-        secureLog.error('Server-side rate limiting failed', error);
-        return { allowed: false, blockedReason: 'Rate limit check failed' };
+        secureLog.error('Submission security validation failed:', error);
+        return {
+          success: false,
+          error: 'Security validation failed',
+          securityViolation: true,
+          riskLevel: 'high'
+        };
       }
 
       return {
-        allowed: data?.allowed || false,
-        currentCount: data?.current_count || 0,
-        maxActions: data?.max_actions || 10,
-        blockedReason: data?.blocked_reason
+        success: data?.success || false,
+        data: data,
+        error: data?.error,
+        riskLevel: 'low'
       };
     } catch (error) {
-      secureLog.error('Rate limit service error', error);
-      return { allowed: false, blockedReason: 'Rate limit service unavailable' };
+      secureLog.error('Security validation error:', error);
+      return {
+        success: false,
+        error: 'Security system error',
+        securityViolation: true,
+        riskLevel: 'critical'
+      };
     }
   }
 
-  private static calculateSecurityScore(
-    contentValidation: SecurityValidationResult,
-    urlValidation: UrlValidationResult,
-    rateLimitCheck: RateLimitResult
-  ): number {
-    let score = 100;
-    
-    // Content validation impact
-    score -= (100 - contentValidation.securityScore);
-    
-    // URL validation impact
-    if (urlValidation.invalid.length > 0) {
-      score -= urlValidation.invalid.length * 10;
-    }
-    
-    // Rate limiting impact
-    if (!rateLimitCheck.allowed) {
-      score -= 50;
-    }
-    
-    return Math.max(0, Math.min(100, score));
-  }
-
-  private static determineRiskLevel(score: number, contentRisk: 'low' | 'medium' | 'high' | 'critical'): 'low' | 'medium' | 'high' | 'critical' {
-    if (contentRisk === 'critical' || score < 30) return 'critical';
-    if (contentRisk === 'high' || score < 50) return 'high';
-    if (contentRisk === 'medium' || score < 70) return 'medium';
-    return 'low';
-  }
-
-  private static createSecurityResult(
-    valid: boolean,
-    score: number,
-    riskLevel: 'low' | 'medium' | 'high' | 'critical',
-    contentValidation: SecurityValidationResult,
-    urlValidation: UrlValidationResult,
-    rateLimitCheck: RateLimitResult,
-    tokenValidation: TokenValidationResult
-  ): ComprehensiveSecurityResult {
-    const threats = [
-      ...contentValidation.threats,
-      ...(urlValidation.invalid.length > 0 ? ['Invalid URLs detected'] : []),
-      ...(!rateLimitCheck.allowed ? [rateLimitCheck.blockedReason || 'Rate limit exceeded'] : [])
-    ];
-
-    const recommendations = [];
-    if (!contentValidation.valid) recommendations.push('Review and sanitize content');
-    if (urlValidation.invalid.length > 0) recommendations.push('Provide valid HTTPS URLs');
-    if (!rateLimitCheck.allowed) recommendations.push('Wait before submitting again');
-
-    return {
-      overallValid: valid,
-      securityScore: score,
-      riskLevel,
-      contentValidation,
-      urlValidation,
-      rateLimitCheck,
-      tokenValidation,
-      threats,
-      recommendations
-    };
-  }
-
-  private static async logSecurityValidation(action: string, details: any): Promise<void> {
+  // Secure reaction submission
+  public static async submitReaction(
+    submissionId: string,
+    reactionType: 'hot' | 'cold' | 'spicy'
+  ): Promise<UnifiedSecurityResult> {
     try {
-      await SecurityEventService.logSecurityEvent({
-        event_type: 'security_validation',
-        details: {
-          action,
-          ...details,
-          timestamp: new Date().toISOString()
-        },
-        severity: details.riskLevel === 'critical' ? 'critical' : 
-                 details.riskLevel === 'high' ? 'high' : 'low'
+      const token = this.getOrCreateSecureToken();
+      if (!token) {
+        return {
+          success: false,
+          error: 'Authentication required',
+          securityViolation: true
+        };
+      }
+
+      const { data, error } = await supabase.rpc('secure_reaction_insert', {
+        p_submission_id: submissionId,
+        p_anonymous_token: token,
+        p_reaction_type: reactionType
       });
+
+      if (error) {
+        secureLog.error('Reaction submission failed:', error);
+        return {
+          success: false,
+          error: 'Failed to submit reaction'
+        };
+      }
+
+      return {
+        success: data?.success || false,
+        error: data?.error,
+        riskLevel: 'low'
+      };
     } catch (error) {
-      secureLog.error('Failed to log security event', error);
+      secureLog.error('Reaction security error:', error);
+      return {
+        success: false,
+        error: 'Security system error',
+        securityViolation: true
+      };
     }
   }
 
-  private static basicSanitize(content: string): string {
+  // Enhanced token management
+  private static getOrCreateSecureToken(): string | null {
+    try {
+      let token = sessionStorage.getItem('ctea_anonymous_token');
+      
+      if (!token || !this.validateToken(token)) {
+        token = this.generateSecureToken();
+        sessionStorage.setItem('ctea_anonymous_token', token);
+        secureLog.info('Generated new secure token');
+      }
+
+      return token;
+    } catch (error) {
+      secureLog.error('Token management failed:', error);
+      return null;
+    }
+  }
+
+  private static generateSecureToken(): string {
+    try {
+      const array = new Uint8Array(32);
+      crypto.getRandomValues(array);
+      return btoa(String.fromCharCode(...array))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
+    } catch (error) {
+      secureLog.error('Token generation failed:', error);
+      return 'fallback_' + Date.now() + '_' + Math.random().toString(36).substring(2);
+    }
+  }
+
+  private static validateToken(token: string): boolean {
+    if (!token || token.length < 32) return false;
+    
+    // Check for suspicious patterns
+    const suspiciousPatterns = [
+      /test/i, /debug/i, /admin/i, /root/i, /system/i, /demo/i
+    ];
+    
+    return !suspiciousPatterns.some(pattern => pattern.test(token));
+  }
+
+  // Content sanitization
+  public static sanitizeContent(content: string): string {
     return content
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
@@ -223,57 +171,31 @@ export class SecurityServiceUnified {
       .replace(/=/g, '&#x3D;');
   }
 
-  // Enhanced session validation
-  public static async validateUserSession(): Promise<{
-    valid: boolean;
-    user: any;
-    session: any;
-    securityScore: number;
-    threats: string[];
-  }> {
-    try {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error || !session) {
-        return {
-          valid: false,
-          user: null,
-          session: null,
-          securityScore: 0,
-          threats: ['No valid session']
-        };
-      }
+  // URL validation
+  public static validateUrls(urls: string[]): { valid: string[]; invalid: string[] } {
+    const valid: string[] = [];
+    const invalid: string[] = [];
 
-      // Validate session age
-      const sessionAge = Date.now() - new Date(session.refresh_token).getTime();
-      const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+    for (const url of urls) {
+      if (!url?.trim()) continue;
       
-      if (sessionAge > maxAge) {
-        return {
-          valid: false,
-          user: null,
-          session: null,
-          securityScore: 30,
-          threats: ['Session expired']
-        };
+      try {
+        const urlObj = new URL(url);
+        if (urlObj.protocol === 'http:' || urlObj.protocol === 'https:') {
+          valid.push(url);
+        } else {
+          invalid.push(url);
+        }
+      } catch {
+        invalid.push(url);
       }
-
-      return {
-        valid: true,
-        user: session.user,
-        session,
-        securityScore: 100,
-        threats: []
-      };
-    } catch (error) {
-      secureLog.error('Session validation failed', error);
-      return {
-        valid: false,
-        user: null,
-        session: null,
-        securityScore: 0,
-        threats: ['Session validation error']
-      };
     }
+
+    return { valid, invalid };
   }
 }
+
+// Export convenience functions
+export const validateSubmissionSecurity = SecurityServiceUnified.validateSubmissionSecurity;
+export const submitSecureReaction = SecurityServiceUnified.submitReaction;
+export const sanitizeContent = SecurityServiceUnified.sanitizeContent;

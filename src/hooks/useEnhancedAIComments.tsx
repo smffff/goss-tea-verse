@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { TeaSubmission } from '@/types/teaFeed';
@@ -48,11 +49,7 @@ export const useEnhancedAIComments = () => {
         });
       }
     } catch (error) {
-      try {
-        secureLog.error('useEnhancedAIComments - Error generating AI commentary:', error);
-      } catch (logError) {
-        console.error('useEnhancedAIComments - Error generating AI commentary:', error);
-      }
+      secureLog.error('useEnhancedAIComments - Error generating AI commentary:', error);
     }
   };
 
