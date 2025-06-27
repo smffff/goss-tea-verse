@@ -7,7 +7,7 @@ import { Send, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { secureLog } from '@/utils/secureLog';
 
-interface SpillTeaFormProps {
+export interface SpillTeaFormProps {
   onSubmit: (content: string) => Promise<void>;
   isLoading?: boolean;
 }

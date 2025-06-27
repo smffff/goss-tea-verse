@@ -7,6 +7,7 @@ import { Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { betaCodeService } from '@/services/betaCodeService';
+import { secureLog } from '@/utils/secureLog';
 import AccessLevelIndicator from '../AccessLevelIndicator';
 
 interface BetaCodeTabProps {
@@ -39,9 +40,9 @@ const BetaCodeTab: React.FC<BetaCodeTabProps> = ({
     setError('');
 
     try {
-      const result = await betaCodeService.validateCode(betaCode, true);
+      const result = await betaCodeService.validateCode(betaCode);
       
-      if (result.valid) {
+      if (result.success) {
         localStorage.setItem('ctea-access-level', 'beta');
         localStorage.setItem('ctea-beta-code', betaCode);
         toast({
@@ -53,7 +54,7 @@ const BetaCodeTab: React.FC<BetaCodeTabProps> = ({
         setError('Invalid beta code. Need access? Try other options below!');
       }
     } catch (error) {
-      secureLog.error('Beta verification error:', error);
+      secureLog.error('Beta verification error', error);
       setError('Verification failed - probably the server having main character energy 🎭');
     } finally {
       setIsProcessing(false);

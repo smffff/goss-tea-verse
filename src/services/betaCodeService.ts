@@ -9,6 +9,8 @@ interface BetaCodeResult {
 }
 
 class BetaCodeService {
+  private testCodes = ['BETA2024', 'TESTCODE', 'CTEA1337', 'ALPHA123'];
+
   async generateCodeForSpill(spillId: string): Promise<BetaCodeResult> {
     try {
       const code = this.generateRandomCode();
@@ -46,6 +48,11 @@ class BetaCodeService {
 
   async validateCode(code: string, userToken?: string): Promise<BetaCodeResult> {
     try {
+      // In development, accept test codes
+      if (process.env.NODE_ENV === 'development' && this.testCodes.includes(code.toUpperCase())) {
+        return { success: true, code: code.toUpperCase() };
+      }
+
       const { data, error } = await supabase
         .from('beta_codes')
         .select('*')
@@ -75,6 +82,32 @@ class BetaCodeService {
         error: error instanceof Error ? error.message : 'Validation failed' 
       };
     }
+  }
+
+  // Add missing methods
+  getTestCodes(): string[] {
+    return [...this.testCodes];
+  }
+
+  isDemoMode(): boolean {
+    return localStorage.getItem('ctea-demo-mode') === 'true';
+  }
+
+  checkDemoParams(): boolean {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('demo') === 'true';
+  }
+
+  enableDemoMode(): void {
+    localStorage.setItem('ctea-demo-mode', 'true');
+    localStorage.setItem('ctea-access-level', 'beta');
+  }
+
+  clearAccess(): void {
+    localStorage.removeItem('ctea-beta-access');
+    localStorage.removeItem('ctea-demo-mode');
+    localStorage.removeItem('ctea-beta-code');
+    localStorage.removeItem('ctea-access-level');
   }
 }
 

@@ -1,38 +1,42 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Wallet } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
+import { Wallet, ExternalLink } from 'lucide-react';
 import AccessLevelIndicator from '../AccessLevelIndicator';
 
 const WalletTab: React.FC = () => {
-  const { toast } = useToast();
-
-  const handleWalletConnect = () => {
-    toast({
-      title: "Wallet Connect Coming Soon! 🔗",
-      description: "Token ownership verification will be available soon. Try other access methods for now!",
-    });
-  };
-
   return (
     <div className="space-y-4">
       <AccessLevelIndicator level="authenticated" />
-      <div className="text-center space-y-4">
-        <h3 className="text-white font-bold">Token Ownership Verification</h3>
-        <p className="text-gray-400 text-sm">
-          Connect your wallet to verify $TEA token ownership for instant access.
+      
+      <div className="text-center py-6">
+        <Wallet className="w-12 h-12 text-ctea-purple mx-auto mb-4" />
+        <h3 className="text-white font-semibold mb-2">Wallet Access</h3>
+        <p className="text-gray-400 text-sm mb-4">
+          Connect your wallet to access premium features
         </p>
-        <Button
-          onClick={handleWalletConnect}
-          className="w-full bg-gradient-to-r from-ctea-purple to-pink-400 hover:from-ctea-purple/80 hover:to-pink-400/80"
-        >
-          <Wallet className="w-4 h-4 mr-2" />
-          Connect Wallet (Coming Soon)
-        </Button>
-        <p className="text-xs text-gray-500">
-          MetaMask, WalletConnect, and more supported
-        </p>
+        
+        <div className="space-y-3">
+          <Badge variant="outline" className="border-ctea-purple/30 text-ctea-purple">
+            Coming Soon
+          </Badge>
+          
+          <div className="text-xs text-gray-500 space-y-1">
+            <p>• Token-gated content</p>
+            <p>• OG holder benefits</p>
+            <p>• Cross-chain rewards</p>
+          </div>
+          
+          <Button
+            variant="outline"
+            className="w-full border-ctea-purple/30 text-ctea-purple hover:bg-ctea-purple/10"
+            disabled
+          >
+            <ExternalLink className="w-4 h-4 mr-2" />
+            Connect Wallet (Soon)
+          </Button>
+        </div>
       </div>
     </div>
   );

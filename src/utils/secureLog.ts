@@ -61,3 +61,6 @@ class SecureLogger {
 }
 
 export const secureLog = new SecureLogger();
+
+// Export as default for easier imports
+export default secureLog;
