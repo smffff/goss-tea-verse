@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +19,7 @@ const BetaCodeTester: React.FC = () => {
     
     try {
       console.log('Testing beta code:', testCode);
-      const validation = await betaCodeService.validateCode(testCode, false);
+      const validation = await betaCodeService.validateCode(testCode);
       console.log('Validation result:', validation);
       setResult(validation);
     } catch (error) {
@@ -111,4 +112,4 @@ const BetaCodeTester: React.FC = () => {
   );
 };
 
-export default BetaCodeTester; 
+export default BetaCodeTester;

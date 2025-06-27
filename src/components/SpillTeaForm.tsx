@@ -1,94 +1,77 @@
 
-import React, { useState } from 'react';
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Send, Sparkles } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { secureLog } from '@/utils/secureLog';
+import { Coffee } from 'lucide-react';
 
 export interface SpillTeaFormProps {
-  onSubmit: (content: string) => Promise<void>;
+  onClose: () => void;
+  onSubmit: (data: any) => Promise<void>;
   isLoading?: boolean;
+  walletAddress?: string;
+  userId?: string;
 }
 
-const SpillTeaForm: React.FC<SpillTeaFormProps> = ({ onSubmit, isLoading = false }) => {
-  const [content, setContent] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
+const SpillTeaForm: React.FC<SpillTeaFormProps> = ({
+  onClose,
+  onSubmit,
+  isLoading = false
+}) => {
+  const [teaText, setTeaText] = React.useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!teaText.trim()) return;
     
-    if (!content.trim()) {
-      toast({
-        title: "Empty Tea Cup",
-        description: "Please add some content before spilling!",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-      secureLog.info('Submitting tea spill...');
-      await onSubmit(content.trim());
-      setContent('');
-      toast({
-        title: "Tea Spilled! ☕",
-        description: "Your submission has been added to the queue.",
-      });
-    } catch (error) {
-      secureLog.error('Failed to submit tea', error);
-      toast({
-        title: "Spill Failed",
-        description: "Could not submit your tea. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    await onSubmit({
+      teaText,
+      topic: 'general',
+      mediaUrl: null
+    });
   };
 
   return (
-    <Card className="bg-ctea-dark/80 border-ctea-teal/30">
+    <Card className="bg-pale-pink border-vintage-red/30 shadow-xl">
       <CardHeader>
-        <CardTitle className="text-white flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-ctea-teal" />
-          Spill the Tea
+        <CardTitle className="text-tabloid-black flex items-center gap-2 text-xl font-display">
+          <Coffee className="w-6 h-6 text-vintage-red" />
+          Spill Your Tea ☕
         </CardTitle>
       </CardHeader>
+      
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="What's the tea? Share your crypto gossip, market insights, or hot takes..."
-            className="min-h-[120px] bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-400 resize-none"
-            disabled={isLoading || isSubmitting}
-            maxLength={500}
-          />
-          
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-400">
-              {content.length}/500 characters
-            </span>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <Textarea
+              placeholder="What's the tea? Spill it here..."
+              value={teaText}
+              onChange={(e) => setTeaText(e.target.value)}
+              className="min-h-[120px]"
+              maxLength={500}
+            />
+            <div className="text-sm text-gray-500 mt-1">
+              {teaText.length}/500 characters
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
+              disabled={isLoading}
+            >
+              Cancel
+            </Button>
+            
             <Button
               type="submit"
-              disabled={isLoading || isSubmitting || !content.trim()}
-              className="bg-gradient-to-r from-ctea-teal to-ctea-purple hover:from-ctea-purple hover:to-ctea-teal text-white font-bold"
+              className="flex-1 bg-gradient-to-r from-ctea-teal to-ctea-purple hover:from-ctea-purple hover:to-ctea-teal text-white font-bold"
+              disabled={!teaText.trim() || isLoading}
             >
-              {isSubmitting ? (
-                <>
-                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                  Spilling...
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4 mr-2" />
-                  Spill Tea
-                </>
-              )}
+              {isLoading ? 'Spilling Tea...' : 'Spill Tea ☕'}
             </Button>
           </div>
         </form>

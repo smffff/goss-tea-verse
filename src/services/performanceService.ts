@@ -1,116 +1,130 @@
+import { secureLog } from '@/utils/secureLogging';
 
-import { secureLog } from '@/utils/secureLog';
-
-interface PerformanceMetrics {
-  pageLoadTime: number;
-  resourceLoadTime: number;
+export interface PerformanceMetrics {
+  loadTime: number;
   renderTime: number;
   interactionTime: number;
+  memoryUsage?: number;
+  timestamp: number;
 }
 
-export class PerformanceService {
-  private static metrics: PerformanceMetrics = {
-    pageLoadTime: 0,
-    resourceLoadTime: 0,
-    renderTime: 0,
-    interactionTime: 0
-  };
+class PerformanceService {
+  private metrics: PerformanceMetrics[] = [];
+  private observers: PerformanceObserver[] = [];
 
-  static initializePerformanceMonitoring(): void {
-    if (typeof window === 'undefined') return;
+  constructor() {
+    this.initializeObservers();
+  }
 
+  private initializeObservers() {
     try {
-      // Monitor page load performance
-      window.addEventListener('load', () => {
-        this.measurePageLoad();
+      // First Input Delay observer
+      const fidObserver = new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          this.recordMetric({
+            loadTime: 0,
+            renderTime: 0,
+            interactionTime: entry.processingStart - entry.startTime,
+            timestamp: Date.now()
+          });
+        }
       });
+      fidObserver.observe({ entryTypes: ['first-input'] });
+      this.observers.push(fidObserver);
 
-      // Monitor resource loading
-      this.observeResourceLoading();
-
-      // Monitor rendering performance
-      this.observeRendering();
-
-      secureLog.info('Performance monitoring initialized');
     } catch (error) {
-      secureLog.error('Failed to initialize performance monitoring', error);
+      secureLog.error('Failed to initialize performance observers:', { error });
     }
   }
 
-  private static measurePageLoad(): void {
+  public measurePageLoad(): PerformanceMetrics | null {
     try {
       const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+      if (!navigation) return null;
+
+      // Use loadEventEnd instead of navigationStart
+      const loadTime = navigation.loadEventEnd - navigation.fetchStart;
+      const renderTime = navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart;
+
+      const metrics: PerformanceMetrics = {
+        loadTime,
+        renderTime,
+        interactionTime: 0,
+        memoryUsage: this.getMemoryUsage(),
+        timestamp: Date.now()
+      };
+
+      this.recordMetric(metrics);
+      return metrics;
+    } catch (error) {
+      secureLog.error('Failed to measure page load:', { error });
+      return null;
+    }
+  }
+
+  public measureRenderTime(componentName: string, startTime: number): number {
+    try {
+      const renderTime = performance.now() - startTime;
       
-      if (navigation) {
-        this.metrics.pageLoadTime = navigation.loadEventEnd - navigation.navigationStart;
-        this.metrics.resourceLoadTime = navigation.loadEventEnd - navigation.fetchStart;
-        
-        secureLog.info('Page load metrics recorded', this.metrics);
-      }
-    } catch (error) {
-      secureLog.error('Failed to measure page load', error);
-    }
-  }
-
-  private static observeResourceLoading(): void {
-    try {
-      const observer = new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) {
-          if (entry.entryType === 'resource') {
-            const resourceEntry = entry as PerformanceResourceTiming;
-            
-            // Log slow resources
-            if (resourceEntry.duration > 1000) {
-              secureLog.warn('Slow resource detected', {
-                name: resourceEntry.name,
-                duration: resourceEntry.duration,
-                size: resourceEntry.transferSize
-              });
-            }
-          }
-        }
+      this.recordMetric({
+        loadTime: 0,
+        renderTime,
+        interactionTime: 0,
+        timestamp: Date.now()
       });
 
-      observer.observe({ entryTypes: ['resource'] });
+      secureLog.info(`${componentName} render time: ${renderTime.toFixed(2)}ms`);
+      return renderTime;
     } catch (error) {
-      secureLog.error('Failed to observe resource loading', error);
+      secureLog.error('Failed to measure render time:', { error });
+      return 0;
     }
   }
 
-  private static observeRendering(): void {
+  private getMemoryUsage(): number | undefined {
     try {
-      const observer = new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) {
-          if (entry.entryType === 'paint') {
-            secureLog.info('Paint timing recorded', {
-              name: entry.name,
-              startTime: entry.startTime
-            });
-          }
-        }
-      });
-
-      observer.observe({ entryTypes: ['paint'] });
-    } catch (error) {
-      secureLog.error('Failed to observe rendering', error);
+      // @ts-ignore - memory API might not be available in all browsers
+      return (performance as any).memory?.usedJSHeapSize;
+    } catch {
+      return undefined;
     }
   }
 
-  static getMetrics(): PerformanceMetrics {
-    return { ...this.metrics };
+  private recordMetric(metric: PerformanceMetrics) {
+    this.metrics.push(metric);
+    
+    // Keep only last 100 metrics
+    if (this.metrics.length > 100) {
+      this.metrics = this.metrics.slice(-100);
+    }
   }
 
-  static recordInteraction(interactionName: string, startTime: number): void {
-    try {
-      const duration = performance.now() - startTime;
-      this.metrics.interactionTime = duration;
-      
-      secureLog.info('Interaction recorded', {
-        name: interactionName,
-        duration
-      });
-    } catch (error) {
-      secureLog.error('Failed to record interaction', error);
-    }
+  public getMetrics(): PerformanceMetrics[] {
+    return [...this.metrics];
+  }
+
+  public getAverageMetrics(): Partial<PerformanceMetrics> {
+    if (this.metrics.length === 0) return {};
+
+    const totals = this.metrics.reduce((acc, metric) => ({
+      loadTime: acc.loadTime + metric.loadTime,
+      renderTime: acc.renderTime + metric.renderTime,
+      interactionTime: acc.interactionTime + metric.interactionTime
+    }), { loadTime: 0, renderTime: 0, interactionTime: 0 });
+
+    const count = this.metrics.length;
+    return {
+      loadTime: totals.loadTime / count,
+      renderTime: totals.renderTime / count,
+      interactionTime: totals.interactionTime / count
+    };
+  }
+
+  public cleanup() {
+    this.observers.forEach(observer => observer.disconnect());
+    this.observers = [];
+    this.metrics = [];
   }
 }
+
+export const performanceService = new PerformanceService();

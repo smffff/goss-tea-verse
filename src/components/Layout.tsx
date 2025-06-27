@@ -1,6 +1,6 @@
 
 import React from 'react';
-import StickyNavigation from '@/components/navigation/StickyNavigation';
+import UnifiedNavigation from '@/components/navigation/UnifiedNavigation';
 import UnifiedFooter from '@/components/UnifiedFooter';
 import { Toaster } from '@/components/ui/toaster';
 import { BRAND_CONFIG } from '@/lib/config/brandConfig';
@@ -44,7 +44,7 @@ const Layout: React.FC<LayoutProps> = ({
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-[#1b1b1b] via-[#2a1a2a] to-[#1a2a2a] ${className}`}>
-      {showNavigation && <StickyNavigation />}
+      {showNavigation && <UnifiedNavigation />}
       
       <main className="relative">
         {children}
