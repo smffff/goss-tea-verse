@@ -1,126 +1,87 @@
 
-import React, { Component, ErrorInfo, ReactNode } from 'react'
-import { handleError } from '../utils/errorHandler'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { Button } from './ui/button'
-import { AlertTriangle, RefreshCw } from 'lucide-react'
+import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Button } from '@/components/ui/button';
+import { RefreshCcw, AlertTriangle } from 'lucide-react';
+import { secureLog } from '@/utils/secureLogging';
+import { reportError } from '@/utils/errorReporting';
 
 interface Props {
-  children: ReactNode
-  fallback?: ReactNode
+  children: ReactNode;
+  fallback?: ReactNode;
+  componentName?: string;
+  showRetry?: boolean;
 }
 
 interface State {
-  hasError: boolean
-  error?: Error
-  errorId?: string
+  hasError: boolean;
+  error?: Error;
+  errorId?: string;
 }
 
-export class EnhancedErrorBoundary extends Component<Props, State> {
+class EnhancedErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
-    super(props)
-    this.state = { hasError: false }
+    super(props);
+    this.state = { hasError: false };
   }
 
   static getDerivedStateFromError(error: Error): State {
-    return { 
-      hasError: true, 
-      error,
-      errorId: Date.now().toString(36) // Simple error ID
-    }
+    const errorId = Date.now().toString();
+    return { hasError: true, error, errorId };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log error using the available handleError function
-    handleError(error, 'EnhancedErrorBoundary')
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error details:', {
+    const context = this.props.componentName || 'EnhancedErrorBoundary';
+    secureLog.error(`Error in ${context}:`, error, errorInfo);
+    
+    // Enhanced error reporting
+    reportError(error, context, {
+      errorInfo,
       componentStack: errorInfo.componentStack,
-      errorBoundary: true,
-      errorId: this.state.errorId
-    })
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      url: window.location.href
+    });
   }
 
-  handleReset = () => {
-    this.setState({ hasError: false, error: undefined, errorId: undefined })
-  }
-
-  handleReload = () => {
-    window.location.reload()
-  }
-
-  createUserFriendlyMessage = (error: Error): string => {
-    if (error.message.includes('Network')) return 'Network connection issue. Please check your internet.'
-    if (error.message.includes('Unauthorized')) return 'Authentication required. Please log in again.'
-    if (error.message.includes('404')) return 'The requested resource was not found.'
-    return 'An unexpected error occurred. Please try again.'
-  }
+  private handleRetry = () => {
+    this.setState({ hasError: false, error: undefined, errorId: undefined });
+  };
 
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
-        return this.props.fallback
+        return this.props.fallback;
       }
 
-      const userMessage = this.state.error 
-        ? this.createUserFriendlyMessage(this.state.error)
-        : 'Something went wrong'
-
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-hero p-4">
-          <Card className="max-w-md w-full bg-white/90 border-vintage-red/30 shadow-xl">
-            <CardHeader className="text-center">
-              <div className="mx-auto w-12 h-12 bg-vintage-red/10 rounded-full flex items-center justify-center mb-4">
-                <AlertTriangle className="w-6 h-6 text-vintage-red" />
-              </div>
-              <CardTitle className="text-tabloid-black">
-                Oops! Something went wrong
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-gray-600 text-center">
-                {userMessage}
+        <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black flex items-center justify-center p-4">
+          <div className="bg-ctea-dark/90 backdrop-blur-lg border border-red-500/30 rounded-lg p-8 max-w-md w-full text-center">
+            <AlertTriangle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-white mb-4">Something Went Wrong</h2>
+            <p className="text-gray-300 mb-4">
+              {this.props.componentName || 'A component'} encountered an unexpected error.
+            </p>
+            {this.state.errorId && (
+              <p className="text-xs text-gray-500 mb-6 font-mono">
+                Error ID: {this.state.errorId}
               </p>
-              
-              {this.state.errorId && (
-                <p className="text-xs text-gray-400 text-center">
-                  Error ID: {this.state.errorId}
-                </p>
-              )}
-              
-              <div className="flex gap-2">
-                <Button 
-                  onClick={this.handleReset}
-                  className="flex-1"
-                  variant="outline"
-                >
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Try Again
-                </Button>
-                <Button 
-                  onClick={this.handleReload}
-                  className="flex-1"
-                  variant="default"
-                >
-                  Reload Page
-                </Button>
-              </div>
-              
-              <div className="text-center">
-                <Button
-                  variant="link"
-                  size="sm"
-                  onClick={() => window.history.back()}
-                  className="text-vintage-red"
-                >
-                  Go Back
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+            )}
+            {this.props.showRetry !== false && (
+              <Button
+                onClick={this.handleRetry}
+                className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white"
+              >
+                <RefreshCcw className="w-4 h-4 mr-2" />
+                Try Again
+              </Button>
+            )}
+          </div>
         </div>
-      )
+      );
     }
 
-    return this.props.children
+    return this.props.children;
   }
 }
+
+export default EnhancedErrorBoundary;

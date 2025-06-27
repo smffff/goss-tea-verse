@@ -1,15 +1,15 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { X, Plus, AlertTriangle } from 'lucide-react';
+import { X, Send, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { EnhancedSecurityService } from '@/services/enhancedSecurityService';
+import { secureLog } from '@/utils/secureLogging';
+import { validateContentSecurity } from '@/utils/securityUtils';
 
 interface SubmissionFormProps {
   onClose: () => void;
@@ -22,256 +22,267 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({
   onSubmit,
   isLoading = false
 }) => {
-  const [data, setData] = useState({
-    tea: '',
-    email: '',
-    wallet: '',
+  const [formData, setFormData] = useState({
+    title: '',
+    content: '',
     category: 'general',
-    evidence_urls: [''],
-    isAnonymous: true
+    isAnonymous: true,
+    sources: ''
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setData(prev => ({ ...prev, [name]: value }));
-  };
+  const categories = [
+    { value: 'general', label: 'General Tea', icon: '☕' },
+    { value: 'defi', label: 'DeFi Drama', icon: '🏦' },
+    { value: 'nft', label: 'NFT Gossip', icon: '🖼️' },
+    { value: 'exchange', label: 'Exchange News', icon: '📊' },
+    { value: 'celeb', label: 'Crypto Celebs', icon: '👑' }
+  ];
 
-  const handleCheckboxChange = (checked: boolean) => {
-    setData(prev => ({ ...prev, isAnonymous: checked }));
-  };
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
 
-  const handleSelectChange = (value: string) => {
-    setData(prev => ({ ...prev, category: value }));
-  };
+    if (!formData.title.trim()) {
+      newErrors.title = 'Title is required';
+    } else if (formData.title.length > 100) {
+      newErrors.title = 'Title must be under 100 characters';
+    }
 
-  const addEvidenceUrl = () => {
-    setData(prev => ({ ...prev, evidence_urls: [...prev.evidence_urls, ''] }));
-  };
+    if (!formData.content.trim()) {
+      newErrors.content = 'Content is required';
+    } else if (formData.content.length < 10) {
+      newErrors.content = 'Content must be at least 10 characters';
+    } else if (formData.content.length > 2000) {
+      newErrors.content = 'Content must be under 2000 characters';
+    }
 
-  const updateEvidenceUrl = (index: number, value: string) => {
-    const updatedUrls = [...data.evidence_urls];
-    updatedUrls[index] = value;
-    setData(prev => ({ ...prev, evidence_urls: updatedUrls }));
-  };
+    // Security validation
+    const titleSecurity = validateContentSecurity(formData.title);
+    const contentSecurity = validateContentSecurity(formData.content);
 
-  const removeEvidenceUrl = (index: number) => {
-    const updatedUrls = [...data.evidence_urls];
-    updatedUrls.splice(index, 1);
-    setData(prev => ({ ...prev, evidence_urls: updatedUrls }));
+    if (!titleSecurity.isValid) {
+      newErrors.title = 'Title contains potentially harmful content';
+    }
+
+    if (!contentSecurity.isValid) {
+      newErrors.content = 'Content contains potentially harmful content';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isLoading || !data.tea.trim()) return;
+
+    if (!validateForm()) {
+      toast({
+        title: "Validation Error",
+        description: "Please fix the errors and try again",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
-      // Enhanced security validation
-      const securityCheck = await EnhancedSecurityService.validateSubmissionSecurity(
-        data.tea,
-        data.evidence_urls,
-        'tea_submission'
-      );
-
-      // Check if validation failed
-      if (!securityCheck.overallValid) {
-        const errors = [];
-        
-        if (!securityCheck.contentValidation.valid) {
-          errors.push(...securityCheck.contentValidation.threats);
-        }
-        
-        if (!securityCheck.rateLimitCheck.allowed) {
-          errors.push(securityCheck.rateLimitCheck.blockedReason || 'Rate limit exceeded');
-        }
-        
-        if (securityCheck.urlValidation.invalid.length > 0) {
-          errors.push(`Invalid URLs: ${securityCheck.urlValidation.invalid.join(', ')}`);
-        }
-
-        toast({
-          title: "Submission Failed",
-          description: `Security validation failed: ${errors.join(', ')}`,
-          variant: "destructive"
-        });
-
-        // Log security violation - Fixed severity level
-        await EnhancedSecurityService.logSecurityEvent('submission_blocked', {
-          reasons: errors,
-          content_length: data.tea.length,
-          risk_level: securityCheck.contentValidation.riskLevel
-        }, 'error');
-
-        return;
-      }
-
-      // Use sanitized content
+      // Sanitize data before submission
       const sanitizedData = {
-        ...data,
-        tea: securityCheck.contentValidation.sanitized,
-        evidence_urls: securityCheck.urlValidation.valid
+        ...formData,
+        title: validateContentSecurity(formData.title).sanitized,
+        content: validateContentSecurity(formData.content).sanitized,
+        timestamp: new Date().toISOString()
       };
 
       await onSubmit(sanitizedData);
 
-      // Log successful submission - Fixed severity level  
-      await EnhancedSecurityService.logSecurityEvent('secure_submission_created', {
-        content_length: sanitizedData.tea.length,
-        evidence_count: sanitizedData.evidence_urls.length,
-        security_score: securityCheck.contentValidation.securityScore
-      }, 'info');
-
-    } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Submission error:', error);
       toast({
-        title: "Submission Failed",
-        description: error instanceof Error ? error.message : 'An unexpected error occurred',
-        variant: "destructive"
+        title: "Tea Spilled Successfully! ☕",
+        description: "Your submission has been added to the queue",
       });
 
-      // Log submission error - Fixed severity level
-      await EnhancedSecurityService.logSecurityEvent('submission_error', {
-        error: error instanceof Error ? error.message : 'Unknown error',
-        content_length: data.tea.length
-      }, 'warning');
+      onClose();
+    } catch (error) {
+      secureLog.error('Submission failed:', error);
+      toast({
+        title: "Submission Failed",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
 
   return (
-    <Card className="bg-white/90 border-vintage-red/30 shadow-lg">
-      <CardHeader>
-        <CardTitle className="text-tabloid-black">Spill The Tea</CardTitle>
+    <Card className="bg-ctea-dark/95 border-ctea-teal/30 max-w-2xl w-full">
+      <CardHeader className="flex flex-row items-center justify-between pb-4">
+        <CardTitle className="text-2xl text-white flex items-center gap-2">
+          🫖 Spill Some Tea
+        </CardTitle>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClose}
+          className="text-gray-400 hover:text-white"
+        >
+          <X className="w-4 h-4" />
+        </Button>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="tea">Tea</Label>
-            <Textarea
-              id="tea"
-              name="tea"
-              placeholder="What's the gossip?"
-              value={data.tea}
-              onChange={handleInputChange}
-              rows={4}
-              required
-              className="bg-stone-100"
-            />
-          </div>
 
-          <div>
-            <Label htmlFor="category">Category</Label>
-            <Select onValueChange={handleSelectChange}>
-              <SelectTrigger className="w-full bg-stone-100">
-                <SelectValue placeholder="General" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="general">General</SelectItem>
-                <SelectItem value="exchanges">Exchanges</SelectItem>
-                <SelectItem value="defi">DeFi</SelectItem>
-                <SelectItem value="nfts">NFTs</SelectItem>
-                <SelectItem value="regulation">Regulation</SelectItem>
-                <SelectItem value="memecoins">Memecoins</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label>Evidence (Optional)</Label>
-            {data.evidence_urls.map((url, index) => (
-              <div key={index} className="flex items-center space-x-2 mb-2">
-                <Input
-                  type="url"
-                  placeholder="Link to evidence"
-                  value={url}
-                  onChange={(e) => updateEvidenceUrl(index, e.target.value)}
-                  className="bg-stone-100"
-                />
-                {data.evidence_urls.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeEvidenceUrl(index)}
-                    className="text-red-500 hover:bg-red-100"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
-            ))}
-            {data.evidence_urls.length < 5 && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={addEvidenceUrl}
-                className="w-full justify-center border-vintage-red text-vintage-red hover:bg-vintage-red/10"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Evidence
-              </Button>
-            )}
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="isAnonymous"
-              checked={data.isAnonymous}
-              onCheckedChange={handleCheckboxChange}
-            />
-            <Label htmlFor="isAnonymous">Post Anonymously</Label>
-          </div>
-
-          {!data.isAnonymous && (
-            <div className="space-y-2">
-              <div>
-                <Label htmlFor="email">Contact Email</Label>
-                <Input
-                  type="email"
-                  id="email"
-                  name="email"
-                  placeholder="Your email"
-                  value={data.email}
-                  onChange={handleInputChange}
-                  className="bg-stone-100"
-                />
-              </div>
-              <div>
-                <Label htmlFor="wallet">Wallet Address</Label>
-                <Input
-                  type="text"
-                  id="wallet"
-                  name="wallet"
-                  placeholder="Your wallet address"
-                  value={data.wallet}
-                  onChange={handleInputChange}
-                  className="bg-stone-100"
-                />
-              </div>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Category Selection */}
+          <div className="space-y-2">
+            <Label className="text-white">Category</Label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {categories.map((category) => (
+                <button
+                  key={category.value}
+                  type="button"
+                  onClick={() => handleInputChange('category', category.value)}
+                  className={`p-3 rounded-lg border transition-all text-sm font-medium ${
+                    formData.category === category.value
+                      ? 'bg-ctea-teal/20 border-ctea-teal text-ctea-teal'
+                      : 'bg-ctea-dark/50 border-ctea-teal/30 text-gray-300 hover:bg-ctea-dark/70'
+                  }`}
+                >
+                  <span className="mr-2">{category.icon}</span>
+                  {category.label}
+                </button>
+              ))}
             </div>
-          )}
+          </div>
 
-          <div className="flex justify-between items-center">
+          {/* Title */}
+          <div className="space-y-2">
+            <Label htmlFor="title" className="text-white">
+              Title *
+              <Badge className="ml-2 bg-orange-500/20 text-orange-400 border-orange-500/30">
+                Hot Take Alert
+              </Badge>
+            </Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => handleInputChange('title', e.target.value)}
+              placeholder="What's the tea? (e.g., 'Major DeFi Protocol Drama Unfolds')"
+              className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-500"
+              maxLength={100}
+            />
+            {errors.title && (
+              <p className="text-red-400 text-sm flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3" />
+                {errors.title}
+              </p>
+            )}
+            <p className="text-xs text-gray-500">
+              {formData.title.length}/100 characters
+            </p>
+          </div>
+
+          {/* Content */}
+          <div className="space-y-2">
+            <Label htmlFor="content" className="text-white">
+              Your Tea *
+              <Badge className="ml-2 bg-red-500/20 text-red-400 border-red-500/30">
+                Spill Responsibly
+              </Badge>
+            </Label>
+            <Textarea
+              id="content"
+              value={formData.content}
+              onChange={(e) => handleInputChange('content', e.target.value)}
+              placeholder="Spill the tea... What's really happening? Include details, context, and any evidence you have."
+              className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-500 min-h-[120px]"
+              maxLength={2000}
+            />
+            {errors.content && (
+              <p className="text-red-400 text-sm flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3" />
+                {errors.content}
+              </p>
+            )}
+            <p className="text-xs text-gray-500">
+              {formData.content.length}/2000 characters
+            </p>
+          </div>
+
+          {/* Sources (Optional) */}
+          <div className="space-y-2">
+            <Label htmlFor="sources" className="text-white">
+              Sources (Optional)
+              <Badge className="ml-2 bg-blue-500/20 text-blue-400 border-blue-500/30">
+                Credibility Boost
+              </Badge>
+            </Label>
+            <Input
+              id="sources"
+              value={formData.sources}
+              onChange={(e) => handleInputChange('sources', e.target.value)}
+              placeholder="Links, screenshots, or references (helps with credibility)"
+              className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-500"
+            />
+          </div>
+
+          {/* Anonymous Toggle */}
+          <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-amber-500/10 to-red-500/10 border border-red-500/20 rounded-lg">
+            <input
+              type="checkbox"
+              id="anonymous"
+              checked={formData.isAnonymous}
+              onChange={(e) => handleInputChange('isAnonymous', e.target.checked.toString())}
+              className="w-4 h-4 text-ctea-teal bg-ctea-dark border-ctea-teal/30 rounded focus:ring-2 focus:ring-ctea-teal/50"
+            />
+            <Label htmlFor="anonymous" className="text-gray-300 cursor-pointer">
+              🥸 Submit anonymously (recommended for maximum tea protection)
+            </Label>
+          </div>
+
+          {/* Disclaimer */}
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+            <p className="text-amber-200 text-xs leading-relaxed">
+              <strong>⚠️ Disclaimer:</strong> This platform is for entertainment and discussion purposes only. 
+              Please verify information independently and be responsible with your submissions. 
+              We do not endorse unverified claims.
+            </p>
+          </div>
+
+          {/* Submit Button */}
+          <div className="flex gap-3 pt-4">
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={onClose}
-              className="text-tabloid-black hover:bg-stone-100"
+              className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={isLoading}
-              className="bg-vintage-red text-white hover:bg-vintage-red/90"
+              disabled={isSubmitting || isLoading}
+              className="flex-1 bg-gradient-to-r from-ctea-teal to-ctea-purple hover:from-ctea-teal/80 hover:to-ctea-purple/80 text-white"
             >
-              {isLoading ? (
+              {isSubmitting ? (
                 <>
-                  Submitting...
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                  Spilling Tea...
                 </>
               ) : (
-                'Submit Tea'
+                <>
+                  <Send className="w-4 h-4 mr-2" />
+                  Spill The Tea
+                </>
               )}
             </Button>
           </div>

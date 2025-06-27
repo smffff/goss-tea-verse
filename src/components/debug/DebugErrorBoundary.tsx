@@ -1,5 +1,6 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { secureLog } from '@/utils/secureLogging';
 
 interface Props {
   children: ReactNode;
@@ -22,7 +23,7 @@ class DebugErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error(`Error in ${this.props.componentName || 'Component'}:`, error, errorInfo);
+    secureLog.error(`Error in ${this.props.componentName || 'Component'}:`, error, errorInfo);
   }
 
   render() {
