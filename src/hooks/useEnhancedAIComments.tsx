@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { TeaSubmission } from '@/types/teaFeed';
+import { secureLog } from '@/utils/secureLog';
 
 // Simple AI comment type to avoid deep instantiation issues
 export interface SimpleAIComment {
@@ -47,7 +48,11 @@ export const useEnhancedAIComments = () => {
         });
       }
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('useEnhancedAIComments - Error generating AI commentary:', error);
+      try {
+        secureLog.error('useEnhancedAIComments - Error generating AI commentary:', error);
+      } catch (logError) {
+        console.error('useEnhancedAIComments - Error generating AI commentary:', error);
+      }
     }
   };
 

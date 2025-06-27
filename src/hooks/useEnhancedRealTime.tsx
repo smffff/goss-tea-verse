@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { TeaSubmission } from '@/types/teaFeed';
 import { transformSubmission } from '@/utils/submissionUtils';
+import { secureLog } from '@/utils/secureLog';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
 interface UseEnhancedRealTimeProps {
@@ -14,7 +15,11 @@ export const useEnhancedRealTime = ({ setSubmissions }: UseEnhancedRealTimeProps
   const channelRef = useRef<RealtimeChannel | null>(null);
 
   useEffect(() => {
-    if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('useEnhancedRealTime - Setting up subscription');
+    try {
+      secureLog.info('useEnhancedRealTime - Setting up subscription');
+    } catch (logError) {
+      console.log('useEnhancedRealTime - Setting up subscription');
+    }
     
     // Clean up existing channel
     if (channelRef.current) {
@@ -31,7 +36,11 @@ export const useEnhancedRealTime = ({ setSubmissions }: UseEnhancedRealTimeProps
           table: 'tea_submissions'
         },
         (payload) => {
-          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('useEnhancedRealTime - New submission:', payload);
+          try {
+            secureLog.info('useEnhancedRealTime - New submission:', payload);
+          } catch (logError) {
+            console.log('useEnhancedRealTime - New submission:', payload);
+          }
           const newSubmission = payload.new as TeaSubmission;
           
           if (newSubmission.status === 'approved') {
@@ -53,7 +62,11 @@ export const useEnhancedRealTime = ({ setSubmissions }: UseEnhancedRealTimeProps
           table: 'tea_submissions'
         },
         (payload) => {
-          if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('useEnhancedRealTime - Submission updated:', payload);
+          try {
+            secureLog.info('useEnhancedRealTime - Submission updated:', payload);
+          } catch (logError) {
+            console.log('useEnhancedRealTime - Submission updated:', payload);
+          }
           const updatedSubmission = payload.new as TeaSubmission;
           
           if (updatedSubmission.status === 'approved') {

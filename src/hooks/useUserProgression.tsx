@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { secureLog } from '@/utils/secureLog';
 
 interface UserProgression {
   current_xp: number;
@@ -66,7 +67,11 @@ export const useUserProgression = () => {
         setProgression(data);
       }
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error loading user progression:', error);
+      try {
+        secureLog.error('Error loading user progression:', error);
+      } catch (logError) {
+        console.error('Error loading user progression:', error);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -96,7 +101,11 @@ export const useUserProgression = () => {
         }
       }
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error loading user levels:', error);
+      try {
+        secureLog.error('Error loading user levels:', error);
+      } catch (logError) {
+        console.error('Error loading user levels:', error);
+      }
     }
   };
 
@@ -121,7 +130,11 @@ export const useUserProgression = () => {
       addTeaPoints(2);
       checkLevelUp();
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error incrementing reaction:', error);
+      try {
+        secureLog.error('Error incrementing reaction:', error);
+      } catch (logError) {
+        console.error('Error incrementing reaction:', error);
+      }
     }
   };
 
@@ -146,7 +159,11 @@ export const useUserProgression = () => {
       addTeaPoints(10);
       checkLevelUp();
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error incrementing post count:', error);
+      try {
+        secureLog.error('Error incrementing post count:', error);
+      } catch (logError) {
+        console.error('Error incrementing post count:', error);
+      }
     }
   };
 
@@ -170,7 +187,11 @@ export const useUserProgression = () => {
       setProgression(updatedProgression);
       checkLevelUp();
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error adding tea points:', error);
+      try {
+        secureLog.error('Error adding tea points:', error);
+      } catch (logError) {
+        console.error('Error adding tea points:', error);
+      }
     }
   };
 
@@ -220,7 +241,11 @@ export const useUserProgression = () => {
         });
       }
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error checking level up:', error);
+      try {
+        secureLog.error('Error checking level up:', error);
+      } catch (logError) {
+        console.error('Error checking level up:', error);
+      }
     }
   };
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { getOrCreateSecureToken } from '@/utils/securityUtils';
+import { secureLog } from '@/utils/secureLog';
 
 interface Comment {
   id: string;
@@ -46,7 +47,11 @@ export const useComments = (submissionId: string) => {
       
       setComments(mockComments);
     } catch (error: unknown) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error fetching comments:', error);
+      try {
+        secureLog.error('Error fetching comments:', error);
+      } catch (logError) {
+        console.error('Error fetching comments:', error);
+      }
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to load comments",
@@ -108,7 +113,11 @@ export const useComments = (submissionId: string) => {
         description: "Your comment has been posted successfully.",
       });
     } catch (error: unknown) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error adding comment:', error);
+      try {
+        secureLog.error('Error adding comment:', error);
+      } catch (logError) {
+        console.error('Error adding comment:', error);
+      }
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to post comment",
@@ -131,7 +140,11 @@ export const useComments = (submissionId: string) => {
         return comment;
       }));
     } catch (error: unknown) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Error toggling like:', error);
+      try {
+        secureLog.error('Error toggling like:', error);
+      } catch (logError) {
+        console.error('Error toggling like:', error);
+      }
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to update like",

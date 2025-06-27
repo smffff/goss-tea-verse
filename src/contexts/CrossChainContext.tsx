@@ -1,9 +1,9 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { CrossChainUser, OGStatus } from '@/types/crossChain';
 import { web3CrossChainService } from '@/services/web3CrossChainService';
 import { useWallet } from '@/components/WalletProvider';
 import { useToast } from '@/hooks/use-toast';
+import { secureLog } from '@/utils/secureLog';
 
 interface CrossChainContextType {
   crossChainUser: CrossChainUser | null;
@@ -30,8 +30,11 @@ export const CrossChainProvider: React.FC<CrossChainProviderProps> = ({ children
 
     setIsCheckingOGStatus(true);
     try {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('🔄 Refreshing OG status for:', wallet.address);
-      
+      try {
+        secureLog.info('🔄 Refreshing OG status for:', wallet.address);
+      } catch (logError) {
+        console.log('🔄 Refreshing OG status for:', wallet.address);
+      }
       // Ensure we're on Avalanche network
       await web3CrossChainService.ensureAvalancheNetwork();
       
@@ -51,7 +54,11 @@ export const CrossChainProvider: React.FC<CrossChainProviderProps> = ({ children
         });
       }
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('Failed to refresh OG status:', error);
+      try {
+        secureLog.error('Failed to refresh OG status:', error);
+      } catch (logError) {
+        console.error('Failed to refresh OG status:', error);
+      }
       toast({
         title: 'OG Check Failed',
         description: 'Could not verify OG status. Please ensure you\'re connected to Avalanche network.',

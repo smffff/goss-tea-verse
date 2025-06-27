@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { TeaSubmission } from '@/types/teaFeed';
 import { transformSubmission, filterSubmissions } from '@/utils/submissionUtils';
+import { secureLog } from '@/utils/secureLog';
 
 export const useEnhancedFeedState = () => {
   const [submissions, setSubmissions] = useState<TeaSubmission[]>([]);
@@ -15,7 +16,11 @@ export const useEnhancedFeedState = () => {
   const fetchSubmissions = useCallback(async () => {
     try {
       setIsLoading(true);
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('useEnhancedFeedState - Fetching submissions...');
+      try {
+        secureLog.info('useEnhancedFeedState - Fetching submissions...');
+      } catch (logError) {
+        console.log('useEnhancedFeedState - Fetching submissions...');
+      }
       
       let query = supabase
         .from('tea_submissions')
@@ -42,9 +47,17 @@ export const useEnhancedFeedState = () => {
       const filteredData = filterSubmissions(transformedData, activeFilter);
       
       setSubmissions(filteredData);
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.info('useEnhancedFeedState - Fetched submissions:', filteredData.length);
+      try {
+        secureLog.info('useEnhancedFeedState - Fetched submissions:', filteredData.length);
+      } catch (logError) {
+        console.log('useEnhancedFeedState - Fetched submissions:', filteredData.length);
+      }
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('useEnhancedFeedState - Error:', error);
+      try {
+        secureLog.error('useEnhancedFeedState - Error:', error);
+      } catch (logError) {
+        console.error('useEnhancedFeedState - Error:', error);
+      }
       toast({
         title: "Failed to Load Feed",
         description: "Please try refreshing the page.",
@@ -73,7 +86,11 @@ export const useEnhancedFeedState = () => {
       
       return true;
     } catch (error) {
-      if (process.env.NODE_ENV === "development") { if (process.env.NODE_ENV === "development") { secureLog.error('useEnhancedFeedState - Reaction error:', error);
+      try {
+        secureLog.error('useEnhancedFeedState - Reaction error:', error);
+      } catch (logError) {
+        console.error('useEnhancedFeedState - Reaction error:', error);
+      }
       return false;
     }
   }, []);
