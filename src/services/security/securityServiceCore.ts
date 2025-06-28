@@ -153,7 +153,11 @@ export class SecurityServiceCore {
         // Handle threat level escalation based on risk level
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         const riskLevel = contentValidation.risk_level;
+=======
+        const riskLevel = toRiskLevel(contentValidation.risk_level);
+>>>>>>> Stashed changes
 =======
         const riskLevel = toRiskLevel(contentValidation.risk_level);
 >>>>>>> Stashed changes
