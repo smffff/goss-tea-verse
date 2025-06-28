@@ -1,138 +1,102 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import { useSecurityMonitoring } from '../hooks/useSecurityMonitoring'
-import { applySecurityHeaders, generateCSRFToken } from '../utils/securityHeaders'
-import { SecurityService } from '../services/securityService'
-import { secureLog } from '@/utils/secureLogging'
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { SecurityService } from '@/services/securityService';
+import { applySecurityHeaders, generateCSRFToken } from '@/utils/securityHeaders';
+import { secureLog } from '@/utils/secureLogging';
+import { useToast } from '@/hooks/use-toast';
 
 interface SecurityContextType {
-  csrfToken: string
-  logSecurityEvent: (type: string, details: Record<string, unknown>, severity?: 'low' | 'medium' | 'high' | 'critical') => Promise<void>
-  checkRateLimit: (identifier: string, action: string, maxActions?: number, windowMinutes?: number) => Promise<any>
-  validateContent: (content: string) => Promise<{ valid: boolean; sanitized: string; threats: string[] }>
-  isSecurityEnabled: boolean
+  csrfToken: string;
+  isSecurityEnabled: boolean;
+  validateSubmission: (content: string, action?: string) => Promise<{
+    success: boolean;
+    errors: string[];
+    sanitizedContent?: string;
+  }>;
+  createSubmission: (content: string, category?: string) => Promise<{
+    success: boolean;
+    submissionId?: string;
+    error?: string;
+  }>;
 }
 
-const SecurityContext = createContext<SecurityContextType | null>(null)
+const SecurityContext = createContext<SecurityContextType | null>(null);
 
 export const useSecurity = () => {
-  const context = useContext(SecurityContext)
+  const context = useContext(SecurityContext);
   if (!context) {
-    throw new Error('useSecurity must be used within a SecurityProvider')
+    throw new Error('useSecurity must be used within a SecurityProvider');
   }
-  return context
-}
+  return context;
+};
 
 interface SecurityProviderProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export const SecurityProvider: React.FC<SecurityProviderProps> = ({ children }) => {
-  const [csrfToken, setCsrfToken] = useState('')
-  const [isSecurityEnabled, setIsSecurityEnabled] = useState(true)
+  const [csrfToken, setCsrfToken] = useState('');
+  const [isSecurityEnabled, setIsSecurityEnabled] = useState(true);
+  const { toast } = useToast();
 
-  const {
-    logSecurityEvent,
-    checkRateLimit,
-    validateContent: validateContentAsync
-  } = useSecurityMonitoring({
-    enableRealTimeAlerts: true,
-    logUserActivity: true,
-    detectSuspiciousPatterns: true
-  })
+  useEffect(() => {
+    const initSecurity = async () => {
+      try {
+        // Apply security headers
+        applySecurityHeaders();
 
-  // Wrap the async validateContent to ensure consistent return type
-  const validateContent = async (content: string): Promise<{ valid: boolean; sanitized: string; threats: string[] }> => {
+        // Generate CSRF token
+        const token = generateCSRFToken();
+        setCsrfToken(token);
+        sessionStorage.setItem('csrf_token', token);
+
+        setIsSecurityEnabled(true);
+      } catch (error) {
+        secureLog.error('Security initialization failed', error);
+        setIsSecurityEnabled(false);
+        
+        toast({
+          title: "Security Warning",
+          description: "Security features may be limited",
+          variant: "destructive"
+        });
+      }
+    };
+
+    initSecurity();
+  }, [toast]);
+
+  const validateSubmission = async (content: string, action: string = 'submission') => {
     try {
-      const result = await validateContentAsync(content);
-      
-      // Ensure threats array is always present
+      const result = await SecurityService.validateSubmissionSecurity(content, action);
       return {
-        valid: result.valid,
-        sanitized: result.sanitized,
-        threats: []
+        success: result.success,
+        errors: result.errors,
+        sanitizedContent: result.sanitizedContent
       };
     } catch (error) {
-      secureLog.error('Content validation failed', error);
+      secureLog.error('Submission validation failed', error);
       return {
-        valid: false,
-        sanitized: content.replace(/[<>]/g, ''),
-        threats: ['Validation service unavailable']
+        success: false,
+        errors: ['Validation service unavailable']
       };
     }
   };
 
-  useEffect(() => {
-    // Initialize security
-    const initSecurity = async () => {
-      try {
-        // Apply security headers
-        applySecurityHeaders()
-
-        // Generate CSRF token
-        const token = generateCSRFToken()
-        setCsrfToken(token)
-        sessionStorage.setItem('csrf_token', token)
-
-        // Log security initialization
-        await logSecurityEvent('security_initialized', {
-          csrf_token_generated: true,
-          headers_applied: true,
-          monitoring_enabled: true
-        })
-
-        setIsSecurityEnabled(true)
-      } catch (error) {
-        secureLog.error('Security initialization failed', error)
-        await logSecurityEvent('security_init_failed', {
-          error: error instanceof Error ? error.message : 'Unknown error'
-        }, 'high')
-        setIsSecurityEnabled(false)
-      }
-    }
-
-    initSecurity()
-  }, [logSecurityEvent])
-
-  // Monitor for security threats
-  useEffect(() => {
-    const monitorThreats = () => {
-      // Check for common attack patterns in URL
-      const url = window.location.href
-      const suspiciousPatterns = [
-        /javascript:/i,
-        /data:/i,
-        /<script/i,
-        /\.\./,
-        /\/etc\/passwd/i,
-        /union.*select/i
-      ]
-
-      for (const pattern of suspiciousPatterns) {
-        if (pattern.test(url)) {
-          logSecurityEvent('suspicious_url_pattern', {
-            url: window.location.href,
-            pattern: pattern.toString()
-          }, 'high')
-          break
-        }
-      }
-    }
-
-    monitorThreats()
-  }, [logSecurityEvent])
+  const createSubmission = async (content: string, category: string = 'general') => {
+    return await SecurityService.createSecureSubmission(content, category);
+  };
 
   const value: SecurityContextType = {
     csrfToken,
-    logSecurityEvent,
-    checkRateLimit,
-    validateContent,
-    isSecurityEnabled
-  }
+    isSecurityEnabled,
+    validateSubmission,
+    createSubmission
+  };
 
   return (
     <SecurityContext.Provider value={value}>
       {children}
     </SecurityContext.Provider>
-  )
-}
+  );
+};

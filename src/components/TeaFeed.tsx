@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLog';
 import TeaSubmissionCard from './TeaSubmissionCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { Coffee, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useSimpleReactions } from '@/hooks/useSimpleReactions';
-import { TeaTokenRewardService } from '@/services/teaTokenRewardService';
+import { SecurityService } from '@/services/securityService';
+import { useToast } from '@/hooks/use-toast';
 
 interface TeaSubmission {
   id: string;
@@ -24,15 +25,15 @@ const TeaFeed: React.FC = () => {
   const [submissions, setSubmissions] = useState<TeaSubmission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const { handleReaction } = useSimpleReactions();
+  const { toast } = useToast();
 
-  const fetchSubmissions = async (showRefreshLoader = false) => {
+  const fetchSubmissions = useCallback(async (showRefreshLoader = false) => {
     try {
       if (showRefreshLoader) setIsRefreshing(true);
       
       const { data, error } = await supabase
         .from('tea_submissions')
-        .select('id, content, category, created_at, reactions, anonymous_token')
+        .select('id, content, category, created_at, reactions')
         .eq('status', 'approved')
         .order('created_at', { ascending: false })
         .limit(20);
@@ -50,19 +51,20 @@ const TeaFeed: React.FC = () => {
       setSubmissions(transformedData);
     } catch (error) {
       secureLog.error('Failed to fetch tea submissions', error);
+      toast({
+        title: "Failed to load feed",
+        description: "Please try refreshing the page",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
       if (showRefreshLoader) setIsRefreshing(false);
     }
-  };
+  }, [toast]);
 
-  useEffect(() => {
-    fetchSubmissions();
-  }, []);
-
-  const handleReactionWithRewards = async (submissionId: string, reactionType: 'hot' | 'cold' | 'spicy') => {
+  const handleReaction = useCallback(async (submissionId: string, reactionType: 'hot' | 'cold' | 'spicy') => {
     try {
-      // Update local state optimistically
+      // Optimistic update
       setSubmissions(prev => prev.map(sub => 
         sub.id === submissionId 
           ? { 
@@ -75,13 +77,10 @@ const TeaFeed: React.FC = () => {
           : sub
       ));
 
-      // Handle the reaction with token rewards
-      const success = await handleReaction(submissionId, reactionType);
+      const result = await SecurityService.createSecureReaction(submissionId, reactionType);
       
-      if (success) {
-        secureLog.info('Reaction added with rewards', { submissionId, reactionType });
-      } else {
-        // Revert optimistic update on failure
+      if (!result.success) {
+        // Revert optimistic update
         setSubmissions(prev => prev.map(sub => 
           sub.id === submissionId 
             ? { 
@@ -93,23 +92,63 @@ const TeaFeed: React.FC = () => {
               }
             : sub
         ));
+        
+        toast({
+          title: "Reaction failed",
+          description: result.error || "Please try again",
+          variant: "destructive"
+        });
+        
+        return false;
       }
       
-      return success;
+      return true;
     } catch (error) {
       secureLog.error('Failed to add reaction', error);
+      
+      // Revert optimistic update
+      setSubmissions(prev => prev.map(sub => 
+        sub.id === submissionId 
+          ? { 
+              ...sub, 
+              reactions: { 
+                ...sub.reactions, 
+                [reactionType]: sub.reactions[reactionType] - 1 
+              } 
+            }
+          : sub
+      ));
+      
       return false;
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchSubmissions();
+  }, [fetchSubmissions]);
+
+  // Memoize loading state
+  const loadingContent = useMemo(() => (
+    <div className="space-y-4">
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin w-8 h-8 border-2 border-ctea-teal border-t-transparent rounded-full"></div>
+      </div>
+    </div>
+  ), []);
+
+  // Memoize empty state
+  const emptyContent = useMemo(() => (
+    <Card className="bg-ctea-dark/60 border-ctea-teal/30">
+      <CardContent className="p-8 text-center">
+        <Coffee className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+        <h3 className="text-white font-semibold mb-2">No Tea Spilled Yet</h3>
+        <p className="text-gray-400">Be the first to share some hot gossip!</p>
+      </CardContent>
+    </Card>
+  ), []);
 
   if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-center p-8">
-          <div className="animate-spin w-8 h-8 border-2 border-ctea-teal border-t-transparent rounded-full"></div>
-        </div>
-      </div>
-    );
+    return loadingContent;
   }
 
   return (
@@ -131,21 +170,13 @@ const TeaFeed: React.FC = () => {
         </Button>
       </div>
 
-      {submissions.length === 0 ? (
-        <Card className="bg-ctea-dark/60 border-ctea-teal/30">
-          <CardContent className="p-8 text-center">
-            <Coffee className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-white font-semibold mb-2">No Tea Spilled Yet</h3>
-            <p className="text-gray-400">Be the first to share some hot gossip!</p>
-          </CardContent>
-        </Card>
-      ) : (
+      {submissions.length === 0 ? emptyContent : (
         <div className="space-y-4">
           {submissions.map((submission) => (
             <TeaSubmissionCard
               key={submission.id}
               submission={submission}
-              onReaction={handleReactionWithRewards}
+              onReaction={handleReaction}
             />
           ))}
         </div>
