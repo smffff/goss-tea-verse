@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
 import type { ContentValidationResult, RateLimitResult, ThreatLevel } from './security/types';
@@ -61,7 +62,7 @@ export class SecurityService {
 
       // Type guard for the response
       if (data && typeof data === 'object' && 'valid' in data) {
-        return data as unknown as ContentValidationResult;
+        return data as ContentValidationResult;
       }
 
       // Fallback validation
@@ -108,7 +109,7 @@ export class SecurityService {
 
       // Type guard for the response
       if (data && typeof data === 'object' && 'allowed' in data) {
-        return data as unknown as RateLimitResult;
+        return data as RateLimitResult;
       }
 
       // Fallback - allow with warning
