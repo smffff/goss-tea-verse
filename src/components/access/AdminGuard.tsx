@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Shield, Lock } from 'lucide-react';
-import { useAdminAccess } from '@/hooks/useAdminAccess';
+import { useAuth } from '@/hooks/useAuthProvider';
 
 interface AdminGuardProps {
   children: React.ReactNode;
@@ -17,10 +18,10 @@ const AdminGuard: React.FC<AdminGuardProps> = ({
   requireSuperAdmin = false,
   showAccessDenied = true 
 }) => {
-  const { hasAdminAccess, hasSuperAdminAccess, userEmail } = useAdminAccess();
+  const { user, isAdmin } = useAuth();
 
   // Check if user has required access level
-  const hasRequiredAccess = requireSuperAdmin ? hasSuperAdminAccess : hasAdminAccess;
+  const hasRequiredAccess = requireSuperAdmin ? isAdmin : isAdmin;
 
   // If no access and we shouldn't show access denied, return null
   if (!hasRequiredAccess && !showAccessDenied) {
@@ -41,26 +42,27 @@ const AdminGuard: React.FC<AdminGuardProps> = ({
               <Shield className="w-16 h-16 text-red-400" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-red-400 mb-2">Access Denied</h2>
+              <h2 className="text-2xl font-bold text-red-400 mb-2">🫖 Access Denied</h2>
               <p className="text-gray-300 mb-4">
                 {requireSuperAdmin 
-                  ? 'You need super admin privileges to access this feature.'
-                  : 'You need admin privileges to access this feature.'
+                  ? 'You need super admin privileges to access this tea ceremony.'
+                  : 'You need admin privileges to access this exclusive tea lounge.'
                 }
               </p>
               {process.env.NODE_ENV === 'development' && (
-                <div className="text-xs text-gray-500 space-y-1">
-                  <p>Current user: {userEmail || 'Not authenticated'}</p>
-                  <p>Admin access: {hasAdminAccess ? 'Yes' : 'No'}</p>
-                  <p>Super admin: {hasSuperAdminAccess ? 'Yes' : 'No'}</p>
+                <div className="text-xs text-gray-500 space-y-1 p-3 bg-gray-800 rounded">
+                  <p>Current user: {user?.email || 'Not authenticated'}</p>
+                  <p>Admin access: {isAdmin ? 'Yes' : 'No'}</p>
+                  <p>Super admin required: {requireSuperAdmin ? 'Yes' : 'No'}</p>
                 </div>
               )}
             </div>
             <Button 
               variant="outline" 
-              className="border-gray-600 text-gray-400"
+              className="border-gray-600 text-gray-400 hover:bg-gray-700"
               onClick={() => window.history.back()}
             >
+              <Lock className="w-4 h-4 mr-2" />
               Go Back
             </Button>
           </CardContent>
@@ -73,4 +75,4 @@ const AdminGuard: React.FC<AdminGuardProps> = ({
   return <>{children}</>;
 };
 
-export default AdminGuard; 
+export default AdminGuard;

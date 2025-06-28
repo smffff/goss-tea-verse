@@ -1,9 +1,8 @@
 
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/useAuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { secureLog } from '@/utils/secureLogging';
 
 interface SecureAuthState {
   isAuthenticated: boolean;
@@ -47,9 +46,7 @@ export const useSecureAuth = () => {
         const { data, error } = await supabase.rpc('validate_admin_access');
         
         if (error) {
-          if (process.env.NODE_ENV === "development") {
-            secureLog.error('Session validation error:', error);
-          }
+          console.error('Session validation error:', error);
           setSecureState(prev => ({
             ...prev,
             isAuthenticated: false,
@@ -74,8 +71,8 @@ export const useSecureAuth = () => {
 
         setSecureState({
           isAuthenticated: true,
-          isAdmin: adminData.is_admin || false,
-          isModerator: adminData.user_role === 'moderator' || adminData.is_admin || false,
+          isAdmin: adminData.is_admin || isAdmin,
+          isModerator: adminData.user_role === 'moderator' || adminData.is_admin || isModerator,
           isVerified,
           sessionExpiry
         });
@@ -83,16 +80,14 @@ export const useSecureAuth = () => {
         // Check if session is close to expiry
         if (sessionExpiry && Date.now() > sessionExpiry - (2 * 60 * 60 * 1000)) {
           toast({
-            title: "Session Expiring Soon",
-            description: "Please sign in again to continue.",
+            title: "Session Expiring Soon ⏰",
+            description: "Please sign in again to continue brewing tea.",
             variant: "destructive"
           });
         }
 
       } catch (error) {
-        if (process.env.NODE_ENV === "development") {
-          secureLog.error('Session validation failed:', error);
-        }
+        console.error('Session validation failed:', error);
         setSecureState(prev => ({
           ...prev,
           isAuthenticated: false,
@@ -108,13 +103,13 @@ export const useSecureAuth = () => {
     const interval = setInterval(validateSession, 5 * 60 * 1000);
     
     return () => clearInterval(interval);
-  }, [user, toast]);
+  }, [user, toast, isAdmin, isModerator]);
 
   const requireAdmin = (): boolean => {
     if (!secureState.isAdmin) {
       toast({
-        title: "Access Denied",
-        description: "Administrator privileges required.",
+        title: "Access Denied 🔒",
+        description: "Administrator privileges required to access this tea ceremony.",
         variant: "destructive"
       });
       return false;
@@ -125,8 +120,8 @@ export const useSecureAuth = () => {
   const requireModerator = (): boolean => {
     if (!secureState.isModerator) {
       toast({
-        title: "Access Denied",
-        description: "Moderator privileges required.",
+        title: "Access Denied 🔒",
+        description: "Moderator privileges required to manage this tea lounge.",
         variant: "destructive"
       });
       return false;
@@ -137,8 +132,8 @@ export const useSecureAuth = () => {
   const requireVerifiedEmail = (): boolean => {
     if (!secureState.isVerified) {
       toast({
-        title: "Email Verification Required",
-        description: "Please verify your email address.",
+        title: "Email Verification Required 📧",
+        description: "Please verify your email address to continue.",
         variant: "destructive"
       });
       return false;
