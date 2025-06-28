@@ -65,19 +65,19 @@ export const useSpillTeaForm = (
         'spill_tea'
       );
 
-      if (!securityCheck.rateLimitCheck.allowed) {
+      if (!securityCheck.rateLimitPassed) {
         toast({
           title: "Rate Limit Exceeded",
-          description: securityCheck.rateLimitCheck.blockedReason || "Please wait before submitting again.",
+          description: "Please wait before submitting again.",
           variant: "destructive"
         });
         return;
       }
 
-      if (!securityCheck.contentValidation.valid) {
+      if (!securityCheck.contentValid) {
         toast({
           title: "Content Validation Failed",
-          description: `Issues detected: ${securityCheck.contentValidation.errors.join(', ')}`,
+          description: `Issues detected: ${securityCheck.errors.join(', ')}`,
           variant: "destructive"
         });
         return;
@@ -85,8 +85,8 @@ export const useSpillTeaForm = (
 
       const sanitizedData: SpillData = {
         topic: formData.topic,
-        teaText: securityCheck.contentValidation.sanitized,
-        mediaUrl: securityCheck.urlValidation.valid[0] || undefined
+        teaText: securityCheck.sanitizedContent || formData.teaText,
+        mediaUrl: securityCheck.urlValidation?.valid[0] || undefined
       };
       
       await onSubmit(sanitizedData);

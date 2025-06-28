@@ -79,30 +79,30 @@ export const useSubmissionForm = (
         'tea_submission'
       );
 
-      if (!securityCheck.rateLimitCheck.allowed) {
+      if (!securityCheck.rateLimitPassed) {
         toast({
           title: "Rate Limit Exceeded",
-          description: securityCheck.rateLimitCheck.blockedReason || "Please wait before submitting again.",
+          description: "Please wait before submitting again.",
           variant: "destructive"
         });
         return;
       }
 
-      if (!securityCheck.contentValidation.valid) {
+      if (!securityCheck.contentValid) {
         toast({
           title: "Content Validation Failed",
-          description: `Issues detected: ${securityCheck.contentValidation.errors.join(', ')}`,
+          description: `Issues detected: ${securityCheck.errors.join(', ')}`,
           variant: "destructive"
         });
         return;
       }
 
       const sanitizedData: SubmissionData = {
-        tea: securityCheck.contentValidation.sanitized,
+        tea: securityCheck.sanitizedContent || formData.tea,
         email: formData.email.trim().toLowerCase(),
         wallet: formData.wallet.trim(),
         category: formData.category,
-        evidence_urls: securityCheck.urlValidation.valid,
+        evidence_urls: securityCheck.urlValidation?.valid || [],
         isAnonymous: formData.isAnonymous
       };
       
