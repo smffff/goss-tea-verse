@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
 
@@ -31,33 +30,29 @@ export class TipVerificationService {
     proofImageUrl?: string;
   }): Promise<{ success: boolean; tipId?: string; error?: string }> {
     try {
-      // Validate inputs
-      if (!tipData.userEmail || !tipData.network || !tipData.walletAddress) {
-        return { success: false, error: 'Missing required fields' };
-      }
-
-      // Insert directly into the table since we don't have the RPC function yet
+      // Use the new secure server-side function
       const { data, error } = await supabase
-        .from('tip_transactions')
-        .insert({
-          user_email: tipData.userEmail,
-          network: tipData.network,
-          wallet_address: tipData.walletAddress,
-          amount: tipData.amount,
-          transaction_hash: tipData.transactionHash,
-          proof_image_url: tipData.proofImageUrl,
-          status: 'pending',
-          verification_method: 'manual'
-        })
-        .select('id')
-        .single();
+        .rpc('submit_tip_transaction_secure', {
+          p_user_email: tipData.userEmail,
+          p_network: tipData.network,
+          p_wallet_address: tipData.walletAddress,
+          p_amount: tipData.amount,
+          p_transaction_hash: tipData.transactionHash,
+          p_proof_image_url: tipData.proofImageUrl
+        });
 
       if (error) {
         secureLog.error('Failed to submit tip proof:', error);
         return { success: false, error: error.message };
       }
 
-      return { success: true, tipId: data.id };
+      const result = data as any;
+      
+      if (!result.success) {
+        return { success: false, error: result.errors?.join(', ') || 'Submission failed' };
+      }
+
+      return { success: true, tipId: result.tip_id };
     } catch (error) {
       secureLog.error('Tip proof submission error:', error);
       return { success: false, error: 'Failed to submit tip proof' };

@@ -1408,6 +1408,17 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      submit_tip_transaction_secure: {
+        Args: {
+          p_user_email: string
+          p_network: string
+          p_wallet_address: string
+          p_amount?: number
+          p_transaction_hash?: string
+          p_proof_image_url?: string
+        }
+        Returns: Json
+      }
       test_rls_enforcement: {
         Args: Record<PropertyKey, never>
         Returns: Json
@@ -1437,6 +1448,10 @@ export type Database = {
         Returns: boolean
       }
       validate_anonymous_token_enhanced: {
+        Args: { token: string }
+        Returns: boolean
+      }
+      validate_anonymous_token_secure: {
         Args: { token: string }
         Returns: boolean
       }

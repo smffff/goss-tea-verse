@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
+import { SecureTokenService } from './secureTokenService';
 
 export interface SecurityValidationResult {
   valid: boolean;
@@ -112,50 +113,10 @@ export class SecurityService {
   }
 
   /**
-   * Generates a secure anonymous token
-   */
-  static generateSecureToken(): string {
-    try {
-      const array = new Uint8Array(32);
-      crypto.getRandomValues(array);
-      return btoa(String.fromCharCode(...array))
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=/g, '');
-    } catch (error) {
-      secureLog.error('Failed to generate secure token:', error);
-      // Fallback token generation
-      return 'fallback_' + Date.now() + '_' + Math.random().toString(36).substring(2);
-    }
-  }
-
-  /**
-   * Gets or creates a secure anonymous token
+   * Gets or creates a secure anonymous token using the new secure token service
    */
   static async getOrCreateSecureToken(): Promise<string> {
-    try {
-      let token = sessionStorage.getItem('ctea_anonymous_token');
-      
-      if (!token) {
-        token = this.generateSecureToken();
-        sessionStorage.setItem('ctea_anonymous_token', token);
-        secureLog.info('Generated new secure token');
-      }
-
-      // Validate the token
-      const isValid = await this.validateAnonymousToken(token);
-      
-      if (!isValid) {
-        secureLog.warn('Invalid token detected, generating new one');
-        token = this.generateSecureToken();
-        sessionStorage.setItem('ctea_anonymous_token', token);
-      }
-
-      return token;
-    } catch (error) {
-      secureLog.error('Token management failed:', error);
-      return this.generateSecureToken();
-    }
+    return await SecureTokenService.getOrCreateSecureToken();
   }
 
   /**
@@ -175,6 +136,52 @@ export class SecurityService {
       return true;
     } catch {
       return false;
+    }
+  }
+
+  /**
+   * Validates wallet address format for different networks
+   */
+  static validateWalletAddress(address: string, network: string): boolean {
+    if (!address || address.length < 26 || address.length > 62) {
+      return false;
+    }
+
+    switch (network.toLowerCase()) {
+      case 'ethereum':
+      case 'polygon':
+      case 'bsc':
+      case 'avalanche':
+        return /^0x[a-fA-F0-9]{40}$/.test(address);
+      case 'bitcoin':
+        return /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$|^bc1[a-z0-9]{39,59}$/.test(address);
+      case 'solana':
+        return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
+      default:
+        return true; // Allow unknown networks but validate length
+    }
+  }
+
+  /**
+   * Validates transaction hash format
+   */
+  static validateTransactionHash(hash: string, network: string): boolean {
+    if (!hash || hash.length < 32) {
+      return false;
+    }
+
+    switch (network.toLowerCase()) {
+      case 'ethereum':
+      case 'polygon':
+      case 'bsc':
+      case 'avalanche':
+        return /^0x[a-fA-F0-9]{64}$/.test(hash);
+      case 'bitcoin':
+        return /^[a-fA-F0-9]{64}$/.test(hash);
+      case 'solana':
+        return /^[1-9A-HJ-NP-Za-km-z]{87,88}$/.test(hash);
+      default:
+        return hash.length >= 32; // Basic length check for unknown networks
     }
   }
 
