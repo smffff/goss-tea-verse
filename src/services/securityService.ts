@@ -21,12 +21,12 @@ export interface RateLimitResult {
 
 export class SecurityService {
   /**
-   * Validates anonymous token using server-side validation
+   * Validates anonymous token using existing server-side validation
    */
   static async validateAnonymousToken(token: string): Promise<boolean> {
     try {
       const { data, error } = await supabase
-        .rpc('validate_anonymous_token_secure', { token });
+        .rpc('validate_anonymous_token_enhanced', { token });
 
       if (error) {
         secureLog.error('Token validation failed:', error);
@@ -41,7 +41,7 @@ export class SecurityService {
   }
 
   /**
-   * Checks rate limit using server-side validation
+   * Checks rate limit using existing server-side validation
    */
   static async checkRateLimit(
     token: string,
@@ -51,7 +51,7 @@ export class SecurityService {
   ): Promise<RateLimitResult> {
     try {
       const { data, error } = await supabase
-        .rpc('check_rate_limit_secure', {
+        .rpc('secure_rate_limit_advanced', {
           p_token: token,
           p_action: action,
           p_max_actions: maxActions,
@@ -63,7 +63,9 @@ export class SecurityService {
         return { allowed: false, blockedReason: 'Rate limit service unavailable' };
       }
 
-      return data as RateLimitResult;
+      // Cast the response to our expected format
+      const result = data as unknown as RateLimitResult;
+      return result;
     } catch (error) {
       secureLog.error('Rate limit check error:', error);
       return { allowed: false, blockedReason: 'Rate limit service error' };
@@ -71,7 +73,7 @@ export class SecurityService {
   }
 
   /**
-   * Validates content using server-side validation
+   * Validates content using existing server-side validation
    */
   static async validateContent(content: string, maxLength: number = 1000): Promise<SecurityValidationResult> {
     try {
@@ -90,12 +92,14 @@ export class SecurityService {
         };
       }
 
+      // Cast the response properly
+      const result = data as any;
       return {
-        valid: data.valid,
-        errors: data.errors || [],
-        warnings: data.warnings || [],
-        sanitized: data.sanitized,
-        securityScore: data.security_score
+        valid: result.valid || false,
+        errors: result.errors || [],
+        warnings: result.warnings || [],
+        sanitized: result.sanitized || content,
+        securityScore: result.security_score || 0
       };
     } catch (error) {
       secureLog.error('Content validation error:', error);
