@@ -70,11 +70,9 @@ export class UnifiedSecurityService {
       if (!contentValidation.valid) {
         securityScore = Math.min(securityScore, contentValidation.securityScore || 0);
         
-        // Handle risk level mapping properly
+        // Handle risk level mapping - only check for available types
         if (contentValidation.risk_level === 'high') {
           threatLevel = threatLevel === 'critical' ? 'critical' : 'high';
-        } else if (contentValidation.risk_level === 'medium' && threatLevel === 'low') {
-          threatLevel = 'medium';
         }
       }
 
