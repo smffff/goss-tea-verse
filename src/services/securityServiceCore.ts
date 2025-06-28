@@ -130,7 +130,7 @@ export class SecurityServiceCore {
           threatLevel = 'critical';
         } else if (riskLevel === 'high' && threatLevel !== 'critical') {
           threatLevel = 'high';
-        } else if (riskLevel === 'medium' && threatLevel === 'low') {
+        } else if (riskLevel === 'medium' && threatLevel !== 'critical' && threatLevel !== 'high') {
           threatLevel = 'medium';
         }
       }
