@@ -72,7 +72,7 @@ export class UnifiedSecurityService {
         
         // Handle risk level mapping - only check for available types
         if (contentValidation.risk_level === 'high') {
-          threatLevel = threatLevel === 'critical' ? 'critical' : 'high';
+          threatLevel = 'high';
         }
       }
 
