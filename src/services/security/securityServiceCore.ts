@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
 import {
@@ -151,27 +150,7 @@ export class SecurityServiceCore {
         securityScore = Math.min(securityScore, contentValidation.security_score || 0);
         
         // Handle threat level escalation based on risk level
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-        const riskLevel = contentValidation.risk_level;
-=======
         const riskLevel = toRiskLevel(contentValidation.risk_level);
->>>>>>> Stashed changes
-=======
-        const riskLevel = toRiskLevel(contentValidation.risk_level);
->>>>>>> Stashed changes
-=======
-        const riskLevel = toRiskLevel(contentValidation.risk_level);
->>>>>>> Stashed changes
-=======
-        const riskLevel = toRiskLevel(contentValidation.risk_level);
->>>>>>> Stashed changes
-=======
-        const riskLevel = toRiskLevel(contentValidation.risk_level);
->>>>>>> Stashed changes
         if (riskLevel === 'critical') {
           threatLevel = 'critical';
         } else if (riskLevel === 'high' && threatLevel !== 'critical') {
