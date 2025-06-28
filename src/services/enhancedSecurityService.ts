@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
 import { SecureTokenService } from './secureTokenService';
+import { SecurityServiceCore } from './securityServiceCore';
 
 export interface EnhancedSecurityValidation {
   success: boolean;
@@ -43,34 +44,12 @@ export class EnhancedSecurityService {
       // Get secure token
       const token = await SecureTokenService.getOrCreateSecureToken();
       
-      // Validate token security
-      const tokenValidation = await this.validateTokenSecurity(token);
-      if (!tokenValidation.valid) {
-        errors.push('Invalid security token');
-        securityScore -= 50;
-        threatLevel = 'high';
-      }
-
-      // Check rate limit with enhanced monitoring
-      const rateLimitResult = await this.checkEnhancedRateLimit(token, action, 5, 60);
-      if (!rateLimitResult.allowed) {
-        errors.push(rateLimitResult.blockedReason || 'Rate limit exceeded');
-        if (rateLimitResult.securityViolation) {
-          threatLevel = 'critical';
-          securityScore = 0;
-        }
-      }
-
-      // Validate content with comprehensive checks
-      const contentValidation = await this.validateContentComprehensive(content, 1000);
-      if (!contentValidation.valid) {
-        errors.push(...contentValidation.errors);
-        securityScore = Math.min(securityScore, contentValidation.securityScore || 0);
-        
-        if (contentValidation.risk_level === 'high' && threatLevel !== 'critical') {
-          threatLevel = 'high';
-        }
-      }
+      // Use core security service for validation
+      const validationResult = await SecurityServiceCore.validateSubmissionSecurity(
+        content,
+        token,
+        action
+      );
 
       // Validate evidence URLs if provided
       if (evidenceUrls.length > 0) {
@@ -79,18 +58,23 @@ export class EnhancedSecurityService {
           warnings.push(`Suspicious URLs detected: ${urlValidation.suspicious.length}`);
           securityScore -= 20;
         }
+        if (urlValidation.blocked.length > 0) {
+          errors.push(`Blocked URLs detected: ${urlValidation.blocked.length}`);
+          securityScore -= 30;
+          threatLevel = 'high';
+        }
       }
 
       return {
-        success: errors.length === 0,
-        tokenValid: tokenValidation.valid,
-        contentValid: contentValidation.valid,
-        rateLimitPassed: rateLimitResult.allowed,
-        securityScore,
-        errors,
-        warnings,
-        sanitizedContent: contentValidation.sanitized,
-        threatLevel
+        success: validationResult.success && errors.length === 0,
+        tokenValid: validationResult.tokenValid,
+        contentValid: validationResult.contentValid,
+        rateLimitPassed: validationResult.rateLimitPassed,
+        securityScore: Math.min(validationResult.securityScore, securityScore),
+        errors: [...validationResult.errors, ...errors],
+        warnings: [...validationResult.warnings, ...warnings],
+        sanitizedContent: validationResult.sanitizedContent,
+        threatLevel: validationResult.threatLevel === 'critical' ? 'critical' : threatLevel
       };
     } catch (error) {
       secureLog.error('Enhanced security validation failed:', error);
@@ -116,108 +100,21 @@ export class EnhancedSecurityService {
     maxActions: number = 10,
     windowMinutes: number = 60
   ): Promise<EnhancedRateLimitResult> {
-    try {
-      const { data, error } = await supabase
-        .rpc('check_rate_limit_ultimate', {
-          p_token: token,
-          p_action: action,
-          p_max_actions: maxActions,
-          p_window_minutes: windowMinutes
-        });
-
-      if (error) {
-        secureLog.error('Enhanced rate limit check failed:', error);
-        return {
-          allowed: false,
-          currentCount: 0,
-          maxActions,
-          remaining: 0,
-          blockedReason: 'Rate limit service unavailable',
-          securityViolation: true
-        };
-      }
-
-      const result = data as any;
-      return {
-        allowed: result.allowed || false,
-        currentCount: result.current_count || 0,
-        maxActions: result.max_actions || maxActions,
-        remaining: result.remaining || 0,
-        resetTime: result.reset_time,
-        blockedReason: result.blocked_reason,
-        securityViolation: result.security_violation || false,
-        suspiciousActivity: result.suspicious_activity || false
-      };
-    } catch (error) {
-      secureLog.error('Enhanced rate limit error:', error);
-      return {
-        allowed: false,
-        currentCount: 0,
-        maxActions,
-        remaining: 0,
-        blockedReason: 'Rate limit service error',
-        securityViolation: true
-      };
-    }
+    return await SecurityServiceCore.checkRateLimit(token, action, maxActions, windowMinutes);
   }
 
   /**
    * Validates token security using server-side validation
    */
   static async validateTokenSecurity(token: string): Promise<{ valid: boolean; securityScore: number }> {
-    try {
-      const { data, error } = await supabase
-        .rpc('validate_token_enhanced', { token });
-
-      if (error) {
-        secureLog.error('Token security validation failed:', error);
-        return { valid: false, securityScore: 0 };
-      }
-
-      const result = data as any;
-      return {
-        valid: result.valid || false,
-        securityScore: result.security_score || 0
-      };
-    } catch (error) {
-      secureLog.error('Token security validation error:', error);
-      return { valid: false, securityScore: 0 };
-    }
+    return await SecurityServiceCore.validateToken(token);
   }
 
   /**
    * Comprehensive content validation
    */
   static async validateContentComprehensive(content: string, maxLength: number = 1000): Promise<any> {
-    try {
-      const { data, error } = await supabase
-        .rpc('validate_content_comprehensive', {
-          content,
-          max_length: maxLength
-        });
-
-      if (error) {
-        secureLog.error('Content validation failed:', error);
-        return {
-          valid: false,
-          errors: ['Content validation service unavailable'],
-          sanitized: content.replace(/[<>]/g, ''),
-          risk_level: 'high',
-          securityScore: 0
-        };
-      }
-
-      return data;
-    } catch (error) {
-      secureLog.error('Content validation error:', error);
-      return {
-        valid: false,
-        errors: ['Content validation error'],
-        sanitized: content.replace(/[<>]/g, ''),
-        risk_level: 'high',
-        securityScore: 0
-      };
-    }
+    return await SecurityServiceCore.validateContent(content, maxLength);
   }
 
   /**

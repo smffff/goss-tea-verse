@@ -1,4 +1,3 @@
-
 import { EnhancedSecurityService } from './enhancedSecurityService';
 import { SecurityMonitoringService } from './securityMonitoringService';
 import { SecureTokenService } from './secureTokenService';
@@ -40,14 +39,14 @@ export class UnifiedSecurityService {
       // Get or create secure token
       const token = await SecureTokenService.getOrCreateSecureToken();
       
-      // Validate token security using the correct function
+      // Validate token security using enhanced fallback handling
       const tokenValidation = await this.validateTokenSecuritySafe(token);
       
-      // Enhanced content validation using the correct function
+      // Enhanced content validation with comprehensive fallback
       const contentValidation = await this.validateContentSafe(content, 1000);
       
-      // Enhanced rate limiting
-      const rateLimitCheck = await EnhancedSecurityService.checkEnhancedRateLimit(token, action, 5, 60);
+      // Enhanced rate limiting with proper error handling
+      const rateLimitCheck = await this.checkRateLimitSafe(token, action, 5, 60);
       
       // URL validation if evidence provided
       const urlValidation = evidenceUrls.length > 0 
@@ -103,7 +102,7 @@ export class UnifiedSecurityService {
       }
 
       // Log security assessment
-      await EnhancedSecurityService.logSecurityEvent('unified_security_assessment', {
+      await this.logSecurityEventSafe('unified_security_assessment', {
         securityScore,
         threatLevel,
         warnings,
@@ -137,11 +136,10 @@ export class UnifiedSecurityService {
       secureLog.error('Unified security validation failed:', error);
       
       // Log critical security failure
-      await SecurityMonitoringService.logSecurityEvent(
+      await this.logSecurityEventSafe(
         'policy_violation',
-        'critical',
-        'Unified security service completely failed',
-        { error: error instanceof Error ? error.message : 'Unknown error' }
+        { error: error instanceof Error ? error.message : 'Unknown error' },
+        'critical'
       );
 
       return {
@@ -158,39 +156,129 @@ export class UnifiedSecurityService {
   }
 
   /**
-   * Safe token validation with fallback
+   * Safe token validation with enhanced fallback
    */
   private static async validateTokenSecuritySafe(token: string): Promise<{ valid: boolean; securityScore?: number }> {
     try {
       return await EnhancedSecurityService.validateTokenSecurity(token);
     } catch (error) {
-      secureLog.warn('Token validation failed, using fallback', error);
-      // Fallback validation
+      secureLog.warn('Token validation failed, using enhanced fallback', error);
+      // Enhanced fallback validation
       const isBasicValid = token && token.length >= 32 && /^[A-Za-z0-9_-]+$/.test(token);
+      const hasSecureLength = token.length >= 40 && token.length <= 128;
+      const hasSecurePattern = !/[<>'"&=()]/.test(token);
+      
+      const securityScore = isBasicValid ? (hasSecureLength && hasSecurePattern ? 70 : 50) : 0;
+      
       return {
-        valid: isBasicValid,
-        securityScore: isBasicValid ? 70 : 0
+        valid: isBasicValid && securityScore >= 50,
+        securityScore
       };
     }
   }
 
   /**
-   * Safe content validation with fallback
+   * Safe content validation with comprehensive fallback
    */
   private static async validateContentSafe(content: string, maxLength: number): Promise<any> {
     try {
       return await EnhancedSecurityService.validateContentComprehensive(content, maxLength);
     } catch (error) {
-      secureLog.warn('Content validation failed, using fallback', error);
-      // Fallback validation
+      secureLog.warn('Content validation failed, using comprehensive fallback', error);
+      
+      // Comprehensive fallback validation
       const basicValid = content && content.trim().length >= 3 && content.length <= maxLength;
+      const hasXSS = /<script|javascript:|data:|vbscript:|on\w+\s*=/.test(content);
+      const hasSQLi = /(union\s+select|drop\s+table|insert\s+into|delete\s+from|--|\/\*)/i.test(content);
+      
+      let riskLevel = 'low';
+      let securityScore = basicValid ? 80 : 0;
+      
+      if (hasXSS) {
+        riskLevel = 'critical';
+        securityScore = 0;
+      } else if (hasSQLi) {
+        riskLevel = 'high';
+        securityScore = 20;
+      }
+      
+      // Enhanced sanitization
+      const sanitized = content
+        .replace(/[<>]/g, '')
+        .replace(/javascript:/gi, '')
+        .replace(/data:/gi, '')
+        .replace(/vbscript:/gi, '');
+      
       return {
-        valid: basicValid,
-        sanitized: content.replace(/[<>]/g, ''),
+        valid: basicValid && !hasXSS,
+        sanitized,
         errors: basicValid ? [] : ['Content validation service unavailable'],
-        risk_level: 'medium',
-        securityScore: basicValid ? 60 : 0
+        risk_level: riskLevel,
+        securityScore
       };
+    }
+  }
+
+  /**
+   * Safe rate limit check with fallback
+   */
+  private static async checkRateLimitSafe(
+    token: string, 
+    action: string, 
+    maxActions: number, 
+    windowMinutes: number
+  ): Promise<any> {
+    try {
+      return await EnhancedSecurityService.checkEnhancedRateLimit(token, action, maxActions, windowMinutes);
+    } catch (error) {
+      secureLog.warn('Rate limit check failed, using fallback', error);
+      
+      // Simple client-side fallback with security awareness
+      const key = `rate_limit_${token}_${action}`;
+      const stored = sessionStorage.getItem(key);
+      
+      if (stored) {
+        const data = JSON.parse(stored);
+        const now = Date.now();
+        const windowMs = windowMinutes * 60 * 1000;
+        
+        if (now - data.timestamp < windowMs && data.count >= maxActions) {
+          return {
+            allowed: false,
+            blockedReason: 'Rate limit exceeded (fallback)',
+            securityViolation: data.count > maxActions * 2 // Detect abuse
+          };
+        }
+        
+        if (now - data.timestamp < windowMs) {
+          data.count++;
+        } else {
+          data.count = 1;
+          data.timestamp = now;
+        }
+        
+        sessionStorage.setItem(key, JSON.stringify(data));
+      } else {
+        sessionStorage.setItem(key, JSON.stringify({ count: 1, timestamp: Date.now() }));
+      }
+      
+      return { allowed: true };
+    }
+  }
+
+  /**
+   * Safe security event logging
+   */
+  private static async logSecurityEventSafe(
+    eventType: string,
+    details: Record<string, any>,
+    severity: 'info' | 'warning' | 'error' | 'critical' = 'info'
+  ): Promise<void> {
+    try {
+      await SecurityMonitoringService.logSecurityEvent(eventType, severity, eventType, details);
+    } catch (error) {
+      // Fallback to console logging
+      console.error(`[SECURITY-${severity.toUpperCase()}] ${eventType}:`, details);
     }
   }
 
