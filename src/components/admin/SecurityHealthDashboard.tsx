@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,7 +29,9 @@ const SecurityHealthDashboard: React.FC = () => {
         throw error;
       }
       
-      setHealthData(data);
+      // Properly type cast the response
+      const typedData = data as SecurityHealthData;
+      setHealthData(typedData);
     } catch (error) {
       console.error('Failed to fetch security health:', error);
       toast({
