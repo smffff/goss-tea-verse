@@ -25,14 +25,16 @@ export class SecurityServiceCore {
         return { valid: false, securityScore: 0 };
       }
 
-      // Safe type casting with validation
-      const result = data as unknown;
-      if (result && typeof result === 'object' && 'valid' in result) {
-        const tokenResult = result as TokenValidationResult;
-        return {
-          valid: tokenResult.valid || false,
-          securityScore: tokenResult.security_score || 0
-        };
+      // Safe type checking with proper validation
+      if (data && typeof data === 'object' && !Array.isArray(data) && data !== null) {
+        const result = data as Record<string, any>;
+        if ('valid' in result) {
+          const tokenResult = result as TokenValidationResult;
+          return {
+            valid: tokenResult.valid || false,
+            securityScore: tokenResult.security_score || 0
+          };
+        }
       }
 
       return { valid: false, securityScore: 0 };
@@ -57,10 +59,12 @@ export class SecurityServiceCore {
         return this.fallbackContentValidation(content, maxLength);
       }
 
-      // Safe type casting with validation
-      const result = data as unknown;
-      if (result && typeof result === 'object' && 'valid' in result) {
-        return result as ContentValidationResult;
+      // Safe type checking with proper validation
+      if (data && typeof data === 'object' && !Array.isArray(data) && data !== null) {
+        const result = data as Record<string, any>;
+        if ('valid' in result) {
+          return result as ContentValidationResult;
+        }
       }
 
       return this.fallbackContentValidation(content, maxLength);
@@ -92,10 +96,12 @@ export class SecurityServiceCore {
         return { allowed: false, blocked_reason: 'Rate limit service unavailable' };
       }
 
-      // Safe type casting with validation
-      const result = data as unknown;
-      if (result && typeof result === 'object' && 'allowed' in result) {
-        return result as RateLimitResult;
+      // Safe type checking with proper validation
+      if (data && typeof data === 'object' && !Array.isArray(data) && data !== null) {
+        const result = data as Record<string, any>;
+        if ('allowed' in result) {
+          return result as RateLimitResult;
+        }
       }
 
       return { allowed: false, blocked_reason: 'Invalid rate limit response' };
@@ -143,7 +149,7 @@ export class SecurityServiceCore {
           threatLevel = 'critical';
         } else if (riskLevel === 'high' && threatLevel !== 'critical') {
           threatLevel = 'high';
-        } else if (riskLevel === 'medium' && threatLevel === 'low') {
+        } else if (riskLevel === 'medium' && (threatLevel === 'low' || threatLevel === 'medium')) {
           threatLevel = 'medium';
         }
       }
