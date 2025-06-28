@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,9 +30,13 @@ const SecurityHealthDashboard: React.FC = () => {
         throw error;
       }
       
-      // Safely convert from Json type to our interface
-      const typedData = data as unknown as SecurityHealthData;
-      setHealthData(typedData);
+      // Type guard to ensure data has the expected structure
+      if (data && typeof data === 'object' && !Array.isArray(data)) {
+        const typedData = data as SecurityHealthData;
+        setHealthData(typedData);
+      } else {
+        throw new Error('Invalid data structure received from security_health_check');
+      }
     } catch (error) {
       console.error('Failed to fetch security health:', error);
       toast({
