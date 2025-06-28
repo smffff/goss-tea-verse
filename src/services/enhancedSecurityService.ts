@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
 import { SecureTokenService } from './secureTokenService';
@@ -68,9 +67,7 @@ export class EnhancedSecurityService {
         errors.push(...contentValidation.errors);
         securityScore = Math.min(securityScore, contentValidation.securityScore || 0);
         
-        if (contentValidation.risk_level === 'critical') {
-          threatLevel = 'critical';
-        } else if (contentValidation.risk_level === 'high' && threatLevel !== 'critical') {
+        if (contentValidation.risk_level === 'high' && threatLevel !== 'critical') {
           threatLevel = 'high';
         }
       }
@@ -194,7 +191,7 @@ export class EnhancedSecurityService {
   static async validateContentComprehensive(content: string, maxLength: number = 1000): Promise<any> {
     try {
       const { data, error } = await supabase
-        .rpc('validate_content_server_side', {
+        .rpc('validate_content_comprehensive', {
           content,
           max_length: maxLength
         });

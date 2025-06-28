@@ -40,11 +40,11 @@ export class UnifiedSecurityService {
       // Get or create secure token
       const token = await SecureTokenService.getOrCreateSecureToken();
       
-      // Validate token security
-      const tokenValidation = await EnhancedSecurityService.validateTokenSecurity(token);
+      // Validate token security using the correct function
+      const tokenValidation = await this.validateTokenSecuritySafe(token);
       
-      // Enhanced content validation
-      const contentValidation = await EnhancedSecurityService.validateContentComprehensive(content, 1000);
+      // Enhanced content validation using the correct function
+      const contentValidation = await this.validateContentSafe(content, 1000);
       
       // Enhanced rate limiting
       const rateLimitCheck = await EnhancedSecurityService.checkEnhancedRateLimit(token, action, 5, 60);
@@ -70,9 +70,11 @@ export class UnifiedSecurityService {
       if (!contentValidation.valid) {
         securityScore = Math.min(securityScore, contentValidation.securityScore || 0);
         
-        // Handle risk level mapping - only check for available types
+        // Handle risk level mapping safely
         if (contentValidation.risk_level === 'high') {
           threatLevel = 'high';
+        } else if (contentValidation.risk_level === 'medium' && threatLevel === 'low') {
+          threatLevel = 'medium';
         }
       }
 
@@ -151,6 +153,43 @@ export class UnifiedSecurityService {
         securityScore: 0,
         threatLevel: 'critical',
         warnings: ['Critical security service failure']
+      };
+    }
+  }
+
+  /**
+   * Safe token validation with fallback
+   */
+  private static async validateTokenSecuritySafe(token: string): Promise<{ valid: boolean; securityScore?: number }> {
+    try {
+      return await EnhancedSecurityService.validateTokenSecurity(token);
+    } catch (error) {
+      secureLog.warn('Token validation failed, using fallback', error);
+      // Fallback validation
+      const isBasicValid = token && token.length >= 32 && /^[A-Za-z0-9_-]+$/.test(token);
+      return {
+        valid: isBasicValid,
+        securityScore: isBasicValid ? 70 : 0
+      };
+    }
+  }
+
+  /**
+   * Safe content validation with fallback
+   */
+  private static async validateContentSafe(content: string, maxLength: number): Promise<any> {
+    try {
+      return await EnhancedSecurityService.validateContentComprehensive(content, maxLength);
+    } catch (error) {
+      secureLog.warn('Content validation failed, using fallback', error);
+      // Fallback validation
+      const basicValid = content && content.trim().length >= 3 && content.length <= maxLength;
+      return {
+        valid: basicValid,
+        sanitized: content.replace(/[<>]/g, ''),
+        errors: basicValid ? [] : ['Content validation service unavailable'],
+        risk_level: 'medium',
+        securityScore: basicValid ? 60 : 0
       };
     }
   }
