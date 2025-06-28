@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Flame, Snowflake, Zap, Clock, Heart } from 'lucide-react';
+import { Flame, Snowflake, Zap, Clock } from 'lucide-react';
 import TipButton from './TipButton';
 
 interface TeaSubmission {
@@ -96,9 +97,6 @@ const TeaSubmissionCard: React.FC<TeaSubmissionCardProps> = ({
 
           <TipButton
             variant="minimal"
-            recipientAddress={submission.anonymous_token || 'anonymous'}
-            amount={5}
-            spillId={submission.id}
             className="text-pink-400 hover:text-pink-300"
           />
         </div>
