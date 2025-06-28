@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
 
@@ -12,6 +11,33 @@ export interface SecurityValidationResult {
   warnings: string[];
   sanitizedContent?: string;
   threatLevel: 'low' | 'medium' | 'high' | 'critical';
+}
+
+export interface TokenValidationResult {
+  valid: boolean;
+  security_score?: number;
+}
+
+export interface ContentValidationResult {
+  valid: boolean;
+  errors?: string[];
+  sanitized?: string;
+  risk_level?: 'low' | 'medium' | 'high' | 'critical';
+  security_score?: number;
+}
+
+export interface RateLimitResult {
+  allowed: boolean;
+  blocked_reason?: string;
+  security_violation?: boolean;
+}
+
+export interface FallbackValidationResult {
+  valid: boolean;
+  errors: string[];
+  sanitized: string;
+  risk_level: 'low' | 'medium' | 'high' | 'critical';
+  security_score: number;
 }
 
 /**
@@ -30,7 +56,7 @@ export class SecurityServiceCore {
         return { valid: false, securityScore: 0 };
       }
 
-      const result = data as any;
+      const result = data as TokenValidationResult;
       return {
         valid: result?.valid || false,
         securityScore: result?.security_score || 0
@@ -44,7 +70,7 @@ export class SecurityServiceCore {
   /**
    * Validates content using comprehensive server-side checks
    */
-  static async validateContent(content: string, maxLength: number = 1000): Promise<any> {
+  static async validateContent(content: string, maxLength: number = 1000): Promise<ContentValidationResult> {
     try {
       const { data, error } = await supabase.rpc('validate_content_server_side', {
         content,
@@ -56,7 +82,7 @@ export class SecurityServiceCore {
         return this.fallbackContentValidation(content, maxLength);
       }
 
-      return data;
+      return data as ContentValidationResult;
     } catch (error) {
       secureLog.error('Content validation error:', error);
       return this.fallbackContentValidation(content, maxLength);
@@ -71,7 +97,7 @@ export class SecurityServiceCore {
     action: string,
     maxActions: number = 10,
     windowMinutes: number = 60
-  ): Promise<any> {
+  ): Promise<RateLimitResult> {
     try {
       const { data, error } = await supabase.rpc('check_rate_limit_ultimate', {
         p_token: token,
@@ -82,13 +108,13 @@ export class SecurityServiceCore {
 
       if (error) {
         secureLog.error('Rate limit check failed:', error);
-        return { allowed: false, blockedReason: 'Rate limit service unavailable' };
+        return { allowed: false, blocked_reason: 'Rate limit service unavailable' };
       }
 
-      return data;
+      return data as RateLimitResult;
     } catch (error) {
       secureLog.error('Rate limit error:', error);
-      return { allowed: false, blockedReason: 'Rate limit service error' };
+      return { allowed: false, blocked_reason: 'Rate limit service error' };
     }
   }
 
@@ -176,7 +202,7 @@ export class SecurityServiceCore {
   /**
    * Fallback content validation when server-side fails
    */
-  private static fallbackContentValidation(content: string, maxLength: number): any {
+  private static fallbackContentValidation(content: string, maxLength: number): FallbackValidationResult {
     const errors: string[] = [];
     let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
     
