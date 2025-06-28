@@ -29,8 +29,8 @@ const SecurityHealthDashboard: React.FC = () => {
         throw error;
       }
       
-      // Properly type cast the response
-      const typedData = data as SecurityHealthData;
+      // Safely convert from Json type to our interface
+      const typedData = data as unknown as SecurityHealthData;
       setHealthData(typedData);
     } catch (error) {
       console.error('Failed to fetch security health:', error);
