@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Coffee, Send, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { SecurityService } from '@/services/securityService';
 import { secureLog } from '@/utils/secureLogging';
 
 interface SpillTeaModalProps {
@@ -52,21 +53,30 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Generate secure anonymous token
-      const anonymousToken = localStorage.getItem('ctea_anonymous_token') || 
-        Array.from(crypto.getRandomValues(new Uint8Array(32)))
-          .map(b => b.toString(16).padStart(2, '0'))
-          .join('');
+      // Get secure anonymous token
+      const anonymousToken = await SecurityService.getOrCreateSecureToken();
+
+      // Validate content using secure service
+      const contentValidation = await SecurityService.validateContent(formData.content, 1000);
       
-      localStorage.setItem('ctea_anonymous_token', anonymousToken);
+      if (!contentValidation.valid) {
+        throw new Error(`Content validation failed: ${contentValidation.errors.join(', ')}`);
+      }
+
+      // Check rate limit
+      const rateLimitCheck = await SecurityService.checkRateLimit(anonymousToken, 'submission', 5, 60);
+      
+      if (!rateLimitCheck.allowed) {
+        throw new Error(rateLimitCheck.blockedReason || 'Rate limit exceeded');
+      }
 
       // Prepare evidence URLs array
       const evidenceUrls = formData.evidenceUrl ? [formData.evidenceUrl] : null;
 
-      // Use the new secure server-side function
+      // Use the secure server-side function
       const { data: submissionResult, error } = await supabase
         .rpc('secure_submission_insert', {
-          p_content: formData.content,
+          p_content: contentValidation.sanitized || formData.content,
           p_anonymous_token: anonymousToken,
           p_category: formData.category,
           p_evidence_urls: evidenceUrls
@@ -76,7 +86,6 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
         throw new Error(`Submission failed: ${error.message}`);
       }
 
-      // Type assertion for the response (cast through unknown first)
       const result = submissionResult as unknown as SecureSubmissionResult;
 
       if (!result?.success) {

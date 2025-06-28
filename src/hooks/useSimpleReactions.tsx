@@ -2,6 +2,7 @@
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserProgression } from '@/hooks/useUserProgression';
+import { SecurityService } from '@/services/securityService';
 import { secureLog } from '@/utils/secureLogging';
 
 interface SecureReactionResult {
@@ -19,14 +20,17 @@ export const useSimpleReactions = () => {
         secureLog.info('useSimpleReactions - Adding secure reaction:', { submissionId, reactionType });
       }
       
-      const anonymousToken = localStorage.getItem('ctea_anonymous_token') || 
-        Array.from(crypto.getRandomValues(new Uint8Array(32)))
-          .map(b => b.toString(16).padStart(2, '0'))
-          .join('');
-      
-      localStorage.setItem('ctea_anonymous_token', anonymousToken);
+      // Get secure anonymous token
+      const anonymousToken = await SecurityService.getOrCreateSecureToken();
 
-      // Use the new secure server-side function
+      // Check rate limit
+      const rateLimitCheck = await SecurityService.checkRateLimit(anonymousToken, 'reaction', 20, 15);
+      
+      if (!rateLimitCheck.allowed) {
+        throw new Error(rateLimitCheck.blockedReason || 'Rate limit exceeded');
+      }
+
+      // Use the secure server-side function
       const { data: reactionResult, error } = await supabase
         .rpc('secure_reaction_insert', {
           p_submission_id: submissionId,
@@ -38,7 +42,6 @@ export const useSimpleReactions = () => {
         throw new Error(`Failed to add reaction: ${error.message}`);
       }
 
-      // Type assertion for the response (cast through unknown first)
       const result = reactionResult as unknown as SecureReactionResult;
 
       if (!result?.success) {
@@ -60,7 +63,7 @@ export const useSimpleReactions = () => {
 
       toast({
         title: "Reaction Failed",
-        description: "Could not add your reaction. Please try again.",
+        description: error instanceof Error ? error.message : "Could not add your reaction. Please try again.",
         variant: "destructive"
       });
       return false;

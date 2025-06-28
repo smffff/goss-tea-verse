@@ -2,70 +2,189 @@
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
 
-export interface SecurityResult {
-  success: boolean;
-  message?: string;
-  data?: any;
-  error?: string;
+export interface SecurityValidationResult {
+  valid: boolean;
+  errors: string[];
+  warnings?: string[];
+  sanitized?: string;
+  securityScore?: number;
+}
+
+export interface RateLimitResult {
+  allowed: boolean;
+  currentCount?: number;
+  maxActions?: number;
+  blockedReason?: string;
+  resetTime?: string;
+  securityViolation?: boolean;
 }
 
 export class SecurityService {
-  static async validateUserSession(): Promise<SecurityResult> {
+  /**
+   * Validates anonymous token using server-side validation
+   */
+  static async validateAnonymousToken(token: string): Promise<boolean> {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
+      const { data, error } = await supabase
+        .rpc('validate_anonymous_token_secure', { token });
+
       if (error) {
-        return { success: false, error: error.message };
-      }
-      
-      return { 
-        success: !!session, 
-        data: session,
-        message: session ? 'Valid session' : 'No active session'
-      };
-    } catch (error) {
-      secureLog.error('Session validation error:', error);
-      return { success: false, error: 'Session validation failed' };
-    }
-  }
-
-  static async validateTokenSecurity(token: string): Promise<SecurityResult> {
-    try {
-      // Basic token validation
-      if (!token || token.length < 10) {
-        return { success: false, error: 'Invalid token format' };
+        secureLog.error('Token validation failed:', error);
+        return false;
       }
 
-      // For now, just validate the token exists and has proper format
-      return { success: true, message: 'Token is valid' };
+      return data === true;
     } catch (error) {
       secureLog.error('Token validation error:', error);
-      return { success: false, error: 'Token validation failed' };
+      return false;
     }
   }
 
-  static async validateCSRFToken(token: string): Promise<SecurityResult> {
+  /**
+   * Checks rate limit using server-side validation
+   */
+  static async checkRateLimit(
+    token: string,
+    action: string,
+    maxActions: number = 10,
+    windowMinutes: number = 60
+  ): Promise<RateLimitResult> {
     try {
-      // Simple CSRF token validation
-      const storedToken = sessionStorage.getItem('csrf_token');
-      
-      if (!storedToken || storedToken !== token) {
-        return { success: false, error: 'Invalid CSRF token' };
+      const { data, error } = await supabase
+        .rpc('check_rate_limit_secure', {
+          p_token: token,
+          p_action: action,
+          p_max_actions: maxActions,
+          p_window_minutes: windowMinutes
+        });
+
+      if (error) {
+        secureLog.error('Rate limit check failed:', error);
+        return { allowed: false, blockedReason: 'Rate limit service unavailable' };
       }
 
-      return { success: true, message: 'CSRF token is valid' };
+      return data as RateLimitResult;
     } catch (error) {
-      secureLog.error('CSRF validation error:', error);
-      return { success: false, error: 'CSRF validation failed' };
+      secureLog.error('Rate limit check error:', error);
+      return { allowed: false, blockedReason: 'Rate limit service error' };
     }
   }
 
-  static generateCSRFToken(): string {
-    const token = Array.from(crypto.getRandomValues(new Uint8Array(32)))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
-    
-    sessionStorage.setItem('csrf_token', token);
-    return token;
+  /**
+   * Validates content using server-side validation
+   */
+  static async validateContent(content: string, maxLength: number = 1000): Promise<SecurityValidationResult> {
+    try {
+      const { data, error } = await supabase
+        .rpc('validate_content_server_side', {
+          content,
+          max_length: maxLength
+        });
+
+      if (error) {
+        secureLog.error('Content validation failed:', error);
+        return {
+          valid: false,
+          errors: ['Content validation service unavailable'],
+          sanitized: content.replace(/[<>]/g, '') // Minimal fallback sanitization
+        };
+      }
+
+      return {
+        valid: data.valid,
+        errors: data.errors || [],
+        warnings: data.warnings || [],
+        sanitized: data.sanitized,
+        securityScore: data.security_score
+      };
+    } catch (error) {
+      secureLog.error('Content validation error:', error);
+      return {
+        valid: false,
+        errors: ['Content validation error'],
+        sanitized: content.replace(/[<>]/g, '')
+      };
+    }
+  }
+
+  /**
+   * Generates a secure anonymous token
+   */
+  static generateSecureToken(): string {
+    try {
+      const array = new Uint8Array(32);
+      crypto.getRandomValues(array);
+      return btoa(String.fromCharCode(...array))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
+    } catch (error) {
+      secureLog.error('Failed to generate secure token:', error);
+      // Fallback token generation
+      return 'fallback_' + Date.now() + '_' + Math.random().toString(36).substring(2);
+    }
+  }
+
+  /**
+   * Gets or creates a secure anonymous token
+   */
+  static async getOrCreateSecureToken(): Promise<string> {
+    try {
+      let token = sessionStorage.getItem('ctea_anonymous_token');
+      
+      if (!token) {
+        token = this.generateSecureToken();
+        sessionStorage.setItem('ctea_anonymous_token', token);
+        secureLog.info('Generated new secure token');
+      }
+
+      // Validate the token
+      const isValid = await this.validateAnonymousToken(token);
+      
+      if (!isValid) {
+        secureLog.warn('Invalid token detected, generating new one');
+        token = this.generateSecureToken();
+        sessionStorage.setItem('ctea_anonymous_token', token);
+      }
+
+      return token;
+    } catch (error) {
+      secureLog.error('Token management failed:', error);
+      return this.generateSecureToken();
+    }
+  }
+
+  /**
+   * Validates email format
+   */
+  static validateEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  /**
+   * Validates URL format
+   */
+  static validateUrl(url: string): boolean {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Sanitizes content by removing HTML tags and encoding special characters
+   */
+  static sanitizeContent(content: string): string {
+    return content
+      .replace(/<[^>]*>/g, '') // Remove HTML tags
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;')
+      .replace(/`/g, '&#x60;');
   }
 }
