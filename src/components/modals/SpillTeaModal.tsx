@@ -67,11 +67,11 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
       const rateLimitCheck = await SecurityService.checkRateLimit(anonymousToken, 'submission', 5, 60);
       
       if (!rateLimitCheck.allowed) {
-        throw new Error(rateLimitCheck.blockedReason || 'Rate limit exceeded');
+        throw new Error(rateLimitCheck.blocked_reason || 'Rate limit exceeded');
       }
 
       // Log security warnings if any
-      if (rateLimitCheck.securityViolation) {
+      if (rateLimitCheck.security_violation) {
         secureLog.warn('Suspicious submission activity detected', { content: formData.content.substring(0, 100) });
       }
 

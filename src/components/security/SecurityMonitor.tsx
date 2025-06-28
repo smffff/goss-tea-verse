@@ -10,7 +10,7 @@ export const SecurityMonitor: React.FC = () => {
   useEffect(() => {
     let threatDetected = false;
 
-    const monitorSecurity = () => {
+    const monitorSecurity = async () => {
       // Only run security check once per session to avoid performance impact
       if (threatDetected) return;
 
@@ -29,13 +29,19 @@ export const SecurityMonitor: React.FC = () => {
           if (pattern.test(currentUrl)) {
             threatDetected = true;
             
-            // Log security event
-            supabase.rpc('log_security_event', {
-              event_type: 'suspicious_url_detected',
-              details: { url: currentUrl.substring(0, 100) }
-            }).catch(error => {
-              secureLog.error('Failed to log security event', error);
-            });
+            // Log security event using proper async/await
+            try {
+              const { error } = await supabase.rpc('log_security_event', {
+                event_type: 'suspicious_url_detected',
+                details: { url: currentUrl.substring(0, 100) }
+              });
+              
+              if (error) {
+                secureLog.error('Failed to log security event', error);
+              }
+            } catch (logError) {
+              secureLog.error('Security event logging failed', logError);
+            }
 
             toast({
               title: "🚨 Security Alert",

@@ -2,7 +2,6 @@
 // CTea Services - Unified Service Layer
 // Created: 2025-01-26 - Consolidating service interfaces
 
-import { UnifiedSecurityService } from './unifiedSecurityService';
 import { SecurityService } from './securityService';
 import { betaCodeService } from './betaCodeService';
 import { TeaTokenService } from './teaTokenService';
@@ -10,7 +9,7 @@ import { TeaTokenService } from './teaTokenService';
 // Main service factory - single entry point for all services
 export class ServiceFactory {
   static get security() {
-    return UnifiedSecurityService;
+    return SecurityService;
   }
 
   static get auth() {
@@ -27,16 +26,14 @@ export class ServiceFactory {
 }
 
 // Convenience exports for backward compatibility
-export { UnifiedSecurityService } from './unifiedSecurityService';
 export { SecurityService } from './securityService';
 export { betaCodeService } from './betaCodeService';
 export { TeaTokenService } from './teaTokenService';
 
 // Service interfaces for dependency injection
 export interface ISecurityService {
-  validateSubmissionSecurity(content: string, urls: string[], action?: string): Promise<any>;
-  validateUrls(urls: string[]): { valid: string[]; invalid: string[] };
-  checkRateLimit(action: string, maxAttempts: number, windowMinutes: number): any;
+  validateSubmissionSecurity(content: string, action?: string): Promise<any>;
+  checkRateLimit(token: string, action: string, maxAttempts: number, windowMinutes: number): Promise<any>;
 }
 
 export interface IBetaCodeService {

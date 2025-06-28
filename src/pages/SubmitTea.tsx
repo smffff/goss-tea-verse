@@ -5,7 +5,7 @@ import Layout from '@/components/Layout';
 import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { UnifiedSecurityService } from '@/services/unifiedSecurityService';
+import { SecurityService } from '@/services/securityService';
 import { betaCodeService } from '@/services/betaCodeService';
 import { secureLog } from '@/utils/secureLogging';
 import { useSubmissionForm } from '@/hooks/useSubmissionForm';
@@ -38,12 +38,11 @@ const SubmitTea = () => {
     
     try {
       // Generate anonymous token
-      const anonymousToken = crypto.randomUUID();
+      const anonymousToken = await SecurityService.getOrCreateSecureToken();
       
-      // Use unified security service for comprehensive validation
-      const securityCheck = await UnifiedSecurityService.validateSubmissionSecurity(
+      // Use security service for comprehensive validation
+      const securityCheck = await SecurityService.validateSubmissionSecurity(
         data.tea,
-        data.evidence_urls,
         'tea_submission'
       );
 

@@ -1,5 +1,5 @@
 
-import { UnifiedSecurityService } from '@/services/unifiedSecurityService';
+import { SecurityService } from '@/services/securityService';
 
 export const generateSecureToken = (): string => {
   return Array.from(crypto.getRandomValues(new Uint8Array(32)))
@@ -27,8 +27,8 @@ export const validateSecureInput = (input: string): boolean => {
 };
 
 // Additional utility functions
-export const performSubmissionSecurityCheck = async (content: string, urls: string[]) => {
-  return await UnifiedSecurityService.validateSubmissionSecurity(content, urls);
+export const performSubmissionSecurityCheck = async (content: string) => {
+  return await SecurityService.validateSubmissionSecurity(content);
 };
 
 export const sanitizeContent = (content: string): string => {

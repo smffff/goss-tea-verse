@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { UnifiedSecurityService } from '@/services/unifiedSecurityService';
+import { SecurityService } from '@/services/securityService';
 import { secureLog } from '@/utils/secureLogging';
 
 interface SpillData {
@@ -57,26 +57,15 @@ export const useSpillTeaForm = (
     }
 
     try {
-      // Use unified security service for validation
-      const urls = formData.mediaUrl ? [formData.mediaUrl] : [];
-      const securityCheck = await UnifiedSecurityService.validateSubmissionSecurity(
+      // Use security service for validation
+      const securityCheck = await SecurityService.validateSubmissionSecurity(
         formData.teaText,
-        urls,
         'spill_tea'
       );
 
-      if (!securityCheck.rateLimitPassed) {
+      if (!securityCheck.success) {
         toast({
-          title: "Rate Limit Exceeded",
-          description: "Please wait before submitting again.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      if (!securityCheck.contentValid) {
-        toast({
-          title: "Content Validation Failed",
+          title: "Validation Failed",
           description: `Issues detected: ${securityCheck.errors.join(', ')}`,
           variant: "destructive"
         });
@@ -86,7 +75,7 @@ export const useSpillTeaForm = (
       const sanitizedData: SpillData = {
         topic: formData.topic,
         teaText: securityCheck.sanitizedContent || formData.teaText,
-        mediaUrl: securityCheck.urlValidation?.valid[0] || undefined
+        mediaUrl: formData.mediaUrl
       };
       
       await onSubmit(sanitizedData);

@@ -1,344 +1,251 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
+import type { ContentValidationResult, RateLimitResult, ThreatLevel } from './security/types';
 
-interface SecurityValidationResult {
+interface SecureSubmissionResult {
   success: boolean;
-  tokenValid: boolean;
-  contentValid: boolean;
-  rateLimitPassed: boolean;
-  securityScore: number;
-  errors: string[];
-  warnings: string[];
-  sanitizedContent?: string;
-  threatLevel: 'low' | 'medium' | 'high' | 'critical';
+  submission_id?: string;
+  error?: string;
 }
 
-interface TokenValidationResult {
-  valid: boolean;
-  securityScore: number;
-}
-
-interface ContentValidationResult {
-  valid: boolean;
-  sanitized: string;
-  errors?: string[];
-  risk_level?: string;
-  security_score?: number;
-}
-
-interface RateLimitResult {
-  allowed: boolean;
-  blocked_reason?: string;
-  security_violation?: boolean;
+interface SecureReactionResult {
+  success: boolean;
+  error?: string;
 }
 
 export class SecurityService {
-  private static tokenCache = new Map<string, { token: string; expires: number }>();
-
-  /**
-   * Get or create a secure token with caching
-   */
-  static async getSecureToken(): Promise<string> {
-    const cacheKey = 'anonymous_token';
-    const cached = this.tokenCache.get(cacheKey);
-    
-    if (cached && cached.expires > Date.now()) {
-      return cached.token;
-    }
-
+  // Generate or get secure anonymous token
+  static async getOrCreateSecureToken(): Promise<string> {
     try {
-      const { data, error } = await supabase.rpc('generate_anonymous_token');
-      
-      if (error || !data) {
-        const fallbackToken = `fallback_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        this.tokenCache.set(cacheKey, { token: fallbackToken, expires: Date.now() + 3600000 });
-        return fallbackToken;
+      // Check for existing token in session
+      const existingToken = sessionStorage.getItem('ctea_secure_token');
+      if (existingToken && existingToken.length > 16) {
+        return existingToken;
       }
 
-      const token = typeof data === 'string' ? data : `token_${Date.now()}`;
-      this.tokenCache.set(cacheKey, { token, expires: Date.now() + 3600000 });
+      // Generate new secure token
+      const array = new Uint8Array(32);
+      crypto.getRandomValues(array);
+      const token = btoa(String.fromCharCode(...array))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
+
+      sessionStorage.setItem('ctea_secure_token', token);
       return token;
     } catch (error) {
       secureLog.error('Token generation failed:', error);
-      const fallbackToken = `fallback_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      this.tokenCache.set(cacheKey, { token: fallbackToken, expires: Date.now() + 3600000 });
+      // Fallback token
+      const fallbackToken = 'fallback_' + Date.now() + '_' + Math.random().toString(36).substring(2);
+      sessionStorage.setItem('ctea_secure_token', fallbackToken);
       return fallbackToken;
     }
   }
 
-  /**
-   * Validate token security
-   */
-  static async validateToken(token: string): Promise<TokenValidationResult> {
+  // Validate content with proper type handling
+  static async validateContent(content: string, maxLength = 2000): Promise<ContentValidationResult> {
     try {
-      const { data, error } = await supabase.rpc('validate_token_enhanced', { token });
-
-      if (error || !data) {
-        return { valid: false, securityScore: 0 };
-      }
-
-      if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
-        const result = data as Record<string, any>;
-        return {
-          valid: result.valid || false,
-          securityScore: result.security_score || 0
-        };
-      }
-
-      return { valid: false, securityScore: 0 };
-    } catch (error) {
-      secureLog.error('Token validation error:', error);
-      return { valid: false, securityScore: 0 };
-    }
-  }
-
-  /**
-   * Validate content with server-side security checks
-   */
-  static async validateContent(content: string, maxLength: number = 1000): Promise<ContentValidationResult> {
-    try {
-      const { data, error } = await supabase.rpc('validate_content_server_side', {
+      const { data, error } = await supabase.rpc('validate_content_security', {
         content,
         max_length: maxLength
       });
 
-      if (error || !data) {
-        return this.fallbackContentValidation(content, maxLength);
+      if (error) {
+        secureLog.error('Content validation failed:', error);
+        return {
+          valid: false,
+          errors: ['Validation service unavailable'],
+          warnings: []
+        };
       }
 
-      if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
+      // Type guard for the response
+      if (data && typeof data === 'object' && 'valid' in data) {
         return data as ContentValidationResult;
       }
 
-      return this.fallbackContentValidation(content, maxLength);
+      // Fallback validation
+      return {
+        valid: content.length > 0 && content.length <= maxLength,
+        sanitized: content.trim(),
+        errors: content.length > maxLength ? ['Content too long'] : [],
+        warnings: []
+      };
     } catch (error) {
       secureLog.error('Content validation error:', error);
-      return this.fallbackContentValidation(content, maxLength);
+      return {
+        valid: false,
+        errors: ['Validation failed'],
+        warnings: []
+      };
     }
   }
 
-  /**
-   * Check rate limits
-   */
+  // Rate limit check with proper type handling
   static async checkRateLimit(
-    token: string,
-    action: string,
-    maxActions: number = 10,
-    windowMinutes: number = 60
+    token: string, 
+    action: string, 
+    maxAttempts: number, 
+    windowMinutes: number
   ): Promise<RateLimitResult> {
     try {
-      const { data, error } = await supabase.rpc('check_rate_limit_ultimate', {
-        p_token: token,
-        p_action: action,
-        p_max_actions: maxActions,
-        p_window_minutes: windowMinutes
+      const { data, error } = await supabase.rpc('check_enhanced_rate_limit', {
+        anonymous_token: token,
+        action_type: action,
+        max_attempts: maxAttempts,
+        window_minutes: windowMinutes
       });
 
-      if (error || !data) {
-        return { allowed: false, blocked_reason: 'Rate limit service unavailable' };
+      if (error) {
+        secureLog.error('Rate limit check failed:', error);
+        return {
+          allowed: false,
+          remaining: 0,
+          resetTime: Date.now() + windowMinutes * 60 * 1000,
+          blocked_reason: 'Service unavailable'
+        };
       }
 
-      if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
+      // Type guard for the response
+      if (data && typeof data === 'object' && 'allowed' in data) {
         return data as RateLimitResult;
       }
 
-      return { allowed: false, blocked_reason: 'Invalid rate limit response' };
+      // Fallback - allow with warning
+      return {
+        allowed: true,
+        remaining: maxAttempts - 1,
+        resetTime: Date.now() + windowMinutes * 60 * 1000
+      };
     } catch (error) {
       secureLog.error('Rate limit error:', error);
-      return { allowed: false, blocked_reason: 'Rate limit service error' };
+      return {
+        allowed: false,
+        remaining: 0,
+        resetTime: Date.now() + windowMinutes * 60 * 1000,
+        blocked_reason: 'System error'
+      };
     }
   }
 
-  /**
-   * Comprehensive security validation for submissions
-   */
+  // Validate submission security
   static async validateSubmissionSecurity(
-    content: string,
+    content: string, 
     action: string = 'submission'
-  ): Promise<SecurityValidationResult> {
-    const errors: string[] = [];
-    const warnings: string[] = [];
-    let securityScore = 100;
-    let threatLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
-
+  ): Promise<{
+    success: boolean;
+    errors: string[];
+    sanitizedContent?: string;
+  }> {
     try {
-      // Get secure token
-      const token = await this.getSecureToken();
-
-      // Validate token
-      const tokenValidation = await this.validateToken(token);
-      const tokenValid = tokenValidation.valid;
+      const token = await this.getOrCreateSecureToken();
       
-      if (!tokenValid) {
-        errors.push('Invalid security token');
-        securityScore -= 50;
-        threatLevel = 'high';
-      }
-
       // Validate content
       const contentValidation = await this.validateContent(content);
-      const contentValid = contentValidation.valid;
-      
-      if (!contentValid) {
-        errors.push(...(contentValidation.errors || ['Content validation failed']));
-        securityScore = Math.min(securityScore, contentValidation.security_score || 0);
-        
-        const riskLevel = contentValidation.risk_level;
-        if (riskLevel === 'critical') {
-          threatLevel = 'critical';
-        } else if (riskLevel === 'high' && threatLevel !== 'critical') {
-          threatLevel = 'high';
-        } else if (riskLevel === 'medium' && threatLevel === 'low') {
-          threatLevel = 'medium';
-        }
+      if (!contentValidation.valid) {
+        return {
+          success: false,
+          errors: contentValidation.errors
+        };
       }
 
       // Check rate limit
-      const rateLimitResult = await this.checkRateLimit(token, action);
-      const rateLimitPassed = rateLimitResult.allowed;
-      
-      if (!rateLimitPassed) {
-        errors.push(rateLimitResult.blocked_reason || 'Rate limit exceeded');
-        if (rateLimitResult.security_violation) {
-          threatLevel = 'critical';
-          securityScore = 0;
-        }
+      const rateLimitCheck = await this.checkRateLimit(token, action, 10, 60);
+      if (!rateLimitCheck.allowed) {
+        return {
+          success: false,
+          errors: [rateLimitCheck.blocked_reason || 'Rate limit exceeded']
+        };
       }
 
       return {
-        success: errors.length === 0,
-        tokenValid,
-        contentValid,
-        rateLimitPassed,
-        securityScore,
-        errors,
-        warnings,
-        sanitizedContent: contentValidation.sanitized,
-        threatLevel
+        success: true,
+        errors: [],
+        sanitizedContent: contentValidation.sanitized
       };
     } catch (error) {
-      secureLog.error('Security validation failed:', error);
+      secureLog.error('Submission security validation failed:', error);
       return {
         success: false,
-        tokenValid: false,
-        contentValid: false,
-        rateLimitPassed: false,
-        securityScore: 0,
-        errors: ['Security validation service unavailable'],
-        warnings: [],
-        threatLevel: 'critical'
+        errors: ['Security validation failed']
       };
     }
   }
 
-  /**
-   * Fallback content validation
-   */
-  private static fallbackContentValidation(content: string, maxLength: number): ContentValidationResult {
-    const errors: string[] = [];
-    let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
-    
-    if (!content || content.trim().length === 0) {
-      errors.push('Content cannot be empty');
-      return { valid: false, errors, sanitized: '', risk_level: 'low', security_score: 0 };
-    }
-    
-    if (content.length > maxLength) {
-      errors.push(`Content exceeds maximum length of ${maxLength} characters`);
-      riskLevel = 'high';
-    }
-    
-    // Basic XSS detection
-    if (/<script|javascript:|data:|vbscript:|on\w+\s*=/.test(content)) {
-      errors.push('Content contains potentially dangerous elements');
-      riskLevel = 'critical';
-    }
-    
-    // Basic sanitization
-    const sanitized = content
-      .replace(/[<>]/g, '')
-      .replace(/javascript:/gi, '')
-      .replace(/data:/gi, '');
-    
-    return {
-      valid: errors.length === 0,
-      errors,
-      sanitized,
-      risk_level: riskLevel,
-      security_score: errors.length === 0 ? 70 : 20
-    };
-  }
-
-  /**
-   * Secure submission creation
-   */
-  static async createSecureSubmission(
-    content: string,
-    category: string = 'general',
-    evidenceUrls: string[] = []
-  ): Promise<{ success: boolean; submissionId?: string; error?: string }> {
+  // Create secure submission
+  static async createSecureSubmission(content: string, category: string = 'general'): Promise<SecureSubmissionResult> {
     try {
-      const token = await this.getSecureToken();
+      const token = await this.getOrCreateSecureToken();
       
       const { data, error } = await supabase.rpc('secure_submission_insert', {
         p_content: content,
         p_anonymous_token: token,
-        p_category: category,
-        p_evidence_urls: evidenceUrls.length > 0 ? evidenceUrls : null
+        p_category: category
       });
 
       if (error) {
-        secureLog.error('Secure submission failed:', error);
-        return { success: false, error: 'Submission failed' };
+        throw error;
       }
 
-      if (data && typeof data === 'object' && !Array.isArray(data)) {
-        const result = data as Record<string, any>;
-        if (result.success) {
-          return { success: true, submissionId: result.submission_id };
-        } else {
-          return { success: false, error: result.error || 'Submission failed' };
-        }
-      }
-
-      return { success: false, error: 'Invalid response' };
+      return {
+        success: true,
+        submission_id: data?.submission_id
+      };
     } catch (error) {
-      secureLog.error('Submission creation error:', error);
-      return { success: false, error: 'Service unavailable' };
+      secureLog.error('Secure submission failed:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Submission failed'
+      };
     }
   }
 
-  /**
-   * Secure reaction creation
-   */
+  // Create secure reaction
   static async createSecureReaction(
-    submissionId: string,
+    submissionId: string, 
     reactionType: 'hot' | 'cold' | 'spicy'
-  ): Promise<{ success: boolean; error?: string }> {
+  ): Promise<SecureReactionResult> {
     try {
-      const token = await this.getSecureToken();
+      const token = await this.getOrCreateSecureToken();
       
       const { data, error } = await supabase.rpc('secure_reaction_insert', {
         p_submission_id: submissionId,
-        p_anonymous_token: token,
-        p_reaction_type: reactionType
+        p_reaction_type: reactionType,
+        p_anonymous_token: token
       });
 
       if (error) {
-        secureLog.error('Secure reaction failed:', error);
-        return { success: false, error: 'Reaction failed' };
+        throw error;
       }
 
-      if (data && typeof data === 'object' && !Array.isArray(data)) {
-        const result = data as Record<string, any>;
-        return { success: result.success || false, error: result.error };
-      }
-
-      return { success: false, error: 'Invalid response' };
+      return { success: true };
     } catch (error) {
-      secureLog.error('Reaction creation error:', error);
-      return { success: false, error: 'Service unavailable' };
+      secureLog.error('Secure reaction failed:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Reaction failed'
+      };
+    }
+  }
+
+  // Log security event with proper threat level handling
+  static async logSecurityEvent(
+    eventType: string,
+    details: Record<string, unknown>,
+    threatLevel: ThreatLevel = 'low'
+  ): Promise<void> {
+    try {
+      // Only log medium, high, or critical threats to avoid spam
+      if (threatLevel === 'medium' || threatLevel === 'high' || threatLevel === 'critical') {
+        await supabase.rpc('log_security_event', {
+          event_type: eventType,
+          details: details as any,
+          threat_level: threatLevel
+        });
+      }
+    } catch (error) {
+      secureLog.error('Security event logging failed:', error);
     }
   }
 }

@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { track } from '@/utils/analytics';
-import { UnifiedSecurityService } from '@/services/unifiedSecurityService';
+import { SecurityService } from '@/services/securityService';
 import { secureLog } from '@/utils/secureLogging';
 
 interface SubmissionData {
@@ -72,25 +72,15 @@ export const useSubmissionForm = (
     }
 
     try {
-      // Use unified security service for validation
-      const securityCheck = await UnifiedSecurityService.validateSubmissionSecurity(
+      // Use security service for validation
+      const securityCheck = await SecurityService.validateSubmissionSecurity(
         formData.tea,
-        formData.evidence_urls.filter(url => url.trim()),
         'tea_submission'
       );
 
-      if (!securityCheck.rateLimitPassed) {
+      if (!securityCheck.success) {
         toast({
-          title: "Rate Limit Exceeded",
-          description: "Please wait before submitting again.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      if (!securityCheck.contentValid) {
-        toast({
-          title: "Content Validation Failed",
+          title: "Validation Failed",
           description: `Issues detected: ${securityCheck.errors.join(', ')}`,
           variant: "destructive"
         });
@@ -102,7 +92,7 @@ export const useSubmissionForm = (
         email: formData.email.trim().toLowerCase(),
         wallet: formData.wallet.trim(),
         category: formData.category,
-        evidence_urls: securityCheck.urlValidation?.valid || [],
+        evidence_urls: formData.evidence_urls.filter(url => url.trim()),
         isAnonymous: formData.isAnonymous
       };
       
