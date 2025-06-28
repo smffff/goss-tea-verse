@@ -76,7 +76,8 @@ export class TipVerificationService {
         return [];
       }
 
-      return data || [];
+      // Cast the data to our interface type to resolve TypeScript issues
+      return (data || []) as TipTransaction[];
     } catch (error) {
       secureLog.error('Get tip transactions error:', error);
       return [];
@@ -130,7 +131,8 @@ export class TipVerificationService {
         return [];
       }
 
-      return data || [];
+      // Cast the data to our interface type to resolve TypeScript issues
+      return (data || []) as TipTransaction[];
     } catch (error) {
       secureLog.error('Get pending tips error:', error);
       return [];
