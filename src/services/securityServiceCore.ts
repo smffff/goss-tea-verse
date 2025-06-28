@@ -176,7 +176,7 @@ export class SecurityServiceCore {
    */
   private static fallbackContentValidation(content: string, maxLength: number): any {
     const errors: string[] = [];
-    let riskLevel = 'low';
+    let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
     
     if (!content || content.trim().length === 0) {
       errors.push('Content cannot be empty');
