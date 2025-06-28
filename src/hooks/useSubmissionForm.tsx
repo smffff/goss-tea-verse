@@ -82,7 +82,7 @@ export const useSubmissionForm = (
       if (!securityCheck.rateLimitCheck.allowed) {
         toast({
           title: "Rate Limit Exceeded",
-          description: securityCheck.rateLimitCheck.blocked_reason || "Please wait before submitting again.",
+          description: securityCheck.rateLimitCheck.blockedReason || "Please wait before submitting again.",
           variant: "destructive"
         });
         return;
@@ -91,7 +91,7 @@ export const useSubmissionForm = (
       if (!securityCheck.contentValidation.valid) {
         toast({
           title: "Content Validation Failed",
-          description: `Issues detected: ${securityCheck.contentValidation.threats.join(', ')}`,
+          description: `Issues detected: ${securityCheck.contentValidation.errors.join(', ')}`,
           variant: "destructive"
         });
         return;

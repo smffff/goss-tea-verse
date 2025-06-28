@@ -73,6 +73,8 @@ export class UnifiedSecurityService {
           threatLevel = 'critical';
         } else if (contentValidation.risk_level === 'high' && threatLevel !== 'critical') {
           threatLevel = 'high';
+        } else if (contentValidation.risk_level === 'medium' && threatLevel === 'low') {
+          threatLevel = 'medium';
         }
       }
 
@@ -136,7 +138,7 @@ export class UnifiedSecurityService {
       
       // Log critical security failure
       await SecurityMonitoringService.logSecurityEvent(
-        'security_validation_failure',
+        'policy_violation',
         'critical',
         'Unified security service completely failed',
         { error: error instanceof Error ? error.message : 'Unknown error' }
