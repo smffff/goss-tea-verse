@@ -76,8 +76,8 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
         throw new Error(`Submission failed: ${error.message}`);
       }
 
-      // Type assertion for the response
-      const result = submissionResult as SecureSubmissionResult;
+      // Type assertion for the response (cast through unknown first)
+      const result = submissionResult as unknown as SecureSubmissionResult;
 
       if (!result?.success) {
         throw new Error(result?.error || 'Unknown error occurred');

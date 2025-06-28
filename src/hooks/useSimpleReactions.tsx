@@ -38,8 +38,8 @@ export const useSimpleReactions = () => {
         throw new Error(`Failed to add reaction: ${error.message}`);
       }
 
-      // Type assertion for the response
-      const result = reactionResult as SecureReactionResult;
+      // Type assertion for the response (cast through unknown first)
+      const result = reactionResult as unknown as SecureReactionResult;
 
       if (!result?.success) {
         throw new Error(result?.error || 'Unknown error occurred');
