@@ -124,6 +124,13 @@ export class SecurityServiceCore {
     let securityScore = 100;
     let threatLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
 
+    // Helper for type safety
+    const validRiskLevels = ['low', 'medium', 'high', 'critical'] as const;
+    type RiskLevel = typeof validRiskLevels[number];
+    function toRiskLevel(val: any): RiskLevel {
+      return validRiskLevels.includes(val) ? val : 'low';
+    }
+
     try {
       // Token validation
       const tokenValidation = await this.validateToken(token);
@@ -144,7 +151,11 @@ export class SecurityServiceCore {
         securityScore = Math.min(securityScore, contentValidation.security_score || 0);
         
         // Handle threat level escalation based on risk level
+<<<<<<< Updated upstream
         const riskLevel = contentValidation.risk_level;
+=======
+        const riskLevel = toRiskLevel(contentValidation.risk_level);
+>>>>>>> Stashed changes
         if (riskLevel === 'critical') {
           threatLevel = 'critical';
         } else if (riskLevel === 'high' && threatLevel !== 'critical') {
