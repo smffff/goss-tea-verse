@@ -1,44 +1,12 @@
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
-
-export interface SecurityValidationResult {
-  success: boolean;
-  tokenValid: boolean;
-  contentValid: boolean;
-  rateLimitPassed: boolean;
-  securityScore: number;
-  errors: string[];
-  warnings: string[];
-  sanitizedContent?: string;
-  threatLevel: 'low' | 'medium' | 'high' | 'critical';
-}
-
-export interface TokenValidationResult {
-  valid: boolean;
-  security_score?: number;
-}
-
-export interface ContentValidationResult {
-  valid: boolean;
-  errors?: string[];
-  sanitized?: string;
-  risk_level?: 'low' | 'medium' | 'high' | 'critical';
-  security_score?: number;
-}
-
-export interface RateLimitResult {
-  allowed: boolean;
-  blocked_reason?: string;
-  security_violation?: boolean;
-}
-
-export interface FallbackValidationResult {
-  valid: boolean;
-  errors: string[];
-  sanitized: string;
-  risk_level: 'low' | 'medium' | 'high' | 'critical';
-  security_score: number;
-}
+import {
+  SecurityValidationResult,
+  TokenValidationResult,
+  ContentValidationResult,
+  RateLimitResult,
+  FallbackValidationResult
+} from './types';
 
 /**
  * Core security service focused on essential validation functions

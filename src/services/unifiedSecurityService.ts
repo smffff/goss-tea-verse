@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
-import { SecurityServiceCore } from './securityServiceCore';
+import { SecurityServiceCore } from './security/securityServiceCore';
 import { SecureTokenService } from './secureTokenService';
 
 export interface EnhancedSecurityValidation {
@@ -117,7 +117,7 @@ export class UnifiedSecurityService {
   /**
    * Comprehensive content validation
    */
-  static async validateContentComprehensive(content: string, maxLength: number = 1000): Promise<any> {
+  static async validateContentComprehensive(content: string, maxLength: number = 1000): Promise<import('./security/types').ContentValidationResult> {
     return await SecurityServiceCore.validateContent(content, maxLength);
   }
 
@@ -182,7 +182,7 @@ export class UnifiedSecurityService {
    */
   static async logSecurityEvent(
     eventType: 'policy_violation' | 'xss' | 'sql_injection' | 'rate_limit' | 'token_validation',
-    details: Record<string, any>,
+    details: Record<string, unknown>,
     severity: 'info' | 'warning' | 'error' | 'critical' = 'info'
   ): Promise<void> {
     try {
