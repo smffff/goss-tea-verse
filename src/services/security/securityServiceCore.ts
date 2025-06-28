@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
 import {
@@ -24,11 +25,17 @@ export class SecurityServiceCore {
         return { valid: false, securityScore: 0 };
       }
 
-      const result = data as TokenValidationResult;
-      return {
-        valid: result?.valid || false,
-        securityScore: result?.security_score || 0
-      };
+      // Safe type casting with validation
+      const result = data as unknown;
+      if (result && typeof result === 'object' && 'valid' in result) {
+        const tokenResult = result as TokenValidationResult;
+        return {
+          valid: tokenResult.valid || false,
+          securityScore: tokenResult.security_score || 0
+        };
+      }
+
+      return { valid: false, securityScore: 0 };
     } catch (error) {
       secureLog.error('Token validation error:', error);
       return { valid: false, securityScore: 0 };
@@ -50,7 +57,13 @@ export class SecurityServiceCore {
         return this.fallbackContentValidation(content, maxLength);
       }
 
-      return data as ContentValidationResult;
+      // Safe type casting with validation
+      const result = data as unknown;
+      if (result && typeof result === 'object' && 'valid' in result) {
+        return result as ContentValidationResult;
+      }
+
+      return this.fallbackContentValidation(content, maxLength);
     } catch (error) {
       secureLog.error('Content validation error:', error);
       return this.fallbackContentValidation(content, maxLength);
@@ -79,7 +92,13 @@ export class SecurityServiceCore {
         return { allowed: false, blocked_reason: 'Rate limit service unavailable' };
       }
 
-      return data as RateLimitResult;
+      // Safe type casting with validation
+      const result = data as unknown;
+      if (result && typeof result === 'object' && 'allowed' in result) {
+        return result as RateLimitResult;
+      }
+
+      return { allowed: false, blocked_reason: 'Invalid rate limit response' };
     } catch (error) {
       secureLog.error('Rate limit error:', error);
       return { allowed: false, blocked_reason: 'Rate limit service error' };
@@ -119,7 +138,7 @@ export class SecurityServiceCore {
         securityScore = Math.min(securityScore, contentValidation.security_score || 0);
         
         // Handle threat level escalation based on risk level
-        const riskLevel = contentValidation.risk_level as 'low' | 'medium' | 'high' | 'critical';
+        const riskLevel = contentValidation.risk_level;
         if (riskLevel === 'critical') {
           threatLevel = 'critical';
         } else if (riskLevel === 'high' && threatLevel !== 'critical') {

@@ -2,6 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
 import { SecurityServiceCore } from './security/securityServiceCore';
 import { SecureTokenService } from './secureTokenService';
+import { RateLimitResult, EnhancedRateLimitResult } from './security/types';
 
 export interface EnhancedSecurityValidation {
   success: boolean;
@@ -18,17 +19,6 @@ export interface EnhancedSecurityValidation {
     suspicious: string[];
     blocked: string[];
   };
-}
-
-export interface EnhancedRateLimitResult {
-  allowed: boolean;
-  currentCount: number;
-  maxActions: number;
-  remaining: number;
-  resetTime?: string;
-  blockedReason?: string;
-  securityViolation?: boolean;
-  suspiciousActivity?: boolean;
 }
 
 export class UnifiedSecurityService {
@@ -96,7 +86,7 @@ export class UnifiedSecurityService {
   }
 
   /**
-   * Enhanced rate limiting with security monitoring
+   * Enhanced rate limiting with security monitoring - converts to EnhancedRateLimitResult
    */
   static async checkEnhancedRateLimit(
     token: string,
@@ -104,7 +94,19 @@ export class UnifiedSecurityService {
     maxActions: number = 10,
     windowMinutes: number = 60
   ): Promise<EnhancedRateLimitResult> {
-    return await SecurityServiceCore.checkRateLimit(token, action, maxActions, windowMinutes);
+    const rateLimitResult = await SecurityServiceCore.checkRateLimit(token, action, maxActions, windowMinutes);
+    
+    // Convert RateLimitResult to EnhancedRateLimitResult
+    return {
+      allowed: rateLimitResult.allowed,
+      currentCount: rateLimitResult.current_count || 0,
+      maxActions: rateLimitResult.max_actions || maxActions,
+      remaining: rateLimitResult.remaining || 0,
+      resetTime: rateLimitResult.reset_time,
+      blockedReason: rateLimitResult.blocked_reason,
+      securityViolation: rateLimitResult.security_violation || false,
+      suspiciousActivity: false // Default value for enhanced result
+    };
   }
 
   /**
@@ -182,13 +184,16 @@ export class UnifiedSecurityService {
    */
   static async logSecurityEvent(
     eventType: 'policy_violation' | 'xss' | 'sql_injection' | 'rate_limit' | 'token_validation',
-    details: Record<string, unknown>,
+    details: Record<string, any>, // Changed from Record<string, unknown> to any for Json compatibility
     severity: 'info' | 'warning' | 'error' | 'critical' = 'info'
   ): Promise<void> {
     try {
+      // Convert details to JSON-compatible format
+      const jsonDetails = JSON.parse(JSON.stringify(details));
+      
       await supabase.rpc('log_security_event_enhanced', {
         event_type: eventType,
-        details: details,
+        details: jsonDetails,
         severity: severity
       });
     } catch (error) {

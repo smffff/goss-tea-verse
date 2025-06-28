@@ -1,3 +1,4 @@
+
 export interface AuthValidationResult {
   isValid: boolean;
   securityScore: number;
@@ -61,8 +62,23 @@ export interface ContentValidationResult {
 
 export interface RateLimitResult {
   allowed: boolean;
+  current_count?: number;
+  max_actions?: number;
+  remaining?: number;
+  reset_time?: string;
   blocked_reason?: string;
   security_violation?: boolean;
+}
+
+export interface EnhancedRateLimitResult {
+  allowed: boolean;
+  currentCount: number;
+  maxActions: number;
+  remaining: number;
+  resetTime?: string;
+  blockedReason?: string;
+  securityViolation?: boolean;
+  suspiciousActivity?: boolean;
 }
 
 export interface FallbackValidationResult {
