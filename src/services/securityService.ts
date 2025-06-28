@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
 import type { ContentValidationResult, RateLimitResult, ThreatLevel } from './security/types';
@@ -12,6 +11,23 @@ interface SecureSubmissionResult {
 interface SecureReactionResult {
   success: boolean;
   error?: string;
+}
+
+// Type guards for RPC responses
+function isContentValidationResult(data: any): data is ContentValidationResult {
+  return data && 
+         typeof data === 'object' && 
+         typeof data.valid === 'boolean' &&
+         Array.isArray(data.errors) &&
+         Array.isArray(data.warnings);
+}
+
+function isRateLimitResult(data: any): data is RateLimitResult {
+  return data && 
+         typeof data === 'object' && 
+         typeof data.allowed === 'boolean' &&
+         typeof data.remaining === 'number' &&
+         typeof data.resetTime === 'number';
 }
 
 export class SecurityService {
@@ -61,8 +77,8 @@ export class SecurityService {
       }
 
       // Type guard for the response
-      if (data && typeof data === 'object' && 'valid' in data) {
-        return data as ContentValidationResult;
+      if (isContentValidationResult(data)) {
+        return data;
       }
 
       // Fallback validation
@@ -108,8 +124,8 @@ export class SecurityService {
       }
 
       // Type guard for the response
-      if (data && typeof data === 'object' && 'allowed' in data) {
-        return data as RateLimitResult;
+      if (isRateLimitResult(data)) {
+        return data;
       }
 
       // Fallback - allow with warning
