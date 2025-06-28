@@ -124,11 +124,13 @@ export class SecurityServiceCore {
         errors.push(...(contentValidation.errors || ['Content validation failed']));
         securityScore = Math.min(securityScore, contentValidation.security_score || 0);
         
-        if (contentValidation.risk_level === 'critical') {
+        // Fix the type comparison issue by using proper type checking
+        const riskLevel = contentValidation.risk_level as 'low' | 'medium' | 'high' | 'critical';
+        if (riskLevel === 'critical') {
           threatLevel = 'critical';
-        } else if (contentValidation.risk_level === 'high' && threatLevel !== 'critical') {
+        } else if (riskLevel === 'high' && threatLevel !== 'critical') {
           threatLevel = 'high';
-        } else if (contentValidation.risk_level === 'medium' && threatLevel === 'low') {
+        } else if (riskLevel === 'medium' && threatLevel === 'low') {
           threatLevel = 'medium';
         }
       }
