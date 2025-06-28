@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
 import type { ContentValidationResult, RateLimitResult, ThreatLevel } from './security/types';
@@ -46,9 +45,9 @@ export class SecurityService {
   // Validate content with proper type handling
   static async validateContent(content: string, maxLength = 2000): Promise<ContentValidationResult> {
     try {
-      const { data, error } = await supabase.rpc('validate_content_security', {
-        content,
-        max_length: maxLength
+      const { data, error } = await supabase.rpc('validate_unified_security', {
+        p_content: content,
+        p_max_length: maxLength
       });
 
       if (error) {
@@ -62,7 +61,7 @@ export class SecurityService {
 
       // Type guard for the response
       if (data && typeof data === 'object' && 'valid' in data) {
-        return data as ContentValidationResult;
+        return data as unknown as ContentValidationResult;
       }
 
       // Fallback validation
@@ -91,10 +90,10 @@ export class SecurityService {
   ): Promise<RateLimitResult> {
     try {
       const { data, error } = await supabase.rpc('check_enhanced_rate_limit', {
-        anonymous_token: token,
-        action_type: action,
-        max_attempts: maxAttempts,
-        window_minutes: windowMinutes
+        p_token: token,
+        p_action: action,
+        p_max_actions: maxAttempts,
+        p_window_minutes: windowMinutes
       });
 
       if (error) {
@@ -109,7 +108,7 @@ export class SecurityService {
 
       // Type guard for the response
       if (data && typeof data === 'object' && 'allowed' in data) {
-        return data as RateLimitResult;
+        return data as unknown as RateLimitResult;
       }
 
       // Fallback - allow with warning
@@ -190,7 +189,9 @@ export class SecurityService {
 
       return {
         success: true,
-        submission_id: data?.submission_id
+        submission_id: typeof data === 'object' && data && 'submission_id' in data 
+          ? (data as any).submission_id 
+          : undefined
       };
     } catch (error) {
       secureLog.error('Secure submission failed:', error);
@@ -241,7 +242,7 @@ export class SecurityService {
         await supabase.rpc('log_security_event', {
           event_type: eventType,
           details: details as any,
-          threat_level: threatLevel
+          severity: threatLevel
         });
       }
     } catch (error) {

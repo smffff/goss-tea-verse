@@ -1,4 +1,3 @@
-
 // Security Service Types
 export interface ContentValidationResult {
   valid: boolean;
@@ -22,6 +21,15 @@ export interface TokenValidationResult {
   securityScore?: number;
 }
 
+// Auth validation result for backward compatibility
+export interface AuthValidationResult {
+  isValid: boolean;
+  securityScore: number;
+  threats: string[];
+  recommendations: string[];
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+}
+
 export interface EmailValidationResult {
   isValid: boolean;
   format: boolean;
@@ -32,8 +40,10 @@ export interface EmailValidationResult {
 
 export interface PasswordValidationResult {
   isValid: boolean;
-  strength: 'weak' | 'medium' | 'strong';
-  issues: string[];
+  strength: 'weak' | 'fair' | 'good' | 'strong';
+  score?: number;
+  feedback?: string[];
+  requirements?: Record<string, boolean>;
 }
 
 export interface BetaCodeValidationResult {
@@ -41,6 +51,14 @@ export interface BetaCodeValidationResult {
   exists: boolean;
   used: boolean;
   expired: boolean;
+}
+
+// Beta code validation response for backward compatibility
+export interface BetaCodeValidationResponse {
+  valid: boolean;
+  exists?: boolean;
+  used?: boolean;
+  expired?: boolean;
 }
 
 export interface SessionValidationResult {
