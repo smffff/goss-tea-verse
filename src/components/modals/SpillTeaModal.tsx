@@ -56,18 +56,23 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
       // Get secure anonymous token
       const anonymousToken = await SecurityService.getOrCreateSecureToken();
 
-      // Validate content using secure service
-      const contentValidation = await SecurityService.validateContent(formData.content, 1000);
+      // Enhanced security validation using the new service
+      const securityValidation = await SecurityService.validateContent(formData.content, 1000);
       
-      if (!contentValidation.valid) {
-        throw new Error(`Content validation failed: ${contentValidation.errors.join(', ')}`);
+      if (!securityValidation.valid) {
+        throw new Error(`Content validation failed: ${securityValidation.errors.join(', ')}`);
       }
 
-      // Check rate limit
+      // Check enhanced rate limit with security monitoring  
       const rateLimitCheck = await SecurityService.checkRateLimit(anonymousToken, 'submission', 5, 60);
       
       if (!rateLimitCheck.allowed) {
         throw new Error(rateLimitCheck.blockedReason || 'Rate limit exceeded');
+      }
+
+      // Log security warnings if any
+      if (rateLimitCheck.securityViolation) {
+        secureLog.warn('Suspicious submission activity detected', { content: formData.content.substring(0, 100) });
       }
 
       // Prepare evidence URLs array
@@ -76,7 +81,7 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
       // Use the secure server-side function
       const { data: submissionResult, error } = await supabase
         .rpc('secure_submission_insert', {
-          p_content: contentValidation.sanitized || formData.content,
+          p_content: securityValidation.sanitized || formData.content,
           p_anonymous_token: anonymousToken,
           p_category: formData.category,
           p_evidence_urls: evidenceUrls

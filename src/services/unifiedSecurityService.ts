@@ -1,187 +1,179 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { EnhancedSecurityService } from './enhancedSecurityService';
+import { SecurityMonitoringService } from './securityMonitoringService';
+import { SecureTokenService } from './secureTokenService';
 import { secureLog } from '@/utils/secureLogging';
 
-export interface RateLimitResult {
-  allowed: boolean;
-  blocked_reason?: string;
-  remaining_requests?: number;
-  reset_time?: number;
-  limit?: number;
-}
-
-export interface SecurityValidationResult {
+export interface UnifiedSecurityResult {
   success: boolean;
-  message?: string;
-  data?: any;
-  error?: string;
-}
-
-export interface SubmissionSecurityResult {
-  success: boolean;
-  rateLimitCheck: RateLimitResult;
-  contentValidation: {
-    valid: boolean;
-    sanitized: string;
-    threats: string[];
-  };
-  urlValidation: {
-    valid: string[];
-    invalid: string[];
-  };
+  tokenValidation: { valid: boolean; token: string };
+  contentValidation: { valid: boolean; sanitized: string; errors: string[] };
+  rateLimitCheck: { allowed: boolean; blockedReason?: string };
+  urlValidation: { valid: string[]; invalid: string[] };
+  securityScore: number;
+  threatLevel: 'low' | 'medium' | 'high' | 'critical';
+  warnings: string[];
 }
 
 export class UnifiedSecurityService {
-  private static rateLimitCache = new Map<string, { count: number; resetTime: number }>();
+  private static instance: UnifiedSecurityService;
 
-  static async checkRateLimit(
-    identifier: string,
-    action: string,
-    limit: number = 10,
-    windowMs: number = 60000
-  ): Promise<RateLimitResult> {
-    try {
-      const now = Date.now();
-      const key = `${identifier}:${action}`;
-      const cached = this.rateLimitCache.get(key);
-
-      if (cached && now < cached.resetTime) {
-        if (cached.count >= limit) {
-          return {
-            allowed: false,
-            blocked_reason: 'Rate limit exceeded',
-            remaining_requests: 0,
-            reset_time: cached.resetTime,
-            limit
-          };
-        }
-        
-        cached.count++;
-        return {
-          allowed: true,
-          remaining_requests: limit - cached.count,
-          reset_time: cached.resetTime,
-          limit
-        };
-      }
-
-      // Reset or create new entry
-      this.rateLimitCache.set(key, {
-        count: 1,
-        resetTime: now + windowMs
-      });
-
-      return {
-        allowed: true,
-        remaining_requests: limit - 1,
-        reset_time: now + windowMs,
-        limit
-      };
-    } catch (error) {
-      secureLog.error('Rate limit check failed:', error);
-      return {
-        allowed: false,
-        blocked_reason: 'Rate limit check failed'
-      };
+  static getInstance(): UnifiedSecurityService {
+    if (!this.instance) {
+      this.instance = new UnifiedSecurityService();
     }
+    return this.instance;
   }
 
+  /**
+   * Comprehensive security validation for all submission types
+   */
   static async validateSubmissionSecurity(
     content: string,
-    urls: string[],
+    evidenceUrls: string[] = [],
     action: string = 'submission'
-  ): Promise<SubmissionSecurityResult> {
+  ): Promise<UnifiedSecurityResult> {
     try {
-      const userId = localStorage.getItem('ctea_anonymous_token') || 'anonymous';
+      // Start security monitoring
+      SecurityMonitoringService.startSecurityMonitoring();
+
+      // Get or create secure token
+      const token = await SecureTokenService.getOrCreateSecureToken();
       
-      // Check rate limiting
-      const rateLimitResult = await this.checkRateLimit(userId, action, 5, 300000);
+      // Validate token security
+      const tokenValidation = await EnhancedSecurityService.validateTokenSecurity(token);
       
-      // Content validation
-      const contentValidation = this.validateContent(content);
+      // Enhanced content validation
+      const contentValidation = await EnhancedSecurityService.validateContentComprehensive(content, 1000);
       
-      // URL validation
-      const urlValidation = this.validateUrls(urls);
+      // Enhanced rate limiting
+      const rateLimitCheck = await EnhancedSecurityService.checkEnhancedRateLimit(token, action, 5, 60);
+      
+      // URL validation if evidence provided
+      const urlValidation = evidenceUrls.length > 0 
+        ? EnhancedSecurityService.validateEvidenceUrls(evidenceUrls)
+        : { valid: [], suspicious: [], blocked: [] };
 
-      return {
-        success: rateLimitResult.allowed && contentValidation.valid,
-        rateLimitCheck: rateLimitResult,
-        contentValidation,
-        urlValidation
-      };
-    } catch (error) {
-      secureLog.error('Submission security validation failed:', error);
-      return {
-        success: false,
-        rateLimitCheck: { allowed: false, blocked_reason: 'Validation failed' },
-        contentValidation: { valid: false, sanitized: content, threats: ['Validation error'] },
-        urlValidation: { valid: [], invalid: urls }
-      };
-    }
-  }
+      // Calculate overall security score
+      let securityScore = 100;
+      const warnings: string[] = [];
+      let threatLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
 
-  private static validateContent(content: string) {
-    const threats: string[] = [];
-    let sanitized = content.trim();
-
-    // Basic content validation
-    if (!sanitized || sanitized.length < 3) {
-      threats.push('Content too short');
-    }
-
-    if (sanitized.length > 2000) {
-      threats.push('Content too long');
-    }
-
-    // Basic XSS prevention
-    const xssPatterns = [
-      /<script[^>]*>.*?<\/script>/gi,
-      /javascript:/gi,
-      /on\w+\s*=/gi
-    ];
-
-    for (const pattern of xssPatterns) {
-      if (pattern.test(sanitized)) {
-        threats.push('Potential XSS detected');
-        sanitized = sanitized.replace(pattern, '');
+      // Token validation impact
+      if (!tokenValidation.valid) {
+        securityScore -= 50;
+        threatLevel = 'high';
+        warnings.push('Token security validation failed');
       }
-    }
 
-    return {
-      valid: threats.length === 0,
-      sanitized,
-      threats
-    };
-  }
-
-  private static validateUrls(urls: string[]) {
-    const valid: string[] = [];
-    const invalid: string[] = [];
-
-    for (const url of urls) {
-      if (!url.trim()) continue;
-      
-      try {
-        new URL(url);
-        valid.push(url);
-      } catch {
-        invalid.push(url);
-      }
-    }
-
-    return { valid, invalid };
-  }
-
-  static clearRateLimit(identifier: string, action?: string) {
-    if (action) {
-      this.rateLimitCache.delete(`${identifier}:${action}`);
-    } else {
-      // Clear all entries for the identifier
-      for (const key of this.rateLimitCache.keys()) {
-        if (key.startsWith(`${identifier}:`)) {
-          this.rateLimitCache.delete(key);
+      // Content validation impact
+      if (!contentValidation.valid) {
+        securityScore = Math.min(securityScore, contentValidation.securityScore || 0);
+        if (contentValidation.risk_level === 'critical') {
+          threatLevel = 'critical';
+        } else if (contentValidation.risk_level === 'high' && threatLevel !== 'critical') {
+          threatLevel = 'high';
         }
       }
+
+      // Rate limit impact
+      if (!rateLimitCheck.allowed) {
+        if (rateLimitCheck.securityViolation) {
+          threatLevel = 'critical';
+          securityScore = 0;
+          warnings.push('Security violation detected in rate limiting');
+        } else {
+          securityScore -= 30;
+          warnings.push('Rate limit exceeded');
+        }
+      }
+
+      // URL validation impact
+      if (urlValidation.suspicious.length > 0 || urlValidation.blocked.length > 0) {
+        securityScore -= (urlValidation.suspicious.length * 10) + (urlValidation.blocked.length * 25);
+        if (urlValidation.blocked.length > 0) {
+          threatLevel = threatLevel === 'critical' ? 'critical' : 'high';
+          warnings.push(`${urlValidation.blocked.length} blocked URLs detected`);
+        }
+        if (urlValidation.suspicious.length > 0) {
+          warnings.push(`${urlValidation.suspicious.length} suspicious URLs detected`);
+        }
+      }
+
+      // Log security assessment
+      await EnhancedSecurityService.logSecurityEvent('unified_security_assessment', {
+        securityScore,
+        threatLevel,
+        warnings,
+        tokenValid: tokenValidation.valid,
+        contentValid: contentValidation.valid,
+        rateLimitPassed: rateLimitCheck.allowed,
+        urlsProcessed: evidenceUrls.length
+      }, threatLevel === 'critical' ? 'critical' : threatLevel === 'high' ? 'error' : 'info');
+
+      return {
+        success: securityScore >= 50 && tokenValidation.valid && contentValidation.valid && rateLimitCheck.allowed,
+        tokenValidation: { valid: tokenValidation.valid, token },
+        contentValidation: {
+          valid: contentValidation.valid,
+          sanitized: contentValidation.sanitized || content,
+          errors: contentValidation.errors || []
+        },
+        rateLimitCheck: {
+          allowed: rateLimitCheck.allowed,
+          blockedReason: rateLimitCheck.blockedReason
+        },
+        urlValidation: {
+          valid: urlValidation.valid || [],
+          invalid: [...(urlValidation.suspicious || []), ...(urlValidation.blocked || [])]
+        },
+        securityScore,
+        threatLevel,
+        warnings
+      };
+    } catch (error) {
+      secureLog.error('Unified security validation failed:', error);
+      
+      // Log critical security failure
+      await SecurityMonitoringService.logSecurityEvent(
+        'security_validation_failure',
+        'critical',
+        'Unified security service completely failed',
+        { error: error instanceof Error ? error.message : 'Unknown error' }
+      );
+
+      return {
+        success: false,
+        tokenValidation: { valid: false, token: '' },
+        contentValidation: { valid: false, sanitized: content, errors: ['Security service unavailable'] },
+        rateLimitCheck: { allowed: false, blockedReason: 'Security service unavailable' },
+        urlValidation: { valid: [], invalid: evidenceUrls },
+        securityScore: 0,
+        threatLevel: 'critical',
+        warnings: ['Critical security service failure']
+      };
     }
+  }
+
+  /**
+   * Quick security check for simple operations
+   */
+  static async quickSecurityCheck(token: string, action: string): Promise<boolean> {
+    try {
+      const tokenValidation = await EnhancedSecurityService.validateTokenSecurity(token);
+      const rateLimitCheck = await EnhancedSecurityService.checkEnhancedRateLimit(token, action);
+      
+      return tokenValidation.valid && rateLimitCheck.allowed;
+    } catch (error) {
+      secureLog.error('Quick security check failed:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Get current security metrics
+   */
+  static async getSecurityMetrics() {
+    return await SecurityMonitoringService.getSecurityMetrics();
   }
 }

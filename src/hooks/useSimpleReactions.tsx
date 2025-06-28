@@ -23,11 +23,16 @@ export const useSimpleReactions = () => {
       // Get secure anonymous token
       const anonymousToken = await SecurityService.getOrCreateSecureToken();
 
-      // Check rate limit
+      // Check enhanced rate limit with security monitoring
       const rateLimitCheck = await SecurityService.checkRateLimit(anonymousToken, 'reaction', 20, 15);
       
       if (!rateLimitCheck.allowed) {
         throw new Error(rateLimitCheck.blockedReason || 'Rate limit exceeded');
+      }
+
+      // Log suspicious activity if detected
+      if (rateLimitCheck.securityViolation) {
+        secureLog.warn('Suspicious reaction activity detected', { submissionId, reactionType });
       }
 
       // Use the secure server-side function
