@@ -1,380 +1,274 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { 
-  Mail, 
-  Check, 
-  X, 
-  Eye, 
-  Search, 
-  Filter,
-  Clock,
-  Crown,
-  DollarSign,
-  Copy
+  Coins, 
+  CheckCircle, 
+  XCircle, 
+  Clock, 
+  ExternalLink,
+  Mail,
+  Wallet,
+  Image as ImageIcon,
+  Hash
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-
-interface TipSubmission {
-  id: string;
-  email: string;
-  network: string;
-  amount: string;
-  txHash: string;
-  walletAddress: string;
-  screenshot?: string;
-  message: string;
-  timestamp: Date;
-  status: 'pending' | 'approved' | 'rejected';
-  verifiedBy?: string;
-  notes?: string;
-}
+import { useTipVerification } from '@/hooks/useTipVerification';
+import { formatDistanceToNow } from 'date-fns';
 
 const TipVerificationDashboard: React.FC = () => {
-  const [submissions, setSubmissions] = useState<TipSubmission[]>([]);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
-  const [searchTerm, setSearchTerm] = useState('');
-  const { toast } = useToast();
+  const { pendingTips, loading, verifying, verifyTip, loadPendingTips } = useTipVerification();
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [selectedTipId, setSelectedTipId] = useState<string | null>(null);
 
-  // Mock data - replace with real API calls
-  useEffect(() => {
-    const mockSubmissions: TipSubmission[] = [
-      {
-        id: '1',
-        email: 'alice@example.com',
-        network: 'ETH',
-        amount: '0.01',
-        txHash: '0x742d35Cc6634C0532925a3b8D020d6bb55aAc',
-        walletAddress: '0x123...456',
-        message: 'Love the app! Keep up the great work.',
-        timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-        status: 'pending'
-      },
-      {
-        id: '2', 
-        email: 'bob@example.com',
-        network: 'SOL',
-        amount: '1.5',
-        txHash: 'CCazM2Rx6p1KfZawjckUVr1wQTJY87swyo1',
-        walletAddress: 'ABC...XYZ',
-        message: 'Here\'s some SOL for the devs!',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-        status: 'approved',
-        verifiedBy: 'admin',
-        notes: 'Verified transaction on Solscan'
-      }
-    ];
-    setSubmissions(mockSubmissions);
-  }, []);
-
-  const handleApprove = async (submissionId: string) => {
-    // In real implementation, this would:
-    // 1. Grant VIP access to the user
-    // 2. Send confirmation email
-    // 3. Update database
-    
-    const submission = submissions.find(s => s.id === submissionId);
-    if (!submission) return;
-
-    setSubmissions(prev => prev.map(s => 
-      s.id === submissionId 
-        ? { ...s, status: 'approved', verifiedBy: 'admin', notes: 'VIP access granted' }
-        : s
-    ));
-
-    toast({
-      title: "Tip Approved! ✅",
-      description: `VIP access granted to ${submission.email}`,
-    });
+  const handleVerify = async (tipId: string) => {
+    await verifyTip(tipId, 'verified');
   };
 
-  const handleReject = async (submissionId: string) => {
-    const submission = submissions.find(s => s.id === submissionId);
-    if (!submission) return;
-
-    setSubmissions(prev => prev.map(s => 
-      s.id === submissionId 
-        ? { ...s, status: 'rejected', verifiedBy: 'admin' }
-        : s
-    ));
-
-    toast({
-      title: "Tip Rejected",
-      description: `Submission from ${submission.email} has been rejected`,
-      variant: "destructive"
-    });
-  };
-
-  const copyToClipboard = async (text: string, label: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast({
-        title: "Copied!",
-        description: `${label} copied to clipboard`,
-      });
-    } catch (error) {
-      toast({
-        title: "Copy Failed",
-        description: "Could not copy to clipboard",
-        variant: "destructive"
-      });
+  const handleReject = async (tipId: string) => {
+    if (!rejectionReason.trim()) {
+      return;
     }
+    await verifyTip(tipId, 'rejected', rejectionReason);
+    setRejectionReason('');
+    setSelectedTipId(null);
   };
 
-  const filteredSubmissions = submissions
-    .filter(s => filter === 'all' || s.status === filter)
-    .filter(s => 
-      s.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.network.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.txHash.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-  const stats = {
-    total: submissions.length,
-    pending: submissions.filter(s => s.status === 'pending').length,
-    approved: submissions.filter(s => s.status === 'approved').length,
-    rejected: submissions.filter(s => s.status === 'rejected').length
+  const getNetworkBadgeColor = (network: string) => {
+    const colors: Record<string, string> = {
+      ethereum: 'bg-blue-500/20 text-blue-400',
+      bitcoin: 'bg-orange-500/20 text-orange-400',
+      solana: 'bg-purple-500/20 text-purple-400',
+      avax: 'bg-red-500/20 text-red-400',
+      polygon: 'bg-violet-500/20 text-violet-400',
+      tron: 'bg-green-500/20 text-green-400',
+      sui: 'bg-cyan-500/20 text-cyan-400',
+      base: 'bg-blue-600/20 text-blue-300'
+    };
+    return colors[network.toLowerCase()] || 'bg-gray-500/20 text-gray-400';
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">Tip Verification Dashboard</h1>
-          <p className="text-gray-400">Manage tip submissions and grant VIP access</p>
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            <Coins className="w-6 h-6 text-ctea-teal" />
+            Tip Verification Dashboard
+          </h2>
+          <p className="text-gray-400 mt-1">
+            Review and verify tip submissions from users
+          </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-white">
-            Admin Panel
-          </Badge>
-        </div>
+        <Button
+          onClick={loadPendingTips}
+          disabled={loading}
+          className="bg-ctea-teal hover:bg-ctea-teal/80"
+        >
+          {loading ? 'Loading...' : 'Refresh'}
+        </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-ctea-darker border-ctea-teal/30">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="bg-ctea-dark/50 border-ctea-teal/20">
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <Mail className="w-5 h-5 text-gray-400" />
-              <div>
-                <p className="text-sm text-gray-400">Total</p>
-                <p className="text-2xl font-bold text-white">{stats.total}</p>
-              </div>
+              <Clock className="w-4 h-4 text-yellow-400" />
+              <span className="text-sm text-gray-400">Pending</span>
+            </div>
+            <div className="text-2xl font-bold text-white mt-1">
+              {pendingTips.length}
             </div>
           </CardContent>
         </Card>
-        
-        <Card className="bg-ctea-darker border-yellow-500/30">
+
+        <Card className="bg-ctea-dark/50 border-ctea-teal/20">
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-yellow-400" />
-              <div>
-                <p className="text-sm text-gray-400">Pending</p>
-                <p className="text-2xl font-bold text-yellow-400">{stats.pending}</p>
-              </div>
+              <CheckCircle className="w-4 h-4 text-green-400" />
+              <span className="text-sm text-gray-400">Verified Today</span>
+            </div>
+            <div className="text-2xl font-bold text-white mt-1">
+              {/* TODO: Add actual count */}
+              0
             </div>
           </CardContent>
         </Card>
-        
-        <Card className="bg-ctea-darker border-green-500/30">
+
+        <Card className="bg-ctea-dark/50 border-ctea-teal/20">
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <Crown className="w-5 h-5 text-green-400" />
-              <div>
-                <p className="text-sm text-gray-400">Approved</p>
-                <p className="text-2xl font-bold text-green-400">{stats.approved}</p>
-              </div>
+              <XCircle className="w-4 h-4 text-red-400" />
+              <span className="text-sm text-gray-400">Rejected Today</span>
             </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-ctea-darker border-red-500/30">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <X className="w-5 h-5 text-red-400" />
-              <div>
-                <p className="text-sm text-gray-400">Rejected</p>
-                <p className="text-2xl font-bold text-red-400">{stats.rejected}</p>
-              </div>
+            <div className="text-2xl font-bold text-white mt-1">
+              {/* TODO: Add actual count */}
+              0
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Filters */}
-      <Card className="bg-ctea-darker border-ctea-teal/30">
-        <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
-                  placeholder="Search by email, network, or transaction hash..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-ctea-dark border-ctea-teal/30 text-white"
-                />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              {(['all', 'pending', 'approved', 'rejected'] as const).map((status) => (
-                <Button
-                  key={status}
-                  variant={filter === status ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setFilter(status)}
-                  className={filter === status ? 
-                    "bg-ctea-teal text-white" : 
-                    "border-ctea-teal/30 text-gray-300 hover:bg-ctea-teal/10"
-                  }
-                >
-                  <Filter className="w-4 h-4 mr-1" />
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Submissions List */}
+      {/* Pending Tips List */}
       <div className="space-y-4">
-        {filteredSubmissions.map((submission) => (
-          <Card key={submission.id} className="bg-ctea-darker border-ctea-teal/30">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Mail className="w-5 h-5" />
-                  {submission.email}
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  <Badge 
-                    className={
-                      submission.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
-                      submission.status === 'approved' ? 'bg-green-500/20 text-green-400' :
-                      'bg-red-500/20 text-red-400'
-                    }
-                  >
-                    {submission.status.toUpperCase()}
-                  </Badge>
-                  <span className="text-sm text-gray-400">
-                    {submission.timestamp.toLocaleString()}
-                  </span>
-                </div>
-              </div>
-            </CardHeader>
-            
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <p className="text-sm text-gray-400 mb-1">Network & Amount</p>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-ctea-purple/20 text-ctea-purple">
-                      {submission.network}
-                    </Badge>
-                    <span className="text-white font-mono">
-                      {submission.amount} {submission.network}
-                    </span>
-                  </div>
-                </div>
-                
-                <div>
-                  <p className="text-sm text-gray-400 mb-1">Transaction Hash</p>
-                  <div className="flex items-center gap-2">
-                    <code className="text-white font-mono text-sm bg-ctea-dark px-2 py-1 rounded">
-                      {submission.txHash.slice(0, 8)}...{submission.txHash.slice(-6)}
-                    </code>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => copyToClipboard(submission.txHash, 'Transaction hash')}
-                      className="h-6 w-6 p-0"
-                    >
-                      <Copy className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-                
-                <div>
-                  <p className="text-sm text-gray-400 mb-1">Sender Wallet</p>
-                  <div className="flex items-center gap-2">
-                    <code className="text-white font-mono text-sm bg-ctea-dark px-2 py-1 rounded">
-                      {submission.walletAddress}
-                    </code>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => copyToClipboard(submission.walletAddress, 'Wallet address')}
-                      className="h-6 w-6 p-0"
-                    >
-                      <Copy className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              
-              {submission.message && (
-                <div>
-                  <p className="text-sm text-gray-400 mb-1">Message</p>
-                  <p className="text-white text-sm bg-ctea-dark p-3 rounded">
-                    {submission.message}
-                  </p>
-                </div>
-              )}
-              
-              {submission.notes && (
-                <div>
-                  <p className="text-sm text-gray-400 mb-1">Admin Notes</p>
-                  <p className="text-green-400 text-sm">
-                    {submission.notes}
-                  </p>
-                </div>
-              )}
-              
-              {submission.status === 'pending' && (
-                <div className="flex gap-3 pt-3 border-t border-ctea-teal/20">
-                  <Button
-                    onClick={() => handleApprove(submission.id)}
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                  >
-                    <Check className="w-4 h-4 mr-2" />
-                    Approve & Grant VIP
-                  </Button>
-                  <Button
-                    onClick={() => handleReject(submission.id)}
-                    variant="outline"
-                    className="border-red-500/30 text-red-400 hover:bg-red-500/10"
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    Reject
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="border-ctea-teal/30 text-gray-300"
-                  >
-                    <Eye className="w-4 h-4 mr-2" />
-                    View Transaction
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-        
-        {filteredSubmissions.length === 0 && (
-          <Card className="bg-ctea-darker border-ctea-teal/30">
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="text-gray-400">Loading pending tips...</div>
+          </div>
+        ) : pendingTips.length === 0 ? (
+          <Card className="bg-ctea-dark/50 border-ctea-teal/20">
             <CardContent className="p-8 text-center">
-              <Mail className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-white mb-2">No Submissions Found</h3>
+              <Coins className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-white mb-2">
+                No Pending Tips
+              </h3>
               <p className="text-gray-400">
-                {filter === 'all' ? 'No tip submissions yet.' : `No ${filter} submissions found.`}
+                All tip submissions have been processed!
               </p>
             </CardContent>
           </Card>
+        ) : (
+          pendingTips.map((tip) => (
+            <Card key={tip.id} className="bg-ctea-dark/50 border-ctea-teal/20">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Badge className={getNetworkBadgeColor(tip.network)}>
+                      {tip.network.toUpperCase()}
+                    </Badge>
+                    <span className="text-sm text-gray-400">
+                      {formatDistanceToNow(new Date(tip.created_at), { addSuffix: true })}
+                    </span>
+                  </div>
+                  <Badge variant="outline" className="border-yellow-500/50 text-yellow-400">
+                    <Clock className="w-3 h-3 mr-1" />
+                    Pending
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* User Info */}
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-gray-400" />
+                  <span className="text-white font-mono text-sm">{tip.user_email}</span>
+                </div>
+
+                {/* Wallet Address */}
+                <div className="flex items-center gap-2">
+                  <Wallet className="w-4 h-4 text-gray-400" />
+                  <span className="text-gray-300 font-mono text-sm">
+                    {tip.wallet_address}
+                  </span>
+                </div>
+
+                {/* Amount */}
+                {tip.amount && (
+                  <div className="flex items-center gap-2">
+                    <Coins className="w-4 h-4 text-gray-400" />
+                    <span className="text-white">
+                      {tip.amount} {tip.network.toUpperCase()}
+                    </span>
+                  </div>
+                )}
+
+                {/* Transaction Hash */}
+                {tip.transaction_hash && (
+                  <div className="flex items-center gap-2">
+                    <Hash className="w-4 h-4 text-gray-400" />
+                    <span className="text-gray-300 font-mono text-sm">
+                      {tip.transaction_hash}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                    </Button>
+                  </div>
+                )}
+
+                {/* Proof Image */}
+                {tip.proof_image_url && (
+                  <div className="flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-gray-400" />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-ctea-teal hover:text-ctea-teal/80"
+                      onClick={() => window.open(tip.proof_image_url, '_blank')}
+                    >
+                      View Proof Image
+                      <ExternalLink className="w-3 h-3 ml-1" />
+                    </Button>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex items-center gap-3 pt-4 border-t border-gray-700">
+                  <Button
+                    onClick={() => handleVerify(tip.id)}
+                    disabled={verifying === tip.id}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    {verifying === tip.id ? 'Verifying...' : 'Verify'}
+                  </Button>
+                  
+                  <Button
+                    onClick={() => setSelectedTipId(tip.id)}
+                    disabled={verifying === tip.id}
+                    variant="outline"
+                    className="border-red-500 text-red-400 hover:bg-red-500/10"
+                  >
+                    <XCircle className="w-4 h-4 mr-2" />
+                    Reject
+                  </Button>
+                </div>
+
+                {/* Rejection Reason Input */}
+                {selectedTipId === tip.id && (
+                  <div className="space-y-3 pt-4 border-t border-gray-700">
+                    <Label htmlFor="rejection-reason" className="text-white">
+                      Rejection Reason
+                    </Label>
+                    <Textarea
+                      id="rejection-reason"
+                      placeholder="Please provide a reason for rejection..."
+                      value={rejectionReason}
+                      onChange={(e) => setRejectionReason(e.target.value)}
+                      className="bg-ctea-darker border-gray-600 text-white"
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => handleReject(tip.id)}
+                        disabled={!rejectionReason.trim() || verifying === tip.id}
+                        variant="destructive"
+                        size="sm"
+                      >
+                        Confirm Rejection
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setSelectedTipId(null);
+                          setRejectionReason('');
+                        }}
+                        variant="outline"
+                        size="sm"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))
         )}
       </div>
     </div>

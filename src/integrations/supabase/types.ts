@@ -755,6 +755,63 @@ export type Database = {
           },
         ]
       }
+      tip_transactions: {
+        Row: {
+          amount: number | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          metadata: Json | null
+          network: string
+          proof_image_url: string | null
+          rejection_reason: string | null
+          status: string
+          transaction_hash: string | null
+          updated_at: string | null
+          user_email: string
+          verification_method: string | null
+          verified_at: string | null
+          verified_by: string | null
+          wallet_address: string
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          metadata?: Json | null
+          network: string
+          proof_image_url?: string | null
+          rejection_reason?: string | null
+          status?: string
+          transaction_hash?: string | null
+          updated_at?: string | null
+          user_email: string
+          verification_method?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+          wallet_address: string
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          metadata?: Json | null
+          network?: string
+          proof_image_url?: string | null
+          rejection_reason?: string | null
+          status?: string
+          transaction_hash?: string | null
+          updated_at?: string | null
+          user_email?: string
+          verification_method?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       user_achievements: {
         Row: {
           achievement_id: string
