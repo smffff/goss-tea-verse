@@ -1,12 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Coffee, Mail, Lock, User } from 'lucide-react';
+import { Coffee, Mail, Lock, User, Sparkles, Shield } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { motion } from 'framer-motion';
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -47,136 +47,218 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link to="/" className="flex items-center justify-center space-x-2 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-ctea-teal to-ctea-purple rounded-lg flex items-center justify-center">
-              <Coffee className="w-8 h-8 text-white" />
-            </div>
-            <span className="text-2xl font-bold text-white">CTEA NEWS</span>
+    <div className="min-h-screen bg-gradient-to-br from-[#1F003B] via-[#0E0E16] to-[#29001C] flex items-center justify-center p-4 relative">
+      {/* Background Effects */}
+      <div className="absolute inset-0 cyber-grid opacity-10" />
+      
+      <motion.div 
+        className="w-full max-w-md relative z-10"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        {/* Header */}
+        <motion.div 
+          className="text-center mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          <Link to="/" className="flex items-center justify-center space-x-3 mb-6">
+            <motion.img 
+              src="/assets/logo-ctea-spill.svg"
+              alt="CTea"
+              className="w-12 h-12 filter drop-shadow-lg"
+              animate={{ 
+                y: [0, -4, 0],
+                rotate: [0, 1, -1, 0]
+              }}
+              transition={{ duration: 3, repeat: Infinity }}
+            />
+            <span className="text-3xl font-retro font-bold bg-gradient-to-r from-brand to-accent bg-clip-text text-transparent">
+              CTEA NEWS
+            </span>
           </Link>
-          <p className="text-gray-400">Welcome back to the tea community</p>
-        </div>
+          <h1 className="text-3xl sm:text-4xl font-retro font-bold text-brand mb-2">
+            Join the CTea Underground
+          </h1>
+          <p className="text-text/70 font-cyber">
+            Your inbox is sacred. No spam, just scandal.
+          </p>
+        </motion.div>
 
-        <Card className="bg-ctea-dark/90 border-ctea-teal/20 backdrop-blur-lg">
-          <CardHeader>
-            <CardTitle className="text-white text-center">Authentication</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 bg-ctea-darker">
-                <TabsTrigger value="signin" className="text-white data-[state=active]:bg-ctea-teal">
-                  Sign In
-                </TabsTrigger>
-                <TabsTrigger value="signup" className="text-white data-[state=active]:bg-ctea-teal">
-                  Sign Up
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="signin">
-                <form onSubmit={handleSignIn} className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10 bg-ctea-darker border-ctea-teal/30 text-white"
-                        required
-                      />
-                    </div>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="pl-10 bg-ctea-darker border-ctea-teal/30 text-white"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <Button
-                    type="submit"
-                    className="w-full bg-ctea-teal hover:bg-ctea-teal/80"
-                    disabled={isLoading}
+        {/* Auth Card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+        >
+          <Card className="bg-[#14141f]/80 backdrop-blur-lg border-2 border-accent/20">
+            <CardHeader className="text-center">
+              <CardTitle className="text-text font-retro text-xl">Authentication</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="signin" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 bg-bg/50 border border-accent/30">
+                  <TabsTrigger 
+                    value="signin" 
+                    className="text-text data-[state=active]:bg-brand data-[state=active]:text-bg font-retro text-sm"
                   >
-                    {isLoading ? 'Signing in...' : 'Sign In'}
-                  </Button>
-                </form>
-              </TabsContent>
-
-              <TabsContent value="signup">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        type="text"
-                        placeholder="Full Name"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        className="pl-10 bg-ctea-darker border-ctea-teal/30 text-white"
-                        required
-                      />
-                    </div>
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        type="text"
-                        placeholder="Username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        className="pl-10 bg-ctea-darker border-ctea-teal/30 text-white"
-                        required
-                      />
-                    </div>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10 bg-ctea-darker border-ctea-teal/30 text-white"
-                        required
-                      />
-                    </div>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="pl-10 bg-ctea-darker border-ctea-teal/30 text-white"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <Button
-                    type="submit"
-                    className="w-full bg-ctea-purple hover:bg-ctea-purple/80"
-                    disabled={isLoading}
+                    Sign In
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="signup" 
+                    className="text-text data-[state=active]:bg-accent data-[state=active]:text-bg font-retro text-sm"
                   >
-                    {isLoading ? 'Creating account...' : 'Create Account'}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+                    Sign Up
+                  </TabsTrigger>
+                </TabsList>
 
-        <div className="text-center mt-6">
-          <Link to="/" className="text-ctea-teal hover:text-ctea-teal/80">
+                <TabsContent value="signin" className="mt-6">
+                  <form onSubmit={handleSignIn} className="space-y-4">
+                    <div className="space-y-3">
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-text/50" />
+                        <Input
+                          type="email"
+                          placeholder="Enter your email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="pl-10 bg-bg/50 border-accent/30 text-text placeholder-text/50 focus:border-accent focus:ring-accent/20 font-cyber"
+                          required
+                        />
+                      </div>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-text/50" />
+                        <Input
+                          type="password"
+                          placeholder="Enter your password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="pl-10 bg-bg/50 border-accent/30 text-text placeholder-text/50 focus:border-accent focus:ring-accent/20 font-cyber"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      type="submit"
+                      className="w-full bg-brand hover:bg-accent text-bg font-bold py-3 rounded-full transition-all duration-300 hover:shadow-[0_0_20px_#00FFE0] font-retro"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <div className="flex items-center">
+                          <Sparkles className="w-4 h-4 animate-spin mr-2" />
+                          Signing in...
+                        </div>
+                      ) : (
+                        '🚀 Sign In'
+                      )}
+                    </Button>
+                  </form>
+                </TabsContent>
+
+                <TabsContent value="signup" className="mt-6">
+                  <form onSubmit={handleSignUp} className="space-y-4">
+                    <div className="space-y-3">
+                      <div className="relative">
+                        <User className="absolute left-3 top-3 h-4 w-4 text-text/50" />
+                        <Input
+                          type="text"
+                          placeholder="Full Name"
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          className="pl-10 bg-bg/50 border-accent/30 text-text placeholder-text/50 focus:border-accent focus:ring-accent/20 font-cyber"
+                          required
+                        />
+                      </div>
+                      <div className="relative">
+                        <User className="absolute left-3 top-3 h-4 w-4 text-text/50" />
+                        <Input
+                          type="text"
+                          placeholder="Username"
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
+                          className="pl-10 bg-bg/50 border-accent/30 text-text placeholder-text/50 focus:border-accent focus:ring-accent/20 font-cyber"
+                          required
+                        />
+                      </div>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-text/50" />
+                        <Input
+                          type="email"
+                          placeholder="Enter your burner email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="pl-10 bg-bg/50 border-accent/30 text-text placeholder-text/50 focus:border-accent focus:ring-accent/20 font-cyber"
+                          required
+                        />
+                      </div>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-text/50" />
+                        <Input
+                          type="password"
+                          placeholder="Create a password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="pl-10 bg-bg/50 border-accent/30 text-text placeholder-text/50 focus:border-accent focus:ring-accent/20 font-cyber"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      type="submit"
+                      className="w-full bg-accent hover:bg-brand text-bg font-bold py-3 rounded-full transition-all duration-300 hover:shadow-[0_0_20px_#FF4EAF] font-retro"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <div className="flex items-center">
+                          <Sparkles className="w-4 h-4 animate-spin mr-2" />
+                          Creating account...
+                        </div>
+                      ) : (
+                        '🚀 Get Access'
+                      )}
+                    </Button>
+                  </form>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Footer */}
+        <motion.div 
+          className="text-center mt-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+        >
+          <Link to="/" className="text-accent hover:text-brand transition-colors font-cyber">
             ← Back to Home
           </Link>
-        </div>
-      </div>
+          <p className="text-xs text-text/50 mt-4 font-cyber">
+            By signing up, you agree to our{' '}
+            <Link to="/terms" className="underline text-accent hover:text-brand">
+              terms
+            </Link>
+            {' '}and{' '}
+            <Link to="/privacy" className="underline text-accent hover:text-brand">
+              privacy policy
+            </Link>
+          </p>
+        </motion.div>
+
+        {/* Security Badge */}
+        <motion.div 
+          className="flex items-center justify-center mt-6 text-text/60 font-cyber text-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+        >
+          <Shield className="w-4 h-4 mr-2 text-accent" />
+          Military-grade encryption • Anonymous by design
+        </motion.div>
+      </motion.div>
     </div>
   );
 };
