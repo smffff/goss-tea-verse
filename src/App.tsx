@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
-import ProductionParallaxPortal from '@/components/landing/ProductionParallaxPortal';
+import EnhancedLandingPage from '@/components/landing/EnhancedLandingPage';
 import SimpleApp from '@/components/SimpleApp';
 import SimpleErrorBoundary from '@/components/SimpleErrorBoundary';
 
@@ -10,7 +10,7 @@ function App() {
     <SimpleErrorBoundary>
       <Router>
         <Routes>
-          <Route path="/" element={<ProductionParallaxPortal />} />
+          <Route path="/" element={<EnhancedLandingPage />} />
           <Route path="/feed" element={<SimpleApp />} />
           <Route path="/newsroom" element={<SimpleApp />} />
         </Routes>

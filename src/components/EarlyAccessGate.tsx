@@ -20,12 +20,14 @@ const EarlyAccessGate: React.FC<EarlyAccessGateProps> = ({
   const { wallet, connectWallet } = useWallet();
   const { earlyAccessStatus, isLoading } = useTeaToken();
 
-  // For now, allow all users access - remove the gate
-  // This makes submissions available to everyone without wallet requirements
-  return <>{children}</>;
+  // Check for demo mode access first
+  const hasDemoAccess = localStorage.getItem('ctea-demo-mode') === 'true';
+  const hasBetaAccess = localStorage.getItem('ctea-beta-access') === 'true';
 
-  // The original gating logic is commented out below for future use
-  /*
+  if (hasDemoAccess || hasBetaAccess) {
+    return <>{children}</>;
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -52,7 +54,7 @@ const EarlyAccessGate: React.FC<EarlyAccessGateProps> = ({
         <div>
           <h2 className="text-2xl font-bold text-white mb-2">Early Access Required</h2>
           <p className="text-gray-300">
-            Get exclusive access to premium features by holding $TEA tokens or tipping the developers.
+            Get exclusive access to premium features by holding $TEA tokens or trying demo mode.
           </p>
         </div>
 
@@ -70,31 +72,39 @@ const EarlyAccessGate: React.FC<EarlyAccessGateProps> = ({
 
           <div className="bg-ctea-dark/50 rounded-lg p-4">
             <Gift className="w-8 h-8 text-ctea-pink mx-auto mb-2" />
-            <h3 className="font-semibold text-white mb-1">Tip Developers</h3>
+            <h3 className="font-semibold text-white mb-1">Demo Mode</h3>
             <p className="text-sm text-gray-400 mb-2">
-              Send a tip to get instant access
+              Try the platform with sample data
             </p>
             <Button 
               variant="outline" 
               size="sm"
               className="border-ctea-pink text-ctea-pink hover:bg-ctea-pink/10"
+              onClick={() => {
+                localStorage.setItem('ctea-demo-mode', 'true');
+                window.location.reload();
+              }}
             >
-              Send Tip
+              Try Demo
             </Button>
           </div>
 
           <div className="bg-ctea-dark/50 rounded-lg p-4">
             <Zap className="w-8 h-8 text-ctea-yellow mx-auto mb-2" />
-            <h3 className="font-semibold text-white mb-1">Submit Quality Tea</h3>
+            <h3 className="font-semibold text-white mb-1">Beta Code</h3>
             <p className="text-sm text-gray-400 mb-2">
-              High-quality submissions get access
+              Use an exclusive beta code
             </p>
             <Button 
               variant="outline" 
               size="sm"
               className="border-ctea-yellow text-ctea-yellow hover:bg-ctea-yellow/10"
+              onClick={() => {
+                localStorage.setItem('ctea-beta-access', 'true');
+                window.location.reload();
+              }}
             >
-              Submit Tea
+              Use Code
             </Button>
           </div>
         </div>
@@ -112,7 +122,6 @@ const EarlyAccessGate: React.FC<EarlyAccessGateProps> = ({
       </div>
     </Card>
   );
-  */
 };
 
 export default EarlyAccessGate;
