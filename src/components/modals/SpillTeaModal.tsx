@@ -1,27 +1,17 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Coffee, Send, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { SecurityService } from '@/services/securityService';
-import { secureLog } from '@/utils/secureLogging';
 
 interface SpillTeaModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-}
-
-interface SecureSubmissionResult {
-  success: boolean;
-  error?: string;
-  submission_id?: string;
-  status?: string;
 }
 
 const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
@@ -31,8 +21,7 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
 }) => {
   const [formData, setFormData] = useState({
     content: '',
-    category: 'general',
-    evidenceUrl: ''
+    category: 'general'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -52,61 +41,38 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Get secure anonymous token
-      const anonymousToken = await SecurityService.getOrCreateSecureToken();
-
-      // Enhanced security validation using the new service
-      const securityValidation = await SecurityService.validateContent(formData.content, 1000);
-      
-      if (!securityValidation.valid) {
-        throw new Error(`Content validation failed: ${securityValidation.errors.join(', ')}`);
-      }
-
-      // Check enhanced rate limit with security monitoring  
-      const rateLimitCheck = await SecurityService.checkRateLimit(anonymousToken, 'submission', 5, 60);
-      
-      if (!rateLimitCheck.allowed) {
-        throw new Error(rateLimitCheck.blocked_reason || 'Rate limit exceeded');
-      }
-
-      // Prepare evidence URLs array
-      const evidenceUrls = formData.evidenceUrl ? [formData.evidenceUrl] : null;
-
-      // Use the secure server-side function
-      const { data: submissionResult, error } = await supabase
-        .rpc('secure_submission_insert', {
-          p_content: securityValidation.sanitized || formData.content,
-          p_anonymous_token: anonymousToken,
-          p_category: formData.category,
-          p_evidence_urls: evidenceUrls
-        });
+      const { data, error } = await supabase
+        .from('tea_submissions')
+        .insert([
+          {
+            content: formData.content.trim(),
+            category: formData.category,
+            status: 'approved',
+            reactions: { hot: 0, cold: 0, spicy: 0 }
+          }
+        ])
+        .select()
+        .single();
 
       if (error) {
         throw new Error(`Submission failed: ${error.message}`);
       }
 
-      const result = submissionResult as unknown as SecureSubmissionResult;
-
-      if (!result?.success) {
-        throw new Error(result?.error || 'Unknown error occurred');
-      }
-
       toast({
         title: "Tea Spilled Successfully! 🫖",
-        description: "Your gossip has been securely submitted and is now live!",
+        description: "Your gossip has been submitted and is now live!",
       });
 
       // Reset form
       setFormData({
         content: '',
-        category: 'general',
-        evidenceUrl: ''
+        category: 'general'
       });
 
       onSuccess();
       onClose();
     } catch (error) {
-      secureLog.error('Secure tea submission error:', error);
+      console.error('Tea submission error:', error);
 
       toast({
         title: "Submission Failed",
@@ -124,7 +90,7 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3 text-white">
             <Coffee className="w-6 h-6 text-ctea-teal" />
-            Spill the Tea (Secure)
+            Spill the Tea
           </DialogTitle>
         </DialogHeader>
 
@@ -137,10 +103,10 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
               className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-500 focus:border-ctea-teal min-h-[120px] resize-none"
-              maxLength={1000}
+              maxLength={500}
             />
             <div className="text-xs text-gray-400 text-right">
-              {formData.content.length}/1000 characters
+              {formData.content.length}/500 characters
             </div>
           </div>
 
@@ -161,18 +127,6 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="evidence" className="text-white">Evidence URL (optional)</Label>
-            <Input
-              id="evidence"
-              type="url"
-              placeholder="https://example.com/evidence"
-              value={formData.evidenceUrl}
-              onChange={(e) => setFormData({ ...formData, evidenceUrl: e.target.value })}
-              className="bg-ctea-darker border-ctea-teal/30 text-white placeholder-gray-500 focus:border-ctea-teal"
-            />
-          </div>
-
           <div className="flex space-x-3">
             <Button
               type="button"
@@ -185,17 +139,17 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
             <Button
               type="submit"
               disabled={isSubmitting || !formData.content.trim()}
-              className="flex-1 bg-gradient-to-r from-ctea-teal to-pink-400 hover:from-ctea-teal/80 hover:to-pink-400/80 text-white"
+              className="flex-1 bg-gradient-to-r from-ctea-teal to-ctea-purple hover:from-ctea-teal/80 hover:to-ctea-purple/80 text-white"
             >
               {isSubmitting ? (
                 <div className="flex items-center">
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Securing & Spilling...
+                  Spilling Tea...
                 </div>
               ) : (
                 <div className="flex items-center">
                   <Send className="w-4 h-4 mr-2" />
-                  Securely Spill Tea
+                  Spill Tea
                 </div>
               )}
             </Button>

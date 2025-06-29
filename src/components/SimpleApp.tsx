@@ -18,11 +18,19 @@ interface TeaSubmission {
   };
 }
 
-const TeaFeed: React.FC = () => {
+const SimpleApp: React.FC = () => {
   const [submissions, setSubmissions] = useState<TeaSubmission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showSpillModal, setShowSpillModal] = useState(false);
+  const [hasAccess, setHasAccess] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Check for access
+    const betaAccess = localStorage.getItem('ctea-beta-access');
+    const demoMode = localStorage.getItem('ctea-demo-mode');
+    setHasAccess(!!(betaAccess || demoMode));
+  }, []);
 
   const fetchSubmissions = async () => {
     try {
@@ -58,50 +66,85 @@ const TeaFeed: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchSubmissions();
-    
-    // Set up real-time subscription
-    const channel = supabase
-      .channel('tea_submissions')
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'tea_submissions'
-      }, (payload) => {
-        const newSubmission = payload.new as any;
-        if (newSubmission.status === 'approved') {
-          const transformedSubmission = {
-            ...newSubmission,
-            reactions: typeof newSubmission.reactions === 'string' 
-              ? JSON.parse(newSubmission.reactions) 
-              : newSubmission.reactions || { hot: 0, cold: 0, spicy: 0 }
-          };
-          setSubmissions(prev => [transformedSubmission, ...prev]);
-          toast({
-            title: "New Tea Alert! ☕",
-            description: "Fresh gossip just dropped!",
-          });
-        }
-      })
-      .subscribe();
+    if (hasAccess) {
+      fetchSubmissions();
+      
+      // Set up real-time subscription
+      const channel = supabase
+        .channel('tea_submissions')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'tea_submissions'
+        }, (payload) => {
+          const newSubmission = payload.new as any;
+          if (newSubmission.status === 'approved') {
+            const transformedSubmission = {
+              ...newSubmission,
+              reactions: typeof newSubmission.reactions === 'string' 
+                ? JSON.parse(newSubmission.reactions) 
+                : newSubmission.reactions || { hot: 0, cold: 0, spicy: 0 }
+            };
+            setSubmissions(prev => [transformedSubmission, ...prev]);
+            toast({
+              title: "New Tea Alert! ☕",
+              description: "Fresh gossip just dropped!",
+            });
+          }
+        })
+        .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [toast]);
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [hasAccess, toast]);
 
   const handleLogout = () => {
     localStorage.removeItem('ctea-beta-access');
     localStorage.removeItem('ctea-demo-mode');
     localStorage.removeItem('ctea-beta-code');
     localStorage.removeItem('ctea-access-level');
-    window.location.reload();
+    setHasAccess(false);
   };
 
   const handleSpillSuccess = () => {
     fetchSubmissions();
     setShowSpillModal(false);
   };
+
+  const handleDemoAccess = () => {
+    localStorage.setItem('ctea-demo-mode', 'true');
+    setHasAccess(true);
+    toast({
+      title: "Demo Access Granted! ✨",
+      description: "Welcome to the CTea experience!",
+    });
+  };
+
+  // Show landing page if no access
+  if (!hasAccess) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black flex items-center justify-center">
+        <div className="text-center space-y-8 max-w-md mx-auto p-8">
+          <div className="text-6xl mb-4">🫖</div>
+          <h1 className="text-4xl font-bold text-white">CTea Newsroom</h1>
+          <p className="text-xl text-gray-300">The ultimate platform for anonymous news sharing</p>
+          
+          <div className="space-y-4">
+            <p className="text-gray-400">Spill the tea on what really matters. Anonymous, secure, and community-driven.</p>
+            
+            <Button
+              onClick={handleDemoAccess}
+              className="bg-gradient-to-r from-ctea-teal to-ctea-purple hover:from-ctea-purple hover:to-ctea-teal text-white font-bold px-8 py-3"
+            >
+              Try Demo Mode
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -226,4 +269,4 @@ const TeaFeed: React.FC = () => {
   );
 };
 
-export default TeaFeed;
+export default SimpleApp; 
