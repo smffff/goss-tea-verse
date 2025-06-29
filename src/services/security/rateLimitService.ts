@@ -1,98 +1,88 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { secureLog } from '@/utils/secureLogging';
 
-export interface RateLimitResult {
-  allowed: boolean;
-  current_count: number;
-  max_actions: number;
-  remaining: number;
-  reset_time: Date;
-  blocked_reason?: string;
+interface RateLimitEntry {
+  count: number;
+  windowStart: number;
+  lastAttempt: number;
 }
 
 export class RateLimitService {
-  static async checkRateLimit(
+  private static storage = new Map<string, RateLimitEntry>();
+  private static readonly CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 minutes
+
+  static {
+    // Cleanup expired entries every 5 minutes
+    setInterval(() => this.cleanup(), this.CLEANUP_INTERVAL);
+  }
+
+  public static checkRateLimit(
     identifier: string,
     action: string,
-    maxActions = 10,
-    windowMinutes = 5
-  ): Promise<RateLimitResult> {
-    try {
-      const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000);
-      
-      // Get current rate limit entries
-      const { data, error } = await supabase
-        .from('rate_limits')
-        .select('*')
-        .eq('anonymous_token', identifier)
-        .eq('action_type', action)
-        .gte('window_start', windowStart.toISOString());
+    maxAttempts: number,
+    windowMinutes: number
+  ): { allowed: boolean; remaining: number; resetTime?: number } {
+    const key = `${identifier}:${action}`;
+    const now = Date.now();
+    const windowMs = windowMinutes * 60 * 1000;
+    const entry = this.storage.get(key);
 
-      if (error) throw error;
-
-      const currentCount = data?.length || 0;
-      const allowed = currentCount < maxActions;
-      const remaining = Math.max(0, maxActions - currentCount);
-      const resetTime = new Date(Date.now() + windowMinutes * 60 * 1000);
-
-      // If allowed, record this action
-      if (allowed) {
-        await supabase.from('rate_limits').insert({
-          anonymous_token: identifier,
-          action_type: action,
-          window_start: new Date().toISOString()
-        });
-      }
-
-      const result: RateLimitResult = {
-        allowed,
-        current_count: currentCount,
-        max_actions: maxActions,
-        remaining,
-        reset_time: resetTime
-      };
-
-      if (!allowed) {
-        result.blocked_reason = `Rate limit exceeded: ${currentCount}/${maxActions} actions in ${windowMinutes} minutes`;
-      }
-
-      return result;
-    } catch (error) {
-      console.error('Rate limit check failed:', error);
-      
-      // Return permissive result on error to avoid blocking users
-      return {
-        allowed: true,
-        current_count: 0,
-        max_actions: maxActions,
-        remaining: maxActions,
-        reset_time: new Date(Date.now() + windowMinutes * 60 * 1000)
-      };
-    }
-  }
-
-  static async recordAction(identifier: string, action: string): Promise<void> {
-    try {
-      await supabase.from('rate_limits').insert({
-        anonymous_token: identifier,
-        action_type: action,
-        window_start: new Date().toISOString()
+    // No previous attempts
+    if (!entry) {
+      this.storage.set(key, {
+        count: 1,
+        windowStart: now,
+        lastAttempt: now
       });
-    } catch (error) {
-      console.error('Failed to record rate limit action:', error);
+      return { allowed: true, remaining: maxAttempts - 1 };
     }
+
+    // Check if window has expired
+    if (now - entry.windowStart > windowMs) {
+      this.storage.set(key, {
+        count: 1,
+        windowStart: now,
+        lastAttempt: now
+      });
+      return { allowed: true, remaining: maxAttempts - 1 };
+    }
+
+    // Check if limit exceeded
+    if (entry.count >= maxAttempts) {
+      secureLog.warn('Rate limit exceeded', { 
+        identifier, 
+        action, 
+        attempts: entry.count,
+        maxAttempts 
+      });
+      return { 
+        allowed: false, 
+        remaining: 0, 
+        resetTime: entry.windowStart + windowMs 
+      };
+    }
+
+    // Increment counter
+    entry.count++;
+    entry.lastAttempt = now;
+    this.storage.set(key, entry);
+
+    return { allowed: true, remaining: maxAttempts - entry.count };
   }
 
-  static async cleanupExpiredEntries(): Promise<void> {
-    try {
-      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-      
-      await supabase
-        .from('rate_limits')
-        .delete()
-        .lt('window_start', oneDayAgo.toISOString());
-    } catch (error) {
-      console.error('Failed to cleanup expired rate limit entries:', error);
+  private static cleanup(): void {
+    const now = Date.now();
+    const expiredKeys: string[] = [];
+
+    for (const [key, entry] of this.storage.entries()) {
+      // Remove entries older than 1 hour
+      if (now - entry.lastAttempt > 60 * 60 * 1000) {
+        expiredKeys.push(key);
+      }
+    }
+
+    for (const key of expiredKeys) {
+      this.storage.delete(key);
     }
   }
 }

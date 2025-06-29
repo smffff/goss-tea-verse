@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { track } from '@/lib/analytics';
 import { secureLog } from '@/lib/secureLog';
+import { UnifiedSecurityService } from '@/services/security/unifiedSecurityService';
 
 const SpillTea: React.FC = () => {
   const navigate = useNavigate();
@@ -13,13 +14,37 @@ const SpillTea: React.FC = () => {
     setIsSubmitting(true);
 
     try {
+      // Perform comprehensive security check
+      const securityCheck = await UnifiedSecurityService.performSecurityCheck(
+        data?.content || '',
+        'tea_submission',
+        5, // max 5 submissions per 15 minutes
+        15
+      );
+
+      if (!securityCheck.allowed) {
+        const errorMessage = securityCheck.errors.join('. ');
+        toast.error(`Submission blocked: ${errorMessage}`);
+        return { success: false, error: errorMessage };
+      }
+
+      // Use sanitized content for submission
+      const sanitizedData = {
+        ...data,
+        content: securityCheck.validationResult.sanitized
+      };
+
       // Simulate submission delay with AI moderation
       await new Promise(resolve => setTimeout(resolve, 3000));
 
       toast.success("Tea Spilled Successfully! 🫖");
 
-      // Track the event
-      track('tea_spilled', { content_length: data?.content?.length || 0 });
+      // Track the event with security metrics
+      track('tea_spilled', { 
+        content_length: sanitizedData?.content?.length || 0,
+        security_score: securityCheck.validationResult.securityScore,
+        risk_level: securityCheck.validationResult.riskLevel
+      });
 
       // Navigate to feed after submission
       navigate('/feed');
