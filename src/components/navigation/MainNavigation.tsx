@@ -4,10 +4,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Menu, X, LogOut, Shield, Coffee, Home, TrendingUp, Trophy, Info, HelpCircle, User } from 'lucide-react';
+import { Menu, X, LogOut, Shield, Coffee, Home, TrendingUp, User } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useAdminAccess } from '@/hooks/useAdminAccess';
-import { BrandLogo } from '@/components/brand/BrandElements';
 import { BRAND_CONFIG } from '@/lib/config/brandConfig';
 
 interface NavigationItem {
@@ -15,42 +13,19 @@ interface NavigationItem {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   badge?: string;
-  adminOnly?: boolean;
-  mobileOnly?: boolean;
-  desktopOnly?: boolean;
 }
 
-const UnifiedNavigation: React.FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
+const MainNavigation: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const { hasAdminAccess, hasSuperAdminAccess } = useAdminAccess();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const navigationItems: NavigationItem[] = [
     { path: '/', label: 'Home', icon: Home },
     { path: '/feed', label: 'Tea Feed', icon: TrendingUp },
     { path: '/spill', label: 'Spill Tea', icon: Coffee, badge: 'Hot' },
-    { path: '/leaderboard', label: 'Spillerboard', icon: Trophy },
-    { path: '/about', label: 'About', icon: Info },
-    { path: '/faq', label: 'FAQ', icon: HelpCircle },
-    { path: '/profile', label: 'Profile', icon: User, mobileOnly: true },
-    { path: '/admin', label: 'Admin', icon: Shield, adminOnly: true, badge: hasSuperAdminAccess ? 'Super' : 'Admin' }
   ];
-
-  const visibleItems = navigationItems.filter(item => {
-    if (item.adminOnly && !hasAdminAccess) return false;
-    return true;
-  });
 
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';
@@ -75,11 +50,7 @@ const UnifiedNavigation: React.FC = () => {
   return (
     <>
       <motion.nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled 
-            ? 'bg-tabloid-black-900/95 backdrop-blur-lg border-b border-vintage-red/20 shadow-lg' 
-            : 'bg-tabloid-black-900/80 backdrop-blur-sm border-b border-vintage-red/10'
-        }`}
+        className="fixed top-0 left-0 right-0 z-50 bg-tabloid-black-900/95 backdrop-blur-lg border-b border-vintage-red/20 shadow-lg"
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6 }}
@@ -88,7 +59,7 @@ const UnifiedNavigation: React.FC = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
-              <BrandLogo size="md" className="group-hover:scale-110 transition-transform duration-300" />
+              <div className="text-2xl">🫖</div>
               <span className="font-bold text-white text-xl font-headline">
                 {BRAND_CONFIG.name}
               </span>
@@ -96,50 +67,45 @@ const UnifiedNavigation: React.FC = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-1">
-              {visibleItems
-                .filter(item => !item.mobileOnly)
-                .map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      className="group relative"
+              {navigationItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className="group relative"
+                  >
+                    <motion.div
+                      className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2 ${
+                        isActive(item.path)
+                          ? 'bg-vintage-red/20 text-vintage-red'
+                          : 'text-white/70 hover:text-white hover:bg-white/10'
+                      }`}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     >
-                      <motion.div
-                        className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2 ${
-                          isActive(item.path)
-                            ? 'bg-vintage-red/20 text-vintage-red'
-                            : 'text-white/70 hover:text-white hover:bg-white/10'
-                        }`}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span className="font-medium">{item.label}</span>
-                        {item.badge && (
-                          <Badge className="bg-vintage-red/20 text-vintage-red border-vintage-red/30 text-xs">
-                            {item.badge}
-                          </Badge>
-                        )}
-                      </motion.div>
-                    </Link>
-                  );
-                })}
+                      <Icon className="w-4 h-4" />
+                      <span className="font-medium">{item.label}</span>
+                      {item.badge && (
+                        <Badge className="bg-vintage-red/20 text-vintage-red border-vintage-red/30 text-xs">
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </motion.div>
+                  </Link>
+                );
+              })}
             </div>
 
-            {/* User Menu & Mobile Toggle */}
+            {/* User Section & Mobile Toggle */}
             <div className="flex items-center space-x-4">
-              {/* User Section */}
               {user ? (
                 <div className="hidden md:flex items-center space-x-3">
                   <div className="text-right">
                     <p className="text-sm font-semibold text-white">
                       {user.email?.split('@')[0] || 'Anonymous'}
                     </p>
-                    <p className="text-xs text-white/60">
-                      {hasSuperAdminAccess ? 'Super Admin' : hasAdminAccess ? 'Admin' : 'Tea Spiller'}
-                    </p>
+                    <p className="text-xs text-white/60">Tea Spiller</p>
                   </div>
                   <Button
                     variant="ghost"
@@ -185,7 +151,7 @@ const UnifiedNavigation: React.FC = () => {
               className="md:hidden bg-tabloid-black-900/95 backdrop-blur-lg border-t border-vintage-red/20"
             >
               <div className="container mx-auto px-4 py-4 space-y-2">
-                {visibleItems.map((item) => {
+                {navigationItems.map((item) => {
                   const Icon = item.icon;
                   return (
                     <button
@@ -218,9 +184,7 @@ const UnifiedNavigation: React.FC = () => {
                         <p className="text-sm font-semibold text-white">
                           {user.email?.split('@')[0] || 'Anonymous'}
                         </p>
-                        <p className="text-xs text-white/60">
-                          {hasSuperAdminAccess ? 'Super Admin' : hasAdminAccess ? 'Admin' : 'Tea Spiller'}
-                        </p>
+                        <p className="text-xs text-white/60">Tea Spiller</p>
                       </div>
                       <Button
                         variant="ghost"
@@ -248,10 +212,9 @@ const UnifiedNavigation: React.FC = () => {
         </AnimatePresence>
       </motion.nav>
 
-      {/* Spacer to prevent content from going under fixed nav */}
       <div className="h-16" />
     </>
   );
 };
 
-export default UnifiedNavigation;
+export default MainNavigation;

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import UnifiedNavigation from '@/components/navigation/UnifiedNavigation';
+import MainNavigation from '@/components/navigation/MainNavigation';
 import UnifiedFooter from '@/components/UnifiedFooter';
 import { Toaster } from '@/components/ui/toaster';
 import { BRAND_CONFIG } from '@/lib/config/brandConfig';
@@ -22,7 +22,6 @@ const Layout: React.FC<LayoutProps> = ({
   pageTitle,
   pageDescription
 }) => {
-  // Set page title and description
   React.useEffect(() => {
     if (pageTitle) {
       document.title = `${pageTitle} | ${BRAND_CONFIG.name}`;
@@ -33,7 +32,6 @@ const Layout: React.FC<LayoutProps> = ({
       if (metaDescription) {
         metaDescription.setAttribute('content', pageDescription);
       } else {
-        // Create meta description if it doesn't exist
         const meta = document.createElement('meta');
         meta.name = 'description';
         meta.content = pageDescription;
@@ -44,7 +42,7 @@ const Layout: React.FC<LayoutProps> = ({
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-[#1b1b1b] via-[#2a1a2a] to-[#1a2a2a] ${className}`}>
-      {showNavigation && <UnifiedNavigation />}
+      {showNavigation && <MainNavigation />}
       
       <main className="relative">
         {children}

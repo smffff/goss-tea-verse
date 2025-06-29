@@ -1,32 +1,37 @@
 
 import React from 'react';
 import Layout from '@/components/Layout';
-import TeaFeed from '@/components/TeaFeed';
-import FeedHeader from '@/components/feed/FeedHeader';
-import FeedSidebar from '@/components/feed/FeedSidebar';
 
 const Feed = () => {
   return (
-    <Layout>
-      <FeedHeader />
-      
+    <Layout 
+      pageTitle="Tea Feed"
+      pageDescription="Latest crypto gossip and tea from the community"
+    >
       <div className="container mx-auto px-4 py-8">
-        {/* Desktop: Two Column Layout */}
-        <div className="hidden lg:grid lg:grid-cols-4 gap-8">
-          {/* Main Feed - 3 columns */}
-          <div className="lg:col-span-3">
-            <TeaFeed />
-          </div>
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold text-white mb-8">Tea Feed 🫖</h1>
+          
+          <div className="space-y-6">
+            <div className="bg-ctea-dark/50 rounded-lg p-6">
+              <h2 className="text-xl font-semibold text-white mb-4">Latest Tea</h2>
+              <p className="text-gray-300">
+                Tea feed content will be displayed here. This is where users can see all the latest gossip and submissions.
+              </p>
+            </div>
 
-          {/* Sidebar - 1 column */}
-          <div className="lg:col-span-1">
-            <FeedSidebar />
-          </div>
-        </div>
+            <div className="bg-ctea-dark/50 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-white mb-2">Hot Topic #1</h3>
+              <p className="text-gray-300 mb-2">Someone spilled some interesting tea about...</p>
+              <div className="text-sm text-gray-400">2 hours ago • 🔥 15 reactions</div>
+            </div>
 
-        {/* Mobile: Single Column */}
-        <div className="block lg:hidden">
-          <TeaFeed />
+            <div className="bg-ctea-dark/50 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-white mb-2">Hot Topic #2</h3>
+              <p className="text-gray-300 mb-2">Another interesting development in the crypto space...</p>
+              <div className="text-sm text-gray-400">4 hours ago • 🫖 8 reactions</div>
+            </div>
+          </div>
         </div>
       </div>
     </Layout>
