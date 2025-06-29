@@ -1,3 +1,4 @@
+
 import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { ThemeProvider } from 'next-themes';
@@ -11,8 +12,6 @@ import './index.css';
 
 // Lazy load components for better performance
 const SimpleApp = React.lazy(() => import('@/components/SimpleApp'));
-const OptimizedTeaFeed = React.lazy(() => import('@/components/optimized/OptimizedTeaFeed'));
-const OptimizedForm = React.lazy(() => import('@/components/optimized/OptimizedForm'));
 
 // Loading component
 const LoadingSpinner: React.FC = () => (
@@ -99,9 +98,9 @@ const App: React.FC = () => {
         enableSystem
         disableTransitionOnChange
       >
-        <WalletProvider>
-          <AuthProvider>
-            <Router>
+        <Router>
+          <WalletProvider>
+            <AuthProvider>
               <PerformanceMonitor />
               
               <Suspense fallback={<LoadingSpinner />}>
@@ -119,9 +118,9 @@ const App: React.FC = () => {
                   className: 'bg-ctea-dark/95 border-ctea-teal/30 text-white',
                 }}
               />
-            </Router>
-          </AuthProvider>
-        </WalletProvider>
+            </AuthProvider>
+          </WalletProvider>
+        </Router>
       </ThemeProvider>
     </UnifiedErrorBoundary>
   );

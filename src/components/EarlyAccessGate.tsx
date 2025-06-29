@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Crown, Coins, Zap, Gift } from 'lucide-react';
-import { useWallet } from '@/components/WalletProvider';
+import { useWallet } from '@/contexts/WalletContext';
 import { useTeaToken } from '@/hooks/useTeaToken';
 
 interface EarlyAccessGateProps {
@@ -18,7 +18,7 @@ const EarlyAccessGate: React.FC<EarlyAccessGateProps> = ({
   requiredTeaAmount = 1000,
   fallbackContent
 }) => {
-  const { wallet, connectWallet } = useWallet();
+  const { isConnected, connect } = useWallet();
   const { earlyAccessStatus, isLoading } = useTeaToken();
 
   // Check for demo mode access first
@@ -110,10 +110,10 @@ const EarlyAccessGate: React.FC<EarlyAccessGateProps> = ({
           </div>
         </div>
 
-        {!wallet.isConnected && (
+        {!isConnected && (
           <div className="pt-4">
             <Button 
-              onClick={() => connectWallet()}
+              onClick={connect}
               className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white"
             >
               Connect Wallet to Check Access
