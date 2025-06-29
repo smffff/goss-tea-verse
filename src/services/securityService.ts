@@ -116,13 +116,12 @@ export class SecurityService {
 
       if (error) {
         secureLog.error('Rate limit check failed:', error);
-        const fallbackResult: RateLimitResult = {
+        return {
           allowed: false,
           remaining: 0,
           resetTime: Date.now() + windowMinutes * 60 * 1000,
           blocked_reason: 'Service unavailable'
         };
-        return fallbackResult;
       }
 
       // Type guard for the response
@@ -131,21 +130,19 @@ export class SecurityService {
       }
 
       // Fallback - ensure proper return type
-      const result: RateLimitResult = {
+      return {
         allowed: true,
         remaining: maxAttempts - 1,
         resetTime: Date.now() + windowMinutes * 60 * 1000
       };
-      return result;
     } catch (error) {
       secureLog.error('Rate limit error:', error);
-      const errorResult: RateLimitResult = {
+      return {
         allowed: false,
         remaining: 0,
         resetTime: Date.now() + windowMinutes * 60 * 1000,
         blocked_reason: 'System error'
       };
-      return errorResult;
     }
   }
 
