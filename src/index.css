@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Butcherman&family=Inter:wght@400;500;600;700&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Butcherman&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -104,15 +105,15 @@
   }
 }
 
-/* Enhanced Brand Typography */
+/* Enhanced Brand Typography - Changed to sans serif */
 .font-gothic {
-  font-family: 'Creepster', 'Nosifer', cursive;
+  font-family: 'Inter', 'Roboto', sans-serif;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
 
 .font-cyber {
-  font-family: 'Butcherman', 'Inter', sans-serif;
+  font-family: 'Roboto Mono', 'Inter', sans-serif;
   font-weight: 600;
   letter-spacing: 0.01em;
 }
