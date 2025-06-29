@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -118,7 +117,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const refreshBalance = async () => {
     // Placeholder for balance refresh logic
-    console.log('Refreshing balance...');
+    // console.log('Refreshing balance...');
   };
 
   const value: AuthContextType = {

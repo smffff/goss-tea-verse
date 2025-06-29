@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Coffee, TrendingUp, Users, MessageCircle, Eye, Heart, Fire, Zap, Twitter, ExternalLink } from 'lucide-react';
+import { Coffee, TrendingUp, Users, MessageCircle, Eye, Heart, Flame, Zap, Twitter, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import SpillTeaModal from '@/components/modals/SpillTeaModal';
 import EarlyAccessGate from '@/components/EarlyAccessGate';
@@ -167,7 +166,7 @@ const SimpleApp: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
                           <div className="flex items-center space-x-2">
-                            <Fire className="w-4 h-4 text-orange-500" />
+                            <Flame className="w-4 h-4 text-orange-500" />
                             <span className="text-white font-medium">{submission.reactions.hot}</span>
                           </div>
                           <div className="flex items-center space-x-2">

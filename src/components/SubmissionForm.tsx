@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -51,7 +50,7 @@ const SubmissionForm: React.FC = () => {
       }
 
       // Submit the sanitized content
-      console.log('Submitting:', validation.sanitized);
+      // console.log('Submitting:', validation.sanitized);
       
       toast({
         title: "Success",

@@ -33,7 +33,7 @@ export const CrossChainProvider: React.FC<CrossChainProviderProps> = ({ children
       try {
         secureLog.info('🔄 Refreshing OG status for:', wallet.address);
       } catch (logError) {
-        console.log('🔄 Refreshing OG status for:', wallet.address);
+        // Fallback logging disabled for production
       }
       // Ensure we're on Avalanche network
       await web3CrossChainService.ensureAvalancheNetwork();
