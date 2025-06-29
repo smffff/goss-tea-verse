@@ -276,7 +276,8 @@ export class PerformanceOptimizer {
     // Monitor First Input Delay (FID)
     const fidObserver = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        const fid = entry.processingStart - entry.startTime;
+        // @ts-expect-error: processingStart is not in base type
+        const fid = (entry as any).processingStart - entry.startTime;
         secureLog.info('FID:', fid);
         
         if (this.isProduction && window.gtag) {
@@ -293,8 +294,9 @@ export class PerformanceOptimizer {
     let clsValue = 0;
     const clsObserver = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        if (!entry.hadRecentInput) {
-          clsValue += entry.value;
+        // @ts-expect-error: hadRecentInput and value are not in base type
+        if (!(entry as any).hadRecentInput) {
+          clsValue += (entry as any).value;
           secureLog.info('CLS:', clsValue);
           
           if (this.isProduction && window.gtag) {

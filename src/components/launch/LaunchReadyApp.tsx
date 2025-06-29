@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,62 +30,49 @@ const LaunchReadyApp: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <Badge className="mb-4 bg-green-500 text-white">
-              <Rocket className="w-4 h-4 mr-2" />
-              Launch Ready
-            </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-              CTea is Live!
-            </h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Welcome to the crypto gossip newsroom. Start sharing your tea and earning rewards today.
-            </p>
-          </div>
-
-          {/* Features Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            {features.map((feature, index) => (
-              <Card key={index} className="bg-ctea-dark/50 border-ctea-teal/30">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-3">
-                    <feature.icon className={`w-6 h-6 ${feature.color}`} />
-                    {feature.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-300">{feature.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* CTA Section */}
-          <div className="text-center">
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                onClick={() => navigate('/spill')}
-                size="lg"
-                className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white"
-              >
-                <Coffee className="w-5 h-5 mr-2" />
-                Start Spilling Tea
-              </Button>
-              <Button
-                onClick={() => navigate('/feed')}
-                variant="outline"
-                size="lg"
-                className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10"
-              >
-                Browse the Feed
-              </Button>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-ctea-darker via-ctea-dark to-black text-white">
+      <Card className="w-full max-w-xl bg-ctea-dark/80 border-ctea-teal/30 mb-8">
+        <CardHeader>
+          <CardTitle className="text-3xl font-bold flex items-center gap-2">
+            <Rocket className="w-6 h-6 text-ctea-teal" />
+            Launch Ready
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <h2 className="text-2xl font-bold mb-2">CTea is Live!</h2>
+          <p className="mb-6 text-lg text-gray-200">
+            Welcome to the crypto gossip newsroom. Start sharing your tea and earning rewards today.
+          </p>
+        </CardContent>
+      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl mb-8">
+        {features.map((feature, index) => {
+          const Icon = feature.icon;
+          return (
+            <div key={index} className="bg-ctea-darker p-6 rounded-lg flex flex-col items-center">
+              <Icon className={`w-8 h-8 mb-2 ${feature.color}`} />
+              <h3 className="font-bold mb-1">{feature.title}</h3>
+              <p className="text-gray-400 text-center">{feature.description}</p>
             </div>
-          </div>
-        </div>
+          );
+        })}
+      </div>
+      <div className="flex gap-4">
+        <Button
+          onClick={() => navigate('/spill')}
+          size="lg"
+          className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white"
+        >
+          Start Spilling Tea
+        </Button>
+        <Button
+          onClick={() => navigate('/feed')}
+          variant="outline"
+          size="lg"
+          className="border-ctea-teal text-ctea-teal hover:bg-ctea-teal/10"
+        >
+          Browse the Feed
+        </Button>
       </div>
     </div>
   );

@@ -1,4 +1,3 @@
-
 import React, { Component, ReactNode } from 'react';
 import { secureLog } from '@/utils/secureLogging';
 
@@ -43,7 +42,9 @@ export class UnifiedErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
-        return this.props.fallback;
+        return typeof this.props.fallback === 'function'
+          ? this.props.fallback()
+          : this.props.fallback;
       }
 
       return (

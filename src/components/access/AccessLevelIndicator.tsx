@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Crown, Users, Lock, Shield } from 'lucide-react';
@@ -43,12 +42,12 @@ const AccessLevelIndicator: React.FC<AccessLevelIndicatorProps> = ({
   const Icon = config.icon;
 
   return (
-    <div className={`space-y-2 ${className}`}>
+    <div className={`flex items-center gap-2 ${className}`}>
       <Badge className={config.color}>
-        <Icon className="w-4 h-4 mr-2" />
+        <Icon className="w-4 h-4 mr-1" />
         {config.text}
       </Badge>
-      <p className="text-sm text-gray-400">{config.description}</p>
+      <span className="text-xs text-gray-400">{config.description}</span>
     </div>
   );
 };

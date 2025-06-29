@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
 
@@ -23,9 +22,9 @@ export const authenticateUser = async (email: string, password: string): Promise
     return { success: true, user: data.user };
   } catch (error) {
     secureLog.error('Authentication error:', error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Authentication failed' 
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Authentication failed'
     };
   }
 };
@@ -48,9 +47,9 @@ export const createUser = async (email: string, password: string): Promise<AuthR
     return { success: true, user: data.user };
   } catch (error) {
     secureLog.error('User creation error:', error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'User creation failed' 
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'User creation failed'
     };
   }
 };

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Wallet, Coffee } from 'lucide-react';
@@ -13,19 +12,15 @@ const ConnectTipButton: React.FC<ConnectTipButtonProps> = ({
   isConnecting = false 
 }) => {
   return (
-    <Button
-      onClick={onConnect}
-      disabled={isConnecting}
-      className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white"
-    >
+    <Button onClick={onConnect} disabled={isConnecting} className="flex items-center gap-2 bg-ctea-teal text-white">
       {isConnecting ? (
         <>
-          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+          <Wallet className="w-4 h-4 animate-spin" />
           Connecting...
         </>
       ) : (
         <>
-          <Wallet className="w-4 h-4 mr-2" />
+          <Wallet className="w-4 h-4" />
           Connect Wallet
         </>
       )}

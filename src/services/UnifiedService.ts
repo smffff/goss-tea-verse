@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
 
@@ -50,7 +49,7 @@ export class CrudService extends BaseService {
   async create(data: Record<string, any>): Promise<any> {
     try {
       const { data: result, error } = await supabase
-        .from(this.tableName)
+        .from(this.tableName as any)
         .insert(data)
         .select()
         .single();
@@ -66,7 +65,7 @@ export class CrudService extends BaseService {
   async getById(id: string | number): Promise<any> {
     try {
       const { data, error } = await supabase
-        .from(this.tableName)
+        .from(this.tableName as any)
         .select('*')
         .eq('id', id)
         .single();
@@ -81,7 +80,7 @@ export class CrudService extends BaseService {
 
   async getAll(filters?: Record<string, any>): Promise<any[]> {
     try {
-      let query = supabase.from(this.tableName).select('*');
+      let query = supabase.from(this.tableName as any).select('*');
       
       if (filters) {
         Object.entries(filters).forEach(([key, value]) => {
@@ -101,7 +100,7 @@ export class CrudService extends BaseService {
   async update(id: string | number, updates: Record<string, any>): Promise<any> {
     try {
       const { data, error } = await supabase
-        .from(this.tableName)
+        .from(this.tableName as any)
         .update(updates)
         .eq('id', id)
         .select()
@@ -118,7 +117,7 @@ export class CrudService extends BaseService {
   async delete(id: string | number): Promise<void> {
     try {
       const { error } = await supabase
-        .from(this.tableName)
+        .from(this.tableName as any)
         .delete()
         .eq('id', id);
 
