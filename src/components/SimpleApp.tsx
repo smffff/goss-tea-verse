@@ -1,11 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { LogOut, Coffee, RefreshCw, Zap } from 'lucide-react';
+import { LogOut, Coffee, RefreshCw, Zap, Home, Twitter, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import SpillTeaModal from '@/components/modals/SpillTeaModal';
 import EarlyAccessGate from '@/components/EarlyAccessGate';
+import { SOCIAL_CONFIG } from '@/config/social';
 
 interface TeaSubmission {
   id: string;
@@ -104,6 +107,10 @@ const SimpleApp: React.FC = () => {
     setShowSpillModal(false);
   };
 
+  const openLink = (url: string) => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black flex items-center justify-center">
@@ -124,7 +131,7 @@ const SimpleApp: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="text-2xl">🫖</div>
-                <h1 className="text-xl font-bold text-white">CTea Live</h1>
+                <h1 className="text-xl font-bold text-white font-cyber">CTea Live</h1>
                 <div className="flex items-center gap-1 px-2 py-1 bg-green-400/20 rounded-full">
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                   <span className="text-xs text-green-400">LIVE</span>
@@ -132,6 +139,27 @@ const SimpleApp: React.FC = () => {
               </div>
               
               <div className="flex items-center gap-3">
+                <Link to="/">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                  >
+                    <Home className="w-4 h-4 mr-2" />
+                    Home
+                  </Button>
+                </Link>
+                
+                <Button
+                  onClick={() => openLink(SOCIAL_CONFIG.twitter.url)}
+                  variant="outline"
+                  size="sm"
+                  className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
+                >
+                  <Twitter className="w-4 h-4 mr-2" />
+                  Follow Us
+                </Button>
+                
                 <Button
                   onClick={() => setShowSpillModal(true)}
                   className="bg-gradient-to-r from-ctea-teal to-ctea-purple hover:from-ctea-purple hover:to-ctea-teal text-white font-bold"
@@ -160,17 +188,28 @@ const SimpleApp: React.FC = () => {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <Zap className="w-5 h-5 text-ctea-teal" />
-                <h2 className="text-xl font-bold text-white">Live Tea Feed</h2>
+                <h2 className="text-xl font-bold text-white font-cyber">Live Tea Feed</h2>
               </div>
-              <Button
-                onClick={fetchSubmissions}
-                size="sm"
-                variant="outline"
-                className="border-ctea-teal/50 text-ctea-teal hover:bg-ctea-teal/10"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Refresh
-              </Button>
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={() => openLink(SOCIAL_CONFIG.arena.url)}
+                  size="sm"
+                  variant="outline"
+                  className="border-purple-500/30 text-purple-400 hover:bg-purple-500/10"
+                >
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Arena
+                </Button>
+                <Button
+                  onClick={fetchSubmissions}
+                  size="sm"
+                  variant="outline"
+                  className="border-ctea-teal/50 text-ctea-teal hover:bg-ctea-teal/10"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Refresh
+                </Button>
+              </div>
             </div>
 
             {submissions.length === 0 ? (
@@ -194,7 +233,7 @@ const SimpleApp: React.FC = () => {
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-2">
-                          <span className="px-2 py-1 bg-ctea-teal/20 text-ctea-teal text-xs rounded-full">
+                          <span className="px-2 py-1 bg-ctea-teal/20 text-ctea-teal text-xs rounded-full font-medium">
                             {submission.category}
                           </span>
                           <span className="text-gray-400 text-sm">
@@ -229,4 +268,4 @@ const SimpleApp: React.FC = () => {
   );
 };
 
-export default SimpleApp; 
+export default SimpleApp;
