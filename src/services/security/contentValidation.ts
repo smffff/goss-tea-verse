@@ -6,9 +6,10 @@ import type { ContentValidationResult } from './types';
 export class ContentValidationService {
   static async validateContent(content: string, maxLength = 2000): Promise<ContentValidationResult> {
     try {
-      const { data, error } = await supabase.rpc('validate_unified_security', {
-        p_content: content,
-        p_max_length: maxLength
+      // Use the correct RPC function name and parameters based on the available functions
+      const { data, error } = await supabase.rpc('validate_content_server_side', {
+        content: content,
+        max_length: maxLength
       });
 
       if (error) {
@@ -22,7 +23,12 @@ export class ContentValidationService {
 
       // Type guard for the response
       if (this.isContentValidationResult(data)) {
-        return data;
+        return {
+          valid: data.valid,
+          sanitized: data.sanitized,
+          errors: data.errors || [],
+          warnings: data.warnings || []
+        };
       }
 
       // Fallback validation - ensure proper return type
