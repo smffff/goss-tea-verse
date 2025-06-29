@@ -31,22 +31,14 @@ interface ProviderProps {
   children: React.ReactNode;
 }
 
-interface ThemeProviderProps {
-  children: React.ReactNode;
-  defaultTheme?: string;
-  storageKey?: string;
-}
-
 const AppProviders: React.FC<ProviderProps> = ({ children }) => {
   return (
     <HelmetProvider>
       <ProductionErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider
-            attribute="class"
             defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
+            storageKey="ctea-theme"
           >
             <SecurityAuditProvider>
               <Router>

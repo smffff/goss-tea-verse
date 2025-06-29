@@ -1,20 +1,49 @@
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
 
+// Define table names as a union type
+type TableName = 
+  | 'tea_submissions'
+  | 'user_reactions'
+  | 'tip_transactions'
+  | 'admin_audit_log'
+  | 'beta_codes'
+  | 'wallet_balances'
+  | 'tea_transactions'
+  | 'achievements'
+  | 'moderation_queue'
+  | 'feedback_submissions'
+  | 'notifications'
+  | 'chat_rooms'
+  | 'messages'
+  | 'evidence_ratings'
+  | 'user_roles'
+  | 'user_profiles'
+  | 'content_flags'
+  | 'spam_reports'
+  | 'security_events'
+  | 'performance_metrics'
+  | 'api_usage'
+  | 'error_logs'
+  | 'analytics_events'
+  | 'user_sessions'
+  | 'content_moderation'
+  | 'rate_limits'
+  | 'cache_entries';
+
 // Base service class with common functionality
 export abstract class BaseService {
   protected logError(message: string, error: unknown) {
-    secureLog.error(`[${this.constructor.name}] ${message}:`, error);
+    secureLog.error(message, error);
   }
 
   protected logInfo(message: string, data?: unknown) {
-    secureLog.info(`[${this.constructor.name}] ${message}`, data);
+    secureLog.info(message, data);
   }
 
   protected handleSupabaseError(error: any): never {
-    const message = error?.message || 'Database operation failed';
     this.logError('Supabase error', error);
-    throw new Error(message);
+    throw new Error(error.message || 'Database operation failed');
   }
 
   protected async withRetry<T>(
@@ -28,15 +57,12 @@ export abstract class BaseService {
       try {
         return await operation();
       } catch (error) {
-        lastError = error instanceof Error ? error : new Error(String(error));
+        lastError = error as Error;
+        this.logError(`Attempt ${attempt} failed`, error);
         
-        if (attempt === maxRetries) {
-          throw lastError;
-        }
+        if (attempt === maxRetries) break;
         
-        this.logInfo(`Retry attempt ${attempt}/${maxRetries} failed, retrying in ${delay}ms`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        delay *= 2; // Exponential backoff
+        await new Promise(resolve => setTimeout(resolve, delay * attempt));
       }
     }
     
@@ -44,10 +70,10 @@ export abstract class BaseService {
   }
 }
 
-// Generic CRUD service
-export class CrudService<T> extends BaseService {
+// Generic CRUD service with proper typing
+export class CrudService<T extends { id: string | number }> extends BaseService {
   constructor(
-    private tableName: string,
+    private tableName: TableName,
     private idField: keyof T = 'id' as keyof T
   ) {
     super();
@@ -57,12 +83,12 @@ export class CrudService<T> extends BaseService {
     try {
       const { data: result, error } = await supabase
         .from(this.tableName)
-        .insert(data)
+        .insert(data as any)
         .select()
         .single();
 
       if (error) this.handleSupabaseError(error);
-      return result;
+      return result as T;
     } catch (error) {
       this.logError('Create operation failed', error);
       throw error;
@@ -78,7 +104,7 @@ export class CrudService<T> extends BaseService {
         .single();
 
       if (error && error.code !== 'PGRST116') this.handleSupabaseError(error);
-      return data;
+      return data as T;
     } catch (error) {
       this.logError('Get by ID operation failed', error);
       throw error;
@@ -97,7 +123,7 @@ export class CrudService<T> extends BaseService {
 
       const { data, error } = await query;
       if (error) this.handleSupabaseError(error);
-      return data || [];
+      return (data || []) as T[];
     } catch (error) {
       this.logError('Get all operation failed', error);
       throw error;
@@ -108,13 +134,13 @@ export class CrudService<T> extends BaseService {
     try {
       const { data, error } = await supabase
         .from(this.tableName)
-        .update(updates)
+        .update(updates as any)
         .eq(this.idField as string, id)
         .select()
         .single();
 
       if (error) this.handleSupabaseError(error);
-      return data;
+      return data as T;
     } catch (error) {
       this.logError('Update operation failed', error);
       throw error;

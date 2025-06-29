@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useUnifiedState } from './useUnifiedState';
+import { useUnifiedState } from './useUnifiedState.tsx';
 import { UnifiedService } from '@/services/UnifiedService';
 import { useComponentPerformance } from './usePerformanceMonitor';
+import { secureLog } from '@/utils/secureLogging';
 
 interface CacheEntry<T> {
   data: T;

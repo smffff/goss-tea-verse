@@ -72,11 +72,13 @@ const BetaCodeTester: React.FC = () => {
 
   const runTest = async (config: TestConfig): Promise<TestResult> => {
     try {
-      const result = await testBetaCode(config.code);
+      setTestCode(config.code);
+      const validation = await betaCodeService.validateCode(config.code);
+      const success = validation === config.expectedResult;
       return {
-        success: result === config.expectedResult,
-        message: result ? 'Test passed' : 'Test failed',
-        data: result
+        success,
+        message: success ? 'Test passed' : 'Test failed',
+        data: validation
       };
     } catch (error) {
       return {

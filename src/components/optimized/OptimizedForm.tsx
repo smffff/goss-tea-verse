@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
-import { useUnifiedState } from '@/hooks/useUnifiedState';
+import { useUnifiedState } from '@/hooks/useUnifiedState.tsx';
 import { UnifiedService } from '@/services/UnifiedService';
 import { useComponentPerformance } from '@/hooks/usePerformanceMonitor';
 

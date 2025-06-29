@@ -7,7 +7,7 @@ import { toast } from '@/components/ui/use-toast';
 
 export interface SpillTeaFormProps {
   onClose: () => void;
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: any) => Promise<{ success: boolean; error?: string }>;
   isLoading?: boolean;
   walletAddress?: string;
   userId?: string;
@@ -81,7 +81,29 @@ const SpillTeaForm: React.FC<SpillTeaFormProps> = ({
       mediaUrl: null
     };
     
-    await onSubmit(submissionData);
+    try {
+      setIsSubmitting(true);
+      const result = await onSubmit(submissionData);
+      
+      if (result.success) {
+        toast({
+          title: "Tea Spilled Successfully! 🫖",
+          description: "Your gossip is now brewing in the feed!",
+        });
+        onClose();
+      } else {
+        throw new Error(result.error || "Failed to submit tea");
+      }
+    } catch (error) {
+      console.error('Tea submission error:', error);
+      toast({
+        title: "Submission Failed",
+        description: error instanceof Error ? error.message : "Please try again later.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

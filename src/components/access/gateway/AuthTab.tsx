@@ -73,7 +73,8 @@ const AuthTab: React.FC<AuthTabProps> = ({
         setError(result.error || 'Sign in failed');
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Sign in failed');
+      const errorMessage = error instanceof Error ? error.message : 'Sign in failed';
+      setError(errorMessage);
     } finally {
       setIsProcessing(false);
     }
@@ -97,7 +98,8 @@ const AuthTab: React.FC<AuthTabProps> = ({
         setError(result.error || 'Sign up failed');
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Sign up failed');
+      const errorMessage = error instanceof Error ? error.message : 'Sign up failed';
+      setError(errorMessage);
     } finally {
       setIsProcessing(false);
     }

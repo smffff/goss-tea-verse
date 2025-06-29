@@ -13,7 +13,35 @@ import {
   RefreshCcw
 } from 'lucide-react';
 import { secureLog } from '@/utils/secureLogging';
-import { reportError } from '@/utils/errorReporting';
+
+// Local error reporting function
+const reportError = (errorData: {
+  error: Error;
+  errorInfo: any;
+  componentName: string;
+  errorId: string;
+  mode: string;
+}) => {
+  // Log to console in development
+  if (process.env.NODE_ENV === 'development') {
+    console.error('Error reported:', errorData);
+  }
+  
+  // Log to secure logging
+  secureLog.error(`Error in ${errorData.componentName}:`, {
+    error: errorData.error,
+    errorInfo: errorData.errorInfo,
+    errorId: errorData.errorId,
+    mode: errorData.mode
+  });
+  
+  // In production, you would send this to an error reporting service
+  // like Sentry, LogRocket, etc.
+};
+
+interface ErrorInfo {
+  componentStack: string;
+}
 
 interface ErrorBoundaryProps {
   children: ReactNode;

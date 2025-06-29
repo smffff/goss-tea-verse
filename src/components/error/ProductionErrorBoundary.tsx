@@ -99,10 +99,13 @@ export class ProductionErrorBoundary extends Component<ErrorBoundaryProps, Error
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
-        return this.props.fallback({
-          error: this.state.error!,
-          resetError: this.handleRetry
-        });
+        const FallbackComponent = this.props.fallback;
+        return (
+          <FallbackComponent
+            error={this.state.error!}
+            resetError={this.handleRetry}
+          />
+        );
       }
 
       return (
