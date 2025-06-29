@@ -121,7 +121,7 @@ export class SecurityService {
           remaining: 0,
           resetTime: Date.now() + windowMinutes * 60 * 1000,
           blocked_reason: 'Service unavailable'
-        };
+        } as RateLimitResult;
       }
 
       // Type guard for the response
@@ -134,7 +134,7 @@ export class SecurityService {
         allowed: true,
         remaining: maxAttempts - 1,
         resetTime: Date.now() + windowMinutes * 60 * 1000
-      };
+      } as RateLimitResult;
     } catch (error) {
       secureLog.error('Rate limit error:', error);
       return {
@@ -142,7 +142,7 @@ export class SecurityService {
         remaining: 0,
         resetTime: Date.now() + windowMinutes * 60 * 1000,
         blocked_reason: 'System error'
-      };
+      } as RateLimitResult;
     }
   }
 

@@ -1,4 +1,5 @@
 
+
 export type ThreatLevel = 'low' | 'medium' | 'high' | 'critical';
 
 export interface ContentValidationResult {
@@ -27,3 +28,20 @@ export interface AuthValidationResult {
   recommendations: string[];
   riskLevel: ThreatLevel;
 }
+
+export interface EmailValidationResult {
+  isValid: boolean;
+  format: boolean;
+  domain: boolean;
+  disposable: boolean;
+  suspicious: boolean;
+}
+
+export interface PasswordValidationResult {
+  isValid: boolean;
+  strength: 'weak' | 'fair' | 'good' | 'strong';
+  score: number;
+  feedback: string[];
+  requirements: Record<string, boolean>;
+}
+

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -68,11 +67,6 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
       
       if (!rateLimitCheck.allowed) {
         throw new Error(rateLimitCheck.blocked_reason || 'Rate limit exceeded');
-      }
-
-      // Log security warnings if any
-      if (rateLimitCheck.security_violation) {
-        secureLog.warn('Suspicious submission activity detected', { content: formData.content.substring(0, 100) });
       }
 
       // Prepare evidence URLs array
