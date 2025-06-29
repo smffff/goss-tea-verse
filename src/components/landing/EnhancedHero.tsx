@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -81,39 +82,15 @@ const EnhancedHero: React.FC<EnhancedHeroProps> = ({ onEnterClick }) => {
         >
           <div className="relative inline-block">
             <motion.img 
-              src="/assets/logo-ctea-spill.svg"
+              src="/lovable-uploads/b8496cac-4966-41f1-b87a-1e3085beeee5.png"
               alt="CTea Newsroom Logo"
-              className="w-32 h-32 md:w-48 md:h-48 filter drop-shadow-2xl"
+              className="w-48 h-48 md:w-64 md:h-64 filter drop-shadow-2xl object-contain"
               animate={{
                 y: [0, -8, 0],
-                rotate: [0, 2, -2, 0]
+                rotate: [0, 1, -1, 0]
               }}
-              transition={{ duration: 4, repeat: Infinity }}
+              transition={{ duration: 6, repeat: Infinity }}
             />
-            
-            {/* Dramatic Steam Animation */}
-            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
-              {[...Array(5)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute text-3xl opacity-70"
-                  animate={{
-                    y: [-15, -80],
-                    opacity: [0.7, 0],
-                    scale: [1, 2],
-                    x: [0, Math.random() * 20 - 10]
-                  }}
-                  transition={{
-                    duration: 2.5,
-                    repeat: Infinity,
-                    delay: i * 0.4
-                  }}
-                  style={{ left: `${i * 15 - 30}px` }}
-                >
-                  💨
-                </motion.div>
-              ))}
-            </div>
             
             {/* Enhanced Drip Animation */}
             {(isAnimating || dramaDrop) && (
@@ -137,7 +114,7 @@ const EnhancedHero: React.FC<EnhancedHeroProps> = ({ onEnterClick }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.3 }}
         >
-          <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-retro font-bold mb-8 leading-none text-text">
+          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold mb-8 leading-none text-text font-anton">
             <motion.span 
               className="bg-gradient-to-r from-brand via-accent to-brand bg-clip-text text-transparent"
               animate={{
@@ -145,7 +122,7 @@ const EnhancedHero: React.FC<EnhancedHeroProps> = ({ onEnterClick }) => {
               }}
               transition={{ duration: 6, repeat: Infinity }}
             >
-              CTea
+              CTEA
             </motion.span>
             <br />
             <motion.span 
@@ -155,7 +132,7 @@ const EnhancedHero: React.FC<EnhancedHeroProps> = ({ onEnterClick }) => {
               }}
               transition={{ duration: 6, repeat: Infinity, delay: 1 }}
             >
-              Newsroom
+              NEWSROOM
             </motion.span>
           </h1>
         </motion.div>
@@ -179,7 +156,7 @@ const EnhancedHero: React.FC<EnhancedHeroProps> = ({ onEnterClick }) => {
             transition={{ duration: 3, repeat: Infinity }}
           >
             <Sparkles className="inline w-8 h-8 md:w-10 md:h-10 mr-3 animate-spin text-accent" />
-            Spill Tea. Stack Clout. Stay Shady.
+            SPILL THE TEA ON BRIBE GATEKEEPERS
             <Flame className="inline w-8 h-8 md:w-10 md:h-10 ml-3 animate-bounce text-brand" />
           </motion.p>
           
@@ -210,7 +187,7 @@ const EnhancedHero: React.FC<EnhancedHeroProps> = ({ onEnterClick }) => {
         >
           <motion.button
             onClick={handleMainCTA}
-            className="bg-brand hover:bg-accent text-white px-8 py-4 rounded-full text-lg font-retro shadow-lg transition-all duration-300 hover:shadow-[0_0_20px_#00FFE0] hover:scale-105"
+            className="bg-brand hover:bg-accent text-white px-8 py-4 rounded-full text-lg font-anton shadow-lg transition-all duration-300 hover:shadow-[0_0_20px_#00FFE0] hover:scale-105"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             animate={{
@@ -222,7 +199,7 @@ const EnhancedHero: React.FC<EnhancedHeroProps> = ({ onEnterClick }) => {
             }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            🚀 Beta Launch – Exclusive Access
+            🚀 EARLY ACCESS — EXCLUSIVE ENTRY
           </motion.button>
         </motion.div>
 
@@ -238,7 +215,7 @@ const EnhancedHero: React.FC<EnhancedHeroProps> = ({ onEnterClick }) => {
             whileHover={{ scale: 1.02, y: -5 }}
           >
             <div className="text-accent mb-3 text-2xl">🛡</div>
-            <h3 className="font-retro text-lg mb-2 text-text">Anonymous & Secure</h3>
+            <h3 className="font-anton text-lg mb-2 text-text">ANONYMOUS & SECURE</h3>
             <p className="text-sm text-text/80">Share news safely with military-grade encryption.</p>
           </motion.div>
 
@@ -247,7 +224,7 @@ const EnhancedHero: React.FC<EnhancedHeroProps> = ({ onEnterClick }) => {
             whileHover={{ scale: 1.02, y: -5 }}
           >
             <div className="text-brand mb-3 text-2xl">🫖</div>
-            <h3 className="font-retro text-lg mb-2 text-text">Community Driven</h3>
+            <h3 className="font-anton text-lg mb-2 text-text">COMMUNITY DRIVEN</h3>
             <p className="text-sm text-text/80">Built by degens, for degens. Your voice matters.</p>
           </motion.div>
 
@@ -256,7 +233,7 @@ const EnhancedHero: React.FC<EnhancedHeroProps> = ({ onEnterClick }) => {
             whileHover={{ scale: 1.02, y: -5 }}
           >
             <div className="text-accent mb-3 text-2xl">💀</div>
-            <h3 className="font-retro text-lg mb-2 text-text">Chaos Guaranteed</h3>
+            <h3 className="font-anton text-lg mb-2 text-text">CHAOS GUARANTEED</h3>
             <p className="text-sm text-text/80">Maximum drama, minimum consequences.</p>
           </motion.div>
         </motion.div>
