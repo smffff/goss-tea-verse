@@ -1,24 +1,30 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-<<<<<<< Updated upstream
-import { Coffee, TrendingUp, Users, Shield, Zap, Twitter, ExternalLink } from 'lucide-react';
-import { SOCIAL_CONFIG } from '@/config/social';
-import FooterSocialLinks from '@/components/footer/FooterSocialLinks';
-=======
-import { ArrowRight, Coffee, Sparkles, Zap, Shield, Users, Crown, Wallet } from 'lucide-react';
+import { ArrowRight, Coffee, Sparkles, Zap, Shield, Users, Crown, Wallet, TrendingUp, Twitter, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ParallaxElement from '@/components/ui/ParallaxElement';
 import { useToast } from '@/hooks/use-toast';
-import AccessibilityToggle from '@/components/ui/AccessibilityToggle';
->>>>>>> Stashed changes
+import { SOCIAL_CONFIG } from '@/config/social';
+import FooterSocialLinks from '@/components/footer/FooterSocialLinks';
+import { motion } from 'framer-motion';
 
 const EnhancedLandingPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
   const openLink = (url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleDemoAccess = () => {
+    toast({
+      title: "Welcome to CTea! 🫖",
+      description: "You're now entering the chaos zone. Prepare for some hot tea!",
+    });
+    navigate('/feed');
   };
 
   return (
@@ -54,36 +60,6 @@ const EnhancedLandingPage: React.FC = () => {
       </div>
 
       {/* Hero Section */}
-<<<<<<< Updated upstream
-      <div className="container mx-auto px-4 pt-16 pb-8">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          <div className="space-y-6">
-            <div className="text-8xl mb-6 animate-dramatic-float">🫖</div>
-            <h1 className="hero-title text-6xl font-bold text-white font-cyber animate-chaos-glow">
-              CTea Newsroom
-            </h1>
-            <p className="hero-subtitle text-2xl text-gray-300 font-gothic">
-              We Don't Report the News. We Stir It.
-            </p>
-          </div>
-          
-          <div className="space-y-6">
-            <Badge className="bg-ctea-teal/20 text-ctea-teal border-ctea-teal/30 px-6 py-3 text-lg font-medium animate-viral-pulse">
-              🚀 Now Live - Anonymous Crypto Gossip Platform
-            </Badge>
-            
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              Where Web3 meets TMZ. On-chain gossip meets meme warfare. 
-              CTea News is where rumors get receipts and the tea is always hot. ☕
-            </p>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/feed">
-                <Button 
-                  size="lg"
-                  className="bg-gradient-to-r from-ctea-teal to-ctea-purple hover:from-ctea-purple hover:to-ctea-teal text-white font-bold px-8 py-4 text-lg"
-=======
       <section className="min-h-screen flex items-center justify-center px-4 relative">
         <div className="text-center max-w-6xl mx-auto relative z-10">
           <ParallaxElement speed={0.6} direction="up" delay={0.2}>
@@ -236,24 +212,23 @@ const EnhancedLandingPage: React.FC = () => {
                 <Button
                   onClick={handleDemoAccess}
                   className="bg-gradient-to-r from-[#FF6B9D] to-[#FF9500] hover:from-[#FF9500] hover:to-[#00D4AA] text-white text-xl md:text-2xl px-8 py-6 rounded-full font-bold transform hover:scale-110 transition-all duration-300 shadow-2xl relative overflow-hidden group"
->>>>>>> Stashed changes
                 >
                   <Coffee className="w-5 h-5 mr-2" />
                   Start Spilling Tea
                 </Button>
-              </Link>
-              
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => openLink(SOCIAL_CONFIG.arena.url)}
-                className="border-ctea-purple/30 text-ctea-purple hover:bg-ctea-purple/10 px-8 py-4 text-lg"
-              >
-                <ExternalLink className="w-5 h-5 mr-2" />
-                Join Arena Social
-              </Button>
-            </div>
-          </div>
+                
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => openLink(SOCIAL_CONFIG.arena.url)}
+                  className="border-ctea-purple/30 text-ctea-purple hover:bg-ctea-purple/10 px-8 py-4 text-lg"
+                >
+                  <ExternalLink className="w-5 h-5 mr-2" />
+                  Join Arena Social
+                </Button>
+              </div>
+            </motion.div>
+          </ParallaxElement>
 
           {/* Features Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
@@ -301,7 +276,7 @@ const EnhancedLandingPage: React.FC = () => {
             </Button>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Footer */}
       <div className="border-t border-gray-800 mt-16">
@@ -340,14 +315,7 @@ const EnhancedLandingPage: React.FC = () => {
             </div>
           </div>
         </div>
-<<<<<<< Updated upstream
       </div>
-=======
-      </section>
-
-      {/* Accessibility Toggle */}
-      <AccessibilityToggle />
->>>>>>> Stashed changes
     </div>
   );
 };
