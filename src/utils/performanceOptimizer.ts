@@ -1,4 +1,4 @@
-
+import React from 'react';
 import { secureLog } from './secureLogging';
 
 // Performance optimization utilities
