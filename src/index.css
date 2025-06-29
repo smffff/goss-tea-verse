@@ -1,5 +1,4 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Butcherman&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Butcherman&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Press+Start+2P&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -32,7 +31,11 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     
-    /* Enhanced CTea Brand Colors for Maximum Impact */
+    /* CTea Brand Colors - Updated to exact specifications */
+    --ctea-brand: #FF4EAF;
+    --ctea-accent: #00FFE0;
+    --ctea-bg: #0E0E16;
+    --ctea-text: #F5F5F5;
     --ctea-deep-plum: #4A1A4A;
     --ctea-neon-mint: #00FF9D;
     --ctea-hot-pink: #FF1E8B;
@@ -83,9 +86,9 @@
   body {
     @apply bg-background text-foreground;
     background: linear-gradient(135deg, 
-      var(--ctea-dark-bg) 0%, 
+      var(--ctea-bg) 0%, 
       var(--ctea-deep-plum) 25%, 
-      var(--ctea-dark-bg) 50%, 
+      var(--ctea-bg) 50%, 
       var(--ctea-cyber-purple) 75%, 
       var(--ctea-darker-bg) 100%);
     background-size: 400% 400%;
@@ -105,9 +108,9 @@
   }
 }
 
-/* Enhanced Brand Typography - Changed to sans serif */
+/* CTea Brand Typography - Updated with retro pixel font */
 .font-gothic {
-  font-family: 'Inter', 'Roboto', sans-serif;
+  font-family: 'Press Start 2P', 'Inter', sans-serif;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -116,6 +119,10 @@
   font-family: 'Roboto Mono', 'Inter', sans-serif;
   font-weight: 600;
   letter-spacing: 0.01em;
+}
+
+.font-retro {
+  font-family: 'Press Start 2P', monospace;
 }
 
 /* Enhanced animations and effects */

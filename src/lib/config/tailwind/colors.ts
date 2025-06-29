@@ -1,4 +1,3 @@
-
 export const tailwindColors = {
   border: "hsl(var(--border))",
   input: "hsl(var(--input))",
@@ -33,6 +32,11 @@ export const tailwindColors = {
     DEFAULT: "hsl(var(--card))",
     foreground: "hsl(var(--card-foreground))",
   },
+  // CTea Brand Colors - Updated to match exact specifications
+  'brand': '#FF4EAF', // Primary Pinkish Red
+  'accent': '#00FFE0', // Neon Mint
+  'bg': '#0E0E16', // Dark Background
+  'text': '#F5F5F5', // Text Color
   'ctea': {
     teal: '#00D8A4',
     purple: '#8b5cf6',
