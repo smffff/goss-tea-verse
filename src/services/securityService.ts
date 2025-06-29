@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
 import type { ContentValidationResult, RateLimitResult, ThreatLevel } from './security/types';
@@ -81,13 +82,14 @@ export class SecurityService {
         return data;
       }
 
-      // Fallback validation
-      return {
+      // Fallback validation - ensure proper return type
+      const result: ContentValidationResult = {
         valid: content.length > 0 && content.length <= maxLength,
         sanitized: content.trim(),
         errors: content.length > maxLength ? ['Content too long'] : [],
         warnings: []
       };
+      return result;
     } catch (error) {
       secureLog.error('Content validation error:', error);
       return {
@@ -128,12 +130,13 @@ export class SecurityService {
         return data;
       }
 
-      // Fallback - allow with warning
-      return {
+      // Fallback - ensure proper return type
+      const result: RateLimitResult = {
         allowed: true,
         remaining: maxAttempts - 1,
         resetTime: Date.now() + windowMinutes * 60 * 1000
       };
+      return result;
     } catch (error) {
       secureLog.error('Rate limit error:', error);
       return {

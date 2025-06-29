@@ -45,39 +45,36 @@ const MicroInteractions: React.FC = () => {
       </motion.div>
 
       <motion.div
-        className="absolute top-1/3 right-1/4"
+        className="absolute top-1/3 right-1/4 text-3xl"
         animate={{
           y: [0, -15, 0],
           rotate: [0, -15, 15, 0],
           opacity: [0.6, 1, 0.6]
         }}
         transition={{ duration: 8, repeat: Infinity, delay: 2 }}
-        className="text-3xl"
       >
         💅
       </motion.div>
 
       <motion.div
-        className="absolute bottom-1/3 left-1/3"
+        className="absolute bottom-1/3 left-1/3 text-3xl opacity-70"
         animate={{
           x: [0, 20, -20, 0],
           y: [0, -10, 0],
           scale: [1, 1.1, 1]
         }}
         transition={{ duration: 7, repeat: Infinity, delay: 1 }}
-        className="text-3xl opacity-70"
       >
         👀
       </motion.div>
 
       <motion.div
-        className="absolute top-3/4 right-1/3"
+        className="absolute top-3/4 right-1/3 text-2xl opacity-60"
         animate={{
           rotate: [0, 360],
           scale: [1, 1.2, 1]
         }}
         transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-        className="text-2xl opacity-60"
       >
         🔥
       </motion.div>
