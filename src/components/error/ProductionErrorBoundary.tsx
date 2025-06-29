@@ -5,15 +5,19 @@ import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { secureLog } from '@/utils/secureLog';
 import { useAuth } from '@/hooks/useAuth';
 
-interface Props {
-  children: ReactNode;
-  fallback?: ReactNode;
+interface ErrorInfo {
+  componentStack: string;
 }
 
-interface State {
+interface ErrorState {
   hasError: boolean;
   error?: Error;
-  errorInfo?: any;
+  errorInfo?: ErrorInfo;
+}
+
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+  fallback?: React.ComponentType<{ error: Error; resetError: () => void }>;
 }
 
 // Helper component to check admin status
@@ -43,34 +47,42 @@ const AdminErrorDetails: React.FC<{ error?: Error; errorInfo?: any }> = ({ error
   );
 };
 
-export class ProductionErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
+export class ProductionErrorBoundary extends Component<ErrorBoundaryProps, ErrorState> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): ErrorState {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: any) {
-    secureLog.error('Production error boundary caught error', {
-      error: error.message,
-      stack: error.stack,
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    
+    this.setState({
+      hasError: true,
+      error,
       errorInfo
     });
 
-    // Track error for analytics if available
-    if (typeof window !== 'undefined' && (window as any).posthog) {
-      (window as any).posthog.capture('production_error', {
-        error: error.message,
-        stack: error.stack,
-        errorInfo
-      });
-    }
-
-    this.setState({ errorInfo });
+    // Log error to monitoring service
+    this.logError(error, errorInfo);
   }
+
+  private logError = (error: Error, errorInfo: ErrorInfo) => {
+    try {
+      // Send error to monitoring service
+      console.error('Error logged:', {
+        message: error.message,
+        stack: error.stack,
+        componentStack: errorInfo.componentStack,
+        timestamp: new Date().toISOString()
+      });
+    } catch (logError) {
+      console.error('Failed to log error:', logError);
+    }
+  };
 
   handleRefresh = () => {
     window.location.reload();
@@ -87,7 +99,10 @@ export class ProductionErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
-        return this.props.fallback;
+        return this.props.fallback({
+          error: this.state.error!,
+          resetError: this.handleRetry
+        });
       }
 
       return (

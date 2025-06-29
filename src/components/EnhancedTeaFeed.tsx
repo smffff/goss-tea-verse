@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +27,19 @@ interface EnhancedTeaItem {
   trending: boolean;
   verified: boolean;
   boost: boolean;
+}
+
+interface TeaSubmission {
+  id: string;
+  content: string;
+  category: string;
+  reactions: {
+    hot: number;
+    cold: number;
+    spicy: number;
+  };
+  created_at: string;
+  anonymous_token: string;
 }
 
 const EnhancedTeaFeed: React.FC = () => {
@@ -86,6 +98,27 @@ const EnhancedTeaFeed: React.FC = () => {
     if (filter === 'verified') return item.verified;
     return true;
   });
+
+  const handleReaction = (submissionId: string, reactionType: 'hot' | 'cold' | 'spicy') => {
+    setTeaItems(prev => prev.map(item => {
+      if (item.id === submissionId) {
+        return {
+          ...item,
+          reactions: {
+            ...item.reactions,
+            [reactionType]: item.reactions[reactionType] + 1
+          }
+        };
+      }
+      return item;
+    }));
+  };
+
+  const handleItemClick = (item: TeaSubmission) => {
+    // Handle item click
+    console.log('Clicked on tea item:', item);
+    // Add any navigation or modal logic here
+  };
 
   if (loading) {
     return (

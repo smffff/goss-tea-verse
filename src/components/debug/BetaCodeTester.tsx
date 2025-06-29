@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,6 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { betaCodeService } from '@/services/betaCodeService';
 import { supabase } from '@/integrations/supabase/client';
 import AdminGuard from '@/components/access/AdminGuard';
+
+interface TestResult {
+  success: boolean;
+  message: string;
+  data?: unknown;
+}
+
+interface TestConfig {
+  code: string;
+  expectedResult: boolean;
+}
 
 const BetaCodeTester: React.FC = () => {
   const [testCode, setTestCode] = useState('');
@@ -58,6 +68,23 @@ const BetaCodeTester: React.FC = () => {
     const codes = betaCodeService.getTestCodes();
     console.log('Available test codes:', codes);
     setResult({ testCodes: codes });
+  };
+
+  const runTest = async (config: TestConfig): Promise<TestResult> => {
+    try {
+      const result = await testBetaCode(config.code);
+      return {
+        success: result === config.expectedResult,
+        message: result ? 'Test passed' : 'Test failed',
+        data: result
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Test failed',
+        data: error
+      };
+    }
   };
 
   return (

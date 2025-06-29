@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,12 +9,27 @@ interface AppTimeoutsProps {
   onForceTimeout: (error: any) => void;
 }
 
+interface TimeoutConfig {
+  duration: number;
+  message: string;
+  action?: () => void;
+}
+
 const AppTimeouts: React.FC<AppTimeoutsProps> = ({
   isLoading,
   onEmergencyTimeout,
   onForceTimeout
 }) => {
   if (!isLoading) return null;
+
+  const handleTimeout = (config: TimeoutConfig) => {
+    setTimeout(() => {
+      console.log(config.message);
+      if (config.action) {
+        config.action();
+      }
+    }, config.duration);
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">

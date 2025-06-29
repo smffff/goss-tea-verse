@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
@@ -28,16 +27,27 @@ const queryClient = new QueryClient({
   },
 });
 
-interface AppProvidersProps {
+interface ProviderProps {
   children: React.ReactNode;
 }
 
-const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
+interface ThemeProviderProps {
+  children: React.ReactNode;
+  defaultTheme?: string;
+  storageKey?: string;
+}
+
+const AppProviders: React.FC<ProviderProps> = ({ children }) => {
   return (
     <HelmetProvider>
       <ProductionErrorBoundary>
         <QueryClientProvider client={queryClient}>
-          <ThemeProvider defaultTheme="dark" storageKey="ctea-theme">
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
             <SecurityAuditProvider>
               <Router>
                 {children}

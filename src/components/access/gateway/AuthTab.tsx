@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -17,6 +16,20 @@ interface AuthTabProps {
   setError: (error: string) => void;
 }
 
+interface AuthFormData {
+  email: string;
+  password: string;
+}
+
+interface AuthResponse {
+  success: boolean;
+  error?: string;
+  user?: {
+    id: string;
+    email: string;
+  };
+}
+
 const AuthTab: React.FC<AuthTabProps> = ({ 
   onAccessGranted, 
   isProcessing, 
@@ -29,6 +42,19 @@ const AuthTab: React.FC<AuthTabProps> = ({
   const { toast } = useToast();
   const { signIn, signUp } = useAuth();
 
+  const handleAuthSubmit = async (formData: AuthFormData): Promise<AuthResponse> => {
+    try {
+      // Handle authentication logic here
+      const response = await authenticateUser(formData);
+      return response;
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Authentication failed'
+      };
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
@@ -39,17 +65,15 @@ const AuthTab: React.FC<AuthTabProps> = ({
       if (result.success) {
         localStorage.setItem('ctea-access-level', 'authenticated');
         toast({
-          title: "Welcome back! ☕",
-          description: "You're now logged into CTea Newsroom",
+          title: "Welcome back! 🫖",
+          description: "Successfully signed in to CTea",
         });
         onAccessGranted('authenticated');
       } else {
-        const errorMessage = getErrorMessage(result.error);
-        setError(errorMessage);
+        setError(result.error || 'Sign in failed');
       }
-    } catch (error: any) {
-      secureLog.error('Login error:', error);
-      setError('Login failed - probably my code acting up again 🙄');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Sign in failed');
     } finally {
       setIsProcessing(false);
     }
@@ -64,18 +88,16 @@ const AuthTab: React.FC<AuthTabProps> = ({
       const result = await signUp(email, password);
       if (result.success) {
         toast({
-          title: "Account Created! 🎉",
-          description: "Welcome to CTea! Check your email to verify your account.",
+          title: "Welcome to CTea! 🫖",
+          description: "Your account has been created successfully",
         });
         localStorage.setItem('ctea-access-level', 'authenticated');
         onAccessGranted('authenticated');
       } else {
-        const errorMessage = getErrorMessage(result.error);
-        setError(errorMessage);
+        setError(result.error || 'Sign up failed');
       }
-    } catch (error: any) {
-      secureLog.error('Signup error:', error);
-      setError('Signup failed - this is awkward but we\'ll figure it out 💅');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Sign up failed');
     } finally {
       setIsProcessing(false);
     }

@@ -10,12 +10,13 @@ interface TeaSubmission {
   id: string;
   content: string;
   category: string;
-  created_at: string;
   reactions: {
     hot: number;
     cold: number;
     spicy: number;
   };
+  created_at: string;
+  anonymous_token: string;
 }
 
 const TeaFeed: React.FC = () => {
@@ -101,6 +102,27 @@ const TeaFeed: React.FC = () => {
   const handleSpillSuccess = () => {
     fetchSubmissions();
     setShowSpillModal(false);
+  };
+
+  const handleReaction = (submissionId: string, reactionType: 'hot' | 'cold' | 'spicy') => {
+    setSubmissions(prev => prev.map(submission => {
+      if (submission.id === submissionId) {
+        return {
+          ...submission,
+          reactions: {
+            ...submission.reactions,
+            [reactionType]: submission.reactions[reactionType] + 1
+          }
+        };
+      }
+      return submission;
+    }));
+  };
+
+  const handleItemClick = (item: TeaSubmission) => {
+    // Handle item click
+    console.log('Clicked on tea item:', item);
+    // Add any navigation or modal logic here
   };
 
   if (isLoading) {

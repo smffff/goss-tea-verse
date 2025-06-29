@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +19,16 @@ interface SOAPData {
   last_verification_date: string;
 }
 
+interface CredibilityReport {
+  id: string;
+  reporterId: string;
+  targetId: string;
+  reason: string;
+  evidence?: string;
+  timestamp: string;
+  status: 'pending' | 'reviewed' | 'resolved';
+}
+
 const SOAPCredibilitySystem = () => {
   const [soapData, setSoapData] = useState<SOAPData>({
     total_verifications: 0,
@@ -34,6 +43,7 @@ const SOAPCredibilitySystem = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [userLevel, setUserLevel] = useState<'none' | 'basic' | 'verified' | 'trusted' | 'legendary'>('none');
   const { toast } = useToast();
+  const [reports, setReports] = useState<CredibilityReport[]>([]);
 
   useEffect(() => {
     fetchSOAPData();
@@ -101,6 +111,19 @@ const SOAPCredibilitySystem = () => {
 
   const badge = getVerificationBadge(userLevel);
   const soapScore = calculateSOAPScore();
+
+  const handleReportSubmit = (reportData: CredibilityReport) => {
+    // Handle report submission
+    console.log('Submitting report:', reportData);
+    // Add to reports list
+    setReports(prev => [...prev, reportData]);
+  };
+
+  const handleCredibilityCheck = (userId: string) => {
+    // Handle credibility check
+    console.log('Checking credibility for user:', userId);
+    // Add credibility check logic here
+  };
 
   if (isLoading) {
     return (

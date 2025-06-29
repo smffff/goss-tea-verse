@@ -1,94 +1,59 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Trophy, Crown, Star, Zap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface LeaderboardEntry {
-  anonymous_token: string;
-  total_submissions: number;
-  total_reactions_given: number;
-  total_reactions_received: number;
-  credibility_score: number;
-  tea_tokens_earned: number;
+  id: string;
+  username: string;
+  score: number;
   rank: number;
+  avatar?: string;
+  badges?: string[];
+}
+
+interface LeaderboardData {
+  entries: LeaderboardEntry[];
+  totalParticipants: number;
+  lastUpdated: string;
 }
 
 const EnhancedLeaderboard: React.FC = () => {
   const [leaders, setLeaders] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [leaderboardData, setLeaderboardData] = useState<LeaderboardData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchLeaderboard();
   }, []);
 
-  const fetchLeaderboard = async () => {
+  const fetchLeaderboard = useCallback(async () => {
     try {
-      // Query tea_submissions with proper aggregation
-      const { data, error } = await supabase
-        .from('tea_submissions')
-        .select(`
-          anonymous_token,
-          created_at
-        `);
-
-      if (error) {
-        console.error('Error fetching leaderboard:', error);
-        // Use mock data if query fails
-        setLeaders(getMockLeaderboard());
-        return;
-      }
-
-      // Process data to create leaderboard entries
-      const processedData = data ? processLeaderboardData(data) : getMockLeaderboard();
-      setLeaders(processedData);
+      setIsLoading(true);
+      // Mock data for now
+      const mockData: LeaderboardData = {
+        entries: [
+          { id: '1', username: 'TeaMaster', score: 1250, rank: 1, badges: ['top-spiller'] },
+          { id: '2', username: 'GossipQueen', score: 1100, rank: 2, badges: ['verified'] },
+          { id: '3', username: 'CryptoWhisperer', score: 950, rank: 3, badges: ['early-adopter'] }
+        ],
+        totalParticipants: 342,
+        lastUpdated: new Date().toISOString()
+      };
+      
+      setLeaderboardData(mockData);
     } catch (error) {
-      console.error('Error in fetchLeaderboard:', error);
-      setLeaders(getMockLeaderboard());
+      console.error('Failed to fetch leaderboard:', error);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  };
+  }, []);
 
-  const processLeaderboardData = (data: any[]): LeaderboardEntry[] => {
-    // Group by anonymous_token and count submissions
-    const tokenCounts = data.reduce((acc: any, submission: any) => {
-      const token = submission.anonymous_token;
-      if (!acc[token]) {
-        acc[token] = {
-          anonymous_token: token,
-          total_submissions: 0,
-          total_reactions_given: 0,
-          total_reactions_received: 0,
-          credibility_score: Math.floor(Math.random() * 30) + 70, // Mock score
-          tea_tokens_earned: 0,
-          rank: 0
-        };
-      }
-      acc[token].total_submissions++;
-      acc[token].tea_tokens_earned += 5; // 5 tokens per submission
-      return acc;
-    }, {});
-
-    // Convert to array and sort by submissions
-    const sorted = Object.values(tokenCounts)
-      .sort((a: any, b: any) => b.total_submissions - a.total_submissions)
-      .map((entry: any, index: number) => ({
-        ...entry,
-        rank: index + 1
-      }));
-
-    return sorted.slice(0, 10); // Top 10
-  };
-
-  const getMockLeaderboard = (): LeaderboardEntry[] => {
-    return [
-      { anonymous_token: "whale_42", total_submissions: 67, total_reactions_given: 45, total_reactions_received: 89, credibility_score: 95, tea_tokens_earned: 1337, rank: 1 },
-      { anonymous_token: "sipper_23", total_submissions: 54, total_reactions_given: 38, total_reactions_received: 72, credibility_score: 92, tea_tokens_earned: 1200, rank: 2 },
-      { anonymous_token: "gossip_lord", total_submissions: 48, total_reactions_given: 35, total_reactions_received: 65, credibility_score: 89, tea_tokens_earned: 1100, rank: 3 },
-      { anonymous_token: "alpha_spiller", total_submissions: 41, total_reactions_given: 31, total_reactions_received: 58, credibility_score: 87, tea_tokens_earned: 950, rank: 4 },
-      { anonymous_token: "rumor_mill", total_submissions: 36, total_reactions_given: 28, total_reactions_received: 51, credibility_score: 85, tea_tokens_earned: 800, rank: 5 }
-    ];
+  const handleEntryClick = (entry: LeaderboardEntry) => {
+    // Handle entry click
+    console.log('Clicked on entry:', entry);
   };
 
   if (loading) {
@@ -116,7 +81,7 @@ const EnhancedLeaderboard: React.FC = () => {
         <Card className="bg-ctea-dark/80 border-yellow-400/30 text-center">
           <CardContent className="p-6">
             <Crown className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
-            <div className="text-2xl font-bold text-white">{leaders[0]?.tea_tokens_earned || 1337}</div>
+            <div className="text-2xl font-bold text-white">{leaders[0]?.score || 1337}</div>
             <div className="text-sm text-gray-400">Top Earner</div>
           </CardContent>
         </Card>
@@ -149,36 +114,30 @@ const EnhancedLeaderboard: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {leaders.map((leader) => (
-              <div 
-                key={leader.anonymous_token}
-                className="flex items-center justify-between p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+            {leaderboardData?.entries.map((entry: LeaderboardEntry) => (
+              <div
+                key={entry.id}
+                className="flex items-center justify-between p-4 bg-ctea-dark/50 border border-ctea-teal/30 rounded-lg hover:border-ctea-teal/50 transition-colors cursor-pointer"
+                onClick={() => handleEntryClick(entry)}
               >
-                <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
-                    leader.rank === 1 ? 'bg-yellow-500 text-black' :
-                    leader.rank === 2 ? 'bg-gray-400 text-black' :
-                    leader.rank === 3 ? 'bg-orange-600 text-white' :
-                    'bg-white/20 text-white'
-                  }`}>
-                    {leader.rank}
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center justify-center w-8 h-8 bg-ctea-teal/20 rounded-full text-ctea-teal font-bold text-sm">
+                    {entry.rank}
                   </div>
                   <div>
-                    <div className="text-white font-bold">{leader.anonymous_token}</div>
-                    <div className="text-gray-400 text-sm">{leader.total_submissions} spills</div>
+                    <p className="text-white font-medium">{entry.username}</p>
+                    <div className="flex space-x-1 mt-1">
+                      {entry.badges?.map((badge: string) => (
+                        <Badge key={badge} variant="outline" className="text-xs border-ctea-teal/50 text-ctea-teal">
+                          {badge}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <Badge className="bg-blue-500/20 text-blue-400">
-                    {leader.tea_tokens_earned} TEA
-                  </Badge>
-                  <Badge className={`${
-                    leader.credibility_score > 90 ? 'bg-green-500/20 text-green-400' :
-                    leader.credibility_score > 85 ? 'bg-yellow-500/20 text-yellow-400' :
-                    'bg-orange-500/20 text-orange-400'
-                  }`}>
-                    {leader.credibility_score}% credible
-                  </Badge>
+                <div className="text-right">
+                  <p className="text-white font-bold">{entry.score.toLocaleString()}</p>
+                  <p className="text-gray-400 text-sm">points</p>
                 </div>
               </div>
             ))}
