@@ -179,6 +179,15 @@
     }
   }
 
+  @keyframes neon-glow {
+    0%, 100% {
+      filter: drop-shadow(0 0 20px #FF4FB3) drop-shadow(0 0 40px #00D8A4) drop-shadow(0 0 60px #FF9C39);
+    }
+    50% {
+      filter: drop-shadow(0 0 30px #FF4FB3) drop-shadow(0 0 60px #00D8A4) drop-shadow(0 0 90px #FF9C39);
+    }
+  }
+
   .animate-gradient { animation: gradientShift 15s ease infinite; }
   .animate-dramatic-float { animation: dramaticFloat 8s ease-in-out infinite; }
   .animate-chaos-glow { animation: chaosGlow 4s ease-in-out infinite; }
@@ -295,5 +304,42 @@
   
   .hero-subtitle {
     font-size: 1.25rem !important;
+  }
+}
+
+/* Accessibility - Reduced Motion Support */
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+.reduced-motion .animate-float,
+.reduced-motion .animate-bounce,
+.reduced-motion .animate-pulse,
+.reduced-motion .animate-spin {
+  animation: none !important;
+}
+
+.reduced-motion [style*="animation"] {
+  animation: none !important;
+}
+
+.reduced-motion [style*="transition"] {
+  transition: none !important;
+}
+
+/* Respect system preference for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
