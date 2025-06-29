@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
@@ -7,42 +8,42 @@ const InfoBlocks: React.FC = () => {
   const features = [
     {
       icon: Shield,
-      title: 'Anonymous & Bulletproof',
+      title: 'ANONYMOUS & BULLETPROOF',
       description: 'Military-grade privacy protection. Spill without the spooks finding you.',
-      color: '#00FFE0',
+      color: '#00D8A4',
       gradient: 'from-accent to-brand'
     },
     {
       icon: Users,
-      title: 'Community of Chaos',
+      title: 'COMMUNITY OF CHAOS',
       description: 'Vote, verify, and validate the wildest stories with your fellow degens.',
       color: '#FF4EAF',
       gradient: 'from-brand to-accent'
     },
     {
       icon: Zap,
-      title: 'Real-time Tea Flow',
+      title: 'REAL-TIME TEA FLOW',
       description: 'Breaking drama as it happens. Be first to know, first to profit.',
-      color: '#00FFE0',
+      color: '#00D8A4',
       gradient: 'from-accent to-brand'
     },
     {
       icon: Crown,
-      title: 'Clout Economy',
+      title: 'CLOUT ECONOMY',
       description: 'Earn $TEA tokens for verified gossip. Turn drama into degen gains.',
       color: '#FF4EAF',
       gradient: 'from-brand to-accent'
     },
     {
       icon: Eye,
-      title: 'Intel Marketplace',
+      title: 'INTEL MARKETPLACE',
       description: 'Buy exclusive alpha, sell your secrets. The ultimate insider trading.',
-      color: '#00FFE0',
+      color: '#00D8A4',
       gradient: 'from-accent to-brand'
     },
     {
       icon: Flame,
-      title: 'Viral Launch Pad',
+      title: 'VIRAL LAUNCH PAD',
       description: 'Stories that break the internet start here. Be the main character.',
       color: '#FF4EAF',
       gradient: 'from-brand to-accent'
@@ -62,8 +63,8 @@ const InfoBlocks: React.FC = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-retro font-bold mb-6 bg-gradient-to-r from-brand via-accent to-brand bg-clip-text text-transparent">
-            Why CTea Hits Different
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-anton font-bold mb-6 bg-gradient-to-r from-brand via-accent to-brand bg-clip-text text-transparent">
+            WHY CTEA HITS DIFFERENT
           </h2>
           <p className="text-xl text-text/80 max-w-3xl mx-auto font-cyber">
             Built by degens, for degens. This isn't your grandma's group chat.
@@ -101,7 +102,7 @@ const InfoBlocks: React.FC = () => {
                     </div>
                   </motion.div>
                   
-                  <h3 className="text-xl font-bold text-text mb-4 font-retro"
+                  <h3 className="text-xl font-bold text-text mb-4 font-anton"
                       style={{ textShadow: `0 0 10px ${feature.color}60` }}>
                     {feature.title}
                   </h3>
@@ -132,8 +133,8 @@ const InfoBlocks: React.FC = () => {
           className="text-center mt-16"
         >
           <div className="rounded-2xl p-8 max-w-4xl mx-auto border-2 border-brand/30 bg-[#14141f]/80 backdrop-blur-sm">
-            <h3 className="text-3xl md:text-4xl font-bold mb-4 font-retro bg-gradient-to-r from-brand to-accent bg-clip-text text-transparent">
-              Ready to Become a Tea Tycoon?
+            <h3 className="text-3xl md:text-4xl font-bold mb-4 font-anton bg-gradient-to-r from-brand to-accent bg-clip-text text-transparent">
+              READY TO BECOME A TEA TYCOON?
             </h3>
             <p className="text-lg text-text/80 mb-6 font-cyber">
               Join the exclusive club of anonymous alphas who turn gossip into gains.

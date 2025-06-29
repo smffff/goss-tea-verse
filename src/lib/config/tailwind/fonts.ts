@@ -1,9 +1,11 @@
 
 export const tailwindFonts = {
+  'anton': ['Anton', 'Impact', 'sans-serif'],
+  'impact': ['Impact', 'Anton', 'sans-serif'],
   'retro': ['Press Start 2P', 'monospace'],
-  'luckiest': ['Luckiest Guy', 'cursive'],
   'inter': ['Inter', 'sans-serif'],
-  'headline': ['Luckiest Guy', 'cursive'],
+  'headline': ['Anton', 'Impact', 'sans-serif'],
   'body': ['Inter', 'sans-serif'],
-  'mono': ['Fira Code', 'JetBrains Mono', 'monospace'],
+  'mono': ['Roboto Mono', 'monospace'],
+  'cyber': ['Roboto Mono', 'monospace'],
 };
