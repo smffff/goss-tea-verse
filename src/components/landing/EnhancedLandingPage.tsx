@@ -4,9 +4,17 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+<<<<<<< Updated upstream
 import { Coffee, TrendingUp, Users, Shield, Zap, Twitter, ExternalLink } from 'lucide-react';
 import { SOCIAL_CONFIG } from '@/config/social';
 import FooterSocialLinks from '@/components/footer/FooterSocialLinks';
+=======
+import { ArrowRight, Coffee, Sparkles, Zap, Shield, Users, Crown, Wallet } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import ParallaxElement from '@/components/ui/ParallaxElement';
+import { useToast } from '@/hooks/use-toast';
+import AccessibilityToggle from '@/components/ui/AccessibilityToggle';
+>>>>>>> Stashed changes
 
 const EnhancedLandingPage: React.FC = () => {
   const openLink = (url: string) => {
@@ -46,6 +54,7 @@ const EnhancedLandingPage: React.FC = () => {
       </div>
 
       {/* Hero Section */}
+<<<<<<< Updated upstream
       <div className="container mx-auto px-4 pt-16 pb-8">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <div className="space-y-6">
@@ -74,6 +83,160 @@ const EnhancedLandingPage: React.FC = () => {
                 <Button 
                   size="lg"
                   className="bg-gradient-to-r from-ctea-teal to-ctea-purple hover:from-ctea-purple hover:to-ctea-teal text-white font-bold px-8 py-4 text-lg"
+=======
+      <section className="min-h-screen flex items-center justify-center px-4 relative">
+        <div className="text-center max-w-6xl mx-auto relative z-10">
+          <ParallaxElement speed={0.6} direction="up" delay={0.2}>
+            <motion.div
+              className="mb-12 relative"
+              animate={{ 
+                y: [0, -10, 0],
+                rotate: [0, 2, -2, 0]
+              }}
+              transition={{ duration: 4, repeat: Infinity }}
+            >
+              {/* Enhanced Neon-Lit Teacup */}
+              <div className="relative">
+                <div className="text-9xl md:text-[12rem] filter drop-shadow-2xl relative">
+                  🫖
+                </div>
+                
+                {/* Neon Glow Effects */}
+                <div className="absolute inset-0 text-9xl md:text-[12rem] opacity-30 blur-lg animate-pulse"
+                     style={{
+                       filter: 'drop-shadow(0 0 20px #FF4FB3) drop-shadow(0 0 40px #00D8A4) drop-shadow(0 0 60px #FF9C39)',
+                       animation: 'neon-glow 3s ease-in-out infinite'
+                     }}>
+                  🫖
+                </div>
+                
+                {/* Digital Tea Splash Effect */}
+                <motion.div
+                  className="absolute -bottom-4 left-1/2 transform -translate-x-1/2"
+                  animate={{
+                    scale: [1, 1.2, 1],
+                    opacity: [0.8, 1, 0.8]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <div className="flex space-x-1">
+                    {[...Array(5)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        className="w-2 h-2 rounded-full"
+                        style={{
+                          background: `linear-gradient(45deg, #FF4FB3, #00D8A4, #FF9C39)`,
+                          boxShadow: `0 0 10px #FF4FB3, 0 0 20px #00D8A4`
+                        }}
+                        animate={{
+                          y: [0, -20, 0],
+                          opacity: [0.5, 1, 0.5],
+                          scale: [1, 1.5, 1]
+                        }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Infinity,
+                          delay: i * 0.2
+                        }}
+                      />
+                    ))}
+                  </div>
+                </motion.div>
+              </div>
+              
+              {/* Enhanced Steam Animation */}
+              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
+                {[...Array(5)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute text-3xl opacity-70"
+                    animate={{
+                      y: [-15, -80],
+                      opacity: [0.7, 0],
+                      scale: [1, 2],
+                      x: [0, Math.random() * 20 - 10]
+                    }}
+                    transition={{
+                      duration: 2.5,
+                      repeat: Infinity,
+                      delay: i * 0.4
+                    }}
+                    style={{ 
+                      left: `${i * 15 - 30}px`,
+                      filter: 'drop-shadow(0 0 5px #00D8A4)'
+                    }}
+                  >
+                    💨
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </ParallaxElement>
+
+          <ParallaxElement speed={0.4} direction="up" delay={0.4}>
+            <motion.h1
+              className="text-6xl md:text-8xl lg:text-9xl font-bold text-white mb-6 leading-tight"
+              style={{ fontFamily: "'Luckiest Guy', cursive" }}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 1, delay: 0.5 }}
+            >
+              <motion.span 
+                className="bg-gradient-to-r from-[#FF6B9D] via-[#00D4AA] to-[#FF9500] bg-clip-text text-transparent"
+                animate={{
+                  backgroundPosition: ['0%', '100%', '0%']
+                }}
+                transition={{ duration: 8, repeat: Infinity }}
+              >
+                CTea
+              </motion.span>
+              <br />
+              <motion.span 
+                className="bg-gradient-to-r from-[#00D4AA] via-[#FF9500] to-[#FF6B9D] bg-clip-text text-transparent"
+                animate={{
+                  backgroundPosition: ['100%', '0%', '100%']
+                }}
+                transition={{ duration: 8, repeat: Infinity, delay: 1 }}
+              >
+                Newsroom
+              </motion.span>
+            </motion.h1>
+          </ParallaxElement>
+
+          <ParallaxElement speed={0.3} direction="up" delay={0.6}>
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 1, delay: 0.8 }}
+              className="mb-8"
+            >
+              <p className="text-3xl md:text-4xl text-[#FF6B9D] mb-4 font-bold italic">
+                <Sparkles className="inline w-8 h-8 mr-2 animate-spin" />
+                Managed Chaos, Served Hot
+                <Sparkles className="inline w-8 h-8 ml-2 animate-spin" />
+              </p>
+              <p className="text-xl md:text-2xl text-white/90 mb-4 font-semibold">
+                Where Tea Meets Tokenomics
+              </p>
+              <p className="text-lg text-white/70 max-w-3xl mx-auto">
+                Spill the hottest crypto tea, earn $TEA tokens, and become the ultimate 
+                <span className="text-[#00D4AA] font-bold"> memefluencer</span> in the game
+              </p>
+            </motion.div>
+          </ParallaxElement>
+
+          <ParallaxElement speed={0.2} direction="up" delay={1}>
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 1, delay: 1.2 }}
+              className="space-y-6"
+            >
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button
+                  onClick={handleDemoAccess}
+                  className="bg-gradient-to-r from-[#FF6B9D] to-[#FF9500] hover:from-[#FF9500] hover:to-[#00D4AA] text-white text-xl md:text-2xl px-8 py-6 rounded-full font-bold transform hover:scale-110 transition-all duration-300 shadow-2xl relative overflow-hidden group"
+>>>>>>> Stashed changes
                 >
                   <Coffee className="w-5 h-5 mr-2" />
                   Start Spilling Tea
@@ -177,7 +340,14 @@ const EnhancedLandingPage: React.FC = () => {
             </div>
           </div>
         </div>
+<<<<<<< Updated upstream
       </div>
+=======
+      </section>
+
+      {/* Accessibility Toggle */}
+      <AccessibilityToggle />
+>>>>>>> Stashed changes
     </div>
   );
 };
