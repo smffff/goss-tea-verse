@@ -169,3 +169,6 @@ export const THEME_CONFIG = {
       primary: `0 0 30px ${BRAND_CONFIG.colors.primary}40`,
       accent: `0 0 30px ${BRAND_CONFIG.colors.accent}40`,
       orange: `0 0 30px ${BRAND_CONFIG.colors.orange}40`
+    }
+  }
+};
