@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,13 +12,14 @@ const BuyTeaCTA: React.FC = () => {
   const { toast } = useToast();
 
   // Contract address - replace with actual $TEA contract
-  const TEA_CONTRACT = "0x1234567890abcdef1234567890abcdef12345678";
+  const TEA_CONTRACT = "0x32ae402ce8a388a3f27a8668ad33bcf4cab4fadb";
   
   // Affiliate links - replace with your actual affiliate codes
   const AFFILIATE_LINKS = {
     arena: "https://arena.app/coin/tea?ref=cteanews",
     twitter: "https://twitter.com/cteanews",
-    arenaHome: "https://arena.app?ref=cteanews"
+    arenaHome: "https://arena.app?ref=cteanews",
+    dexscreener: "https://dexscreener.com/avalanche/0x116594bd6eb7c16570413e1ccc36f1fed38c0dff"
   };
 
   const handleRevealBuyOptions = () => {
@@ -129,6 +129,14 @@ const BuyTeaCTA: React.FC = () => {
                   >
                     <Trophy className="mr-3 w-5 h-5" />
                     Explore Arena
+                    <ExternalLink className="ml-3 w-4 h-4" />
+                  </Button>
+                  
+                  <Button
+                    onClick={() => openAffiliate('dexscreener')}
+                    className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold py-4 text-lg md:col-span-2"
+                  >
+                    📈 View $TEA Chart (AVAX)
                     <ExternalLink className="ml-3 w-4 h-4" />
                   </Button>
                 </div>

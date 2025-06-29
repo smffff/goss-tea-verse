@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { MinimalTipButton, InlineTipButton, DefaultTipButton } from '@/components/tip/TipButtonVariants';
@@ -19,9 +18,9 @@ const TipButton = ({
   const { toast } = useToast();
   
   // Real wallet addresses from your screenshots
-  const walletAddresses = {
-    ethereum: '0x223Ea393d1c83338ee1E81C298924eA2A28c656d',
-    avax: '0x223Ea393d1c83338ee1E81C298924eA2A28c656d',
+  const tipAddresses = {
+    ethereum: '0x32ae402ce8a388a3f27a8668ad33bcf4cab4fadb',
+    avax: '0x32ae402ce8a388a3f27a8668ad33bcf4cab4fadb',
     polygon: '0xCB9f62...6b77c9', // Same as ETH (EVM compatible)
     base: '0xCB9f62...6b77c9', // Same as ETH (EVM compatible)
     tron: 'TYqMDoQaqoAm6ttKbSKKVmbC2yt4YHq2nu',
@@ -30,7 +29,7 @@ const TipButton = ({
     sui: '0x161bc8...a40d44'
   };
 
-  const walletAddress = walletAddresses[network];
+  const walletAddress = tipAddresses[network];
 
   const copyToClipboard = async () => {
     try {

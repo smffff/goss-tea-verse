@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -45,8 +44,8 @@ const EnhancedTipModal: React.FC<EnhancedTipModalProps> = ({
 
   // Real wallet addresses from your screenshots
   const walletAddresses = {
-    ethereum: '0x223Ea393d1c83338ee1E81C298924eA2A28c656d',
-    avax: '0x223Ea393d1c83338ee1E81C298924eA2A28c656d',
+    ethereum: '0x32ae402ce8a388a3f27a8668ad33bcf4cab4fadb',
+    avax: '0x32ae402ce8a388a3f27a8668ad33bcf4cab4fadb',
     polygon: '0xCB9f62...6b77c9',
     base: '0xCB9f62...6b77c9',
     tron: 'TYqMDoQaqoAm6ttKbSKKVmbC2yt4YHq2nu',
@@ -55,7 +54,14 @@ const EnhancedTipModal: React.FC<EnhancedTipModalProps> = ({
     sui: '0x161bc8...a40d44'
   };
 
-  const walletAddress = walletAddresses[selectedNetwork as keyof typeof walletAddresses];
+  const tipAddresses = {
+    ethereum: '0x32ae402ce8a388a3f27a8668ad33bcf4cab4fadb',
+    avax: '0x32ae402ce8a388a3f27a8668ad33bcf4cab4fadb',
+  };
+
+  const walletAddress = (selectedNetwork === 'ethereum' || selectedNetwork === 'avax') 
+    ? tipAddresses[selectedNetwork as keyof typeof tipAddresses]
+    : walletAddresses[selectedNetwork as keyof typeof walletAddresses];
 
   const copyToClipboard = async () => {
     try {

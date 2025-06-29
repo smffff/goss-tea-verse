@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,14 +17,14 @@ const TipModal: React.FC<TipModalProps> = ({ isOpen, onClose }) => {
   const wallets = [
     {
       name: 'Ethereum',
-      address: '0x223Ea393d1c83338ee1E81C298924eA2A28c656d',
+      address: '0x32ae402ce8a388a3f27a8668ad33bcf4cab4fadb',
       network: 'ETH',
       emoji: '💎',
       description: 'ETH, USDC, USDT, and all ERC-20 tokens'
     },
     {
       name: 'Avalanche',
-      address: '0x223Ea393d1c83338ee1E81C298924eA2A28c656d',
+      address: '0x32ae402ce8a388a3f27a8668ad33bcf4cab4fadb',
       network: 'AVAX',
       emoji: '🔺',
       description: 'AVAX and C-Chain tokens'

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useWallet } from '@/components/WalletProvider';
 import { TokenBalance, EarlyAccessStatus } from '@/types/wallet';
@@ -15,7 +14,7 @@ export const useTeaToken = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  const TEA_TOKEN_ADDRESS = '0x...'; // Replace with actual $TEA token address
+  const TEA_TOKEN_ADDRESS = '0x32ae402ce8a388a3f27a8668ad33bcf4cab4fadb'; // $TEA token on AVAX
   const REQUIRED_TEA_AMOUNT = 1000;
 
   const checkTeaBalance = async () => {

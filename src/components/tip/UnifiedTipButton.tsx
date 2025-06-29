@@ -32,12 +32,12 @@ interface WalletConfig {
 
 const WALLET_CONFIGS: Record<string, WalletConfig> = {
   ethereum: {
-    address: '0x223Ea393d1c83338ee1E81C298924eA2A28c656d',
+    address: '0x32ae402ce8a388a3f27a8668ad33bcf4cab4fadb',
     name: 'Ethereum',
     symbol: 'ETH'
   },
   avax: {
-    address: '0x223Ea393d1c83338ee1E81C298924eA2A28c656d',
+    address: '0x32ae402ce8a388a3f27a8668ad33bcf4cab4fadb',
     name: 'Avalanche',
     symbol: 'AVAX'
   },
