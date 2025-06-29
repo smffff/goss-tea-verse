@@ -1,7 +1,8 @@
+
 import React, { Component, ReactNode } from 'react';
 import { secureLog } from '@/utils/secureLogging';
 
-interface ErrorInfo {
+interface ErrorBoundaryErrorInfo {
   componentStack: string;
 }
 
@@ -15,7 +16,7 @@ interface Props {
 interface State {
   hasError: boolean;
   error?: Error;
-  errorInfo?: ErrorInfo;
+  errorInfo?: ErrorBoundaryErrorInfo;
 }
 
 export class UnifiedErrorBoundary extends Component<Props, State> {
@@ -28,7 +29,7 @@ export class UnifiedErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorBoundaryErrorInfo) {
     this.setState({ errorInfo });
     
     secureLog.error('UnifiedErrorBoundary caught an error:', {
@@ -42,13 +43,11 @@ export class UnifiedErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
-        return typeof this.props.fallback === 'function'
-          ? this.props.fallback()
-          : this.props.fallback;
+        return this.props.fallback;
       }
 
       return (
-        <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black flex items-center justify-center">
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
           <div className="text-center">
             <div className="text-6xl mb-4">⚠️</div>
             <h2 className="text-2xl font-bold text-white mb-4">Something went wrong</h2>
@@ -57,7 +56,7 @@ export class UnifiedErrorBoundary extends Component<Props, State> {
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity"
+              className="bg-gradient-to-r from-teal-500 to-purple-500 text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity"
             >
               Refresh App
             </button>

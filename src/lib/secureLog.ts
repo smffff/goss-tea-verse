@@ -1,5 +1,5 @@
 
-// Alternative secure logging utility for compatibility
+// Secure logging utility
 export const secureLog = {
   info: (message: string, data?: any) => {
     if (process.env.NODE_ENV === 'development') {

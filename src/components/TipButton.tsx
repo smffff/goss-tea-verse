@@ -49,12 +49,18 @@ const TipButton = ({
     }
   };
 
+  const handleConnect = () => {
+    // Placeholder connect function
+    console.log('Connect wallet clicked');
+  };
+
   const commonProps = {
     walletAddress,
     copied,
     onCopy: copyToClipboard,
     network: network.toUpperCase(),
-    className
+    className,
+    onConnect: handleConnect
   };
 
   switch (variant) {
