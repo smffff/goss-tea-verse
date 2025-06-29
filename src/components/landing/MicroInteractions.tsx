@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Zap, Crown, Coffee } from 'lucide-react';

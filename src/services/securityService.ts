@@ -259,7 +259,7 @@ export class SecurityService {
       if (threatLevel === 'medium' || threatLevel === 'high' || threatLevel === 'critical') {
         await supabase.rpc('log_security_event', {
           event_type: eventType,
-          details: details as any,
+          details: JSON.stringify(details),
           severity: threatLevel
         });
       }
