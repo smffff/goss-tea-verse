@@ -1,35 +1,6 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
-
-// Define table names as a union type
-type TableName = 
-  | 'tea_submissions'
-  | 'user_reactions'
-  | 'tip_transactions'
-  | 'admin_audit_log'
-  | 'beta_codes'
-  | 'wallet_balances'
-  | 'tea_transactions'
-  | 'achievements'
-  | 'moderation_queue'
-  | 'feedback_submissions'
-  | 'notifications'
-  | 'chat_rooms'
-  | 'messages'
-  | 'evidence_ratings'
-  | 'user_roles'
-  | 'user_profiles'
-  | 'content_flags'
-  | 'spam_reports'
-  | 'security_events'
-  | 'performance_metrics'
-  | 'api_usage'
-  | 'error_logs'
-  | 'analytics_events'
-  | 'user_sessions'
-  | 'content_moderation'
-  | 'rate_limits'
-  | 'cache_entries';
 
 // Base service class with common functionality
 export abstract class BaseService {
@@ -70,48 +41,45 @@ export abstract class BaseService {
   }
 }
 
-// Generic CRUD service with proper typing
-export class CrudService<T extends { id: string | number }> extends BaseService {
-  constructor(
-    private tableName: TableName,
-    private idField: keyof T = 'id' as keyof T
-  ) {
+// Simplified CRUD service
+export class CrudService extends BaseService {
+  constructor(private tableName: string) {
     super();
   }
 
-  async create(data: Omit<T, typeof this.idField>): Promise<T> {
+  async create(data: Record<string, any>): Promise<any> {
     try {
       const { data: result, error } = await supabase
         .from(this.tableName)
-        .insert(data as any)
+        .insert(data)
         .select()
         .single();
 
       if (error) this.handleSupabaseError(error);
-      return result as T;
+      return result;
     } catch (error) {
       this.logError('Create operation failed', error);
       throw error;
     }
   }
 
-  async getById(id: string | number): Promise<T | null> {
+  async getById(id: string | number): Promise<any> {
     try {
       const { data, error } = await supabase
         .from(this.tableName)
         .select('*')
-        .eq(this.idField as string, id)
+        .eq('id', id)
         .single();
 
       if (error && error.code !== 'PGRST116') this.handleSupabaseError(error);
-      return data as T;
+      return data;
     } catch (error) {
       this.logError('Get by ID operation failed', error);
       throw error;
     }
   }
 
-  async getAll(filters?: Record<string, any>): Promise<T[]> {
+  async getAll(filters?: Record<string, any>): Promise<any[]> {
     try {
       let query = supabase.from(this.tableName).select('*');
       
@@ -123,24 +91,24 @@ export class CrudService<T extends { id: string | number }> extends BaseService 
 
       const { data, error } = await query;
       if (error) this.handleSupabaseError(error);
-      return (data || []) as T[];
+      return data || [];
     } catch (error) {
       this.logError('Get all operation failed', error);
       throw error;
     }
   }
 
-  async update(id: string | number, updates: Partial<T>): Promise<T> {
+  async update(id: string | number, updates: Record<string, any>): Promise<any> {
     try {
       const { data, error } = await supabase
         .from(this.tableName)
-        .update(updates as any)
-        .eq(this.idField as string, id)
+        .update(updates)
+        .eq('id', id)
         .select()
         .single();
 
       if (error) this.handleSupabaseError(error);
-      return data as T;
+      return data;
     } catch (error) {
       this.logError('Update operation failed', error);
       throw error;
@@ -152,30 +120,11 @@ export class CrudService<T extends { id: string | number }> extends BaseService 
       const { error } = await supabase
         .from(this.tableName)
         .delete()
-        .eq(this.idField as string, id);
+        .eq('id', id);
 
       if (error) this.handleSupabaseError(error);
     } catch (error) {
       this.logError('Delete operation failed', error);
-      throw error;
-    }
-  }
-
-  async count(filters?: Record<string, any>): Promise<number> {
-    try {
-      let query = supabase.from(this.tableName).select('*', { count: 'exact', head: true });
-      
-      if (filters) {
-        Object.entries(filters).forEach(([key, value]) => {
-          query = query.eq(key, value);
-        });
-      }
-
-      const { count, error } = await query;
-      if (error) this.handleSupabaseError(error);
-      return count || 0;
-    } catch (error) {
-      this.logError('Count operation failed', error);
       throw error;
     }
   }
@@ -233,194 +182,16 @@ export class AuthService extends BaseService {
       throw error;
     }
   }
-
-  async resetPassword(email: string) {
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
-      if (error) this.handleSupabaseError(error);
-    } catch (error) {
-      this.logError('Password reset failed', error);
-      throw error;
-    }
-  }
-}
-
-// File upload service
-export class FileUploadService extends BaseService {
-  async uploadFile(
-    bucket: string,
-    path: string,
-    file: File,
-    options?: {
-      cacheControl?: string;
-      upsert?: boolean;
-    }
-  ) {
-    try {
-      const { data, error } = await supabase.storage
-        .from(bucket)
-        .upload(path, file, options);
-
-      if (error) this.handleSupabaseError(error);
-      return data;
-    } catch (error) {
-      this.logError('File upload failed', error);
-      throw error;
-    }
-  }
-
-  async getPublicUrl(bucket: string, path: string) {
-    try {
-      const { data } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(path);
-
-      return data.publicUrl;
-    } catch (error) {
-      this.logError('Get public URL failed', error);
-      throw error;
-    }
-  }
-
-  async deleteFile(bucket: string, path: string) {
-    try {
-      const { error } = await supabase.storage
-        .from(bucket)
-        .remove([path]);
-
-      if (error) this.handleSupabaseError(error);
-    } catch (error) {
-      this.logError('File deletion failed', error);
-      throw error;
-    }
-  }
-}
-
-// Rate limiting service
-export class RateLimitService extends BaseService {
-  private limits = new Map<string, { count: number; resetTime: number }>();
-
-  async checkRateLimit(
-    key: string,
-    limit: number,
-    windowMs: number
-  ): Promise<{ allowed: boolean; remaining: number; resetTime: number }> {
-    const now = Date.now();
-    const current = this.limits.get(key);
-
-    if (!current || now > current.resetTime) {
-      // Reset or create new limit
-      this.limits.set(key, {
-        count: 1,
-        resetTime: now + windowMs
-      });
-      return { allowed: true, remaining: limit - 1, resetTime: now + windowMs };
-    }
-
-    if (current.count >= limit) {
-      return { allowed: false, remaining: 0, resetTime: current.resetTime };
-    }
-
-    // Increment count
-    current.count++;
-    this.limits.set(key, current);
-
-    return { 
-      allowed: true, 
-      remaining: limit - current.count, 
-      resetTime: current.resetTime 
-    };
-  }
-
-  async resetRateLimit(key: string): Promise<void> {
-    this.limits.delete(key);
-  }
-}
-
-// Cache service
-export class CacheService extends BaseService {
-  private cache = new Map<string, { data: any; expiry: number }>();
-
-  set(key: string, data: any, ttlMs: number = 5 * 60 * 1000): void {
-    const expiry = Date.now() + ttlMs;
-    this.cache.set(key, { data, expiry });
-  }
-
-  get<T>(key: string): T | null {
-    const item = this.cache.get(key);
-    if (!item) return null;
-
-    if (Date.now() > item.expiry) {
-      this.cache.delete(key);
-      return null;
-    }
-
-    return item.data as T;
-  }
-
-  delete(key: string): void {
-    this.cache.delete(key);
-  }
-
-  clear(): void {
-    this.cache.clear();
-  }
-
-  // Clean up expired entries
-  cleanup(): void {
-    const now = Date.now();
-    for (const [key, item] of this.cache.entries()) {
-      if (now > item.expiry) {
-        this.cache.delete(key);
-      }
-    }
-  }
-}
-
-// Analytics service
-export class AnalyticsService extends BaseService {
-  async trackEvent(
-    event: string,
-    properties?: Record<string, any>,
-    userId?: string
-  ) {
-    try {
-      // Send to Supabase analytics table
-      const { error } = await supabase
-        .from('analytics_events')
-        .insert({
-          event,
-          properties: properties || {},
-          user_id: userId,
-          timestamp: new Date().toISOString()
-        });
-
-      if (error) this.logError('Analytics tracking failed', error);
-      
-      // Could also send to external analytics services here
-      this.logInfo('Event tracked', { event, properties, userId });
-    } catch (error) {
-      this.logError('Analytics tracking failed', error);
-    }
-  }
-
-  async trackPageView(page: string, userId?: string) {
-    await this.trackEvent('page_view', { page }, userId);
-  }
-
-  async trackUserAction(action: string, properties?: Record<string, any>, userId?: string) {
-    await this.trackEvent('user_action', { action, ...properties }, userId);
-  }
 }
 
 // Export service instances
 export const authService = new AuthService();
-export const fileUploadService = new FileUploadService();
-export const rateLimitService = new RateLimitService();
-export const cacheService = new CacheService();
-export const analyticsService = new AnalyticsService();
+export const teaSubmissionsService = new CrudService('tea_submissions');
+export const betaCodesService = new CrudService('beta_codes');
 
-// Export generic CRUD services for common tables
-export const teaSubmissionsService = new CrudService<any>('tea_submissions');
-export const betaCodesService = new CrudService<any>('beta_codes');
-export const usersService = new CrudService<any>('users'); 
+// Export the main UnifiedService as a namespace
+export const UnifiedService = {
+  auth: authService,
+  teaSubmissions: teaSubmissionsService,
+  betaCodes: betaCodesService
+};

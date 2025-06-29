@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,7 +35,7 @@ const BetaCodeTester: React.FC = () => {
       setResult(validation);
     } catch (error) {
       console.error('Beta code test error:', error);
-      setResult({ error: error.message, stack: error.stack });
+      setResult({ error: error instanceof Error ? error.message : 'Unknown error', stack: error instanceof Error ? error.stack : undefined });
     } finally {
       setLoading(false);
     }
@@ -58,7 +59,7 @@ const BetaCodeTester: React.FC = () => {
       
     } catch (error) {
       console.error('Supabase connection test error:', error);
-      setConnectionTest({ error: error.message, stack: error.stack });
+      setConnectionTest({ error: error instanceof Error ? error.message : 'Unknown error', stack: error instanceof Error ? error.stack : undefined });
     } finally {
       setLoading(false);
     }
@@ -74,7 +75,7 @@ const BetaCodeTester: React.FC = () => {
     try {
       setTestCode(config.code);
       const validation = await betaCodeService.validateCode(config.code);
-      const success = validation === config.expectedResult;
+      const success = Boolean(validation) === config.expectedResult;
       return {
         success,
         message: success ? 'Test passed' : 'Test failed',

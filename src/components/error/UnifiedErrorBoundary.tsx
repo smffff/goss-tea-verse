@@ -1,227 +1,44 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { 
-  AlertTriangle, 
-  RefreshCw, 
-  Home, 
-  Bug, 
-  Send,
-  Copy,
-  CheckCircle,
-  RefreshCcw
-} from 'lucide-react';
-import { secureLog } from '@/utils/secureLogging';
 
-// Local error reporting function
-const reportError = (errorData: {
-  error: Error;
-  errorInfo: any;
-  componentName: string;
-  errorId: string;
-  mode: string;
-}) => {
-  // Log to console in development
-  if (process.env.NODE_ENV === 'development') {
-    console.error('Error reported:', errorData);
-  }
-  
-  // Log to secure logging
-  secureLog.error(`Error in ${errorData.componentName}:`, {
-    error: errorData.error,
-    errorInfo: errorData.errorInfo,
-    errorId: errorData.errorId,
-    mode: errorData.mode
-  });
-  
-  // In production, you would send this to an error reporting service
-  // like Sentry, LogRocket, etc.
-};
+import React, { Component, ReactNode } from 'react';
+import { secureLog } from '@/utils/secureLogging';
 
 interface ErrorInfo {
   componentStack: string;
 }
 
-interface ErrorBoundaryProps {
+interface Props {
   children: ReactNode;
-  fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
   componentName?: string;
-  showRetry?: boolean;
-  mode?: 'production' | 'development' | 'debug';
-  className?: string;
+  mode?: 'development' | 'production';
+  fallback?: ReactNode;
 }
 
-interface ErrorBoundaryState {
+interface State {
   hasError: boolean;
   error?: Error;
   errorInfo?: ErrorInfo;
-  errorId: string;
-  showFeedbackModal: boolean;
 }
 
-export class UnifiedErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
+export class UnifiedErrorBoundary extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
-    this.state = { 
-      hasError: false, 
-      errorId: this.generateErrorId(),
-      showFeedbackModal: false
-    };
+    this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
+  static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    const { onError, componentName, mode } = this.props;
-    
-    // Log error
-    secureLog.error(`Error in ${componentName || 'Component'}:`, { error, errorInfo });
-    
-    // Report to error service
-    reportError({
-      error,
-      errorInfo,
-      componentName: componentName || 'Unknown',
-      errorId: this.state.errorId,
-      mode: mode || 'production'
-    });
-
-    // Call custom error handler
-    if (onError) {
-      onError(error, errorInfo);
-    }
-
     this.setState({ errorInfo });
-  }
-
-  private generateErrorId = (): string => {
-    return `err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  };
-
-  private handleRetry = () => {
-    this.setState({ 
-      hasError: false, 
-      error: undefined, 
-      errorInfo: undefined,
-      errorId: this.generateErrorId()
-    });
-  };
-
-  private handleReload = () => {
-    window.location.reload();
-  };
-
-  private handleCopyError = async () => {
-    const errorDetails = `Error ID: ${this.state.errorId}\nComponent: ${this.props.componentName || 'Unknown'}\nError: ${this.state.error?.message || 'Unknown error'}\n\nStack Trace:\n${this.state.error?.stack || 'No stack trace'}\n\nComponent Stack:\n${this.state.errorInfo?.componentStack || 'No component stack'}`;
     
-    try {
-      await navigator.clipboard.writeText(errorDetails);
-      // Could add toast notification here
-    } catch (error) {
-      console.error('Failed to copy error details:', error);
-    }
-  };
-
-  private renderProductionFallback = () => (
-    <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black flex items-center justify-center p-4">
-      <Card className="bg-ctea-dark/90 backdrop-blur-lg border border-red-500/30 rounded-lg p-8 max-w-lg w-full">
-        <CardContent className="text-center space-y-6">
-          <div className="text-6xl mb-4">🫖</div>
-          <h2 className="text-2xl font-bold text-white mb-4">Oops! Tea Spilled</h2>
-          <p className="text-gray-300 mb-6">
-            Something went wrong, but don't worry - we're cleaning up the mess!
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button
-              onClick={this.handleRetry}
-              className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white"
-            >
-              <RefreshCcw className="w-4 h-4 mr-2" />
-              Try Again
-            </Button>
-            <Button
-              variant="outline"
-              onClick={this.handleReload}
-              className="border-gray-600 text-gray-300 hover:bg-gray-700"
-            >
-              <Home className="w-4 h-4 mr-2" />
-              Go Home
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  private renderDevelopmentFallback = () => (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-ctea-dark">
-      <Card className="max-w-2xl w-full p-8 bg-ctea-dark/90 border-red-500/30">
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <AlertTriangle className="w-8 h-8 text-red-500" />
-            <h2 className="text-2xl font-bold text-white">
-              Development Error
-            </h2>
-            <Badge variant="destructive">DEV</Badge>
-          </div>
-          
-          <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
-            <p className="text-sm text-red-300 font-mono break-words mb-2">
-              {this.state.error?.message || 'Unknown error occurred'}
-            </p>
-            {this.props.componentName && (
-              <p className="text-xs text-red-400">
-                Component: {this.props.componentName}
-              </p>
-            )}
-            <p className="text-xs text-red-400 mt-2">
-              Error ID: {this.state.errorId}
-            </p>
-          </div>
-
-          {this.state.error?.stack && (
-            <details className="text-left">
-              <summary className="text-sm text-red-300 cursor-pointer mb-2">Stack Trace</summary>
-              <pre className="text-xs text-red-300 whitespace-pre-wrap overflow-auto max-h-32 bg-red-900/20 p-2 rounded">
-                {this.state.error.stack}
-              </pre>
-            </details>
-          )}
-
-          <div className="flex flex-wrap gap-3">
-            <Button
-              onClick={this.handleRetry}
-              className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white"
-            >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Try Again
-            </Button>
-            <Button
-              variant="outline"
-              onClick={this.handleCopyError}
-              className="border-gray-600 text-gray-300 hover:bg-gray-700"
-            >
-              <Copy className="w-4 h-4 mr-2" />
-              Copy Error
-            </Button>
-            <Button
-              variant="outline"
-              onClick={this.handleReload}
-              className="border-gray-600 text-gray-300 hover:bg-gray-700"
-            >
-              <Home className="w-4 h-4 mr-2" />
-              Reload
-            </Button>
-          </div>
-        </div>
-      </Card>
-    </div>
-  );
+    secureLog.error('UnifiedErrorBoundary caught an error:', {
+      error: error.message,
+      stack: error.stack,
+      componentStack: errorInfo.componentStack,
+      componentName: this.props.componentName
+    });
+  }
 
   render() {
     if (this.state.hasError) {
@@ -229,21 +46,27 @@ export class UnifiedErrorBoundary extends Component<ErrorBoundaryProps, ErrorBou
         return this.props.fallback;
       }
 
-      const { mode = 'production' } = this.props;
-
-      switch (mode) {
-        case 'development':
-          return this.renderDevelopmentFallback();
-        case 'debug':
-          return this.renderDevelopmentFallback();
-        case 'production':
-        default:
-          return this.renderProductionFallback();
-      }
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-6xl mb-4">⚠️</div>
+            <h2 className="text-2xl font-bold text-white mb-4">Something went wrong</h2>
+            <p className="text-gray-400 mb-6">
+              {this.props.mode === 'development' ? this.state.error?.message : 'The app encountered an error and needs to be refreshed.'}
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity"
+            >
+              Refresh App
+            </button>
+          </div>
+        </div>
+      );
     }
 
     return this.props.children;
   }
 }
 
-export default UnifiedErrorBoundary; 
+export default UnifiedErrorBoundary;
