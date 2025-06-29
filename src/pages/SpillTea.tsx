@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -23,7 +24,7 @@ const SpillTea = () => {
                        (user as any)?.anonymous_token;
   const userId = user?.id;
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: any): Promise<{ success: boolean; error?: string }> => {
     setIsSubmitting(true);
     
     try {
@@ -45,6 +46,8 @@ const SpillTea = () => {
       
       // Navigate to feed after submission
       navigate('/feed');
+      
+      return { success: true };
     } catch (error) {
       secureLog.error('Submission error:', error);
       toast({
@@ -52,6 +55,7 @@ const SpillTea = () => {
         description: "There was an error submitting your tea. Please try again.",
         variant: "destructive"
       });
+      return { success: false, error: 'Submission failed' };
     } finally {
       setIsSubmitting(false);
     }

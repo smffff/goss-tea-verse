@@ -1,12 +1,11 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/useAuth';
+import { authenticateUser, createUser } from '@/services/authService';
 import AccessLevelIndicator from '../AccessLevelIndicator';
-import { getErrorMessage } from '@/utils/authErrorHandler';
-import { secureLog } from '@/utils/secureLogging';
 
 interface AuthTabProps {
   onAccessGranted: (level: 'guest' | 'authenticated' | 'beta' | 'admin') => void;
@@ -14,20 +13,6 @@ interface AuthTabProps {
   setIsProcessing: (processing: boolean) => void;
   error: string;
   setError: (error: string) => void;
-}
-
-interface AuthFormData {
-  email: string;
-  password: string;
-}
-
-interface AuthResponse {
-  success: boolean;
-  error?: string;
-  user?: {
-    id: string;
-    email: string;
-  };
 }
 
 const AuthTab: React.FC<AuthTabProps> = ({ 
@@ -40,20 +25,6 @@ const AuthTab: React.FC<AuthTabProps> = ({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { toast } = useToast();
-  const { signIn, signUp } = useAuth();
-
-  const handleAuthSubmit = async (formData: AuthFormData): Promise<AuthResponse> => {
-    try {
-      // Handle authentication logic here
-      const response = await authenticateUser(formData);
-      return response;
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Authentication failed'
-      };
-    }
-  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,20 +32,21 @@ const AuthTab: React.FC<AuthTabProps> = ({
     setError('');
 
     try {
-      const result = await signIn(email, password);
+      const result = await authenticateUser(email, password);
       if (result.success) {
         localStorage.setItem('ctea-access-level', 'authenticated');
         toast({
-          title: "Welcome back! 🫖",
-          description: "Successfully signed in to CTea",
+          title: "Welcome back! ☕",
+          description: "You're now logged into CTea Newsroom",
         });
         onAccessGranted('authenticated');
       } else {
-        setError(result.error || 'Sign in failed');
+        const errorMessage = typeof result.error === 'string' ? result.error : 'Login failed';
+        setError(errorMessage);
       }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Sign in failed';
-      setError(errorMessage);
+    } catch (error: any) {
+      console.error('Login error:', error);
+      setError('Login failed - probably my code acting up again 🙄');
     } finally {
       setIsProcessing(false);
     }
@@ -86,20 +58,21 @@ const AuthTab: React.FC<AuthTabProps> = ({
     setError('');
 
     try {
-      const result = await signUp(email, password);
+      const result = await createUser(email, password);
       if (result.success) {
         toast({
-          title: "Welcome to CTea! 🫖",
-          description: "Your account has been created successfully",
+          title: "Account Created! 🎉",
+          description: "Welcome to CTea! Check your email to verify your account.",
         });
         localStorage.setItem('ctea-access-level', 'authenticated');
         onAccessGranted('authenticated');
       } else {
-        setError(result.error || 'Sign up failed');
+        const errorMessage = typeof result.error === 'string' ? result.error : 'Signup failed';
+        setError(errorMessage);
       }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Sign up failed';
-      setError(errorMessage);
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      setError('Signup failed - this is awkward but we\'ll figure it out 💅');
     } finally {
       setIsProcessing(false);
     }
