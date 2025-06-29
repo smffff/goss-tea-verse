@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -41,16 +42,18 @@ const SpillTeaModal: React.FC<SpillTeaModalProps> = ({
     setIsSubmitting(true);
 
     try {
+      // Generate anonymous token for submission
+      const anonymousToken = crypto.randomUUID();
+
       const { data, error } = await supabase
         .from('tea_submissions')
-        .insert([
-          {
-            content: formData.content.trim(),
-            category: formData.category,
-            status: 'approved',
-            reactions: { hot: 0, cold: 0, spicy: 0 }
-          }
-        ])
+        .insert({
+          content: formData.content.trim(),
+          category: formData.category,
+          status: 'approved',
+          reactions: { hot: 0, cold: 0, spicy: 0 },
+          anonymous_token: anonymousToken
+        })
         .select()
         .single();
 

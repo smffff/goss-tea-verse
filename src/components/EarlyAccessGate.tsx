@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -112,7 +113,7 @@ const EarlyAccessGate: React.FC<EarlyAccessGateProps> = ({
         {!wallet.isConnected && (
           <div className="pt-4">
             <Button 
-              onClick={() => connectWallet('metamask')}
+              onClick={() => connectWallet()}
               className="bg-gradient-to-r from-ctea-teal to-ctea-purple text-white"
             >
               Connect Wallet to Check Access
