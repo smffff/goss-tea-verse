@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import EnhancedHero from '@/components/landing/EnhancedHero';
@@ -54,7 +53,7 @@ const Landing: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0D0D0D] via-[#4A1A4A] to-[#050505] flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-bg via-[#4A1A4A] to-[#050505] flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -67,10 +66,10 @@ const Landing: React.FC = () => {
           >
             🫖
           </motion.div>
-          <h2 className="text-2xl font-gothic font-bold text-[#00FF9D] mb-2">
+          <h2 className="text-2xl font-retro font-bold text-accent mb-2">
             Brewing Maximum Chaos...
           </h2>
-          <p className="text-white/70 font-cyber">
+          <p className="text-text/70 font-cyber">
             Loading the hottest gossip platform
           </p>
         </motion.div>
@@ -112,7 +111,7 @@ const Landing: React.FC = () => {
       {/* Enhanced Success Animation Overlay */}
       {hasAccess && (
         <motion.div
-          className="fixed inset-0 bg-gradient-to-r from-[#00FF9D] to-[#FF1E8B] flex items-center justify-center z-50"
+          className="fixed inset-0 bg-gradient-to-r from-accent to-brand flex items-center justify-center z-50"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 1.2 }}
@@ -134,10 +133,10 @@ const Landing: React.FC = () => {
             >
               🫖
             </motion.div>
-            <h2 className="text-5xl md:text-6xl font-gothic font-bold text-black mb-4">
+            <h2 className="text-5xl md:text-6xl font-retro font-bold text-bg mb-4">
               Welcome to the Chaos Zone!
             </h2>
-            <p className="text-2xl text-black/80 font-cyber mb-4">
+            <p className="text-2xl text-bg/80 font-cyber mb-4">
               Redirecting to the spiciest gossip feed...
             </p>
             <motion.div
@@ -152,17 +151,17 @@ const Landing: React.FC = () => {
       )}
 
       {/* Enhanced Footer */}
-      <footer className="mt-20 border-t border-[#00FF9D]/20 bg-black/60 backdrop-blur-lg">
+      <footer className="mt-20 border-t border-accent/20 bg-bg/60 backdrop-blur-lg">
         <div className="container mx-auto px-4 py-12">
           <div className="text-center space-y-6">
             <motion.p 
-              className="text-white/70 text-lg font-cyber"
+              className="text-text/70 text-lg font-cyber"
               animate={{ opacity: [0.7, 1, 0.7] }}
               transition={{ duration: 3, repeat: Infinity }}
             >
               © 2024 CTea Newsroom. Brewing chaos, spilling tea, stacking clout.
             </motion.p>
-            <div className="flex flex-wrap justify-center gap-8 text-white/50 font-cyber">
+            <div className="flex flex-wrap justify-center gap-8 text-text/50 font-cyber">
               <span className="flex items-center">
                 🔐 <span className="ml-1">Anonymous First</span>
               </span>
@@ -177,12 +176,12 @@ const Landing: React.FC = () => {
               </span>
             </div>
             <motion.p 
-              className="text-lg text-[#00FF9D] font-bold font-cyber"
+              className="text-lg text-accent font-bold font-cyber"
               animate={{ 
                 textShadow: [
-                  '0 0 10px #00FF9D60',
-                  '0 0 20px #00FF9D80',
-                  '0 0 10px #00FF9D60'
+                  '0 0 10px #00FFE060',
+                  '0 0 20px #00FFE080',
+                  '0 0 10px #00FFE060'
                 ]
               }}
               transition={{ duration: 2, repeat: Infinity }}

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -95,10 +94,10 @@ const BetaAccess: React.FC<BetaAccessProps> = ({ onAccessGranted }) => {
             >
               <div className="text-6xl">🔐</div>
             </motion.div>
-            <h2 className="text-4xl md:text-5xl font-gothic font-bold mb-4 bg-gradient-to-r from-[#FF1E8B] via-[#00FF9D] to-[#FFFF00] bg-clip-text text-transparent">
+            <h2 className="text-4xl md:text-5xl font-retro font-bold mb-4 bg-gradient-to-r from-brand via-accent to-brand bg-clip-text text-transparent">
               Choose Your Entry Method
             </h2>
-            <p className="text-lg text-white/80 font-cyber">
+            <p className="text-lg text-text/80 font-cyber">
               Multiple ways in, but only one leads to legendary status
             </p>
           </div>
@@ -106,22 +105,22 @@ const BetaAccess: React.FC<BetaAccessProps> = ({ onAccessGranted }) => {
           {/* Access Methods */}
           <div className="space-y-6">
             {/* VIP Wallet Connect */}
-            <Card className="glass-morphism border-2 border-[#FFFF00]/30 animate-pulse-glow">
+            <Card className="border-2 border-accent/30 bg-[#14141f]/80 backdrop-blur-sm animate-pulse-glow">
               <CardHeader className="text-center">
-                <CardTitle className="text-white flex items-center justify-center gap-2">
-                  <Crown className="w-6 h-6 text-[#FFFF00]" />
+                <CardTitle className="text-text flex items-center justify-center gap-2">
+                  <Crown className="w-6 h-6 text-accent" />
                   VIP Wallet Access
-                  <Badge className="bg-[#FFFF00] text-black text-xs">RECOMMENDED</Badge>
+                  <Badge className="bg-accent text-bg text-xs font-retro">RECOMMENDED</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-center text-white/70 font-cyber">
+                <p className="text-center text-text/70 font-cyber">
                   Connect your wallet for instant VIP access + early token rewards
                 </p>
                 <Button
                   onClick={handleWalletConnect}
                   disabled={walletConnecting}
-                  className="w-full bg-gradient-to-r from-[#FFFF00] to-[#00FF9D] hover:from-[#00FF9D] hover:to-[#FFFF00] text-black font-bold py-4 text-lg font-cyber"
+                  className="w-full bg-gradient-to-r from-accent to-brand hover:from-brand hover:to-accent text-bg font-bold py-4 text-lg font-retro"
                 >
                   {walletConnecting ? (
                     <div className="flex items-center">
@@ -139,10 +138,10 @@ const BetaAccess: React.FC<BetaAccessProps> = ({ onAccessGranted }) => {
             </Card>
 
             {/* Beta Code Access */}
-            <Card className="glass-morphism border-2 border-[#FF1E8B]/30">
+            <Card className="border-2 border-brand/30 bg-[#14141f]/80 backdrop-blur-sm">
               <CardHeader className="text-center">
-                <CardTitle className="text-white flex items-center justify-center gap-2">
-                  <Lock className="w-5 h-5 text-[#FF1E8B]" />
+                <CardTitle className="text-text flex items-center justify-center gap-2">
+                  <Lock className="w-5 h-5 text-brand" />
                   Exclusive Beta Code
                 </CardTitle>
               </CardHeader>
@@ -150,13 +149,13 @@ const BetaAccess: React.FC<BetaAccessProps> = ({ onAccessGranted }) => {
                 <div className="space-y-2">
                   <Input
                     type="text"
-                    placeholder="Enter your exclusive beta code..."
+                    placeholder="Enter beta code"
                     value={betaCode}
                     onChange={(e) => setBetaCode(e.target.value)}
-                    className="bg-black/50 border-[#FF1E8B]/30 text-white placeholder-gray-400 focus:border-[#FF1E8B] font-mono text-center text-lg font-cyber"
+                    className="bg-bg/50 border-brand/30 text-text placeholder-text/40 focus:border-brand focus:ring-brand/20 font-retro text-center text-lg"
                     onKeyPress={(e) => e.key === 'Enter' && handleBetaAccess()}
                   />
-                  <p className="text-xs text-gray-400 text-center font-cyber">
+                  <p className="text-xs text-text/40 text-center font-cyber">
                     Got a code from the CTea crew? This is your golden ticket
                   </p>
                 </div>
@@ -164,7 +163,7 @@ const BetaAccess: React.FC<BetaAccessProps> = ({ onAccessGranted }) => {
                 <Button
                   onClick={handleBetaAccess}
                   disabled={isValidating}
-                  className="w-full bg-gradient-to-r from-[#FF1E8B] to-[#8A2BE2] hover:from-[#8A2BE2] hover:to-[#FF1E8B] text-white font-bold py-3 font-cyber"
+                  className="w-full bg-gradient-to-r from-brand to-accent hover:from-accent hover:to-brand text-bg font-bold py-3 font-retro"
                 >
                   {isValidating ? (
                     <div className="flex items-center">
@@ -179,17 +178,17 @@ const BetaAccess: React.FC<BetaAccessProps> = ({ onAccessGranted }) => {
             </Card>
 
             {/* Demo Access */}
-            <Card className="glass-morphism border-2 border-[#8A2BE2]/30">
+            <Card className="border-2 border-accent/30 bg-[#14141f]/80 backdrop-blur-sm">
               <CardContent className="pt-6 space-y-4">
                 <div className="text-center">
-                  <h3 className="text-white font-bold mb-2 font-cyber">Just Want to Browse?</h3>
-                  <p className="text-sm text-white/60 mb-4 font-cyber">
+                  <h3 className="text-text font-bold mb-2 font-retro">Just Want to Browse?</h3>
+                  <p className="text-sm text-text/60 mb-4 font-cyber">
                     Check out the demo with sample tea spillage
                   </p>
                   <Button
                     onClick={handleDemoMode}
                     variant="outline"
-                    className="border-[#8A2BE2]/50 text-[#8A2BE2] hover:bg-[#8A2BE2]/10 font-cyber"
+                    className="border-accent/50 text-accent hover:bg-accent/10 font-retro"
                   >
                     <Eye className="w-4 h-4 mr-2" />
                     Enter Demo Mode
@@ -199,18 +198,18 @@ const BetaAccess: React.FC<BetaAccessProps> = ({ onAccessGranted }) => {
             </Card>
           </div>
 
-          {/* Bottom Notice */}
+          {/* Enhanced Footer Note */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
-            className="text-center mt-8 space-y-2"
+            className="mt-12 text-center"
           >
-            <p className="text-sm text-white/60 font-cyber">
-              🔥 Limited beta spots available • First come, first served
+            <p className="text-text/60 font-cyber text-sm">
+              🔥 Join 1,337+ anonymous tea spillers brewing maximum chaos
             </p>
-            <p className="text-xs text-[#00FF9D] font-bold">
-              Early access = Early token rewards = Early retirement (maybe)
+            <p className="text-accent font-bold text-xs mt-2 font-retro">
+              Beta 1.2 • Where Crypto Twitter Goes to Confess Their Sins
             </p>
           </motion.div>
         </motion.div>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -39,7 +38,7 @@ const EnhancedHero: React.FC<EnhancedHeroProps> = ({ onEnterClick }) => {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center relative overflow-hidden px-4">
+    <section className="min-h-screen flex items-center justify-center relative overflow-hidden px-4 bg-gradient-to-br from-[#1F003B] via-[#0E0E16] to-[#29001C]">
       {/* Enhanced Particle System */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Chaotic Tea Particles */}
@@ -73,7 +72,7 @@ const EnhancedHero: React.FC<EnhancedHeroProps> = ({ onEnterClick }) => {
 
       {/* Main Hero Content */}
       <div className="container mx-auto max-w-6xl text-center relative z-10">
-        {/* Enhanced Animated Tea Cup Logo */}
+        {/* CTea Logo */}
         <motion.div
           initial={{ opacity: 0, scale: 0.7 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -81,16 +80,16 @@ const EnhancedHero: React.FC<EnhancedHeroProps> = ({ onEnterClick }) => {
           className="mb-12 relative"
         >
           <div className="relative inline-block">
-            <motion.div 
-              className="text-9xl md:text-[12rem] filter drop-shadow-2xl"
+            <motion.img 
+              src="/assets/logo-ctea-spill.svg"
+              alt="CTea Newsroom Logo"
+              className="w-32 h-32 md:w-48 md:h-48 filter drop-shadow-2xl"
               animate={{
                 y: [0, -8, 0],
                 rotate: [0, 2, -2, 0]
               }}
               transition={{ duration: 4, repeat: Infinity }}
-            >
-              🫖
-            </motion.div>
+            />
             
             {/* Dramatic Steam Animation */}
             <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
@@ -121,7 +120,7 @@ const EnhancedHero: React.FC<EnhancedHeroProps> = ({ onEnterClick }) => {
               <motion.div
                 className="absolute bottom-0 left-1/2 w-3 rounded-full"
                 style={{
-                  background: 'linear-gradient(to bottom, transparent, #00FF9D, #FF1E8B)',
+                  background: 'linear-gradient(to bottom, transparent, #00FFE0, #FF4EAF)',
                   transformOrigin: 'top center'
                 }}
                 initial={{ height: 0, opacity: 1 }}
@@ -138,9 +137,9 @@ const EnhancedHero: React.FC<EnhancedHeroProps> = ({ onEnterClick }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.3 }}
         >
-          <h1 className="hero-title text-7xl md:text-9xl lg:text-[12rem] font-gothic font-bold mb-8 leading-none">
+          <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-retro font-bold mb-8 leading-none text-text">
             <motion.span 
-              className="bg-gradient-to-r from-[#FF1E8B] via-[#00FF9D] to-[#FFFF00] bg-clip-text text-transparent"
+              className="bg-gradient-to-r from-brand via-accent to-brand bg-clip-text text-transparent"
               animate={{
                 backgroundPosition: ['0%', '100%', '0%']
               }}
@@ -150,7 +149,7 @@ const EnhancedHero: React.FC<EnhancedHeroProps> = ({ onEnterClick }) => {
             </motion.span>
             <br />
             <motion.span 
-              className="bg-gradient-to-r from-[#00FF9D] via-[#8A2BE2] to-[#FF1E8B] bg-clip-text text-transparent"
+              className="bg-gradient-to-r from-accent via-brand to-accent bg-clip-text text-transparent"
               animate={{
                 backgroundPosition: ['100%', '0%', '100%']
               }}
@@ -169,155 +168,96 @@ const EnhancedHero: React.FC<EnhancedHeroProps> = ({ onEnterClick }) => {
           className="mb-12"
         >
           <motion.p 
-            className="hero-subtitle text-4xl md:text-5xl font-cyber font-bold mb-6"
+            className="text-2xl md:text-3xl font-cyber font-bold mb-6 text-text"
             animate={{
               textShadow: [
-                '0 0 30px #00FF9D60',
-                '0 0 50px #FF1E8B80',
-                '0 0 30px #00FF9D60'
+                '0 0 30px #00FFE060',
+                '0 0 50px #FF4EAF80',
+                '0 0 30px #00FFE060'
               ]
             }}
             transition={{ duration: 3, repeat: Infinity }}
           >
-            <Sparkles className="inline w-10 h-10 mr-3 animate-spin text-[#FFFF00]" />
+            <Sparkles className="inline w-8 h-8 md:w-10 md:h-10 mr-3 animate-spin text-accent" />
             Spill Tea. Stack Clout. Stay Shady.
-            <Flame className="inline w-10 h-10 ml-3 animate-bounce text-[#FF1E8B]" />
+            <Flame className="inline w-8 h-8 md:w-10 md:h-10 ml-3 animate-bounce text-brand" />
           </motion.p>
           
           <motion.p
-            className="text-2xl md:text-3xl text-white/90 max-w-5xl mx-auto leading-relaxed mb-8"
+            className="text-lg md:text-xl text-text/90 max-w-4xl mx-auto leading-relaxed mb-8"
             animate={{
               textShadow: [
-                '0 0 20px #00FF9D40',
-                '0 0 30px #FF1E8B60',
-                '0 0 20px #00FF9D40'
+                '0 0 20px #00FFE040',
+                '0 0 30px #FF4EAF60',
+                '0 0 20px #00FFE040'
               ]
             }}
             transition={{ duration: 4, repeat: Infinity }}
           >
             Web3's most exclusive anonymous gossip network where{' '}
-            <span className="text-[#FF1E8B] font-bold">chaos meets clout</span>,{' '}
-            <span className="text-[#00FF9D] font-bold">memes meet money</span>, and{' '}
-            <span className="text-[#FFFF00] font-bold">degens meet destiny</span>.
+            <span className="text-brand font-bold">chaos meets clout</span>,{' '}
+            <span className="text-accent font-bold">memes meet money</span>, and{' '}
+            <span className="text-brand font-bold">tea spills become viral gold</span>.
           </motion.p>
-
-          {/* Enhanced Exclusive Access Badge */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 1.2 }}
-            className="glass-morphism rounded-2xl p-8 max-w-4xl mx-auto mb-12"
-            style={{
-              border: '2px solid transparent',
-              backgroundImage: 'linear-gradient(135deg, #FF1E8B20, #00FF9D20), linear-gradient(135deg, #FF1E8B, #00FF9D)',
-              backgroundOrigin: 'border-box',
-              backgroundClip: 'content-box, border-box'
-            }}
-          >
-            <div className="flex items-center justify-center mb-6">
-              <Crown className="w-10 h-10 text-[#FFFF00] mr-4 animate-pulse" />
-              <span className="text-3xl font-cyber font-bold text-[#FFFF00]">
-                EXCLUSIVE BETA ACCESS
-              </span>
-              <Crown className="w-10 h-10 text-[#FFFF00] ml-4 animate-pulse" />
-            </div>
-            <motion.p 
-              className="text-2xl text-[#FF1E8B] font-bold mb-3"
-              animate={{ scale: [1, 1.02, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              "We made apps for dumber sh*t. Why not gossip?"
-            </motion.p>
-            <p className="text-lg text-white/70 font-cyber">
-              — The Builders, definitely high on hopium & chaos energy
-            </p>
-          </motion.div>
         </motion.div>
 
-        {/* Enhanced Main CTA */}
+        {/* Enhanced CTA Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.9 }}
+          className="mb-16"
+        >
+          <motion.button
+            onClick={handleMainCTA}
+            className="bg-brand hover:bg-accent text-white px-8 py-4 rounded-full text-lg font-retro shadow-lg transition-all duration-300 hover:shadow-[0_0_20px_#00FFE0] hover:scale-105"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            animate={{
+              boxShadow: [
+                '0 0 20px #FF4EAF40',
+                '0 0 40px #00FFE080',
+                '0 0 20px #FF4EAF40'
+              ]
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            🚀 Beta Launch – Exclusive Access
+          </motion.button>
+        </motion.div>
+
+        {/* Enhanced Feature Highlights */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1 }}
-          className="space-y-8"
+          transition={{ duration: 1, delay: 1.2 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto"
         >
-          <motion.div
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
+          <motion.div 
+            className="border border-accent p-6 rounded-xl shadow-md hover:shadow-accent transition-all duration-300 text-left bg-[#14141f]/80 backdrop-blur-sm"
+            whileHover={{ scale: 1.02, y: -5 }}
           >
-            <Button
-              onClick={handleMainCTA}
-              className="relative overflow-hidden bg-gradient-to-r from-[#00FF9D] to-[#FF1E8B] hover:from-[#FF1E8B] hover:to-[#FFFF00] text-black font-bold px-20 py-10 rounded-3xl text-4xl md:text-5xl shadow-2xl group font-cyber"
-              style={{
-                boxShadow: '0 0 60px #00FF9D40, 0 0 120px #FF1E8B20'
-              }}
-            >
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-white/30 to-transparent"
-                animate={{
-                  x: ['-100%', '100%']
-                }}
-                transition={{ duration: 2, repeat: Infinity, repeatDelay: 4 }}
-              />
-              <Zap className="mr-6 w-12 h-12 animate-bounce" />
-              ENTER THE TEA ZONE
-              <Coffee className="ml-6 w-12 h-12 group-hover:rotate-12 transition-transform" />
-              
-              {/* Pulsing ring effect */}
-              <motion.div
-                className="absolute inset-0 rounded-3xl border-4 border-[#FFFF00]"
-                animate={{
-                  scale: [1, 1.1, 1],
-                  opacity: [0, 0.6, 0]
-                }}
-                transition={{ duration: 2, repeat: Infinity }}
-              />
-            </Button>
+            <div className="text-accent mb-3 text-2xl">🛡</div>
+            <h3 className="font-retro text-lg mb-2 text-text">Anonymous & Secure</h3>
+            <p className="text-sm text-text/80">Share news safely with military-grade encryption.</p>
           </motion.div>
 
-          {/* Enhanced Beta Access Notice */}
-          <motion.div
-            className="glass-morphism rounded-2xl p-6 max-w-lg mx-auto border-4"
-            animate={{
-              borderColor: ['#FFFF00', '#FF1E8B', '#00FF9D', '#FFFF00'],
-              boxShadow: [
-                '0 0 30px #FFFF0040',
-                '0 0 30px #FF1E8B40',
-                '0 0 30px #00FF9D40',
-                '0 0 30px #FFFF0040'
-              ]
-            }}
-            transition={{ duration: 6, repeat: Infinity }}
+          <motion.div 
+            className="border border-brand p-6 rounded-xl shadow-md hover:shadow-brand transition-all duration-300 text-left bg-[#14141f]/80 backdrop-blur-sm"
+            whileHover={{ scale: 1.02, y: -5 }}
           >
-            <div className="flex items-center justify-center mb-3">
-              <AlertTriangle className="w-8 h-8 text-[#FFFF00] mr-3 animate-pulse" />
-              <p className="text-[#FFFF00] font-bold text-2xl font-cyber">
-                LIMITED BETA ACCESS
-              </p>
-              <AlertTriangle className="w-8 h-8 text-[#FFFF00] ml-3 animate-pulse" />
-            </div>
-            <p className="text-white/90 text-lg font-cyber">
-              Spill tea, connect wallet, or slide into our DMs. Your choice, degen.
-            </p>
+            <div className="text-brand mb-3 text-2xl">🫖</div>
+            <h3 className="font-retro text-lg mb-2 text-text">Community Driven</h3>
+            <p className="text-sm text-text/80">Built by degens, for degens. Your voice matters.</p>
           </motion.div>
 
-          {/* Enhanced Social Proof */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.8 }}
-            className="text-center space-y-3"
+          <motion.div 
+            className="border border-accent p-6 rounded-xl shadow-md hover:shadow-accent transition-all duration-300 text-left bg-[#14141f]/80 backdrop-blur-sm"
+            whileHover={{ scale: 1.02, y: -5 }}
           >
-            <motion.p 
-              className="text-lg text-white/70 font-cyber"
-              animate={{ opacity: [0.7, 1, 0.7] }}
-              transition={{ duration: 3, repeat: Infinity }}
-            >
-              🔥 Join 1,337+ anonymous tea spillers brewing maximum chaos
-            </motion.p>
-            <p className="text-sm text-[#00FF9D] font-bold">
-              Beta 1.2 • Where Crypto Twitter Goes to Confess Their Sins
-            </p>
+            <div className="text-accent mb-3 text-2xl">💀</div>
+            <h3 className="font-retro text-lg mb-2 text-text">Chaos Guaranteed</h3>
+            <p className="text-sm text-text/80">Maximum drama, minimum consequences.</p>
           </motion.div>
         </motion.div>
       </div>

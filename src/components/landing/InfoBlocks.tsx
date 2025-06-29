@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,43 +9,43 @@ const InfoBlocks: React.FC = () => {
       icon: Shield,
       title: 'Anonymous & Bulletproof',
       description: 'Military-grade privacy protection. Spill without the spooks finding you.',
-      color: '#00FF9D',
-      gradient: 'from-[#00FF9D] to-[#8A2BE2]'
+      color: '#00FFE0',
+      gradient: 'from-accent to-brand'
     },
     {
       icon: Users,
       title: 'Community of Chaos',
       description: 'Vote, verify, and validate the wildest stories with your fellow degens.',
-      color: '#FF1E8B',
-      gradient: 'from-[#FF1E8B] to-[#FFFF00]'
+      color: '#FF4EAF',
+      gradient: 'from-brand to-accent'
     },
     {
       icon: Zap,
       title: 'Real-time Tea Flow',
       description: 'Breaking drama as it happens. Be first to know, first to profit.',
-      color: '#FFFF00',
-      gradient: 'from-[#FFFF00] to-[#FF1E8B]'
+      color: '#00FFE0',
+      gradient: 'from-accent to-brand'
     },
     {
       icon: Crown,
       title: 'Clout Economy',
       description: 'Earn $TEA tokens for verified gossip. Turn drama into degen gains.',
-      color: '#8A2BE2',
-      gradient: 'from-[#8A2BE2] to-[#00FF9D]'
+      color: '#FF4EAF',
+      gradient: 'from-brand to-accent'
     },
     {
       icon: Eye,
       title: 'Intel Marketplace',
       description: 'Buy exclusive alpha, sell your secrets. The ultimate insider trading.',
-      color: '#FF1E8B',
-      gradient: 'from-[#FF1E8B] to-[#8A2BE2]'
+      color: '#00FFE0',
+      gradient: 'from-accent to-brand'
     },
     {
       icon: Flame,
       title: 'Viral Launch Pad',
       description: 'Stories that break the internet start here. Be the main character.',
-      color: '#00FF9D',
-      gradient: 'from-[#00FF9D] to-[#FFFF00]'
+      color: '#FF4EAF',
+      gradient: 'from-brand to-accent'
     }
   ];
 
@@ -63,10 +62,10 @@ const InfoBlocks: React.FC = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-5xl md:text-6xl font-gothic font-bold mb-6 bg-gradient-to-r from-[#FF1E8B] via-[#00FF9D] to-[#FFFF00] bg-clip-text text-transparent">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-retro font-bold mb-6 bg-gradient-to-r from-brand via-accent to-brand bg-clip-text text-transparent">
             Why CTea Hits Different
           </h2>
-          <p className="text-xl text-white/80 max-w-3xl mx-auto font-cyber">
+          <p className="text-xl text-text/80 max-w-3xl mx-auto font-cyber">
             Built by degens, for degens. This isn't your grandma's group chat.
           </p>
         </motion.div>
@@ -83,7 +82,7 @@ const InfoBlocks: React.FC = () => {
               whileHover={{ scale: 1.05, rotateY: 5 }}
               className="group"
             >
-              <Card className="glass-morphism border-2 border-transparent hover:border-opacity-60 transition-all duration-300 h-full"
+              <Card className="border-2 border-transparent hover:border-opacity-60 transition-all duration-300 h-full bg-[#14141f]/80 backdrop-blur-sm"
                     style={{ 
                       borderColor: `${feature.color}40`,
                       boxShadow: `0 0 30px ${feature.color}20`
@@ -98,16 +97,16 @@ const InfoBlocks: React.FC = () => {
                     transition={{ duration: 4, repeat: Infinity, delay: index * 0.5 }}
                   >
                     <div className={`w-16 h-16 mx-auto rounded-full bg-gradient-to-r ${feature.gradient} flex items-center justify-center`}>
-                      <feature.icon className="w-8 h-8 text-black" />
+                      <feature.icon className="w-8 h-8 text-bg" />
                     </div>
                   </motion.div>
                   
-                  <h3 className="text-2xl font-bold text-white mb-4 font-cyber"
+                  <h3 className="text-xl font-bold text-text mb-4 font-retro"
                       style={{ textShadow: `0 0 10px ${feature.color}60` }}>
                     {feature.title}
                   </h3>
                   
-                  <p className="text-white/70 leading-relaxed flex-grow font-cyber">
+                  <p className="text-text/70 leading-relaxed flex-grow font-cyber">
                     {feature.description}
                   </p>
 
@@ -132,14 +131,14 @@ const InfoBlocks: React.FC = () => {
           viewport={{ once: true }}
           className="text-center mt-16"
         >
-          <div className="glass-morphism rounded-2xl p-8 max-w-4xl mx-auto border-2 border-[#FF1E8B]/30">
-            <h3 className="text-3xl md:text-4xl font-bold mb-4 font-gothic bg-gradient-to-r from-[#FF1E8B] to-[#00FF9D] bg-clip-text text-transparent">
+          <div className="rounded-2xl p-8 max-w-4xl mx-auto border-2 border-brand/30 bg-[#14141f]/80 backdrop-blur-sm">
+            <h3 className="text-3xl md:text-4xl font-bold mb-4 font-retro bg-gradient-to-r from-brand to-accent bg-clip-text text-transparent">
               Ready to Become a Tea Tycoon?
             </h3>
-            <p className="text-lg text-white/80 mb-6 font-cyber">
+            <p className="text-lg text-text/80 mb-6 font-cyber">
               Join the exclusive club of anonymous alphas who turn gossip into gains.
             </p>
-            <div className="flex flex-wrap justify-center gap-4 text-sm text-white/60 font-cyber">
+            <div className="flex flex-wrap justify-center gap-4 text-sm text-text/60 font-cyber">
               <span>🔥 Limited Beta Spots</span>
               <span>•</span>
               <span>💰 Early Token Rewards</span>
