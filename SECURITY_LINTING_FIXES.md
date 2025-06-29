@@ -1,3 +1,4 @@
+
 # Security Linting Fixes
 
 This document addresses the two security warnings identified by Supabase's security linter:
@@ -18,7 +19,7 @@ This document addresses the two security warnings identified by Supabase's secur
 
 ### 1. Function Search Path Fix ✅
 
-**Migration**: `20250628020000_fix_security_linting_issues.sql`
+**Migration**: `20250629020000_fix_security_linting_issues.sql`
 
 The function has been updated with:
 - `SECURITY DEFINER` attribute
@@ -60,18 +61,11 @@ $$;
    - Returns compliance status
    - Identifies potential issues
 
-2. **`validate_auth_settings()`**
-   - Validates authentication configuration
-   - Provides OTP expiry recommendations
-
 ### Usage
 
 ```sql
 -- Check overall security compliance
 SELECT * FROM check_security_compliance();
-
--- Validate auth settings
-SELECT * FROM validate_auth_settings();
 ```
 
 ## Implementation Steps
@@ -111,31 +105,9 @@ AND p.proname = 'update_tip_transactions_updated_at';
 - ✅ Follows security best practices
 - ✅ Complies with Supabase recommendations
 
-## Monitoring and Maintenance
-
-### Regular Security Checks
-Run the security compliance function regularly:
-```sql
-SELECT * FROM check_security_compliance();
-```
-
-### Audit Logging
-All security fixes are logged in `admin_audit_log` table:
-```sql
-SELECT * FROM admin_audit_log 
-WHERE action LIKE '%security%' 
-ORDER BY created_at DESC;
-```
-
-## References
-
-- [Supabase Security Linting Documentation](https://supabase.com/docs/guides/database/database-linter)
-- [Supabase Production Security Guide](https://supabase.com/docs/guides/platform/going-into-prod#security)
-- [PostgreSQL Security Best Practices](https://www.postgresql.org/docs/current/security.html)
-
 ## Status
 
 - ✅ Function search path mutable: **FIXED**
 - ⚠️ Auth OTP long expiry: **MANUAL ACTION REQUIRED**
 
-Both issues will be resolved once the OTP settings are updated in the Supabase dashboard. 
+Both issues will be resolved once the OTP settings are updated in the Supabase dashboard.

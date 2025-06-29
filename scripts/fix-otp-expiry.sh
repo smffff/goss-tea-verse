@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 # Fix OTP Expiry Security Issue
@@ -57,4 +58,4 @@ echo "🎯 Next Steps:"
 echo "   1. Apply the database migration"
 echo "   2. Update OTP expiry in Supabase dashboard"
 echo "   3. Run security compliance check"
-echo "   4. Verify both linting issues are resolved" 
+echo "   4. Verify both linting issues are resolved"
