@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
 import type { ContentValidationResult, RateLimitResult, ThreatLevel } from './security/types';
@@ -117,12 +116,13 @@ export class SecurityService {
 
       if (error) {
         secureLog.error('Rate limit check failed:', error);
-        return {
+        const fallbackResult: RateLimitResult = {
           allowed: false,
           remaining: 0,
           resetTime: Date.now() + windowMinutes * 60 * 1000,
           blocked_reason: 'Service unavailable'
         };
+        return fallbackResult;
       }
 
       // Type guard for the response
@@ -139,12 +139,13 @@ export class SecurityService {
       return result;
     } catch (error) {
       secureLog.error('Rate limit error:', error);
-      return {
+      const errorResult: RateLimitResult = {
         allowed: false,
         remaining: 0,
         resetTime: Date.now() + windowMinutes * 60 * 1000,
         blocked_reason: 'System error'
       };
+      return errorResult;
     }
   }
 
