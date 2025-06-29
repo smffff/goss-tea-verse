@@ -6,6 +6,7 @@ export interface WalletHook {
   walletAddress: string | null;
   connectWallet: () => Promise<void>;
   disconnectWallet: () => void;
+  switchToAvalanche: () => Promise<void>;
 }
 
 export const useWallet = (): WalletHook => {
@@ -28,10 +29,22 @@ export const useWallet = (): WalletHook => {
     setWalletAddress(null);
   };
 
+  const switchToAvalanche = async () => {
+    try {
+      // Mock switch to Avalanche network
+      console.log('Switching to Avalanche network...');
+      // In a real implementation, this would switch the wallet network
+    } catch (error) {
+      console.error('Failed to switch to Avalanche:', error);
+      throw error;
+    }
+  };
+
   return {
     isConnected,
     walletAddress,
     connectWallet,
-    disconnectWallet
+    disconnectWallet,
+    switchToAvalanche
   };
 };

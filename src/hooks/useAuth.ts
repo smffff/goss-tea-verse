@@ -16,6 +16,8 @@ export interface AuthContextType {
   isModerator: boolean;
   refreshBalance?: () => Promise<void>;
   signOut: () => Promise<void>;
+  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signUp: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 export const useAuth = (): AuthContextType => {
@@ -44,6 +46,43 @@ export const useAuth = (): AuthContextType => {
     await supabase.auth.signOut();
   };
 
+  const signIn = async (email: string, password: string) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: 'Sign in failed' };
+    }
+  };
+
+  const signUp = async (email: string, password: string) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`
+        }
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: 'Sign up failed' };
+    }
+  };
+
   const refreshBalance = async () => {
     // Placeholder for balance refresh logic
     console.log('Refreshing balance...');
@@ -59,6 +98,8 @@ export const useAuth = (): AuthContextType => {
     isAdmin,
     isModerator,
     refreshBalance,
-    signOut
+    signOut,
+    signIn,
+    signUp
   };
 };

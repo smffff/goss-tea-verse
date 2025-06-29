@@ -14,7 +14,8 @@ export const BRAND_CONFIG = {
     success: '#10b981', // green
     warning: '#f59e0b', // amber
     error: '#ef4444', // red
-    info: '#3b82f6' // blue
+    info: '#3b82f6', // blue
+    orange: '#ff6b35' // orange for missing property
   },
   social: {
     twitter: 'https://twitter.com/cteanews',
@@ -26,5 +27,11 @@ export const BRAND_CONFIG = {
     press: 'press@cteanews.com',
     tips: 'tips@cteanews.com',
     general: 'hello@cteanews.com'
+  },
+  token: {
+    symbol: 'TEA',
+    name: 'CTea Token',
+    totalSupply: '1000000000',
+    decimals: 18
   }
 };

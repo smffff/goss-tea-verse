@@ -1,11 +1,10 @@
-
 import React, { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { LogOut, Coffee, Zap } from 'lucide-react';
 import EnhancedRealTimeFeed from '@/components/feed/EnhancedRealTimeFeed';
 import SpillTeaModal from '@/components/modals/SpillTeaModal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import UnifiedNavigation from '@/components/navigation/UnifiedNavigation';
+import MainNavigation from '@/components/navigation/MainNavigation';
 
 interface LiveTeaAppProps {
   onLogout?: () => void;
@@ -23,7 +22,7 @@ const LiveTeaApp: React.FC<LiveTeaAppProps> = ({ onLogout }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black">
-      <UnifiedNavigation />
+      <MainNavigation />
       
       {/* Quick Action Header */}
       <div className="bg-ctea-dark/80 backdrop-blur-lg border-b border-ctea-teal/30 sticky top-16 z-30">

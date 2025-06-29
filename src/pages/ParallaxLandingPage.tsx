@@ -1,7 +1,6 @@
-
 import React from 'react';
 import ParallaxElement from '@/components/ui/ParallaxElement';
-import UnifiedNavigation from '@/components/navigation/UnifiedNavigation';
+import MainNavigation from '@/components/navigation/MainNavigation';
 import MobileBottomNavigation from '@/components/navigation/MobileBottomNavigation';
 import FloatingElements from '@/components/landing/FloatingElements';
 import HowItWorksSection from '@/components/landing/HowItWorksSection';
@@ -11,7 +10,7 @@ import TokenPanel from '@/components/landing/TokenPanel';
 const ParallaxLandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1b1b1b] via-[#2a1a2a] to-[#1a2a2a] overflow-x-hidden">
-      <UnifiedNavigation />
+      <MainNavigation />
       <FloatingElements />
       
       {/* Hero Section */}
