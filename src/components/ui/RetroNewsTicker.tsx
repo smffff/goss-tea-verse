@@ -54,28 +54,28 @@ const RetroNewsTicker: React.FC<RetroNewsTickerProps> = ({
   return (
     <div className={`bg-black border-2 border-green-400 rounded-lg overflow-hidden ${className}`}>
       {/* News Channel Header */}
-      <div className="bg-gradient-to-r from-green-900 to-green-700 p-3 border-b border-green-400">
+      <div className="bg-white/90 p-3 border-b border-ctea-brand">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Radio className="w-5 h-5 text-green-400 animate-pulse" />
-            <div className="text-green-400 font-bold text-lg tracking-wider">
-              CTEA NEWS NETWORK
+            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-md border-2 border-ctea-brand">
+              <img src="/ctea-logo-icon.png" alt="CTEA Logo" className="w-8 h-8 object-contain" />
             </div>
-            <div className="text-green-300 text-sm font-mono">
+            <div className="font-gothic text-ctea-brand text-2xl tracking-tight drop-shadow animate-chaos-glow">
+              CTEA NEWS
+            </div>
+            <div className="text-ctea-accent text-sm font-mono">
               {new Date().toLocaleTimeString()}
             </div>
           </div>
-          
           <div className="flex items-center space-x-2">
             <div className="flex space-x-1">
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-              <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-ctea-hot-pink rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-ctea-electric-yellow rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-ctea-neon-mint rounded-full animate-pulse"></div>
             </div>
-            
             <button
               onClick={() => setIsMuted(!isMuted)}
-              className="text-green-400 hover:text-green-300 transition-colors"
+              className="text-ctea-brand hover:text-ctea-accent transition-colors"
             >
               {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </button>
