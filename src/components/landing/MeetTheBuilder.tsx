@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -82,8 +81,8 @@ const MeetTheBuilder = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => window.open('https://arena.social/?ref=LadyInvsible', '_blank')}
-                    className="border-[#FF4C7B] text-[#FF4C7B] hover:bg-[#FF4C7B] hover:text-white"
+                    onClick={() => window.open('https://arena.social/?ref=CTeaNews', '_blank')}
+                    className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-full flex items-center gap-2"
                   >
                     <ExternalLink className="w-4 h-4 mr-2" />
                     Connect on Arena

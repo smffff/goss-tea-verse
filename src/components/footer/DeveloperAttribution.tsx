@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Code, Heart, Users, Twitter, LinkIcon } from 'lucide-react';
+import { Code, Heart, Users, Twitter, LinkIcon, ArenaIcon } from 'lucide-react';
 import TipButton from '@/components/TipButton';
 
 const DeveloperAttribution = () => {
@@ -11,8 +11,8 @@ const DeveloperAttribution = () => {
   const developerSocialLinks = [
     {
       name: 'Arena Social',
-      icon: Users,
-      url: 'https://arena.social/?ref=LadyInvsible',
+      icon: ArenaIcon,
+      url: 'https://arena.social/?ref=CTeaNews',
       color: 'hover:text-blue-400'
     },
     {

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,7 +25,7 @@ const Team = () => {
       skills: ['Product Strategy', 'Full-Stack Development', 'Community Building', 'Tokenomics'],
       social: {
         twitter: 'https://x.com/ladyinvsible',
-        arena: 'https://arena.social/?ref=LadyInvsible',
+        arena: 'https://arena.social/?ref=CTeaNews',
         linktree: 'https://linktr.ee/ladyinvsible'
       },
       achievements: [

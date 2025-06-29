@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { BrandLogo } from '@/components/brand/BrandElements';
 import { footerNavigationItems } from '@/components/navigation/NavigationItems';
 import { BRAND_CONFIG } from '@/lib/config/brandConfig';
 import TipButton from '@/components/TipButton';
+import { ArenaIcon } from '@/components/icons/ArenaIcon';
 
 const UnifiedFooter = () => {
   const openLink = (url: string) => {
@@ -107,10 +107,11 @@ const UnifiedFooter = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => openLink('https://arena.social/?ref=LadyInvsible')}
-                  className="text-gray-400 hover:text-blue-400 transition-colors duration-200"
+                  onClick={() => openLink('https://arena.social/?ref=CTeaNews')}
+                  className="flex items-center gap-2 text-gray-400 hover:text-ctea-teal transition-colors"
                   aria-label="Arena Social"
                 >
+                  <ArenaIcon className="w-4 h-4" />
                   Arena
                 </Button>
                 <Button

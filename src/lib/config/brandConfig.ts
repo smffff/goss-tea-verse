@@ -1,4 +1,3 @@
-
 export const BRAND_CONFIG = {
   // Core Brand Identity
   name: 'CTea Newsroom',
@@ -87,7 +86,7 @@ export const BRAND_CONFIG = {
   // Enhanced social links
   social: {
     twitter: 'https://twitter.com/cteanews',
-    arena: 'https://arena.social/?ref=cteanewsroom',
+    arena: 'https://arena.social/?ref=CTeaNews',
     discord: 'https://discord.gg/cteanewsroom',
     github: 'https://github.com/cteanewsroom',
     telegram: 'https://t.me/cteanewsroom',
@@ -170,13 +169,3 @@ export const THEME_CONFIG = {
       primary: `0 0 30px ${BRAND_CONFIG.colors.primary}40`,
       accent: `0 0 30px ${BRAND_CONFIG.colors.accent}40`,
       orange: `0 0 30px ${BRAND_CONFIG.colors.orange}40`
-    }
-  },
-  retro: {
-    background: `linear-gradient(45deg, ${BRAND_CONFIG.colors.deepPurple} 0%, ${BRAND_CONFIG.colors.darkPurple} 100%)`,
-    surface: 'rgba(255, 255, 255, 0.1)',
-    text: BRAND_CONFIG.colors.text,
-    pixelBorder: '2px solid',
-    scanlines: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 216, 164, 0.1) 2px, rgba(0, 216, 164, 0.1) 4px)'
-  }
-};

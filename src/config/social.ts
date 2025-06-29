@@ -1,11 +1,10 @@
-
 export const SOCIAL_CONFIG = {
   twitter: {
     handle: '@cteanews',
     url: 'https://twitter.com/cteanews'
   },
   arena: {
-    url: 'https://arena.social/cteanews'
+    url: 'https://arena.social/?ref=CTeaNews'
   },
   token: {
     symbol: '$TEA',

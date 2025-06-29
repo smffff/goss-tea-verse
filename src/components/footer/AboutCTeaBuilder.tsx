@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -21,7 +20,7 @@ export default function AboutCTeaBuilder() {
           <p>
             Crafted live with love, memes, and too much tea by{' '}
             <a
-              href="https://arena.social/ladyinvisible"
+              href="https://arena.social/?ref=CTeaNews"
               className="underline hover:text-yellow-300"
               target="_blank"
               rel="noopener noreferrer"
@@ -32,10 +31,10 @@ export default function AboutCTeaBuilder() {
           </p>
           <p className="mt-2">
             <a
-              href="https://arena.social/ladyinvisible"
+              href="https://arena.social/?ref=CTeaNews"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-400 hover:text-yellow-400 underline"
+              className="text-ctea-teal hover:text-ctea-pink transition-colors"
             >
               📺 Live stream build on Arena
             </a>

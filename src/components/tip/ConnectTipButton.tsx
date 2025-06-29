@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Copy, Check, Heart, Users, Twitter, LinkIcon } from 'lucide-react';
+import { Copy, Check, Heart, Users, Twitter, LinkIcon, ArenaIcon } from 'lucide-react';
 
 interface ConnectTipButtonProps {
   walletAddress: string;
@@ -24,8 +23,8 @@ const ConnectTipButton: React.FC<ConnectTipButtonProps> = ({
   const developerLinks = [
     {
       name: 'Arena Social',
-      icon: Users,
-      url: 'https://arena.social/?ref=LadyInvsible',
+      icon: ArenaIcon,
+      url: 'https://arena.social/?ref=CTeaNews',
       color: 'hover:text-blue-400'
     },
     {

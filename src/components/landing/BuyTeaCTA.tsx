@@ -16,9 +16,9 @@ const BuyTeaCTA: React.FC = () => {
   
   // Affiliate links - replace with your actual affiliate codes
   const AFFILIATE_LINKS = {
-    arena: "https://arena.app/coin/tea?ref=cteanews",
+    arena: "https://arena.social/?ref=CTeaNews",
     twitter: "https://twitter.com/cteanews",
-    arenaHome: "https://arena.app?ref=cteanews",
+    arenaHome: "https://arena.social/?ref=CTeaNews",
     dexscreener: "https://dexscreener.com/avalanche/0x116594bd6eb7c16570413e1ccc36f1fed38c0dff"
   };
 

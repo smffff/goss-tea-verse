@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -69,7 +68,7 @@ const EnhancedFooter: React.FC = () => {
               >
                 <Button
                   className="w-full bg-gradient-to-r from-[#FF6B9D] to-[#FF9500] hover:from-[#FF9500] hover:to-[#00D4AA] text-white font-bold"
-                  onClick={() => window.open('https://uniswap.org', '_blank')}
+                  onClick={() => window.open('https://dexscreener.com/avalanche/0x116594bd6eb7c16570413e1ccc36f1fed38c0dff', '_blank')}
                 >
                   <Coins className="w-4 h-4 mr-2" />
                   Buy $TEA <ExternalLink className="w-3 h-3 ml-1" />

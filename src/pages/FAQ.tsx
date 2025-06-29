@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -50,7 +49,7 @@ const FAQ = () => {
         },
         {
           question: 'Where can I buy TEA tokens?',
-          answer: 'TEA tokens are available on decentralized exchanges on the Base network. You can also earn them by participating in the platform. Check our Tokenomics page for current exchange listings.'
+          answer: 'TEA tokens are available on decentralized exchanges on the Avalanche network. You can view the chart and buy on DEXScreener, or earn them by participating in the platform. Check our Tokenomics page for current exchange listings.'
         },
         {
           question: 'What can I do with TEA tokens?',

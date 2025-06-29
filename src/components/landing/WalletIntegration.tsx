@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Wallet, ExternalLink, AlertCircle, CheckCircle } from 'lucide-react';
@@ -146,7 +145,7 @@ const WalletIntegration: React.FC<WalletIntegrationProps> = ({
                 <p className="text-sm text-orange-400">Need {100 - teaBalance} more $TEA for instant access</p>
                 <Button
                   className="mt-2 w-full bg-gradient-to-r from-[#00D4AA] to-[#FF6B9D] text-white text-sm py-2"
-                  onClick={() => window.open('https://uniswap.org', '_blank')}
+                  onClick={() => window.open('https://dexscreener.com/avalanche/0x116594bd6eb7c16570413e1ccc36f1fed38c0dff', '_blank')}
                 >
                   Buy $TEA <ExternalLink className="ml-2 w-4 h-4" />
                 </Button>
