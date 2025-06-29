@@ -1,3 +1,4 @@
+
 import { secureLog } from './secureLogging';
 
 // Performance optimization utilities
@@ -156,14 +157,14 @@ export class PerformanceOptimizer {
   // Code splitting helper
   async lazyLoadComponent<T>(
     importFn: () => Promise<{ default: React.ComponentType<T> }>,
-    fallback?: React.ComponentType
+    fallback?: React.ComponentType<any>
   ): Promise<React.ComponentType<T>> {
     try {
       const module = await importFn();
       return module.default;
     } catch (error) {
       secureLog.error('Failed to lazy load component:', error);
-      return fallback || (() => <div>Loading...</div>);
+      return fallback || (() => React.createElement('div', null, 'Loading...'));
     }
   }
 
@@ -332,4 +333,4 @@ export const throttle = <T extends (...args: any[]) => any>(func: T, limit: numb
 export const memoize = <T extends (...args: any[]) => any>(
   func: T, 
   keyGenerator?: (...args: Parameters<T>) => string
-) => performanceOptimizer.memoize(func, keyGenerator); 
+) => performanceOptimizer.memoize(func, keyGenerator);
