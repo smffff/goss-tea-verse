@@ -3,7 +3,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { secureLog } from '@/utils/secureLog';
-import { useAuth } from '@/hooks/useAuth';
 
 interface ErrorInfo {
   componentStack: string;
@@ -20,10 +19,11 @@ interface ErrorBoundaryProps {
   fallback?: React.ComponentType<{ error: Error; resetError: () => void }>;
 }
 
-// Helper component to check admin status
+// Helper component to check admin status - moved outside class component
 const AdminErrorDetails: React.FC<{ error?: Error; errorInfo?: any }> = ({ error, errorInfo }) => {
-  const { user, isAdmin } = useAuth();
-  const isSuperAdmin = user?.email === 'stephanie@taskbytask.net';
+  // Check for admin access via localStorage or other means
+  const isAdmin = localStorage.getItem('ctea_admin_access') === 'true';
+  const isSuperAdmin = localStorage.getItem('ctea_super_admin') === 'true';
   const hasAdminAccess = isAdmin || isSuperAdmin;
 
   if (!hasAdminAccess) {

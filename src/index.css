@@ -12,6 +12,18 @@
   --brand-text: #FFFFFF;
   --brand-text-secondary: #E5E5E5;
   --brand-neutral: #1A1A2E;
+  
+  /* Additional brand colors for backward compatibility */
+  --ctea-teal: #00D8A4;
+  --ctea-purple: #8b5cf6;
+  --ctea-pink: #FF4FB3;
+  --ctea-yellow: #f59e0b;
+  --ctea-orange: #FF9C39;
+  --ctea-dark: #100C2A;
+  --ctea-darker: #1a0d26;
+  --ctea-black: #0a0a0a;
+  --tabloid-black-900: #2c2c2c;
+  --vintage-red: #c41e3a;
 }
 
 /* Font loading optimization */
@@ -193,6 +205,69 @@
   .comic-button:hover {
     transform: translate(-2px, -2px);
     box-shadow: 5px 5px 0px var(--brand-accent-yellow);
+  }
+
+  /* Brand background and text utilities */
+  .brand-background {
+    background-color: var(--brand-background);
+  }
+
+  .brand-text {
+    color: var(--brand-text);
+  }
+
+  .brand-primary {
+    color: var(--brand-primary);
+  }
+
+  /* CTea legacy color classes */
+  .ctea-teal {
+    color: var(--ctea-teal);
+  }
+
+  .ctea-purple {
+    color: var(--ctea-purple);
+  }
+
+  .ctea-dark {
+    color: var(--ctea-dark);
+  }
+
+  .ctea-darker {
+    color: var(--ctea-darker);
+  }
+
+  .tabloid-black-900 {
+    color: var(--tabloid-black-900);
+  }
+
+  .vintage-red {
+    color: var(--vintage-red);
+  }
+
+  /* Background color classes */
+  .bg-ctea-teal {
+    background-color: var(--ctea-teal);
+  }
+
+  .bg-ctea-purple {
+    background-color: var(--ctea-purple);
+  }
+
+  .bg-ctea-dark {
+    background-color: var(--ctea-dark);
+  }
+
+  .bg-ctea-darker {
+    background-color: var(--ctea-darker);
+  }
+
+  .bg-tabloid-black-900 {
+    background-color: var(--tabloid-black-900);
+  }
+
+  .bg-vintage-red {
+    background-color: var(--vintage-red);
   }
 }
 

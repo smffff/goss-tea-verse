@@ -4,12 +4,16 @@ import { Button } from '@/components/ui/button';
 import { User, Moon, Sun } from 'lucide-react';
 
 interface LandingHeaderProps {
-  user: any;
-  isAdmin: boolean;
-  isModerator: boolean;
+  user?: any;
+  isAdmin?: boolean;
+  isModerator?: boolean;
 }
 
-const LandingHeader: React.FC<LandingHeaderProps> = ({ user, isAdmin, isModerator }) => {
+const LandingHeader: React.FC<LandingHeaderProps> = ({ 
+  user = null, 
+  isAdmin = false, 
+  isModerator = false 
+}) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   const toggleDarkMode = () => {
