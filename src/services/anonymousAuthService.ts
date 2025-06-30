@@ -30,6 +30,11 @@ export const createAnonymousUser = async (username: string): Promise<AnonymousAu
       return { success: false, error: error.message };
     }
 
+    if (!data) {
+      secureLog.error('No data returned from anonymous user creation');
+      return { success: false, error: 'Failed to create user profile' };
+    }
+
     // Store in local storage for session persistence
     localStorage.setItem('ctea_anonymous_user', JSON.stringify({
       id: data.id,

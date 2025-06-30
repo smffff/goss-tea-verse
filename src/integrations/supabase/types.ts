@@ -878,6 +878,7 @@ export type Database = {
           reputation_score: number | null
           updated_at: string | null
           user_id: string | null
+          username: string | null
           verification_level: string | null
           wallet_address: string | null
         }
@@ -890,6 +891,7 @@ export type Database = {
           reputation_score?: number | null
           updated_at?: string | null
           user_id?: string | null
+          username?: string | null
           verification_level?: string | null
           wallet_address?: string | null
         }
@@ -902,6 +904,7 @@ export type Database = {
           reputation_score?: number | null
           updated_at?: string | null
           user_id?: string | null
+          username?: string | null
           verification_level?: string | null
           wallet_address?: string | null
         }
