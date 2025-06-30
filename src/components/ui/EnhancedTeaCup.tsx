@@ -60,11 +60,6 @@ const EnhancedTeaCup: React.FC<EnhancedTeaCupProps> = ({
     glowing: {
       scale: [1, 1.1, 1],
       rotate: [0, -3, 3, 0],
-      filter: [
-        'drop-shadow(0 0 10px rgba(255, 32, 82, 0.5))',
-        'drop-shadow(0 0 20px rgba(255, 32, 82, 0.8))',
-        'drop-shadow(0 0 10px rgba(255, 32, 82, 0.5))'
-      ],
       transition: {
         duration: 2,
         repeat: Infinity,
@@ -77,6 +72,9 @@ const EnhancedTeaCup: React.FC<EnhancedTeaCupProps> = ({
     <motion.div
       className={baseClasses}
       animate={animations[variant]}
+      style={{
+        filter: variant === 'glowing' ? 'drop-shadow(0 0 10px rgba(255, 32, 82, 0.5))' : undefined
+      }}
     >
       {variant === 'steaming' && (
         <motion.div
