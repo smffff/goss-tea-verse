@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { Coffee, TrendingUp, User, Star } from 'lucide-react';
+import { TrendingUp, User, Star } from 'lucide-react';
 import { useUnifiedAuth } from '@/hooks/useUnifiedAuth';
 
 const EnhancedProductionLandingPage: React.FC = () => {
@@ -21,7 +21,7 @@ const EnhancedProductionLandingPage: React.FC = () => {
             className="max-w-4xl mx-auto"
           >
             <motion.img 
-              src="/lovable-uploads/788113f9-894c-4f0e-bb24-90b5f436f86f.png" 
+              src="/lovable-uploads/58c00175-9395-4c1a-b741-60b32e37b93e.png" 
               alt="CTea News Logo" 
               className="w-32 h-32 mx-auto mb-8 object-contain"
               animate={{ 
@@ -36,7 +36,7 @@ const EnhancedProductionLandingPage: React.FC = () => {
             />
             
             <h1 className="text-6xl md:text-8xl font-anton text-brand-text mb-6">
-              CTea News ☕
+              CTea News
             </h1>
             
             <p className="text-xl md:text-2xl text-brand-text-secondary mb-8 max-w-2xl mx-auto">
@@ -78,7 +78,11 @@ const EnhancedProductionLandingPage: React.FC = () => {
                         variant="outline"
                         className="border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-brand-background text-lg px-8 py-4"
                       >
-                        <Coffee className="mr-2 w-5 h-5" />
+                        <img 
+                          src="/lovable-uploads/58c00175-9395-4c1a-b741-60b32e37b93e.png" 
+                          alt="CTea News Logo" 
+                          className="mr-2 w-5 h-5 object-contain"
+                        />
                         Explore
                       </Button>
                     </motion.div>
@@ -110,7 +114,11 @@ const EnhancedProductionLandingPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {[
               {
-                icon: <Coffee className="w-8 h-8" />,
+                icon: <img 
+                  src="/lovable-uploads/58c00175-9395-4c1a-b741-60b32e37b93e.png" 
+                  alt="CTea News Logo" 
+                  className="w-8 h-8 object-contain"
+                />,
                 title: "Anonymous Spilling",
                 description: "Share crypto gossip without revealing your identity. Safe, secure, and completely anonymous."
               },
@@ -157,7 +165,7 @@ const EnhancedProductionLandingPage: React.FC = () => {
             className="max-w-2xl mx-auto"
           >
             <h2 className="text-4xl md:text-5xl font-anton text-brand-text mb-6">
-              Ready to Spill Some Tea? ☕
+              Ready to Spill Some Tea?
             </h2>
             <p className="text-xl text-brand-text-secondary mb-8">
               Join thousands of crypto insiders sharing the hottest gossip and drama.

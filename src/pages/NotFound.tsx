@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Home, Coffee, ArrowLeft } from 'lucide-react';
+import { Home, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const NotFound: React.FC = () => {
@@ -18,7 +18,7 @@ const NotFound: React.FC = () => {
           <Card className="bg-brand-neutral/50 border-brand-primary/30 max-w-lg mx-auto backdrop-blur-lg">
             <CardContent className="p-8 text-center space-y-6">
               <motion.img 
-                src="/lovable-uploads/788113f9-894c-4f0e-bb24-90b5f436f86f.png" 
+                src="/lovable-uploads/58c00175-9395-4c1a-b741-60b32e37b93e.png" 
                 alt="CTea News Logo" 
                 className="w-16 h-16 mx-auto mb-4 object-contain"
                 animate={{ rotate: [0, -10, 10, 0] }}
@@ -39,7 +39,11 @@ const NotFound: React.FC = () => {
                 </Link>
                 <Link to="/home">
                   <Button variant="outline" className="border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-brand-background">
-                    <Coffee className="w-4 h-4 mr-2" />
+                    <img 
+                      src="/lovable-uploads/58c00175-9395-4c1a-b741-60b32e37b93e.png" 
+                      alt="CTea News Logo" 
+                      className="w-4 h-4 mr-2 object-contain"
+                    />
                     Dashboard
                   </Button>
                 </Link>

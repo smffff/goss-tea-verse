@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Menu, X, LogOut, Home, TrendingUp, User, Coffee } from 'lucide-react';
+import { Menu, X, LogOut, Home, TrendingUp, User } from 'lucide-react';
 import { useUnifiedAuth } from '@/hooks/useUnifiedAuth';
 
 interface NavigationItem {
@@ -58,7 +58,7 @@ const MainNavigation: React.FC = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
               <img 
-                src="/lovable-uploads/788113f9-894c-4f0e-bb24-90b5f436f86f.png" 
+                src="/lovable-uploads/58c00175-9395-4c1a-b741-60b32e37b93e.png" 
                 alt="CTea News Logo" 
                 className="w-8 h-8 object-contain"
               />

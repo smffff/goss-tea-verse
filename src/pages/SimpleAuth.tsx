@@ -14,7 +14,7 @@ const SimpleAuth: React.FC = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-brand-background via-brand-neutral to-brand-darker flex items-center justify-center">
         <img 
-          src="/lovable-uploads/788113f9-894c-4f0e-bb24-90b5f436f86f.png" 
+          src="/lovable-uploads/58c00175-9395-4c1a-b741-60b32e37b93e.png" 
           alt="CTea News Logo" 
           className="w-24 h-24 object-contain animate-pulse"
         />
@@ -35,12 +35,12 @@ const SimpleAuth: React.FC = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <img 
-            src="/lovable-uploads/788113f9-894c-4f0e-bb24-90b5f436f86f.png" 
+            src="/lovable-uploads/58c00175-9395-4c1a-b741-60b32e37b93e.png" 
             alt="CTea News Logo" 
             className="w-16 h-16 mx-auto mb-4 object-contain"
           />
           <h1 className="text-3xl font-anton text-brand-text mb-2">
-            Join CTea News ☕
+            Join CTea News
           </h1>
           <p className="text-brand-text-secondary">
             Start spilling tea in the crypto world
@@ -67,7 +67,7 @@ const SimpleAuth: React.FC = () => {
                   Full account features with email authentication are coming soon!
                 </p>
                 <p className="text-sm text-brand-text-secondary">
-                  For now, join anonymously to start spilling tea ☕
+                  For now, join anonymously to start spilling tea
                 </p>
               </CardContent>
             </Card>
