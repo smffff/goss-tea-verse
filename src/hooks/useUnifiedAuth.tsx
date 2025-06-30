@@ -48,22 +48,26 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
     try {
       setLoading(true);
       
-      const { data: profile, error } = await supabase
+      // Get user profile with wallet balance
+      const { data: profile, error: profileError } = await supabase
         .from('user_profiles')
-        .select('*')
+        .select(`
+          *,
+          wallet_balances(tea_balance)
+        `)
         .eq('wallet_address', walletAddress)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
+      if (profileError && profileError.code !== 'PGRST116') {
+        throw profileError;
       }
 
       if (profile) {
         const walletUser: WalletUser = {
           id: profile.id,
-          wallet_address: profile.wallet_address,
-          token_balance: profile.token_balance || 0,
-          email: profile.email,
+          wallet_address: profile.wallet_address || walletAddress,
+          token_balance: profile.wallet_balances?.[0]?.tea_balance || 0,
+          email: profile.user_id ? undefined : undefined, // Profile doesn't store email directly
           anonymous_token: profile.anonymous_token,
           verification_level: profile.verification_level,
           is_verified: profile.is_verified,
@@ -71,6 +75,37 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
         setUser(walletUser);
         setSession({ user: walletUser });
+      } else {
+        // Create new profile if none exists
+        const { data: newProfile, error: createError } = await supabase
+          .from('user_profiles')
+          .insert([{
+            wallet_address: walletAddress,
+            verification_level: 'wallet_connected'
+          }])
+          .select(`
+            *,
+            wallet_balances(tea_balance)
+          `)
+          .single();
+
+        if (createError) {
+          throw createError;
+        }
+
+        if (newProfile) {
+          const walletUser: WalletUser = {
+            id: newProfile.id,
+            wallet_address: newProfile.wallet_address || walletAddress,
+            token_balance: 0,
+            anonymous_token: newProfile.anonymous_token,
+            verification_level: newProfile.verification_level,
+            is_verified: newProfile.is_verified,
+          };
+
+          setUser(walletUser);
+          setSession({ user: walletUser });
+        }
       }
     } catch (error) {
       secureLog.error('Wallet sync failed:', error);
@@ -96,8 +131,23 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, supabaseSession) => {
-        if (event === 'SIGNED_IN' && supabaseSession) {
-          const validatedSession = await validateSession({ user: supabaseSession.user as WalletUser });
+        if (event === 'SIGNED_IN' && supabaseSession?.user) {
+          // Convert Supabase User to WalletUser
+          const walletUser: WalletUser = {
+            id: supabaseSession.user.id,
+            wallet_address: supabaseSession.user.user_metadata?.wallet_address || '',
+            token_balance: 0,
+            email: supabaseSession.user.email,
+            anonymous_token: supabaseSession.user.user_metadata?.anonymous_token,
+            verification_level: supabaseSession.user.user_metadata?.verification_level || 'email_verified',
+            is_verified: supabaseSession.user.email_confirmed_at !== null,
+            email_confirmed_at: supabaseSession.user.email_confirmed_at,
+            last_sign_in_at: supabaseSession.user.last_sign_in_at,
+            user_metadata: supabaseSession.user.user_metadata,
+            app_metadata: supabaseSession.user.app_metadata,
+          };
+
+          const validatedSession = await validateSession({ user: walletUser });
           setSession(validatedSession);
           setUser(validatedSession?.user || null);
         } else if (event === 'SIGNED_OUT') {
@@ -142,7 +192,21 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
       if (error) throw error;
       
-      return { success: true, user: data.user };
+      if (data.user) {
+        const walletUser: WalletUser = {
+          id: data.user.id,
+          wallet_address: data.user.user_metadata?.wallet_address || '',
+          token_balance: 0,
+          email: data.user.email,
+          anonymous_token: data.user.user_metadata?.anonymous_token,
+          verification_level: data.user.user_metadata?.verification_level || 'email_verified',
+          is_verified: data.user.email_confirmed_at !== null,
+        };
+
+        return { success: true, user: walletUser };
+      }
+      
+      return { success: false, error: 'No user data returned' };
     } catch (error) {
       secureLog.error('Sign in failed:', error);
       return { 
@@ -164,7 +228,21 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
       if (error) throw error;
       
-      return { success: true, user: data.user };
+      if (data.user) {
+        const walletUser: WalletUser = {
+          id: data.user.id,
+          wallet_address: data.user.user_metadata?.wallet_address || '',
+          token_balance: 0,
+          email: data.user.email,
+          anonymous_token: data.user.user_metadata?.anonymous_token,
+          verification_level: 'email_pending',
+          is_verified: false,
+        };
+
+        return { success: true, user: walletUser };
+      }
+      
+      return { success: false, error: 'No user data returned' };
     } catch (error) {
       secureLog.error('Sign up failed:', error);
       return { 

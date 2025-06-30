@@ -18,6 +18,22 @@ export interface RateLimitResult {
   reason?: string;
 }
 
+interface ValidationResponse {
+  valid: boolean;
+  sanitized: string;
+  errors: string[];
+  risk_level: 'low' | 'medium' | 'high' | 'critical';
+  security_score: number;
+}
+
+interface RateLimitResponse {
+  allowed: boolean;
+  remaining: number;
+  reset_time: string;
+  blocked_reason?: string;
+  error?: string;
+}
+
 export class EnhancedValidationService {
   // Server-side content validation using the enhanced SQL function
   static async validateContent(content: string, maxLength: number = 1000): Promise<ValidationResult> {
@@ -32,12 +48,14 @@ export class EnhancedValidationService {
         return this.fallbackValidation(content, maxLength);
       }
 
+      const response = data as ValidationResponse;
+
       return {
-        valid: data.valid,
-        sanitized: data.sanitized,
-        errors: data.errors || [],
-        riskLevel: data.risk_level || 'medium',
-        securityScore: data.security_score || 50
+        valid: response.valid,
+        sanitized: response.sanitized,
+        errors: response.errors || [],
+        riskLevel: response.risk_level || 'medium',
+        securityScore: response.security_score || 50
       };
     } catch (error) {
       secureLog.error('Content validation error:', error);
@@ -65,12 +83,14 @@ export class EnhancedValidationService {
         return this.fallbackRateLimit(token, action, maxAttempts, windowMinutes);
       }
 
+      const response = data as RateLimitResponse;
+
       return {
-        allowed: data.allowed,
-        remaining: data.remaining || 0,
-        resetTime: data.reset_time ? new Date(data.reset_time).getTime() : Date.now() + (windowMinutes * 60 * 1000),
-        blocked: !data.allowed,
-        reason: data.blocked_reason || data.error
+        allowed: response.allowed,
+        remaining: response.remaining || 0,
+        resetTime: response.reset_time ? new Date(response.reset_time).getTime() : Date.now() + (windowMinutes * 60 * 1000),
+        blocked: !response.allowed,
+        reason: response.blocked_reason || response.error
       };
     } catch (error) {
       secureLog.error('Rate limit service error:', error);
