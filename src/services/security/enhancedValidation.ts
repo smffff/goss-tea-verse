@@ -48,14 +48,21 @@ export class EnhancedValidationService {
         return this.fallbackValidation(content, maxLength);
       }
 
-      const response = data as ValidationResponse;
+      // Type-safe casting with validation
+      const response = data as unknown;
+      if (!response || typeof response !== 'object') {
+        secureLog.error('Invalid validation response format:', response);
+        return this.fallbackValidation(content, maxLength);
+      }
+
+      const validationData = response as ValidationResponse;
 
       return {
-        valid: response.valid,
-        sanitized: response.sanitized,
-        errors: response.errors || [],
-        riskLevel: response.risk_level || 'medium',
-        securityScore: response.security_score || 50
+        valid: validationData.valid,
+        sanitized: validationData.sanitized,
+        errors: validationData.errors || [],
+        riskLevel: validationData.risk_level || 'medium',
+        securityScore: validationData.security_score || 50
       };
     } catch (error) {
       secureLog.error('Content validation error:', error);
@@ -83,14 +90,21 @@ export class EnhancedValidationService {
         return this.fallbackRateLimit(token, action, maxAttempts, windowMinutes);
       }
 
-      const response = data as RateLimitResponse;
+      // Type-safe casting with validation
+      const response = data as unknown;
+      if (!response || typeof response !== 'object') {
+        secureLog.error('Invalid rate limit response format:', response);
+        return this.fallbackRateLimit(token, action, maxAttempts, windowMinutes);
+      }
+
+      const rateLimitData = response as RateLimitResponse;
 
       return {
-        allowed: response.allowed,
-        remaining: response.remaining || 0,
-        resetTime: response.reset_time ? new Date(response.reset_time).getTime() : Date.now() + (windowMinutes * 60 * 1000),
-        blocked: !response.allowed,
-        reason: response.blocked_reason || response.error
+        allowed: rateLimitData.allowed,
+        remaining: rateLimitData.remaining || 0,
+        resetTime: rateLimitData.reset_time ? new Date(rateLimitData.reset_time).getTime() : Date.now() + (windowMinutes * 60 * 1000),
+        blocked: !rateLimitData.allowed,
+        reason: rateLimitData.blocked_reason || rateLimitData.error
       };
     } catch (error) {
       secureLog.error('Rate limit service error:', error);

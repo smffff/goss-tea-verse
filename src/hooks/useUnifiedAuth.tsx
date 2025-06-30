@@ -48,13 +48,10 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
     try {
       setLoading(true);
       
-      // Get user profile with wallet balance
+      // Get user profile with wallet balance - using separate queries for better type safety
       const { data: profile, error: profileError } = await supabase
         .from('user_profiles')
-        .select(`
-          *,
-          wallet_balances(tea_balance)
-        `)
+        .select('*')
         .eq('wallet_address', walletAddress)
         .single();
 
@@ -62,12 +59,19 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         throw profileError;
       }
 
+      // Get wallet balance separately
+      const { data: balanceData, error: balanceError } = await supabase
+        .from('wallet_balances')
+        .select('tea_balance')
+        .eq('wallet_address', walletAddress)
+        .maybeSingle();
+
       if (profile) {
         const walletUser: WalletUser = {
           id: profile.id,
           wallet_address: profile.wallet_address || walletAddress,
-          token_balance: profile.wallet_balances?.[0]?.tea_balance || 0,
-          email: profile.user_id ? undefined : undefined, // Profile doesn't store email directly
+          token_balance: balanceData?.tea_balance || 0,
+          email: undefined, // Profile doesn't store email directly
           anonymous_token: profile.anonymous_token,
           verification_level: profile.verification_level,
           is_verified: profile.is_verified,
@@ -83,10 +87,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
             wallet_address: walletAddress,
             verification_level: 'wallet_connected'
           }])
-          .select(`
-            *,
-            wallet_balances(tea_balance)
-          `)
+          .select('*')
           .single();
 
         if (createError) {
