@@ -1,23 +1,16 @@
+
 import React from 'react';
 import Layout from '@/components/Layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-const Settings = () => {
+const Settings: React.FC = () => {
   return (
-    <Layout>
-      <Card className="max-w-2xl mx-auto mt-16 bg-ctea-dark/80 border-ctea-teal/30">
-        <CardHeader>
-          <CardTitle className="text-white text-2xl">Settings</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-gray-300">
-            <p className="mb-4">User settings and preferences will appear here.</p>
-            <p className="text-sm text-gray-500">(Scaffolded page. Add forms and controls as needed.)</p>
-          </div>
-        </CardContent>
-      </Card>
+    <Layout pageTitle="Settings" pageDescription="App settings">
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-anton text-brand-text mb-8">Settings</h1>
+        <p className="text-brand-text-secondary">Settings page coming soon.</p>
+      </div>
     </Layout>
   );
 };
 
-export default Settings; 
+export default Settings;
