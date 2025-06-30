@@ -20,11 +20,11 @@ const SimpleAuth: React.FC = () => {
   }
 
   if (user) {
-    return <Navigate to="/feed" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   const handleAuthSuccess = () => {
-    window.location.href = '/feed';
+    window.location.href = '/home';
   };
 
   return (
