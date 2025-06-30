@@ -45,7 +45,7 @@ const EnhancedTeaCup: React.FC<EnhancedTeaCupProps> = ({
       transition: {
         duration: 2,
         repeat: Infinity,
-        ease: "easeInOut"
+        ease: [0.4, 0, 0.6, 1] as const
       }
     },
     steaming: {
@@ -54,7 +54,7 @@ const EnhancedTeaCup: React.FC<EnhancedTeaCupProps> = ({
       transition: {
         duration: 1.5,
         repeat: Infinity,
-        ease: "easeInOut"
+        ease: [0.4, 0, 0.6, 1] as const
       }
     },
     glowing: {
@@ -63,7 +63,7 @@ const EnhancedTeaCup: React.FC<EnhancedTeaCupProps> = ({
       transition: {
         duration: 2,
         repeat: Infinity,
-        ease: "easeInOut"
+        ease: [0.4, 0, 0.6, 1] as const
       }
     }
   };
@@ -86,7 +86,7 @@ const EnhancedTeaCup: React.FC<EnhancedTeaCupProps> = ({
           transition={{
             duration: 2,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: [0.4, 0, 0.6, 1] as const
           }}
         >
           ☁️
