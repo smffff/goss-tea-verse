@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
 import { useUnifiedAuth } from '@/hooks/useUnifiedAuth';
 import NavigationLogo from './NavigationLogo';
-import NavigationItems from './NavigationItems';
+import { NavigationItems } from './NavigationItems';
 import UserSection from './UserSection';
 import MobileMenu from './MobileMenu';
 
