@@ -42,6 +42,35 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   };
 
+  // Anonymous user check on startup
+  useEffect(() => {
+    const checkAnonymousUser = async () => {
+      try {
+        const stored = localStorage.getItem('ctea_anonymous_user');
+        if (stored && !user) {
+          const anonymousUser = JSON.parse(stored);
+          const walletUser: WalletUser = {
+            id: anonymousUser.id,
+            wallet_address: '',
+            token_balance: 0,
+            anonymous_token: anonymousUser.anonymous_token,
+            verification_level: anonymousUser.verification_level,
+            is_verified: false,
+            username: anonymousUser.username
+          };
+          setUser(walletUser);
+          setSession({ user: walletUser });
+        }
+      } catch (error) {
+        secureLog.error('Failed to load anonymous user:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAnonymousUser();
+  }, [user]);
+
   // Wallet sync with proper error handling
   const syncWalletUser = async (walletAddress: string) => {
     try {
@@ -165,6 +194,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
     try {
       await supabase.auth.signOut({ scope: 'global' });
       disconnectWallet();
+      localStorage.removeItem('ctea_anonymous_user');
       setUser(null);
       setSession(null);
     } catch (error) {
@@ -174,6 +204,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   const disconnect = () => {
     disconnectWallet();
+    localStorage.removeItem('ctea_anonymous_user');
     setUser(null);
     setSession(null);
   };

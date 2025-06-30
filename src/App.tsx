@@ -11,6 +11,7 @@ import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
 
 // Lazy load components
 const Landing = lazy(() => import("./pages/Landing"));
+const SimpleAuth = lazy(() => import("./pages/SimpleAuth"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
               <Suspense fallback={<div>Loading...</div>}>
                 <Routes>
                   <Route path="/" element={<Landing />} />
+                  <Route path="/auth" element={<SimpleAuth />} />
                   <Route path="/auth/callback" element={<AuthCallback />} />
                   {/* Add other routes as needed */}
                 </Routes>
