@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { TrendingUp, User, Star } from 'lucide-react';
 import { useUnifiedAuth } from '@/hooks/useUnifiedAuth';
+import { IMAGES, ALT_TEXT } from '@/config/images';
 
 const EnhancedProductionLandingPage: React.FC = () => {
   const { user } = useUnifiedAuth();
@@ -21,8 +22,8 @@ const EnhancedProductionLandingPage: React.FC = () => {
             className="max-w-4xl mx-auto"
           >
             <motion.img 
-              src="/lovable-uploads/58c00175-9395-4c1a-b741-60b32e37b93e.png" 
-              alt="CTea News Logo" 
+              src={IMAGES.logo}
+              alt={ALT_TEXT.logo}
               className="w-32 h-32 mx-auto mb-8 object-contain"
               animate={{ 
                 rotateY: [0, 360],
@@ -79,8 +80,8 @@ const EnhancedProductionLandingPage: React.FC = () => {
                         className="border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-brand-background text-lg px-8 py-4"
                       >
                         <img 
-                          src="/lovable-uploads/58c00175-9395-4c1a-b741-60b32e37b93e.png" 
-                          alt="CTea News Logo" 
+                          src={IMAGES.logo}
+                          alt={ALT_TEXT.logo}
                           className="mr-2 w-5 h-5 object-contain"
                         />
                         Explore
@@ -115,8 +116,8 @@ const EnhancedProductionLandingPage: React.FC = () => {
             {[
               {
                 icon: <img 
-                  src="/lovable-uploads/58c00175-9395-4c1a-b741-60b32e37b93e.png" 
-                  alt="CTea News Logo" 
+                  src={IMAGES.logo}
+                  alt={ALT_TEXT.logo}
                   className="w-8 h-8 object-contain"
                 />,
                 title: "Anonymous Spilling",

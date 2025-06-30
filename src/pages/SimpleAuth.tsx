@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AnonymousSignUpForm from '@/components/auth/AnonymousSignUpForm';
 import { useUnifiedAuth } from '@/hooks/useUnifiedAuth';
+import { IMAGES, ALT_TEXT } from '@/config/images';
 
 const SimpleAuth: React.FC = () => {
   const { user, loading } = useUnifiedAuth();
@@ -14,8 +15,8 @@ const SimpleAuth: React.FC = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-brand-background via-brand-neutral to-brand-darker flex items-center justify-center">
         <img 
-          src="/lovable-uploads/58c00175-9395-4c1a-b741-60b32e37b93e.png" 
-          alt="CTea News Logo" 
+          src={IMAGES.logo}
+          alt={ALT_TEXT.loading}
           className="w-24 h-24 object-contain animate-pulse"
         />
       </div>
@@ -35,8 +36,8 @@ const SimpleAuth: React.FC = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <img 
-            src="/lovable-uploads/58c00175-9395-4c1a-b741-60b32e37b93e.png" 
-            alt="CTea News Logo" 
+            src={IMAGES.logo}
+            alt={ALT_TEXT.logo}
             className="w-16 h-16 mx-auto mb-4 object-contain"
           />
           <h1 className="text-3xl font-anton text-brand-text mb-2">

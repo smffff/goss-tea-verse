@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { TrendingUp, User } from 'lucide-react';
 import { useUnifiedAuth } from '@/hooks/useUnifiedAuth';
+import { IMAGES, ALT_TEXT } from '@/config/images';
 
 const Home: React.FC = () => {
   const { user } = useUnifiedAuth();
@@ -19,7 +20,7 @@ const Home: React.FC = () => {
           {user ? (
             <div className="text-center">
               <h1 className="text-4xl md:text-6xl font-anton text-brand-text mb-6">
-                Welcome back, {user.username || 'Tea Spiller'}! ☕
+                Welcome back, {user.username || 'Tea Spiller'}!
               </h1>
               
               <p className="text-xl text-brand-text-secondary mb-8 max-w-2xl mx-auto">
@@ -43,8 +44,8 @@ const Home: React.FC = () => {
                 
                 <div className="bg-brand-neutral/50 p-6 rounded-lg border border-brand-primary/20">
                   <img 
-                    src="/lovable-uploads/788113f9-894c-4f0e-bb24-90b5f436f86f.png" 
-                    alt="CTea News Logo" 
+                    src={IMAGES.logo}
+                    alt={ALT_TEXT.logo}
                     className="w-8 h-8 mx-auto mb-4 object-contain"
                   />
                   <h3 className="text-lg font-bold text-brand-text mb-2">Spill Tea</h3>
@@ -89,8 +90,8 @@ const Home: React.FC = () => {
                     className="border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-brand-background text-lg px-8 py-4"
                   >
                     <img 
-                      src="/lovable-uploads/788113f9-894c-4f0e-bb24-90b5f436f86f.png" 
-                      alt="CTea News Logo" 
+                      src={IMAGES.logo}
+                      alt={ALT_TEXT.logo}
                       className="mr-2 w-5 h-5 object-contain"
                     />
                     Learn More
