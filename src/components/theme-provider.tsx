@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 type Theme = 'dark' | 'light' | 'system';
@@ -32,6 +31,7 @@ export function ThemeProvider({
   );
 
   useEffect(() => {
+    if (typeof window === 'undefined' || !window.document) return;
     const root = window.document.documentElement;
 
     root.classList.remove('light', 'dark');

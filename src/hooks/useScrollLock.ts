@@ -1,8 +1,8 @@
-
 import { useEffect } from 'react';
 
 export const useScrollLock = (isLocked: boolean) => {
   useEffect(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
     if (isLocked) {
       // Save current scroll position
       const scrollY = window.scrollY;

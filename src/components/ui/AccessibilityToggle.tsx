@@ -12,6 +12,7 @@ const AccessibilityToggle: React.FC<AccessibilityToggleProps> = ({ className }) 
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
     // Check for existing preference
     const saved = localStorage.getItem('ctea-reduced-motion');
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -23,6 +24,7 @@ const AccessibilityToggle: React.FC<AccessibilityToggleProps> = ({ className }) 
   }, []);
 
   const toggleReducedMotion = () => {
+    if (typeof document === 'undefined') return;
     const newValue = !reducedMotion;
     setReducedMotion(newValue);
     
