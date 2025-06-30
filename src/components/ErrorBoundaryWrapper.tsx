@@ -5,14 +5,16 @@ import UnifiedErrorBoundary from './error/UnifiedErrorBoundary';
 interface ErrorBoundaryWrapperProps {
   children: React.ReactNode;
   componentName?: string;
+  fallback?: React.ReactNode;
 }
 
 const ErrorBoundaryWrapper: React.FC<ErrorBoundaryWrapperProps> = ({ 
   children, 
-  componentName 
+  componentName,
+  fallback 
 }) => {
   return (
-    <UnifiedErrorBoundary componentName={componentName}>
+    <UnifiedErrorBoundary componentName={componentName} fallback={fallback}>
       {children}
     </UnifiedErrorBoundary>
   );

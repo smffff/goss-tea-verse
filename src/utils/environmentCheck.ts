@@ -1,3 +1,7 @@
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+
 // Environment check utility
 export const environmentCheck = {
   // Check if all required environment variables are set
@@ -111,4 +115,4 @@ if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
   });
 }
 
-export default environmentCheck; 
+export default environmentCheck;
