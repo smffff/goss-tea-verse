@@ -17,13 +17,13 @@ const NotFound: React.FC = () => {
         >
           <Card className="bg-brand-neutral/50 border-brand-primary/30 max-w-lg mx-auto backdrop-blur-lg">
             <CardContent className="p-8 text-center space-y-6">
-              <motion.div 
-                className="text-6xl mb-4"
+              <motion.img 
+                src="/lovable-uploads/788113f9-894c-4f0e-bb24-90b5f436f86f.png" 
+                alt="CTea News Logo" 
+                className="w-16 h-16 mx-auto mb-4 object-contain"
                 animate={{ rotate: [0, -10, 10, 0] }}
                 transition={{ duration: 2, repeat: Infinity }}
-              >
-                🫖
-              </motion.div>
+              />
               <h1 className="text-4xl font-anton text-brand-text">404</h1>
               <h2 className="text-xl text-brand-text font-bold">Page Not Found</h2>
               <p className="text-brand-text-secondary">

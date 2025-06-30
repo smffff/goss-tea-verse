@@ -57,7 +57,11 @@ const MainNavigation: React.FC = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
-              <div className="text-2xl">🫖</div>
+              <img 
+                src="/lovable-uploads/788113f9-894c-4f0e-bb24-90b5f436f86f.png" 
+                alt="CTea News Logo" 
+                className="w-8 h-8 object-contain"
+              />
               <span className="font-bold text-brand-text text-xl font-anton">
                 CTea News
               </span>

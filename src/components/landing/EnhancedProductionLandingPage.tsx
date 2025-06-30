@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { Coffee, TrendingUp, User, Star } from 'lucide-react';
-import EnhancedTeaCup from '@/components/ui/EnhancedTeaCup';
 import { useUnifiedAuth } from '@/hooks/useUnifiedAuth';
 
 const EnhancedProductionLandingPage: React.FC = () => {
@@ -21,7 +20,20 @@ const EnhancedProductionLandingPage: React.FC = () => {
             transition={{ duration: 0.8 }}
             className="max-w-4xl mx-auto"
           >
-            <EnhancedTeaCup size="xl" variant="glowing" animated={true} className="mx-auto mb-8" />
+            <motion.img 
+              src="/lovable-uploads/788113f9-894c-4f0e-bb24-90b5f436f86f.png" 
+              alt="CTea News Logo" 
+              className="w-32 h-32 mx-auto mb-8 object-contain"
+              animate={{ 
+                rotateY: [0, 360],
+                scale: [1, 1.1, 1]
+              }}
+              transition={{ 
+                duration: 4,
+                repeat: Infinity,
+                ease: [0.4, 0, 0.6, 1]
+              }}
+            />
             
             <h1 className="text-6xl md:text-8xl font-anton text-brand-text mb-6">
               CTea News ☕

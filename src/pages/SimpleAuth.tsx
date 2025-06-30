@@ -5,7 +5,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AnonymousSignUpForm from '@/components/auth/AnonymousSignUpForm';
 import { useUnifiedAuth } from '@/hooks/useUnifiedAuth';
-import EnhancedTeaCup from '@/components/ui/EnhancedTeaCup';
 
 const SimpleAuth: React.FC = () => {
   const { user, loading } = useUnifiedAuth();
@@ -14,7 +13,11 @@ const SimpleAuth: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-brand-background via-brand-neutral to-brand-darker flex items-center justify-center">
-        <EnhancedTeaCup size="xl" variant="steaming" animated={true} />
+        <img 
+          src="/lovable-uploads/788113f9-894c-4f0e-bb24-90b5f436f86f.png" 
+          alt="CTea News Logo" 
+          className="w-24 h-24 object-contain animate-pulse"
+        />
       </div>
     );
   }
@@ -31,7 +34,11 @@ const SimpleAuth: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-brand-background via-brand-neutral to-brand-darker flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <EnhancedTeaCup size="lg" variant="glowing" animated={true} className="mx-auto mb-4" />
+          <img 
+            src="/lovable-uploads/788113f9-894c-4f0e-bb24-90b5f436f86f.png" 
+            alt="CTea News Logo" 
+            className="w-16 h-16 mx-auto mb-4 object-contain"
+          />
           <h1 className="text-3xl font-anton text-brand-text mb-2">
             Join CTea News ☕
           </h1>
