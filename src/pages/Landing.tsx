@@ -1,12 +1,12 @@
 
 import React from 'react';
-import ProductionLandingPage from '@/components/landing/ProductionLandingPage';
+import EnhancedProductionLandingPage from '@/components/landing/EnhancedProductionLandingPage';
 import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 
 const Landing: React.FC = () => {
   return (
     <ErrorBoundaryWrapper componentName="Landing">
-      <ProductionLandingPage />
+      <EnhancedProductionLandingPage />
     </ErrorBoundaryWrapper>
   );
 };
