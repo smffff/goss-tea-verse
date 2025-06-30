@@ -1,15 +1,15 @@
-import './utils/globalSecurity';
 
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
-import { RevenueProvider } from './components/revenue/RevenueProvider'
+
+// Clear any error flags on startup
+localStorage.removeItem('ctea_critical_error');
+sessionStorage.removeItem('ctea_critical_error');
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <RevenueProvider>
-      <App />
-    </RevenueProvider>
+    <App />
   </React.StrictMode>,
 )

@@ -1,23 +1,16 @@
 import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider } from 'next-themes';
+import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from 'sonner';
-import { WalletProvider } from '@/contexts/WalletContext';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { UnifiedErrorBoundary } from '@/components/error/UnifiedErrorBoundary';
 import { secureLog } from '@/utils/secureLogging';
-import debugErrorLog from '@/utils/debugErrorLog';
-import environmentCheck from '@/utils/environmentCheck';
 import Layout from '@/components/Layout';
+import AppErrorBoundary from '@/components/error/UnifiedErrorBoundary';
+import ErrorRedirectHandler from '@/components/error/ProductionErrorBoundary';
+import AppInitializer from '@/components/AppInitializer';
 import './index.css';
 
 // Lazy load pages for better performance
-const Home = React.lazy(() => import('@/pages/Home'));
-const Feed = React.lazy(() => import('@/pages/Feed'));
-const SpillTea = React.lazy(() => import('@/components/SpillTea'));
 const Landing = React.lazy(() => import('@/pages/Landing'));
-const Submit = React.lazy(() => import('@/pages/Submit'));
-const VIP = React.lazy(() => import('@/pages/VIP'));
 
 // Loading component
 const LoadingSpinner: React.FC = () => (
@@ -35,73 +28,37 @@ const App: React.FC = () => {
     secureLog.info('CTea News App initializing');
     
     // Set up error tracking
-    window.addEventListener('error', (event) => {
+    const handleError = (event: ErrorEvent) => {
       secureLog.error('Global error caught:', event.error);
-    });
+    };
 
-    window.addEventListener('unhandledrejection', (event) => {
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       secureLog.error('Unhandled promise rejection:', event.reason);
-    });
+    };
 
-    // Run environment checks in development
-    if (process.env.NODE_ENV === 'development') {
-      setTimeout(() => {
-        environmentCheck.runAllChecks();
-        
-        // Check for existing error logs
-        const errors = debugErrorLog.getErrors();
-        if (errors.length > 0) {
-          console.log('Previous errors found. Run debugErrorLog.printErrors() to view details.');
-        }
-      }, 2000);
-    }
+    // Add event listeners
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
 
-    // Add debugging utilities to window in development
-    if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
-      (window as any).debugErrorLog = debugErrorLog;
-      (window as any).environmentCheck = environmentCheck;
-      console.log('Debug utilities available: window.debugErrorLog, window.environmentCheck');
-    }
+    // Cleanup function
+    return () => {
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
   }, []);
 
   return (
-    <UnifiedErrorBoundary
-      componentName="App"
-      mode={process.env.NODE_ENV === 'development' ? 'development' : 'production'}
-    >
+    <AppErrorBoundary>
       <ThemeProvider
-        attribute="class"
         defaultTheme="light"
-        enableSystem
-        disableTransitionOnChange
+        storageKey="ctea-ui-theme"
       >
         <Router>
-          <WalletProvider>
-            <AuthProvider>
+          <ErrorRedirectHandler>
+            <AppInitializer>
               <Suspense fallback={<LoadingSpinner />}>
                 <Routes>
                   <Route path="/" element={<Landing />} />
-                  <Route path="/home" element={
-                    <Layout>
-                      <Home />
-                    </Layout>
-                  } />
-                  <Route path="/feed" element={<Feed />} />
-                  <Route path="/submit" element={
-                    <Layout>
-                      <SpillTea />
-                    </Layout>
-                  } />
-                  <Route path="/spill" element={
-                    <Layout>
-                      <SpillTea />
-                    </Layout>
-                  } />
-                  <Route path="/vip" element={
-                    <Layout>
-                      <VIP />
-                    </Layout>
-                  } />
                   <Route path="*" element={<Landing />} />
                 </Routes>
               </Suspense>
@@ -110,18 +67,17 @@ const App: React.FC = () => {
                 position="top-right"
                 toastOptions={{
                   style: {
-                    background: 'rgba(253, 249, 243, 0.95)',
-                    border: '1px solid rgba(222, 31, 148, 0.3)',
-                    color: '#1A1A1A',
+                    background: 'rgba(11, 11, 23, 0.95)',
+                    border: '1px solid rgba(255, 32, 82, 0.3)',
+                    color: '#FFFFFF',
                   },
-                  className: 'bg-brand-background/95 border-brand-primary/30 text-brand-text',
                 }}
               />
-            </AuthProvider>
-          </WalletProvider>
+            </AppInitializer>
+          </ErrorRedirectHandler>
         </Router>
       </ThemeProvider>
-    </UnifiedErrorBoundary>
+    </AppErrorBoundary>
   );
 };
 

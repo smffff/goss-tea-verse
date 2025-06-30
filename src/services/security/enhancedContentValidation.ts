@@ -1,6 +1,5 @@
 
 import DOMPurify from 'dompurify';
-import { secureLog } from '@/utils/secureLogging';
 
 export interface EnhancedValidationResult {
   valid: boolean;
@@ -21,9 +20,12 @@ export class EnhancedContentValidationService {
     /<iframe[^>]*>/gi,
     /<object[^>]*>/gi,
     /<embed[^>]*>/gi,
-    /eval\s*\(/gi,
-    /setTimeout\s*\(/gi,
-    /setInterval\s*\(/gi
+    /<link[^>]*>/gi,
+    /<style[^>]*>/gi,
+    /<meta[^>]*>/gi,
+    /expression\s*\(/gi,
+    /@import/gi,
+    /<base[^>]*>/gi
   ];
 
   private static readonly SQL_PATTERNS = [
@@ -33,82 +35,99 @@ export class EnhancedContentValidationService {
     /delete\s+from/gi,
     /update\s+.*set/gi,
     /alter\s+table/gi,
-    /--|\/\*|\*\//gi
+    /create\s+table/gi,
+    /--\s*$/gm,
+    /\/\*.*?\*\//gs,
+    /\b(exec|execute)\s*\(/gi,
+    /xp_cmdshell/gi,
+    /sp_executesql/gi
   ];
 
-  public static validateContent(content: string, maxLength: number = 2000): EnhancedValidationResult {
-    const threats: string[] = [];
-    let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
-    let securityScore = 100;
-    let blocked = false;
-
-    // Basic validation
-    if (!content || content.trim().length === 0) {
-      return {
-        valid: false,
-        sanitized: '',
-        threats: ['Content cannot be empty'],
-        riskLevel: 'low',
-        securityScore: 0,
-        blocked: false
-      };
-    }
-
-    if (content.length > maxLength) {
-      threats.push(`Content exceeds maximum length of ${maxLength} characters`);
-      securityScore -= 20;
-      riskLevel = 'medium';
-    }
-
-    // XSS Detection
-    for (const pattern of this.XSS_PATTERNS) {
-      if (pattern.test(content)) {
-        threats.push('XSS attack vector detected');
-        riskLevel = 'critical';
-        securityScore = 0;
-        blocked = true;
-        secureLog.warn('XSS attempt blocked', { pattern: pattern.source });
-        break;
+  public static validateContent(content: string): EnhancedValidationResult {
+    try {
+      if (!content || typeof content !== 'string') {
+        return {
+          valid: false,
+          sanitized: '',
+          threats: ['Empty or invalid content'],
+          riskLevel: 'low',
+          securityScore: 0,
+          blocked: true
+        };
       }
-    }
 
-    // SQL Injection Detection
-    if (!blocked) {
-      for (const pattern of this.SQL_PATTERNS) {
+      const threats: string[] = [];
+      let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
+      let securityScore = 100;
+
+      // Check for XSS patterns
+      for (const pattern of this.XSS_PATTERNS) {
         if (pattern.test(content)) {
-          threats.push('SQL injection pattern detected');
-          riskLevel = 'high';
-          securityScore -= 50;
-          blocked = true;
-          secureLog.warn('SQL injection attempt blocked', { pattern: pattern.source });
+          threats.push('XSS attempt detected');
+          riskLevel = 'critical';
+          securityScore = 0;
           break;
         }
       }
+
+      // Check for SQL injection patterns
+      if (riskLevel !== 'critical') {
+        for (const pattern of this.SQL_PATTERNS) {
+          if (pattern.test(content)) {
+            threats.push('SQL injection attempt detected');
+            riskLevel = 'high';
+            securityScore = Math.min(securityScore, 20);
+            break;
+          }
+        }
+      }
+
+      // Content length check
+      if (content.length > 10000) {
+        threats.push('Content too long');
+        if (riskLevel === 'low') riskLevel = 'medium';
+        securityScore -= 20;
+      }
+
+      // Sanitize content using DOMPurify
+      let sanitized: string;
+      try {
+        sanitized = DOMPurify.sanitize(content, { 
+          ALLOWED_TAGS: [],
+          ALLOWED_ATTR: [],
+          KEEP_CONTENT: true
+        });
+      } catch (error) {
+        // Fallback sanitization
+        sanitized = content
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#x27;')
+          .replace(/\//g, '&#x2F;');
+      }
+
+      const blocked = riskLevel === 'critical' || securityScore === 0;
+      const valid = threats.length === 0 && !blocked;
+
+      return {
+        valid,
+        sanitized,
+        threats,
+        riskLevel,
+        securityScore,
+        blocked
+      };
+    } catch (error) {
+      console.error('Content validation error:', error);
+      return {
+        valid: false,
+        sanitized: '',
+        threats: ['Validation system error'],
+        riskLevel: 'critical',
+        securityScore: 0,
+        blocked: true
+      };
     }
-
-    // Sanitize content using DOMPurify
-    const sanitized = DOMPurify.sanitize(content, {
-      ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'u', 'br', 'p'],
-      ALLOWED_ATTR: [],
-      KEEP_CONTENT: true,
-      RETURN_DOM_FRAGMENT: false,
-      RETURN_DOM: false
-    });
-
-    // Additional sanitization for URLs and suspicious patterns
-    const finalSanitized = sanitized
-      .replace(/javascript:/gi, '')
-      .replace(/data:/gi, '')
-      .replace(/vbscript:/gi, '')
-      .trim();
-
-    return {
-      valid: !blocked && threats.length === 0,
-      sanitized: finalSanitized,
-      threats,
-      riskLevel,
-      securityScore,
-      blocked
-    };
   }
 }
