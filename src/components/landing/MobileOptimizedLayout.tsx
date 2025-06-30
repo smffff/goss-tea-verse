@@ -12,8 +12,8 @@ const MobileOptimizedLayout: React.FC<MobileOptimizedLayoutProps> = ({ children 
     <div className="min-h-screen bg-brand-background">
       {/* Mobile-specific optimizations */}
       <div className="block md:hidden">
-        {/* Mobile header adjustments */}
-        <style jsx>{`
+        {/* Mobile header adjustments - using Tailwind classes instead of inline styles */}
+        <style>{`
           @media (max-width: 768px) {
             .mobile-header {
               padding: 0.75rem 1rem;

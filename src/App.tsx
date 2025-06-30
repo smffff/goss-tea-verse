@@ -6,6 +6,8 @@ import { WalletProvider } from '@/contexts/WalletContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { UnifiedErrorBoundary } from '@/components/error/UnifiedErrorBoundary';
 import { secureLog } from '@/utils/secureLogging';
+import debugErrorLog from '@/utils/debugErrorLog';
+import environmentCheck from '@/utils/environmentCheck';
 import Layout from '@/components/Layout';
 import './index.css';
 
@@ -40,6 +42,26 @@ const App: React.FC = () => {
     window.addEventListener('unhandledrejection', (event) => {
       secureLog.error('Unhandled promise rejection:', event.reason);
     });
+
+    // Run environment checks in development
+    if (process.env.NODE_ENV === 'development') {
+      setTimeout(() => {
+        environmentCheck.runAllChecks();
+        
+        // Check for existing error logs
+        const errors = debugErrorLog.getErrors();
+        if (errors.length > 0) {
+          console.log('Previous errors found. Run debugErrorLog.printErrors() to view details.');
+        }
+      }, 2000);
+    }
+
+    // Add debugging utilities to window in development
+    if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+      (window as any).debugErrorLog = debugErrorLog;
+      (window as any).environmentCheck = environmentCheck;
+      console.log('Debug utilities available: window.debugErrorLog, window.environmentCheck');
+    }
   }, []);
 
   return (
