@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from 'sonner';
 import { secureLog } from '@/utils/secureLogging';
@@ -7,6 +7,9 @@ import Layout from '@/components/Layout';
 import AppErrorBoundary from '@/components/error/UnifiedErrorBoundary';
 import ErrorRedirectHandler from '@/components/error/ProductionErrorBoundary';
 import AppInitializer from '@/components/AppInitializer';
+import { WalletProvider } from '@/components/WalletProvider';
+import { AuthProvider } from '@/hooks/useAuth';
+import AppProviders from '@/components/app/AppProviders';
 import './index.css';
 
 // Lazy load pages for better performance
@@ -74,66 +77,70 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <AppErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        storageKey="ctea-ui-theme"
-      >
-        <Router>
-          <ErrorRedirectHandler>
-            <AppInitializer>
-              <Suspense fallback={<LoadingSpinner />}>
-                <Routes>
-                  {/* Main Routes */}
-                  <Route path="/" element={<Landing />} />
-                  <Route path="/home" element={<Home />} />
-                  <Route path="/feed" element={<Feed />} />
-                  <Route path="/spill" element={<SpillTea />} />
-                  <Route path="/submit" element={<Submit />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/admin" element={<Admin />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/settings" element={<Settings />} />
+    <AppProviders>
+      <WalletProvider>
+        <AuthProvider>
+          <AppErrorBoundary>
+            <ThemeProvider
+              defaultTheme="light"
+              storageKey="ctea-ui-theme"
+            >
+              <ErrorRedirectHandler>
+                <AppInitializer>
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <Routes>
+                      {/* Main Routes */}
+                      <Route path="/" element={<Landing />} />
+                      <Route path="/home" element={<Home />} />
+                      <Route path="/feed" element={<Feed />} />
+                      <Route path="/spill" element={<SpillTea />} />
+                      <Route path="/submit" element={<Submit />} />
+                      <Route path="/auth" element={<Auth />} />
+                      <Route path="/admin" element={<Admin />} />
+                      <Route path="/about" element={<About />} />
+                      <Route path="/profile" element={<Profile />} />
+                      <Route path="/settings" element={<Settings />} />
+                      
+                      {/* Content Pages */}
+                      <Route path="/team" element={<Team />} />
+                      <Route path="/faq" element={<FAQ />} />
+                      <Route path="/contact" element={<Contact />} />
+                      <Route path="/privacy" element={<Privacy />} />
+                      <Route path="/terms" element={<Terms />} />
+                      <Route path="/leaderboard" element={<Leaderboard />} />
+                      <Route path="/tokenomics" element={<Tokenomics />} />
+                      <Route path="/roadmap" element={<Roadmap />} />
+                      <Route path="/governance" element={<GovernancePage />} />
+                      <Route path="/campaigns" element={<Campaigns />} />
+                      <Route path="/features" element={<Features />} />
+                      <Route path="/trends" element={<Trends />} />
+                      <Route path="/vip" element={<VIP />} />
+                      <Route path="/memeops" element={<MemeOps />} />
+                      <Route path="/token" element={<TokenPage />} />
+                      <Route path="/investors" element={<Investors />} />
+                      
+                      {/* 404 Route */}
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Suspense>
                   
-                  {/* Content Pages */}
-                  <Route path="/team" element={<Team />} />
-                  <Route path="/faq" element={<FAQ />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/privacy" element={<Privacy />} />
-                  <Route path="/terms" element={<Terms />} />
-                  <Route path="/leaderboard" element={<Leaderboard />} />
-                  <Route path="/tokenomics" element={<Tokenomics />} />
-                  <Route path="/roadmap" element={<Roadmap />} />
-                  <Route path="/governance" element={<GovernancePage />} />
-                  <Route path="/campaigns" element={<Campaigns />} />
-                  <Route path="/features" element={<Features />} />
-                  <Route path="/trends" element={<Trends />} />
-                  <Route path="/vip" element={<VIP />} />
-                  <Route path="/memeops" element={<MemeOps />} />
-                  <Route path="/token" element={<TokenPage />} />
-                  <Route path="/investors" element={<Investors />} />
-                  
-                  {/* 404 Route */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Suspense>
-              
-              <Toaster
-                position="top-right"
-                toastOptions={{
-                  style: {
-                    background: 'rgba(11, 11, 23, 0.95)',
-                    border: '1px solid rgba(255, 32, 82, 0.3)',
-                    color: '#FFFFFF',
-                  },
-                }}
-              />
-            </AppInitializer>
-          </ErrorRedirectHandler>
-        </Router>
-      </ThemeProvider>
-    </AppErrorBoundary>
+                  <Toaster
+                    position="top-right"
+                    toastOptions={{
+                      style: {
+                        background: 'rgba(11, 11, 23, 0.95)',
+                        border: '1px solid rgba(255, 32, 82, 0.3)',
+                        color: '#FFFFFF',
+                      },
+                    }}
+                  />
+                </AppInitializer>
+              </ErrorRedirectHandler>
+            </ThemeProvider>
+          </AppErrorBoundary>
+        </AuthProvider>
+      </WalletProvider>
+    </AppProviders>
   );
 };
 
