@@ -115,16 +115,6 @@ const Landing = () => {
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [showDemo, setShowDemo] = useState(false);
 
-  // Parallax effect for teacup
-  const [parallaxY, setParallaxY] = useState(0);
-  React.useEffect(() => {
-    const handleScroll = () => {
-      setParallaxY(window.scrollY * 0.2);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const accessMethods = [
     {
       id: 'spill-tea',
@@ -180,41 +170,98 @@ const Landing = () => {
   return (
     <Layout>
       {/* Hero Section */}
-      <div className="relative bg-vaporwave overflow-hidden pb-8">
-        <div className="container mx-auto px-4 pt-16 pb-24 flex flex-col md:flex-row items-center justify-between gap-8">
-          {/* Logo and Tagline */}
-          <div className="flex-1 flex flex-col items-center md:items-start z-10">
-            <img
-              src="/assets/ctea-logo-full.png"
-              alt="CTEA News Logo"
-              className="w-72 md:w-96 mb-6 comic-border retro-glow"
-              style={{ background: 'rgba(255,255,255,0.05)' }}
-            />
-            <div className="speech-bubble mb-6 max-w-lg">
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center max-w-6xl mx-auto">
+          {/* Animated Logo */}
+          <div className="mb-8">
+            <div className="text-8xl mb-4 animate-bounce">🫖</div>
+            <h1 className="text-6xl font-bold text-white mb-6">CTea News</h1>
+            <p className="text-2xl text-gray-300 mb-4">
               Where Crypto Gossip Meets AI Receipts
-            </div>
-            <div className="flex flex-wrap gap-4 mb-4">
-              <button className="ctea-btn" onClick={() => handleAccessMethod('spill-tea')}>Spill Tea</button>
-              <button className="ctea-btn" onClick={() => document.getElementById('early-access')?.scrollIntoView({ behavior: 'smooth' })}>Tip for Access</button>
-              <Link to="/feed" className="ctea-btn">Enter the Feed</Link>
-              <Link to="/vip" className="ctea-btn">Go VIP</Link>
+            </p>
+            <p className="text-lg text-gray-400 mb-8">
+              The Web3 anonymous newsroom is brewing... Get early access now!
+            </p>
+          </div>
+
+          {/* Demo Button */}
+          <div className="mb-16">
+            <button 
+              onClick={() => setShowDemo(true)}
+              className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors mb-4"
+            >
+              See How It Works
+            </button>
+            <div className="text-sm text-gray-400">
+              Coming Soon - Alpha Access Available
             </div>
           </div>
-          {/* Parallax Teacup */}
-          <div className="flex-1 flex items-center justify-center relative z-0">
-            <img
-              src="/assets/logo-teacup-drip.svg"
-              alt="Floating Teacup"
-              className="w-64 md:w-80 absolute left-1/2 md:left-auto md:right-0 top-0 md:top-12 animate-float"
-              style={{
-                transform: `translate(-50%, ${parallaxY}px) scale(1.1)`,
-                filter: 'drop-shadow(0 0 32px #A67CFF) drop-shadow(0 0 8px #FF2052)'
-              }}
-            />
+
+          {/* Access Methods Section */}
+          <div className="mb-16">
+            <h2 className="text-3xl font-bold text-white mb-4">
+              Choose Your Access Method
+            </h2>
+            <p className="text-gray-300 mb-8">
+              Three ways to get early access to the hottest crypto gossip platform
+            </p>
+            
+            <div className="grid md:grid-cols-3 gap-6">
+              {accessMethods.map((method) => (
+                <AccessMethodCard
+                  key={method.id}
+                  {...method}
+                  onSelect={() => handleAccessMethod(method.id)}
+                />
+              ))}
+            </div>
           </div>
-          {/* Vaporwave shapes (decorative) */}
-          <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-gradient-to-br from-[#FFD93D] via-[#A67CFF] to-[#FF2052] opacity-30 blur-3xl z-0" />
-          <div className="absolute -bottom-32 right-0 w-96 h-96 rounded-full bg-gradient-to-tr from-[#A67CFF] via-[#FF2052] to-[#FFD93D] opacity-20 blur-2xl z-0" />
+
+          {/* Features Preview */}
+          <div className="mb-16">
+            <h2 className="text-3xl font-bold text-white mb-4">
+              What Makes CTea Special
+            </h2>
+            <p className="text-gray-300 mb-8">
+              The future of anonymous crypto journalism
+            </p>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { icon: '🔒', title: 'Anonymous Posting', description: 'Post gossip without revealing your identity' },
+                { icon: '🤖', title: 'AI Verification', description: 'Advanced AI moderates and verifies content quality' },
+                { icon: '💰', title: 'Token Rewards', description: 'Earn $TEA tokens for quality submissions' },
+                { icon: '👥', title: 'Community Driven', description: 'Community validation and gossip verification' }
+              ].map((feature, index) => (
+                <div key={index} className="bg-slate-800 p-6 rounded-lg text-center">
+                  <div className="text-3xl mb-4">{feature.icon}</div>
+                  <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
+                  <p className="text-gray-400 text-sm">{feature.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Waitlist Section */}
+          <div className="bg-slate-800 p-8 rounded-lg border border-slate-700">
+            <h2 className="text-2xl font-bold text-white mb-4">
+              Join the Waitlist
+            </h2>
+            <p className="text-gray-300 mb-6">
+              Be the first to know when CTea News launches
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+              <input 
+                type="email" 
+                placeholder="your@email.com"
+                className="flex-1 bg-slate-700 text-white px-4 py-3 rounded-lg border border-slate-600 focus:border-red-500 focus:outline-none"
+              />
+              <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold">
+                Join Waitlist
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -368,26 +415,13 @@ const SpillTea = () => (
 
 const NotFound = () => (
   <Layout>
-    <div className="flex items-center justify-center min-h-[80vh] bg-vaporwave">
+    <div className="flex items-center justify-center min-h-[80vh]">
       <div className="text-center">
-        <div className="flex flex-col items-center justify-center">
-          <img 
-            src="/assets/ctea-meme-lady.png" 
-            alt="CTEA Meme Lady" 
-            className="w-full max-w-md mb-6 comic-border retro-glow"
-            style={{ boxShadow: '0 0 32px 8px #A67CFF, 0 0 0 8px #0B0B17' }}
-          />
-          <div className="speech-bubble mb-6">
-            This page is steeping... come back later.
-          </div>
-        </div>
-        <h1 className="text-5xl font-bold ctea-heading mb-2" style={{ color: 'var(--ctea-primary)' }}>404</h1>
-        <p className="text-xl mb-8" style={{ color: 'var(--ctea-lavender)' }}>
-          Not Found / Under Construction
-        </p>
+        <h1 className="text-6xl font-bold text-white mb-4">404</h1>
+        <p className="text-xl text-gray-300 mb-8">Page not found</p>
         <Link 
           to="/"
-          className="ctea-btn"
+          className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold"
         >
           Go Home
         </Link>
