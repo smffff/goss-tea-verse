@@ -36,7 +36,7 @@ const EnhancedTeaCup: React.FC<EnhancedTeaCupProps> = ({
           transition: { 
             duration: 4, 
             repeat: Infinity, 
-            ease: "easeInOut"
+            ease: "easeInOut" as const
           }
         };
       case 'steaming':
@@ -46,7 +46,7 @@ const EnhancedTeaCup: React.FC<EnhancedTeaCupProps> = ({
           transition: { 
             duration: 3, 
             repeat: Infinity, 
-            ease: "easeInOut"
+            ease: "easeInOut" as const
           }
         };
       case 'glowing':
@@ -59,7 +59,7 @@ const EnhancedTeaCup: React.FC<EnhancedTeaCupProps> = ({
           transition: { 
             duration: 2, 
             repeat: Infinity, 
-            ease: "easeInOut"
+            ease: "easeInOut" as const
           }
         };
       default:
@@ -68,7 +68,7 @@ const EnhancedTeaCup: React.FC<EnhancedTeaCupProps> = ({
           transition: { 
             duration: 4, 
             repeat: Infinity, 
-            ease: "easeInOut"
+            ease: "easeInOut" as const
           }
         };
     }
