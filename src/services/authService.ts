@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { secureLog } from '@/utils/secureLogging';
 
@@ -35,7 +36,10 @@ export const createUser = async (email: string, password: string): Promise<AuthR
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/`
+        emailRedirectTo: `https://cteanews.com/auth/callback`,
+        data: {
+          email_confirm: true
+        }
       }
     });
 
@@ -50,6 +54,27 @@ export const createUser = async (email: string, password: string): Promise<AuthR
     return {
       success: false,
       error: error instanceof Error ? error.message : 'User creation failed'
+    };
+  }
+};
+
+export const sendPasswordReset = async (email: string): Promise<AuthResult> => {
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `https://cteanews.com/auth/reset-password`,
+    });
+
+    if (error) {
+      secureLog.error('Password reset failed:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    secureLog.error('Password reset error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Password reset failed'
     };
   }
 };

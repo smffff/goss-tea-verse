@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useWallet } from '@/components/WalletProvider';
 import { supabase } from '@/integrations/supabase/client';
@@ -223,7 +222,11 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`
+          emailRedirectTo: `https://cteanews.com/auth/callback`,
+          data: {
+            email_confirm: true,
+            domain: 'cteanews.com'
+          }
         }
       });
 
