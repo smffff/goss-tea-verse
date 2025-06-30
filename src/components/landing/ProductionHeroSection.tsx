@@ -1,131 +1,133 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Coffee, Zap, Crown } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import BrandedTeacupIcon from '@/components/ui/BrandedTeacupIcon';
+import { ArrowRight, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const ProductionHeroSection: React.FC = () => {
-  const navigate = useNavigate();
+  const handleSpillTea = () => {
+    // Navigate to submit page
+    window.location.href = '/submit';
+  };
+
+  const handleTipToUnlock = () => {
+    // Open wallet modal or scroll to wallet section
+    const walletSection = document.getElementById('wallet-section');
+    if (walletSection) {
+      walletSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleGoVIP = () => {
+    // Navigate to VIP/premium section
+    window.location.href = '/vip';
+  };
 
   return (
-    <section className="min-h-screen flex items-center justify-center relative overflow-hidden px-4">
-      {/* Floating CTea Logo */}
-      <motion.div
-        className="absolute top-20 left-1/2 transform -translate-x-1/2 z-10"
-        animate={{ 
-          scale: [1, 1.05, 1],
-          rotate: [0, 2, -2, 0]
-        }}
-        transition={{ 
-          duration: 4,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      >
-        <div className="w-24 h-24 md:w-32 md:h-32 bg-gradient-to-r from-ctea-teal to-ctea-purple rounded-full flex items-center justify-center shadow-2xl">
-          <BrandedTeacupIcon size="hero" variant="steaming" animated />
-        </div>
-      </motion.div>
+    <section className="min-h-screen bg-brand-background bg-pattern flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-brand-primary rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-brand-highlight rounded-full blur-2xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-brand-secondary rounded-full blur-xl animate-pulse delay-2000"></div>
+      </div>
 
-      {/* Floating OG Badge */}
-      <motion.div
-        className="absolute top-32 right-8 md:right-16 z-20"
-        animate={{ 
-          y: [0, -10, 0],
-          rotate: [0, 5, -5, 0]
-        }}
-        transition={{ 
-          duration: 3,
-          repeat: Infinity,
-          delay: 1
-        }}
-      >
-        <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-black px-4 py-2 text-sm font-bold shadow-lg">
-          <Crown className="w-4 h-4 mr-1" />
-          OG ACCESS
-        </Badge>
-      </motion.div>
-
-      {/* Dripping Teacup Graphic */}
-      <motion.div
-        className="absolute bottom-20 left-8 md:left-16 z-10"
-        animate={{ 
-          y: [0, 10, 0],
-          opacity: [0.7, 1, 0.7]
-        }}
-        transition={{ 
-          duration: 2.5,
-          repeat: Infinity
-        }}
-      >
-        <div className="text-6xl filter drop-shadow-lg">
-          <BrandedTeacupIcon size="xl" variant="spilling" />
-        </div>
-      </motion.div>
-
-      {/* Main Content */}
-      <div className="text-center max-w-4xl mx-auto z-20">
-        <motion.h1
-          className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-tight"
-          style={{ fontFamily: "'Anton', 'Impact', sans-serif" }}
+      <div className="container mx-auto max-w-6xl text-center relative z-10">
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-            CTea Newsroom
-          </span>
-          <br />
-          <span className="text-3xl md:text-4xl lg:text-5xl text-ctea-teal font-bold">
-            Beta 1.2 is LIVE
-          </span>
-        </motion.h1>
+          {/* Logo */}
+          <div className="mb-8">
+            <img 
+              src="/assets/logo-teacup-drip.svg" 
+              alt="CTea News" 
+              className="h-16 w-16 mx-auto mb-6 logo animate-wiggle"
+            />
+          </div>
 
-        <motion.p
-          className="text-xl md:text-2xl text-white/90 mb-8 font-bold"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          We Don't Report the News. We Stir It. 🫖
-        </motion.p>
-
-        <motion.div
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-        >
-          <Button
-            onClick={() => navigate('/feed')}
-            className="bg-gradient-to-r from-ctea-teal to-green-400 hover:from-green-400 hover:to-ctea-teal text-black font-bold text-xl px-8 py-4 rounded-full shadow-2xl transform hover:scale-105 transition-all duration-300"
-            size="lg"
-          >
-            <Coffee className="w-6 h-6 mr-2" />
-            Spill Tea
-          </Button>
+          {/* Main Tagline */}
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight text-brand-text"
+              style={{ fontFamily: 'Satoshi Variable, sans-serif' }}>
+            <span className="bg-gradient-to-r from-brand-primary to-brand-highlight bg-clip-text text-transparent text-glow">
+              CTea News
+            </span>
+          </h1>
           
-          <Button
-            onClick={() => navigate('/feed')}
-            className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-purple-600 hover:to-pink-500 text-white font-bold text-xl px-8 py-4 rounded-full shadow-2xl transform hover:scale-105 transition-all duration-300"
-            size="lg"
-          >
-            <Zap className="w-6 h-6 mr-2" />
-            Bribe Gatekeepers
-          </Button>
-        </motion.div>
+          <p className="text-2xl md:text-3xl font-bold mb-8 text-brand-secondary"
+              style={{ fontFamily: 'Satoshi Variable, sans-serif' }}>
+            Crypto gossip. Anonymous tips. AI receipts.
+          </p>
 
-        <motion.p
-          className="text-sm text-white/70 mt-6 max-w-2xl mx-auto"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-        >
-          On-chain gossip meets meme warfare. CTea News is where rumors get receipts.
-        </motion.p>
+          {/* Description */}
+          <p className="text-lg md:text-xl text-brand-text/80 max-w-3xl mx-auto mb-12 leading-relaxed">
+            Web3's premier anonymous crypto gossip platform where{' '}
+            <span className="text-brand-primary font-semibold">insiders spill tea</span>,{' '}
+            <span className="text-brand-highlight font-semibold">AI provides receipts</span>, and{' '}
+            <span className="text-brand-secondary font-semibold">degens find alpha</span>.
+          </p>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+            <Button
+              onClick={handleSpillTea}
+              size="lg"
+              className="btn-brand-primary px-8 py-3 text-lg"
+            >
+              Spill Tea
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+            
+            <Button
+              onClick={handleTipToUnlock}
+              size="lg"
+              variant="outline"
+              className="border-brand-highlight text-brand-highlight hover:bg-brand-highlight hover:text-brand-background font-bold px-8 py-3 text-lg transition-all duration-200 hover:scale-105"
+            >
+              Tip to Unlock
+              <Sparkles className="ml-2 h-5 w-5" />
+            </Button>
+            
+            <Button
+              onClick={handleGoVIP}
+              size="lg"
+              className="btn-brand-highlight px-8 py-3 text-lg"
+            >
+              Go VIP
+            </Button>
+          </div>
+
+          {/* Arena Social Link */}
+          <div className="mb-8">
+            <a 
+              href="https://arena.cteanews.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center text-brand-secondary hover:text-brand-primary transition-colors duration-200 hover:scale-105"
+            >
+              <Sparkles className="mr-2 h-5 w-5" />
+              Join the Arena Community
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </a>
+          </div>
+
+          {/* Live Stats */}
+          <div className="flex justify-center gap-8 text-brand-text/70">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-brand-primary">420</div>
+              <div className="text-sm">Active Spillers</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-brand-highlight">1,337</div>
+              <div className="text-sm">Tea Spills</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-brand-secondary">24/7</div>
+              <div className="text-sm">Pure Chaos</div>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

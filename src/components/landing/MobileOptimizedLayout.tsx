@@ -1,6 +1,7 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { ArrowRight, Sparkles } from 'lucide-react';
 
 interface MobileOptimizedLayoutProps {
   children: React.ReactNode;
@@ -8,42 +9,102 @@ interface MobileOptimizedLayoutProps {
 
 const MobileOptimizedLayout: React.FC<MobileOptimizedLayoutProps> = ({ children }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0D0D0D] via-[#4A1A4A] to-[#050505] animate-gradient">
-      {/* Mobile-first responsive container */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Enhanced mobile navigation hint */}
-        <motion.div
-          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 md:hidden"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2 }}
-        >
-          <div className="bg-black/50 backdrop-blur-lg border border-[#00FF9D]/30 rounded-full px-4 py-2">
-            <p className="text-[#00FF9D] text-sm font-cyber">
-              Swipe for the full tea experience ☕
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Main content with mobile optimization */}
-        <div className="space-y-8 sm:space-y-12 lg:space-y-16">
-          {children}
-        </div>
-
-        {/* Mobile-specific floating action hints */}
-        <motion.div
-          className="fixed bottom-4 right-4 z-40 md:hidden"
-          animate={{
-            scale: [1, 1.1, 1],
-            rotate: [0, 5, -5, 0]
-          }}
-          transition={{ duration: 4, repeat: Infinity }}
-        >
-          <div className="w-12 h-12 bg-gradient-to-r from-[#FF1E8B] to-[#00FF9D] rounded-full flex items-center justify-center shadow-lg">
-            <span className="text-2xl">🫖</span>
-          </div>
-        </motion.div>
+    <div className="min-h-screen bg-brand-background">
+      {/* Mobile-specific optimizations */}
+      <div className="block md:hidden">
+        {/* Mobile header adjustments */}
+        <style jsx>{`
+          @media (max-width: 768px) {
+            .mobile-header {
+              padding: 0.75rem 1rem;
+            }
+            .mobile-hero {
+              padding: 2rem 1rem;
+              min-height: 100vh;
+            }
+            .mobile-buttons {
+              flex-direction: column;
+              gap: 1rem;
+              width: 100%;
+            }
+            .mobile-button {
+              width: 100%;
+              padding: 1rem;
+              font-size: 1.125rem;
+            }
+            .mobile-text {
+              font-size: 1.25rem;
+              line-height: 1.4;
+            }
+            .mobile-title {
+              font-size: 2.5rem;
+              line-height: 1.2;
+            }
+            .mobile-subtitle {
+              font-size: 1.5rem;
+              line-height: 1.3;
+            }
+          }
+        `}</style>
       </div>
+
+      {/* Mobile navigation overlay */}
+      <div className="fixed bottom-0 left-0 right-0 bg-brand-background/95 backdrop-blur-lg border-t border-brand-primary/20 p-4 md:hidden z-50">
+        <div className="flex justify-around items-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-brand-text hover:bg-brand-primary/10 flex flex-col items-center"
+          >
+            <span className="text-xs">🏠</span>
+            <span className="text-xs mt-1">Home</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-brand-text hover:bg-brand-primary/10 flex flex-col items-center"
+          >
+            <span className="text-xs">📰</span>
+            <span className="text-xs mt-1">Feed</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-brand-text hover:bg-brand-primary/10 flex flex-col items-center"
+          >
+            <span className="text-xs">💬</span>
+            <span className="text-xs mt-1">Spill</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-brand-text hover:bg-brand-primary/10 flex flex-col items-center"
+          >
+            <span className="text-xs">👤</span>
+            <span className="text-xs mt-1">Profile</span>
+          </Button>
+        </div>
+      </div>
+
+      {/* Main content with mobile padding */}
+      <div className="pb-20 md:pb-0">
+        {children}
+      </div>
+
+      {/* Mobile-specific CTA floating button */}
+      <motion.div
+        className="fixed bottom-20 right-4 md:hidden z-40"
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 1, type: "spring" }}
+      >
+        <Button
+          size="lg"
+          className="bg-brand-primary hover:bg-brand-primary/90 text-brand-background font-bold rounded-full w-14 h-14 p-0 shadow-lg"
+        >
+          <Sparkles className="w-6 h-6" />
+        </Button>
+      </motion.div>
     </div>
   );
 };

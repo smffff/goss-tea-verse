@@ -1,0 +1,59 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#DE1F94;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#F4C542;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DE1F94;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Tea Cup Body -->
+  <rect x="20" y="40" width="80" height="60" rx="8" fill="url(#brandGradient)" filter="url(#glow)"/>
+  
+  <!-- Tea Cup Handle -->
+  <rect x="100" y="50" width="15" height="40" rx="8" fill="url(#brandGradient)" filter="url(#glow)"/>
+  
+  <!-- Tea Liquid -->
+  <rect x="25" y="45" width="70" height="50" rx="4" fill="#3B3A39" opacity="0.8"/>
+  
+  <!-- Steam -->
+  <circle cx="35" cy="35" r="3" fill="#F4C542" opacity="0.7">
+    <animate attributeName="cy" values="35;25;35" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.7;0;0.7" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="60" cy="30" r="4" fill="#DE1F94" opacity="0.8">
+    <animate attributeName="cy" values="30;20;30" dur="2.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.8;0;0.8" dur="2.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="85" cy="35" r="3" fill="#F4C542" opacity="0.6">
+    <animate attributeName="cy" values="35;25;35" dur="1.8s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.6;0;0.6" dur="1.8s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Drip Effect -->
+  <path d="M 60 100 Q 60 105 60 110 Q 60 115 60 120" 
+        stroke="#DE1F94" stroke-width="3" fill="none" opacity="0.8">
+    <animate attributeName="opacity" values="0.8;0.3;0.8" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="d" 
+             values="M 60 100 Q 60 105 60 110 Q 60 115 60 120;M 60 100 Q 60 105 60 110 Q 60 115 60 120;M 60 100 Q 60 105 60 110 Q 60 115 60 120" 
+             dur="3s" repeatCount="indefinite"/>
+  </path>
+  
+  <!-- Drip Drop -->
+  <circle cx="60" cy="120" r="2" fill="#DE1F94" opacity="0.8">
+    <animate attributeName="cy" values="120;125;120" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.8;0;0.8" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- CTea News Text -->
+  <text x="60" y="135" text-anchor="middle" font-family="'Satoshi Variable', sans-serif" font-size="10" font-weight="bold" fill="#1A1A1A">
+    CTea News
+  </text>
+</svg> 

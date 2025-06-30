@@ -1,0 +1,25 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="faviconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#DE1F94;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F4C542;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Tea Cup Body -->
+  <rect x="6" y="12" width="20" height="16" rx="2" fill="url(#faviconGradient)"/>
+  
+  <!-- Tea Cup Handle -->
+  <rect x="26" y="14" width="4" height="10" rx="2" fill="url(#faviconGradient)"/>
+  
+  <!-- Tea Liquid -->
+  <rect x="8" y="14" width="16" height="12" rx="1" fill="#3B3A39" opacity="0.8"/>
+  
+  <!-- Steam -->
+  <circle cx="10" cy="10" r="1" fill="#F4C542" opacity="0.7"/>
+  <circle cx="16" cy="8" r="1.5" fill="#DE1F94" opacity="0.8"/>
+  <circle cx="22" cy="10" r="1" fill="#F4C542" opacity="0.6"/>
+  
+  <!-- Drip -->
+  <circle cx="16" cy="30" r="1" fill="#DE1F94" opacity="0.8"/>
+</svg> 

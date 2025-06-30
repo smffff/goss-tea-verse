@@ -32,11 +32,21 @@ export const tailwindColors = {
     DEFAULT: "hsl(var(--card))",
     foreground: "hsl(var(--card-foreground))",
   },
-  // CTea Brand Colors - Updated to match exact specifications
-  'brand': '#FF4EAF', // Primary Pinkish Red
-  'bg': '#0E0E16', // Dark Background
-  'text': '#F5F5F5', // Text Color
+  // CTea News Brand Colors - Updated to match exact specifications
+  'brand': {
+    background: '#FDF9F3',
+    primary: '#DE1F94',
+    secondary: '#3B3A39',
+    highlight: '#F4C542',
+    text: '#1A1A1A',
+  },
   'ctea': {
+    background: '#FDF9F3',
+    primary: '#DE1F94',
+    secondary: '#3B3A39',
+    highlight: '#F4C542',
+    text: '#1A1A1A',
+    // Legacy colors for backward compatibility
     teal: '#00D8A4',
     purple: '#8b5cf6',
     pink: '#FF4FB3',

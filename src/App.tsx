@@ -1,4 +1,3 @@
-
 import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from 'next-themes';
@@ -15,21 +14,23 @@ const Home = React.lazy(() => import('@/pages/Home'));
 const Feed = React.lazy(() => import('@/pages/Feed'));
 const SpillTea = React.lazy(() => import('@/components/SpillTea'));
 const Landing = React.lazy(() => import('@/pages/Landing'));
+const Submit = React.lazy(() => import('@/pages/Submit'));
+const VIP = React.lazy(() => import('@/pages/VIP'));
 
 // Loading component
 const LoadingSpinner: React.FC = () => (
-  <div className="min-h-screen bg-gradient-to-br from-ctea-darker via-ctea-dark to-black flex items-center justify-center">
+  <div className="min-h-screen bg-brand-background flex items-center justify-center">
     <div className="text-center">
       <div className="text-6xl mb-4 animate-bounce">🫖</div>
-      <div className="text-white text-lg">Loading CTea...</div>
-      <div className="mt-4 w-8 h-8 border-4 border-ctea-teal border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <div className="text-brand-text text-lg">Loading CTea News...</div>
+      <div className="mt-4 w-8 h-8 border-4 border-brand-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
     </div>
   </div>
 );
 
 const App: React.FC = () => {
   useEffect(() => {
-    secureLog.info('CTea App initializing');
+    secureLog.info('CTea News App initializing');
     
     // Set up error tracking
     window.addEventListener('error', (event) => {
@@ -48,7 +49,7 @@ const App: React.FC = () => {
     >
       <ThemeProvider
         attribute="class"
-        defaultTheme="dark"
+        defaultTheme="light"
         enableSystem
         disableTransitionOnChange
       >
@@ -64,9 +65,19 @@ const App: React.FC = () => {
                     </Layout>
                   } />
                   <Route path="/feed" element={<Feed />} />
+                  <Route path="/submit" element={
+                    <Layout>
+                      <SpillTea />
+                    </Layout>
+                  } />
                   <Route path="/spill" element={
                     <Layout>
                       <SpillTea />
+                    </Layout>
+                  } />
+                  <Route path="/vip" element={
+                    <Layout>
+                      <VIP />
                     </Layout>
                   } />
                   <Route path="*" element={<Landing />} />
@@ -77,11 +88,11 @@ const App: React.FC = () => {
                 position="top-right"
                 toastOptions={{
                   style: {
-                    background: 'rgba(17, 24, 39, 0.95)',
-                    border: '1px solid rgba(20, 184, 166, 0.3)',
-                    color: 'white',
+                    background: 'rgba(253, 249, 243, 0.95)',
+                    border: '1px solid rgba(222, 31, 148, 0.3)',
+                    color: '#1A1A1A',
                   },
-                  className: 'bg-ctea-dark/95 border-ctea-teal/30 text-white',
+                  className: 'bg-brand-background/95 border-brand-primary/30 text-brand-text',
                 }}
               />
             </AuthProvider>
