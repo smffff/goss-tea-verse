@@ -1,147 +1,104 @@
-import React, { Suspense, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { ThemeProvider } from '@/components/theme-provider';
-import { Toaster } from 'sonner';
-import { secureLog } from '@/utils/secureLogging';
-import Layout from '@/components/Layout';
-import AppErrorBoundary from '@/components/error/UnifiedErrorBoundary';
-import ErrorRedirectHandler from '@/components/error/ProductionErrorBoundary';
-import AppInitializer from '@/components/AppInitializer';
-import { WalletProvider } from '@/components/WalletProvider';
-import { AuthProvider } from '@/hooks/useAuth';
-import AppProviders from '@/components/app/AppProviders';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './index.css';
 
-// Lazy load pages for better performance
-const Landing = React.lazy(() => import('@/pages/Landing'));
-const Home = React.lazy(() => import('@/pages/Home'));
-const Feed = React.lazy(() => import('@/pages/Feed'));
-const SpillTea = React.lazy(() => import('@/pages/SpillTea'));
-const Submit = React.lazy(() => import('@/pages/Submit'));
-const Auth = React.lazy(() => import('@/pages/Auth'));
-const Admin = React.lazy(() => import('@/pages/Admin'));
-const About = React.lazy(() => import('@/pages/About'));
-const Profile = React.lazy(() => import('@/pages/Profile'));
-const NotFound = React.lazy(() => import('@/pages/NotFound'));
-const Team = React.lazy(() => import('@/pages/Team'));
-const FAQ = React.lazy(() => import('@/pages/FAQ'));
-const Contact = React.lazy(() => import('@/pages/Contact'));
-const Privacy = React.lazy(() => import('@/pages/Privacy'));
-const Terms = React.lazy(() => import('@/pages/Terms'));
-const Settings = React.lazy(() => import('@/pages/Settings'));
-const Leaderboard = React.lazy(() => import('@/pages/Leaderboard'));
-const Tokenomics = React.lazy(() => import('@/pages/Tokenomics'));
-const Roadmap = React.lazy(() => import('@/pages/Roadmap'));
-const GovernancePage = React.lazy(() => import('@/pages/GovernancePage'));
-const Campaigns = React.lazy(() => import('@/pages/Campaigns'));
-const Features = React.lazy(() => import('@/pages/Features'));
-const Trends = React.lazy(() => import('@/pages/Trends'));
-const VIP = React.lazy(() => import('@/pages/VIP'));
-const MemeOps = React.lazy(() => import('@/pages/MemeOps'));
-const TokenPage = React.lazy(() => import('@/pages/TokenPage'));
-const Investors = React.lazy(() => import('@/pages/Investors'));
-
-// Loading component
-const LoadingSpinner: React.FC = () => (
-  <div className="min-h-screen bg-brand-background flex items-center justify-center">
-    <div className="text-center">
-      <div className="text-6xl mb-4 animate-bounce">🫖</div>
-      <div className="text-brand-text text-lg">Loading CTea News...</div>
-      <div className="mt-4 w-8 h-8 border-4 border-brand-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+// Simple pages
+const Landing = () => (
+  <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
+    <div className="container mx-auto px-4 py-8">
+      <div className="text-center">
+        <h1 className="text-6xl font-bold text-white mb-4">🫖 CTea News</h1>
+        <p className="text-xl text-gray-300 mb-8">Crypto Gossip. Anonymous Tips. AI Receipts.</p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <button 
+            onClick={() => window.location.href = '/feed'}
+            className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold"
+          >
+            View Tea Feed
+          </button>
+          <button 
+            onClick={() => window.location.href = '/spill'}
+            className="border border-red-600 text-red-600 hover:bg-red-600 hover:text-white px-8 py-3 rounded-lg font-bold"
+          >
+            Spill Tea
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 );
 
-const App: React.FC = () => {
-  useEffect(() => {
-    secureLog.info('CTea News App initializing');
-    
-    // Set up error tracking
-    const handleError = (event: ErrorEvent) => {
-      secureLog.error('Global error caught:', event.error);
-    };
+const Feed = () => (
+  <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-4xl font-bold text-white mb-8">Tea Feed 🫖</h1>
+      <div className="space-y-4">
+        <div className="bg-slate-800 p-6 rounded-lg">
+          <h3 className="text-xl font-semibold text-white mb-2">Sample Tea #1</h3>
+          <p className="text-gray-300">This is where tea submissions will appear.</p>
+        </div>
+        <div className="bg-slate-800 p-6 rounded-lg">
+          <h3 className="text-xl font-semibold text-white mb-2">Sample Tea #2</h3>
+          <p className="text-gray-300">More gossip and crypto news here.</p>
+        </div>
+      </div>
+      <button 
+        onClick={() => window.location.href = '/'}
+        className="mt-8 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg"
+      >
+        Back to Home
+      </button>
+    </div>
+  </div>
+);
 
-    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      secureLog.error('Unhandled promise rejection:', event.reason);
-    };
+const SpillTea = () => (
+  <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-4xl font-bold text-white mb-8">Spill the Tea ☕</h1>
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-slate-800 p-6 rounded-lg">
+          <p className="text-gray-300 text-center mb-6">
+            Tea spilling form will be implemented here.
+          </p>
+          <button 
+            onClick={() => window.location.href = '/'}
+            className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg"
+          >
+            Back to Home
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
-    // Add event listeners
-    window.addEventListener('error', handleError);
-    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+const NotFound = () => (
+  <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
+    <div className="text-center">
+      <h1 className="text-6xl font-bold text-white mb-4">404</h1>
+      <p className="text-xl text-gray-300 mb-8">Page not found</p>
+      <button 
+        onClick={() => window.location.href = '/'}
+        className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg"
+      >
+        Go Home
+      </button>
+    </div>
+  </div>
+);
 
-    // Cleanup function
-    return () => {
-      window.removeEventListener('error', handleError);
-      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
-    };
-  }, []);
-
+function App() {
   return (
-    <AppProviders>
-      <WalletProvider>
-        <AuthProvider>
-          <AppErrorBoundary>
-            <ThemeProvider
-              defaultTheme="light"
-              storageKey="ctea-ui-theme"
-            >
-              <ErrorRedirectHandler>
-                <AppInitializer>
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <Routes>
-                      {/* Main Routes */}
-                      <Route path="/" element={<Landing />} />
-                      <Route path="/home" element={<Home />} />
-                      <Route path="/feed" element={<Feed />} />
-                      <Route path="/spill" element={<SpillTea />} />
-                      <Route path="/submit" element={<Submit />} />
-                      <Route path="/auth" element={<Auth />} />
-                      <Route path="/admin" element={<Admin />} />
-                      <Route path="/about" element={<About />} />
-                      <Route path="/profile" element={<Profile />} />
-                      <Route path="/settings" element={<Settings />} />
-                      
-                      {/* Content Pages */}
-                      <Route path="/team" element={<Team />} />
-                      <Route path="/faq" element={<FAQ />} />
-                      <Route path="/contact" element={<Contact />} />
-                      <Route path="/privacy" element={<Privacy />} />
-                      <Route path="/terms" element={<Terms />} />
-                      <Route path="/leaderboard" element={<Leaderboard />} />
-                      <Route path="/tokenomics" element={<Tokenomics />} />
-                      <Route path="/roadmap" element={<Roadmap />} />
-                      <Route path="/governance" element={<GovernancePage />} />
-                      <Route path="/campaigns" element={<Campaigns />} />
-                      <Route path="/features" element={<Features />} />
-                      <Route path="/trends" element={<Trends />} />
-                      <Route path="/vip" element={<VIP />} />
-                      <Route path="/memeops" element={<MemeOps />} />
-                      <Route path="/token" element={<TokenPage />} />
-                      <Route path="/investors" element={<Investors />} />
-                      
-                      {/* 404 Route */}
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </Suspense>
-                  
-                  <Toaster
-                    position="top-right"
-                    toastOptions={{
-                      style: {
-                        background: 'rgba(11, 11, 23, 0.95)',
-                        border: '1px solid rgba(255, 32, 82, 0.3)',
-                        color: '#FFFFFF',
-                      },
-                    }}
-                  />
-                </AppInitializer>
-              </ErrorRedirectHandler>
-            </ThemeProvider>
-          </AppErrorBoundary>
-        </AuthProvider>
-      </WalletProvider>
-    </AppProviders>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/feed" element={<Feed />} />
+        <Route path="/spill" element={<SpillTea />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
   );
-};
+}
 
 export default App;
