@@ -3,7 +3,7 @@ import React from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { Coffee, TrendingUp, User } from 'lucide-react';
+import { TrendingUp, User } from 'lucide-react';
 import { useUnifiedAuth } from '@/hooks/useUnifiedAuth';
 
 const Home: React.FC = () => {
@@ -42,7 +42,11 @@ const Home: React.FC = () => {
                 </div>
                 
                 <div className="bg-brand-neutral/50 p-6 rounded-lg border border-brand-primary/20">
-                  <Coffee className="w-8 h-8 text-brand-accent-yellow mx-auto mb-4" />
+                  <img 
+                    src="/lovable-uploads/788113f9-894c-4f0e-bb24-90b5f436f86f.png" 
+                    alt="CTea News Logo" 
+                    className="w-8 h-8 mx-auto mb-4 object-contain"
+                  />
                   <h3 className="text-lg font-bold text-brand-text mb-2">Spill Tea</h3>
                   <p className="text-brand-text-secondary mb-4">
                     Share the latest crypto drama anonymously
@@ -84,7 +88,11 @@ const Home: React.FC = () => {
                     variant="outline"
                     className="border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-brand-background text-lg px-8 py-4"
                   >
-                    <Coffee className="mr-2 w-5 h-5" />
+                    <img 
+                      src="/lovable-uploads/788113f9-894c-4f0e-bb24-90b5f436f86f.png" 
+                      alt="CTea News Logo" 
+                      className="mr-2 w-5 h-5 object-contain"
+                    />
                     Learn More
                   </Button>
                 </Link>
