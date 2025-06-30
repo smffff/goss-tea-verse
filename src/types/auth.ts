@@ -14,6 +14,7 @@ export interface WalletUser {
   wallet_address: string;
   token_balance: number;
   email?: string;
+  username?: string;
   anonymous_token?: string;
   verification_level?: string;
   is_verified?: boolean;

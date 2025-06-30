@@ -22,7 +22,7 @@ export const createAnonymousUser = async (username: string): Promise<AnonymousAu
         verification_level: 'anonymous',
         is_verified: false
       }])
-      .select()
+      .select('id, username, anonymous_token, verification_level, is_verified')
       .single();
 
     if (error) {
