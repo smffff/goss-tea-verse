@@ -1,35 +1,46 @@
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=Impact&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* CTea News Brand Colors */
+/* CTea News Brand Colors - Updated */
 :root {
-  --brand-background: #FDF9F3;
-  --brand-primary: #DE1F94;
-  --brand-secondary: #3B3A39;
-  --brand-highlight: #F4C542;
-  --brand-text: #1A1A1A;
-  --brand-neutral: #F1F1F1;
+  --brand-background: #0B0B17;
+  --brand-primary: #FF2052;
+  --brand-accent-yellow: #FFD93D;
+  --brand-accent-lavender: #A67CFF;
+  --brand-text: #FFFFFF;
+  --brand-text-secondary: #E5E5E5;
+  --brand-neutral: #1A1A2E;
 }
 
 /* Font loading optimization */
 @font-face {
-  font-family: 'Satoshi Variable';
-  src: url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700,800,900&display=swap');
+  font-family: 'Anton';
+  src: url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  src: url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
   font-display: swap;
 }
 
 /* Base styles with brand colors */
 @layer base {
   html {
-    font-family: 'Satoshi Variable', 'Inter', 'Space Grotesk', sans-serif;
+    font-family: 'Manrope', 'Inter', sans-serif;
   }
   
   body {
     background-color: var(--brand-background);
     color: var(--brand-text);
-    font-family: 'Satoshi Variable', 'Inter', 'Space Grotesk', sans-serif;
+    font-family: 'Manrope', 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Anton', sans-serif;
   }
 
   /* Smooth scrolling */
@@ -53,11 +64,11 @@
 /* Component styles */
 @layer components {
   .brand-gradient {
-    background: linear-gradient(135deg, var(--brand-primary), var(--brand-highlight));
+    background: linear-gradient(135deg, var(--brand-primary), var(--brand-accent-lavender));
   }
   
   .brand-text-gradient {
-    background: linear-gradient(135deg, var(--brand-primary), var(--brand-highlight));
+    background: linear-gradient(135deg, var(--brand-primary), var(--brand-accent-yellow));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -68,7 +79,7 @@
   }
 
   .brand-shadow {
-    box-shadow: 0 4px 20px rgba(222, 31, 148, 0.15);
+    box-shadow: 0 4px 20px rgba(255, 32, 82, 0.3);
   }
 
   .brand-hover {
@@ -77,46 +88,70 @@
 
   .brand-hover:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(222, 31, 148, 0.2);
+    box-shadow: 0 8px 25px rgba(255, 32, 82, 0.4);
   }
 
   /* Logo animations */
   .logo {
-    animation: drip 3s ease-in-out infinite;
+    animation: bounce 2s ease-in-out infinite;
   }
 
-  @keyframes drip {
+  @keyframes bounce {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(2px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  /* Teacup spill animation */
+  .logo-spill {
+    animation: spill 3s ease-in-out infinite;
+  }
+
+  @keyframes spill {
+    0%, 100% { 
+      transform: translateY(0) rotate(0deg); 
+      filter: drop-shadow(0 0 0 rgba(255, 32, 82, 0));
+    }
+    25% { 
+      transform: translateY(-5px) rotate(2deg); 
+      filter: drop-shadow(0 0 10px rgba(255, 32, 82, 0.3));
+    }
+    50% { 
+      transform: translateY(-10px) rotate(-1deg); 
+      filter: drop-shadow(0 0 15px rgba(255, 32, 82, 0.5));
+    }
+    75% { 
+      transform: translateY(-5px) rotate(1deg); 
+      filter: drop-shadow(0 0 10px rgba(255, 32, 82, 0.3));
+    }
   }
 
   /* Button hover effects */
   .btn-primary {
-    @apply px-4 py-2 rounded-lg text-white font-bold bg-[#DE1F94] hover:bg-[#F4C542] transition-all shadow-md;
+    @apply px-6 py-3 rounded-lg text-white font-bold bg-[#FF2052] hover:bg-[#FF2052]/90 transition-all shadow-md;
   }
 
   .btn-primary:hover {
     transform: scale(1.05);
-    box-shadow: 0 8px 25px rgba(222, 31, 148, 0.3);
+    box-shadow: 0 8px 25px rgba(255, 32, 82, 0.4);
   }
 
   /* Enhanced button styles */
   .btn-brand-primary {
-    @apply bg-brand-primary hover:bg-brand-primary/90 text-brand-background font-bold transition-all duration-200;
+    @apply bg-[#FF2052] hover:bg-[#FF2052]/90 text-white font-bold transition-all duration-200;
   }
 
   .btn-brand-primary:hover {
     transform: scale(1.02);
-    box-shadow: 0 6px 20px rgba(222, 31, 148, 0.25);
+    box-shadow: 0 6px 20px rgba(255, 32, 82, 0.4);
   }
 
-  .btn-brand-highlight {
-    @apply bg-brand-highlight hover:bg-brand-highlight/90 text-brand-background font-bold transition-all duration-200;
+  .btn-brand-accent {
+    @apply bg-[#FFD93D] hover:bg-[#FFD93D]/90 text-[#0B0B17] font-bold transition-all duration-200;
   }
 
-  .btn-brand-highlight:hover {
+  .btn-brand-accent:hover {
     transform: scale(1.02);
-    box-shadow: 0 6px 20px rgba(244, 197, 66, 0.25);
+    box-shadow: 0 6px 20px rgba(255, 217, 61, 0.4);
   }
 
   /* Card hover effects */
@@ -126,19 +161,38 @@
 
   .card-hover:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(222, 31, 148, 0.15);
+    box-shadow: 0 12px 30px rgba(255, 32, 82, 0.2);
   }
 
   /* Text animations */
   .text-glow {
-    text-shadow: 0 0 10px rgba(222, 31, 148, 0.3);
+    text-shadow: 0 0 10px rgba(255, 32, 82, 0.5);
   }
 
   /* Background patterns */
   .bg-pattern {
     background-image: 
-      radial-gradient(circle at 25% 25%, rgba(222, 31, 148, 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 75% 75%, rgba(244, 197, 66, 0.05) 0%, transparent 50%);
+      radial-gradient(circle at 25% 25%, rgba(255, 32, 82, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(255, 217, 61, 0.1) 0%, transparent 50%);
+  }
+
+  /* Comic-style elements */
+  .comic-border {
+    border: 3px solid var(--brand-primary);
+    border-radius: 8px;
+    box-shadow: 4px 4px 0px var(--brand-accent-yellow);
+  }
+
+  .comic-button {
+    border: 2px solid var(--brand-primary);
+    border-radius: 8px;
+    box-shadow: 3px 3px 0px var(--brand-accent-yellow);
+    transition: all 0.2s ease;
+  }
+
+  .comic-button:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0px var(--brand-accent-yellow);
   }
 }
 
@@ -148,12 +202,12 @@
     color: var(--brand-primary);
   }
   
-  .text-brand-secondary {
-    color: var(--brand-secondary);
+  .text-brand-accent-yellow {
+    color: var(--brand-accent-yellow);
   }
   
-  .text-brand-highlight {
-    color: var(--brand-highlight);
+  .text-brand-accent-lavender {
+    color: var(--brand-accent-lavender);
   }
   
   .text-brand-text {
@@ -168,12 +222,12 @@
     background-color: var(--brand-primary);
   }
   
-  .bg-brand-secondary {
-    background-color: var(--brand-secondary);
+  .bg-brand-accent-yellow {
+    background-color: var(--brand-accent-yellow);
   }
   
-  .bg-brand-highlight {
-    background-color: var(--brand-highlight);
+  .bg-brand-accent-lavender {
+    background-color: var(--brand-accent-lavender);
   }
   
   .bg-brand-neutral {
@@ -184,12 +238,20 @@
     border-color: var(--brand-primary);
   }
   
-  .border-brand-secondary {
-    border-color: var(--brand-secondary);
+  .border-brand-accent-yellow {
+    border-color: var(--brand-accent-yellow);
   }
   
-  .border-brand-highlight {
-    border-color: var(--brand-highlight);
+  .border-brand-accent-lavender {
+    border-color: var(--brand-accent-lavender);
+  }
+
+  .font-anton {
+    font-family: 'Anton', sans-serif;
+  }
+
+  .font-manrope {
+    font-family: 'Manrope', sans-serif;
   }
 }
 
